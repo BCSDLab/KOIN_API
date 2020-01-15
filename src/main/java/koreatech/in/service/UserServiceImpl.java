@@ -9,6 +9,7 @@ import com.amazonaws.services.simpleemail.model.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.domain.*;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
@@ -111,9 +112,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User createUserForAdmin(User user) {
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        user.setIdentity(0);
-
         // 가입되어 있는 계정인지 체크
         User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
 
@@ -166,8 +164,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        user.setIdentity(0);
+        user.setIdentity(selectUser.getIdentity());
 
         // 닉네임 중복 체크
         if (user.getNickname() != null) {
@@ -191,9 +188,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        selectUser.update(user);
-
-        userMapper.updateUser(selectUser);
+        if (selectUser.getIdentity() == 4) {
+            Owner owner = (Owner) selectUser;
+            owner.update(user);
+            userMapper.updateUser(owner);
+            userMapper.updateOwner(owner);
+        }
+        else {
+            selectUser.update(user);
+            userMapper.updateUser(selectUser);
+        }
 
         return user;
     }
@@ -244,7 +248,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return authority;
     }
 
-    // TODO: Mapper에서 계속 에러나는데 나중에 확인해볼것...
     @Override
     public Authority updatePermissionForAdmin(Authority authority, int userId) {
         Authority selectAuthority = authorityMapper.getAuthorityByUserId(userId);
@@ -494,7 +497,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(selectUser);
 
         final String contextPath = host;
-        final String toAccount = user.getPortal_account() + "@koreatech.ac.kr";
+        final String toAccount;
+        switch (selectUser.getIdentity()) {
+            case 4:
+                toAccount = userMapper.getOwnerEmail(selectUser.getId());
+                if (toAccount == null)
+                    throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
+                break;
+            case 0: case 1: case 2: case 3: default:
+                toAccount = user.getPortal_account() + "@koreatech.ac.kr";
+                break;
+        }
 
 //        이전 gmail api 사용한 전송
 //        MimeMessagePreparator preparator = new MimeMessagePreparator() {
@@ -587,16 +600,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String,Object> updateInformation(User user) throws Exception {
+    public Map<String,Object> updateUserInformation(User user) throws Exception {
         User user_old = jwtValidator.validate();
+
+        user.setIdentity(user_old.getIdentity());
 
         // 인증받은 유저인지 체크
         if (!user_old.getIs_authed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
-
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        user.setIdentity(0);
 
         // 닉네임 중복 체크
         if (user.getNickname() != null) {
@@ -623,6 +635,54 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         user_old.update(user);
         userMapper.updateUser(user_old);
+
+        Map<String,Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
+
+        return map;
+    }
+
+    @Override
+    @Transactional
+    public Map<String,Object> updateOwnerInformation(Owner owner) throws Exception {
+        Owner user_old;
+        try {
+            user_old = (Owner) jwtValidator.validate();
+        }
+        catch (ClassCastException e) {
+            throw new ForbiddenException(new ErrorMessage("점주가 아닙니다.", 0));
+        }
+
+        // 인증받은 유저인지 체크
+        if (!user_old.getIs_authed()) {
+            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
+        }
+
+        // 닉네임 중복 체크
+        if (owner.getNickname() != null) {
+            User selectUser = userMapper.getUserByNickName(owner.getNickname());
+            if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+
+        // 학번 유효성 체크
+        if (owner.getStudent_number() != null && !UserCode.isValidatedStudentNumber(owner.getIdentity(), owner.getStudent_number())) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        }
+
+        // 학과 유효성 체크
+        if (owner.getMajor() != null && !UserCode.isValidatedDeptNumber(owner.getMajor())) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+        }
+
+        // TODO: hashing passowrd
+        if (owner.getPassword() != null) {
+            owner.setPassword(passwordEncoder.encode(owner.getPassword()));
+        }
+
+        user_old.update(owner);
+        userMapper.updateUser(user_old);
+        userMapper.updateOwner(user_old);
 
         Map<String,Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
 

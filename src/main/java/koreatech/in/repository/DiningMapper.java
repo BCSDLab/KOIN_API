@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface DiningMapper {
     @Select("SELECT * FROM koin.dining_menus WHERE date=#{date}")
-    List<DiningMenu> getList(@Param("date") Date date);
+    List<DiningMenu> getList(@Param("date") String date);
 }

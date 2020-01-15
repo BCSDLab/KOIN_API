@@ -262,6 +262,8 @@ public class CommunityServiceImpl implements CommunityService {
 
         article_old.update(article);
         communityMapper.updateArticle(article_old);
+        searchUtil.updateArticle(article_old);
+
         return article_old;
     }
 
@@ -273,6 +275,7 @@ public class CommunityServiceImpl implements CommunityService {
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
         communityMapper.deleteArticleForAdmin(id);
+        searchUtil.updateArticle(article);
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -478,11 +481,10 @@ public class CommunityServiceImpl implements CommunityService {
         article.setIp(ip);
 
         communityMapper.createArticle(article);
+        searchUtil.createArticle(article);
 
         board.setArticle_count(board.getArticle_count() + 1);
         communityMapper.updateBoard(board);
-
-        searchUtil.createArticle(article);
 
         NotiSlack slack_message = new NotiSlack();
         String name = user.getNickname();
@@ -567,7 +569,6 @@ public class CommunityServiceImpl implements CommunityService {
 
         article_old.update(article);
         communityMapper.updateArticle(article_old);
-
         searchUtil.updateArticle(article_old);
 
         return article_old;

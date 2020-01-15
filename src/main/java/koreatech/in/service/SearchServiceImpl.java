@@ -28,7 +28,7 @@ public class SearchServiceImpl implements SearchService {
 
     public Map<String, Object> searchShop(SearchCriteria searchCriteria) throws Exception {
         if (searchCriteria.getQuery().isEmpty())
-            throw new PreconditionFailedException(new ErrorMessage("cannot search by blank", 0));
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
 
         Map<String, Object> map = new HashMap<>();
         double totalCount, countByLimit, totalPage;
@@ -82,7 +82,7 @@ public class SearchServiceImpl implements SearchService {
 
     public Map<String, Object> searchCommunity(SearchCriteria searchCriteria) throws Exception {
         if (searchCriteria.getQuery().isEmpty())
-            throw new PreconditionFailedException(new ErrorMessage("cannot search by blank", 0));
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
 
         Map<String, Object> map = new HashMap<>();
         double totalCount, countByLimit, totalPage;

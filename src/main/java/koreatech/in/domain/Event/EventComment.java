@@ -1,4 +1,4 @@
-package koreatech.in.domain.Community;
+package koreatech.in.domain.Event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,12 +8,12 @@ import koreatech.in.domain.User.User;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class Comment {
+public class EventComment {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
     @ApiModelProperty(notes = "게시글 고유 id", example = "10")
     private Integer article_id;
-    @NotNull(groups = { ValidationGroups.Create.class, ValidationGroups.CreateAdmin.class }, message = "댓글 내용은 비워둘 수 없습니다.")
+    @NotNull(groups = {ValidationGroups.Create.class, ValidationGroups.CreateAdmin.class}, message = "댓글 내용은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "내용", example = "답글입니다")
     private String content;
     @ApiModelProperty(notes = "답글 유저의 고유 id", example = "10")
@@ -81,22 +81,6 @@ public class Comment {
         this.is_deleted = is_deleted;
     }
 
-    public Boolean getGrantEdit() {
-        return grantEdit;
-    }
-
-    public void setGrantEdit(Boolean grantEdit) {
-        this.grantEdit = grantEdit;
-    }
-
-    public Boolean getGrantDelete() {
-        return grantDelete;
-    }
-
-    public void setGrantDelete(Boolean grantDelete) {
-        this.grantDelete = grantDelete;
-    }
-
     public Date getCreated_at() {
         return created_at;
     }
@@ -113,36 +97,48 @@ public class Comment {
         this.updated_at = updated_at;
     }
 
+    public Boolean getGrantEdit() {
+        return grantEdit;
+    }
+
+    public void setGrantEdit(Boolean grantEdit) {
+        this.grantEdit = grantEdit;
+    }
+
+    public Boolean getGrantDelete() {
+        return grantDelete;
+    }
+
+    public void setGrantDelete(Boolean grantDelete) {
+        this.grantDelete = grantDelete;
+    }
+
     public Boolean hasGrantDelete(User user) {
         if (user == null) return false;
-        if ((user.getAuthority() != null) && user.getAuthority().getGrant_community()) return true;
+        if ((user.getAuthority() != null) && user.getAuthority().getGrant_event()) return true;
         return (this.getUser_id().equals(user.getId()));
     }
 
-    public Boolean hasGrantUpdate(User user) { return this.hasGrantDelete(user); }
+    public Boolean hasGrantUpdate(User user) {
+        return this.hasGrantDelete(user);
+    }
     //TODO: is_deleted가 true 일 때 스코프 처리
 
-    public void update(Comment comment) {
-        if(comment.article_id != null) {
-            this.article_id = comment.article_id;
+    public void update(EventComment eventComment) {
+        if (eventComment.article_id != null) {
+            this.article_id = eventComment.article_id;
         }
-        if(comment.content != null) {
-            this.content = comment.content;
+        if (eventComment.content != null) {
+            this.content = eventComment.content;
         }
-        if(comment.user_id != null) {
-            this.user_id = comment.user_id;
+        if (eventComment.user_id != null) {
+            this.user_id = eventComment.user_id;
         }
-        if(comment.nickname != null) {
-            this.nickname = comment.nickname;
+        if (eventComment.nickname != null) {
+            this.nickname = eventComment.nickname;
         }
-        if(comment.is_deleted != null) {
-            this.is_deleted = comment.is_deleted;
-        }
-        if(comment.grantEdit != null) {
-            this.grantEdit = comment.grantEdit;
-        }
-        if(comment.grantDelete != null) {
-            this.grantDelete = comment.grantDelete;
+        if (eventComment.is_deleted != null) {
+            this.is_deleted = eventComment.is_deleted;
         }
     }
 }

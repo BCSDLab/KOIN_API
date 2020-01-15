@@ -1,5 +1,6 @@
 package koreatech.in.repository;
 
+import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
@@ -7,6 +8,7 @@ import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository("shopMapper")
 public interface ShopMapper {
@@ -24,6 +26,9 @@ public interface ShopMapper {
 
     @Select("SELECT * FROM koin.shops WHERE ID=#{id}")
     Shop getShopForAdmin(@Param("id") int id);
+
+    @Select("SELECT id, shop_id, title, event_title, content, user_id, nickname, start_date, end_date FROM koin.event_articles WHERE SHOP_ID=#{id} AND date(now()) BETWEEN date(START_DATE) AND date(END_DATE) AND IS_DELETED = 0")
+    List<EventArticle> getPendingEventByShopId(@Param("id") int id);
 
     @Select("SELECT * FROM koin.shop_menus WHERE SHOP_ID=#{shop_id} AND IS_DELETED = 0")
     List<Menu> getMenus(@Param("shop_id") int shop_id);

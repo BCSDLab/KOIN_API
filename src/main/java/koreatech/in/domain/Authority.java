@@ -27,6 +27,7 @@ public class Authority {
     private Boolean grant_lost;
     private Boolean grant_survey;
     private Boolean grant_bcsdlab;
+    private Boolean grant_event;
 
     public Integer getId() {
         return id;
@@ -152,6 +153,14 @@ public class Authority {
 
     public void setGrant_bcsdlab(Boolean grant_bcsdlab) { this.grant_bcsdlab = grant_bcsdlab; }
 
+    public Boolean getGrant_event() {
+        return grant_event;
+    }
+
+    public void setGrant_event(Boolean grant_event) {
+        this.grant_event = grant_event;
+    }
+
     @Override
     public String toString() {
         return "Authority{" +
@@ -171,6 +180,7 @@ public class Authority {
                 ", grant_lost=" + grant_lost +
                 ", grant_survey=" + grant_survey +
                 ", grant_bcsdlab=" + grant_bcsdlab +
+                ", grant_event=" + grant_event +
                 '}';
     }
 
@@ -207,6 +217,9 @@ public class Authority {
         }
         if (this.grant_bcsdlab == null) {
             this.grant_bcsdlab = false;
+        }
+        if (this.grant_event == null) {
+            this.grant_event = false;
         }
         if (this.is_deleted == null) {
             this.is_deleted = false;
@@ -246,6 +259,9 @@ public class Authority {
         }
         if (authority.getGrant_bcsdlab() != null) {
             this.grant_bcsdlab = authority.getGrant_bcsdlab();
+        }
+        if (authority.getGrant_event() != null) {
+            this.grant_event = authority.getGrant_event();
         }
     }
 }

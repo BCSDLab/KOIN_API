@@ -12,7 +12,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-// TODO: 추후 aop로 적용할 것
 @Service
 public class JwtValidator {
     @Autowired
@@ -41,10 +40,19 @@ public class JwtValidator {
 
         int userId = jwtTokenGenerator.me(authToken);
 
-        User user = userMapper.getUser(userId);
+        User user;
+        Integer identity = userMapper.getUserIdentity(userId);
+        if (identity == null) return null;
+        switch (identity) {
+            case 4:
+                user = userMapper.getOwner(userId);
+                break;
+            case 0: case 1: case 2: case 3: default:
+                user = userMapper.getUser(userId);
+                break;
+        }
 
-        if (user == null)
-            return null;
+        if (user == null) return null;
 
         Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
 

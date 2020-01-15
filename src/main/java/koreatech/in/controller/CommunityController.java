@@ -12,6 +12,8 @@ import koreatech.in.domain.Community.Board;
 import koreatech.in.domain.Community.Comment;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Criteria.SearchCriteria;
+import koreatech.in.domain.ErrorMessage;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.service.CommunityService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -146,6 +148,8 @@ public class CommunityController {
     @RequestMapping(value = "/articles/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditArticle(@ApiParam(value = "(required: article_id)", required = true) @RequestBody Map<String, Integer> article_id) throws Exception {
+        if (article_id == null || !article_id.containsKey("article_id"))
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 데이터입니다.", 0));
 
         return new ResponseEntity<Map<String, Boolean>>(communityService.checkGrantEditArticle(article_id.get("article_id")), HttpStatus.OK);
     }

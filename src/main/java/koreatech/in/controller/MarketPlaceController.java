@@ -6,8 +6,10 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.MarketPlace.Item;
 import koreatech.in.domain.MarketPlace.ItemComment;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.service.MarketPlaceService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -128,6 +130,8 @@ public class MarketPlaceController {
     @RequestMapping(value = "/market/items/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditItem(@ApiParam(required = true) @RequestBody Map<String, Integer> item_id) throws Exception {
+        if (item_id == null || !item_id.containsKey("article_id"))
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 데이터입니다.", 0));
 
         return new ResponseEntity<Map<String, Boolean>>(marketPlaceService.checkGrantEditItem(item_id.get("item_id")), HttpStatus.OK);
     }
