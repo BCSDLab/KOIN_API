@@ -1,0 +1,19 @@
+# IntelliJ
+.idea/
+projectName.iml
+/*.classpath
+/.classpath
+/.springBeans
+*.DS_Store
+*.iml
+/build
+/local.properties
+target/
+out/
+
+# properties file
+src/main/resources/config/config.properties
+flyway.properties
+
+classes/*
+lib/*

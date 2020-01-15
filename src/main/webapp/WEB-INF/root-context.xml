@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:component-scan base-package="koreatech.in.service" />
+    <context:component-scan base-package="koreatech.in.repository" />
+    <context:component-scan base-package="koreatech.in.aop" />
+    <context:component-scan base-package="koreatech.in.util" />
+    <!-- Enable @AspectJ annotation support  -->
+    <aop:aspectj-autoproxy />
+
+    <mvc:resources location="/WEB-INF/resources/" mapping="/resources/**" />
+    <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+    <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
+</beans>
