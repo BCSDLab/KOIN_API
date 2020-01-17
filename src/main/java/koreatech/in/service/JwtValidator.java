@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserCode;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
@@ -43,13 +44,10 @@ public class JwtValidator {
         User user;
         Integer identity = userMapper.getUserIdentity(userId);
         if (identity == null) return null;
-        switch (identity) {
-            case 4:
-                user = userMapper.getOwner(userId);
-                break;
-            case 0: case 1: case 2: case 3: default:
-                user = userMapper.getUser(userId);
-                break;
+        if (identity == UserCode.UserIdentity.OWNER.getIdentityType())
+            user = userMapper.getOwner(userId);
+        else {
+            user = userMapper.getUser(userId);
         }
 
         if (user == null) return null;

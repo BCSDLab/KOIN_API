@@ -32,7 +32,7 @@ public class User implements UserDetails {
     @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부", example = "컴퓨터공학부")
     protected String major;
     @NotNull(groups = {ValidationGroups.CreateAdmin.class}, message = "신원은 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원, 4: 점주)", example = "0")
+    @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원, 4: 졸업생, 5: 점주)", example = "0")
     protected Integer identity;
     @ApiModelProperty(notes = "졸업 여부", example = "false")
     protected Boolean is_graduated;
