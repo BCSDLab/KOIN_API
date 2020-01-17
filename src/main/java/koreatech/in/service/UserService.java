@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 
 import java.util.Map;
@@ -45,7 +46,9 @@ public interface UserService {
 
     User me() throws Exception;
 
-    Map<String,Object> updateInformation(User user) throws Exception;
+    Map<String,Object> updateUserInformation(User user) throws Exception;
+
+    Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 
     Map<String, Object> checkUserNickName(String nickname) throws Exception;
 

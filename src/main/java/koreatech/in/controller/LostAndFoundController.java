@@ -6,8 +6,10 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.LostAndFound.LostItemComment;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.UserMapper;
 import koreatech.in.service.LostAndFoundService;
 import koreatech.in.util.StringXssChecker;
@@ -131,6 +133,8 @@ public class LostAndFoundController {
     @RequestMapping(value = "/lost/lostItems/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditItem(@ApiParam(required = true) @RequestBody Map<String, Integer> lostItem_id) throws Exception {
+        if (lostItem_id == null || !lostItem_id.containsKey("article_id"))
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 데이터입니다.", 0));
 
         return new ResponseEntity<Map<String, Boolean>>(lostAndFoundService.checkGrantEditLostItem(lostItem_id.get("lostItem_id")), HttpStatus.OK);
     }

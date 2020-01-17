@@ -37,7 +37,8 @@ public class SearchEnum {
         ANONYMOUS("익명게시판"),
         QUESTION("질문게시판"),
         LOST("분실물"),
-        MARKET("중고장터")
+        MARKET("중고장터"),
+        EVENT("홍보게시판")
         ;
 
         private String typeText;

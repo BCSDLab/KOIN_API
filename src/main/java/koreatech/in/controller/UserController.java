@@ -6,6 +6,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
+import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
@@ -63,12 +64,23 @@ public class UserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) User user, BindingResult bindingResult) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+    ResponseEntity updateUserInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) User user, BindingResult bindingResult) throws Exception {
 
         User clear = new User();
 
-        return new ResponseEntity<Map<String,Object>>(userService.updateInformation((User)StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateUserInformation((User) StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
+    }
+
+    @ParamValid
+    @Auth(role = Auth.Role.OWNER)
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/user/owner/me", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity updateOwnerInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number, email)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) Owner owner, BindingResult bindingResult) throws Exception {
+
+        Owner clear = new Owner();
+
+        return new ResponseEntity<>(userService.updateOwnerInformation((Owner) StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -81,7 +93,6 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity checkUserNickName(@PathVariable(value = "nickname") String nickname) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
 
         return new ResponseEntity<Map<String, Object>>(userService.checkUserNickName(nickname), HttpStatus.OK);
     }
@@ -103,7 +114,6 @@ public class UserController {
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<String, Object>();
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/

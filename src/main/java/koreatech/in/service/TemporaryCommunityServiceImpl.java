@@ -119,6 +119,8 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
 
         article_old.update(article);
         temporaryCommunityMapper.updateArticle(article_old);
+        searchUtil.updateArticle(article_old);
+
         return article_old;
     }
 
@@ -135,6 +137,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         article.setIs_deleted(true);
 
         temporaryCommunityMapper.updateArticle(article);
+        searchUtil.updateArticle(article);
 
         return new HashMap<String, Object>() {{
             put("success", true);

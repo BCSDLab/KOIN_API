@@ -82,8 +82,8 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         }
 
         marketPlaceMapper.createItemForAdmin(item);
-
         searchUtil.createArticle(item);
+
         return item;
     }
 
@@ -162,6 +162,8 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         item_old.update(item);
         marketPlaceMapper.updateItem(item_old);
+        searchUtil.updateArticle(item_old);
+
         return item_old;
     }
 
@@ -175,6 +177,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
 
         marketPlaceMapper.deleteItemForAdmin(id);
+        searchUtil.updateArticle(item);
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -357,7 +360,6 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         item.setIp(ip);
 
         marketPlaceMapper.createItem(item);
-
         searchUtil.createArticle(item);
 
         NotiSlack slack_message = new NotiSlack();
@@ -395,6 +397,8 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         item_old.update(item);
         marketPlaceMapper.updateItem(item_old);
+        searchUtil.updateArticle(item_old);
+
         return item_old;
     }
 
@@ -413,6 +417,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         item.setIs_deleted(true);
 
         marketPlaceMapper.updateItem(item);
+        searchUtil.updateArticle(item);
 
         return new HashMap<String, Object>() {{
             put("success", true);

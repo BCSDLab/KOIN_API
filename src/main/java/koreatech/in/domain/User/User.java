@@ -13,51 +13,52 @@ import java.util.Date;
 
 public class User implements UserDetails {
     @ApiModelProperty(notes = "고유 id", example = "10")
-    private Integer id;
-    @NotNull(groups = { ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class }, message = "아이디는 비워둘 수 없습니다.")
+    protected Integer id;
+    @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "아이디는 비워둘 수 없습니다.")
     @Pattern(regexp = "^[a-z_0-9]{1,12}$", message = "아이디 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "학교 계정 아이디", example = "jjw266")
-    private String portal_account;
-    @NotNull(groups = { ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class }, message = "비밀번호는 비워둘 수 없습니다.")
+    protected String portal_account;
+    @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "비밀번호는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
-    private String password;
+    protected String password;
     @ApiModelProperty(notes = "닉네임", example = "bbo")
-    private String nickname;
+    protected String nickname;
     @ApiModelProperty(notes = "익명 닉네임", example = "익명_1522771686642")
-    private String anonymous_nickname;
+    protected String anonymous_nickname;
     @ApiModelProperty(notes = "이름", example = "정혁")
-    private String name;
+    protected String name;
     @ApiModelProperty(notes = "학번", example = "2013136000")
-    private String student_number;
+    protected String student_number;
     @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부", example = "컴퓨터공학부")
-    private String major;
-    @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원)", example = "0")
-    private Integer identity;
+    protected String major;
+    @NotNull(groups = {ValidationGroups.CreateAdmin.class}, message = "신원은 비워둘 수 없습니다.")
+    @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원, 4: 졸업생, 5: 점주)", example = "0")
+    protected Integer identity;
     @ApiModelProperty(notes = "졸업 여부", example = "false")
-    private Boolean is_graduated;
+    protected Boolean is_graduated;
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "휴대폰 번호", example = "010-0000-0000")
-    private String phone_number;
+    protected String phone_number;
     @ApiModelProperty(notes = "성별(남:0, 여:1)", example = "0")
-    private Integer gender;
+    protected Integer gender;
     @ApiModelProperty(hidden = true)
-    private Boolean is_authed;
+    protected Boolean is_authed;
     @ApiModelProperty(hidden = true)
-    private String auth_token;
+    protected String auth_token;
     @ApiModelProperty(hidden = true)
-    private Date auth_expired_at;
+    protected Date auth_expired_at;
     @ApiModelProperty(hidden = true)
-    private String reset_token;
+    protected String reset_token;
     @ApiModelProperty(hidden = true)
-    private Date reset_expired_at;
+    protected Date reset_expired_at;
     @ApiModelProperty(hidden = true)
-    private String last_logged_at;
+    protected String last_logged_at;
     @ApiModelProperty(hidden = true)
-    private String remember_token;
+    protected String remember_token;
     @ApiModelProperty(notes = "프로필 이미지 링크", example = "https://static.koreatech.in/upload/~~")
-    private String profile_image_url;
+    protected String profile_image_url;
     @ApiModelProperty(hidden = true)
-    private Authority authority;
+    protected Authority authority;
 
     public Authority getAuthority() {
         return authority;
@@ -92,6 +93,10 @@ public class User implements UserDetails {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String getUsername() {
         return portal_account;
@@ -115,10 +120,6 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getNickname() {
@@ -285,58 +286,58 @@ public class User implements UserDetails {
     }
 
     public void update(User user) {
-        if(user.portal_account != null) {
+        if (user.portal_account != null) {
             this.portal_account = user.portal_account;
         }
-        if(user.password != null) {
+        if (user.password != null) {
             this.password = user.password;
         }
-        if(user.nickname != null) {
+        if (user.nickname != null) {
             this.nickname = user.nickname;
         }
-        if(user.anonymous_nickname != null) {
+        if (user.anonymous_nickname != null) {
             this.anonymous_nickname = user.anonymous_nickname;
         }
-        if(user.name != null) {
+        if (user.name != null) {
             this.name = user.name;
         }
-        if(user.student_number != null) {
+        if (user.student_number != null) {
             this.student_number = user.student_number;
         }
-        if(user.major != null) {
+        if (user.major != null) {
             this.major = user.major;
         }
-        if(user.identity != null) {
+        if (user.identity != null) {
             this.identity = user.identity;
         }
-        if(user.is_graduated != null) {
+        if (user.is_graduated != null) {
             this.is_graduated = user.is_graduated;
         }
-        if(user.phone_number != null) {
+        if (user.phone_number != null) {
             this.phone_number = user.phone_number;
         }
-        if(user.gender != null) {
+        if (user.gender != null) {
             this.gender = user.gender;
         }
-        if(user.is_authed != null) {
+        if (user.is_authed != null) {
             this.is_authed = user.is_authed;
         }
-        if(user.profile_image_url != null) {
+        if (user.profile_image_url != null) {
             this.profile_image_url = user.profile_image_url;
         }
-        if(user.auth_token != null) {
+        if (user.auth_token != null) {
             this.auth_token = user.auth_token;
         }
-        if(user.auth_expired_at != null) {
+        if (user.auth_expired_at != null) {
             this.auth_expired_at = user.auth_expired_at;
         }
-        if(user.reset_token != null) {
+        if (user.reset_token != null) {
             this.reset_token = user.reset_token;
         }
-        if(user.reset_expired_at != null) {
+        if (user.reset_expired_at != null) {
             this.reset_expired_at = user.reset_expired_at;
         }
-        if(user.last_logged_at != null) {
+        if (user.last_logged_at != null) {
             this.last_logged_at = user.last_logged_at;
         }
     }

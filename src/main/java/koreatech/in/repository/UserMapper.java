@@ -1,6 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.Authority;
+import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -26,9 +27,21 @@ public interface UserMapper {
     @Select("SELECT * FROM koin.users WHERE ID = #{id}")
     User getUser(@Param("id") int id);
 
+    @Select("SELECT IDENTITY FROM koin.users WHERE ID = #{id}")
+    Integer getUserIdentity(@Param("id") int id);
+
+    @Select("SELECT * FROM koin.users AS user LEFT JOIN koin.users_owners AS owner ON owner.user_id = user.id WHERE user.id = #{id}")
+    Owner getOwner(@Param("id") int id);
+
+    @Select("SELECT EMAIL FROM koin.users_owners WHERE USER_ID = #{id}")
+    String getOwnerEmail(@Param("id") int id);
+
     @Update("UPDATE koin.users SET PORTAL_ACCOUNT = #{portal_account}, PASSWORD = #{password}, NAME = #{name}, NICKNAME = #{nickname}, GENDER = #{gender}, IDENTITY = #{identity}, IS_GRADUATED = #{is_graduated}, MAJOR = #{major}, " +
             "STUDENT_NUMBER = #{student_number}, PHONE_NUMBER = #{phone_number}, ANONYMOUS_NICKNAME = #{anonymous_nickname}, AUTH_TOKEN = #{auth_token}, AUTH_EXPIRED_AT = #{auth_expired_at}, IS_AUTHED = #{is_authed}, RESET_TOKEN = #{reset_token}, RESET_EXPIRED_AT = #{reset_expired_at}, PROFILE_IMAGE_URL = #{profile_image_url} WHERE ID = #{id}")
     void updateUser(User user);
+
+    @Update("UPDATE koin.users_owners AS owner SET owner.email = #{email} WHERE owner.user_id = #{id}")
+    void updateOwner(Owner owner);
 
     @Select("SELECT COUNT(*) AS totalCount FROM koin.users")
     Integer totalCount();

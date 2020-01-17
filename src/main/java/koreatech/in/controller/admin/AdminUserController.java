@@ -45,7 +45,7 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createUser(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) User user, BindingResult bindingResult) throws Exception {
+    ResponseEntity createUser(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) User user, BindingResult bindingResult) throws Exception {
         return new ResponseEntity<User>(userService.createUserForAdmin(user), HttpStatus.CREATED);
     }
 

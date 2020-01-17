@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserCode;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
@@ -12,7 +13,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-// TODO: 추후 aop로 적용할 것
 @Service
 public class JwtValidator {
     @Autowired
@@ -41,10 +41,16 @@ public class JwtValidator {
 
         int userId = jwtTokenGenerator.me(authToken);
 
-        User user = userMapper.getUser(userId);
+        User user;
+        Integer identity = userMapper.getUserIdentity(userId);
+        if (identity == null) return null;
+        if (identity == UserCode.UserIdentity.OWNER.getIdentityType())
+            user = userMapper.getOwner(userId);
+        else {
+            user = userMapper.getUser(userId);
+        }
 
-        if (user == null)
-            return null;
+        if (user == null) return null;
 
         Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
 

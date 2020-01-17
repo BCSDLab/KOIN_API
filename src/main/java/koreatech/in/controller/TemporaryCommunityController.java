@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiParam;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.TemporaryCommunity.TempArticle;
 import koreatech.in.domain.TemporaryCommunity.TempComment;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.service.TemporaryCommunityService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -105,6 +107,9 @@ public class TemporaryCommunityController {
     @RequestMapping(value = "/temp/articles/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditArticle(@ApiParam(value = "(required: article_id, password)", required = true) @RequestBody Map<String, Object> param) throws Exception {
+        if (param == null || !param.containsKey("article_id") || !param.containsKey("password"))
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 데이터입니다.", 0));
+
         Integer article_id = Integer.parseInt(param.get("article_id").toString());
         String password = param.get("password").toString();
 
@@ -114,6 +119,9 @@ public class TemporaryCommunityController {
     @RequestMapping(value = "/temp/comments/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditComment(@ApiParam(value = "(required: comment_id, password)", required = true) @RequestBody Map<String, Object> param) throws Exception {
+        if (param == null || !param.containsKey("comment_id") || !param.containsKey("password"))
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 데이터입니다.", 0));
+
         Integer comment_id = Integer.parseInt(param.get("comment_id").toString());
         String password = param.get("password").toString();
 

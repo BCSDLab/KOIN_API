@@ -53,7 +53,7 @@ public class LostItem {
     @ApiModelProperty(notes = "전체 댓글 수", example = "3")
     private Integer comment_count;
     @Pattern(regexp = "^[0-9]{4}-[0-9]{2}-[0-9]{2}", message = "날짜 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "분실 물품 날짜", example = "3")
+    @ApiModelProperty(notes = "분실 물품 날짜", example = "20191012")
     private String date;
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")

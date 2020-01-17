@@ -3,6 +3,7 @@ package koreatech.in.util;
 import koreatech.in.domain.Community.Article;
 import koreatech.in.domain.Community.Comment;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.MarketPlace.Item;
 import koreatech.in.domain.Search.SearchArticles;
@@ -50,7 +51,6 @@ public class SearchUtil {
     private SearchArticles articleToSearchArticles(TempArticle tempArticle) {
         Document document;
         String content = tempArticle.getContent();
-        System.out.println(content);
         try {
             document = Jsoup.parse(content);
             Element element = document.body();
@@ -119,6 +119,30 @@ public class SearchUtil {
         return searchArticles;
     }
 
+    private SearchArticles articleToSearchArticles(EventArticle eventArticle) {
+        Document document;
+        String content = eventArticle.getContent();
+        try {
+            document = Jsoup.parse(content);
+            Element element = document.body();
+            content = element.text();
+        }
+        catch (IllegalArgumentException e) {
+            // TODO: 추후 로깅하기
+        }
+
+        SearchArticles searchArticles = new SearchArticles();
+        searchArticles.setTable_id(SearchEnum.ServiceType.EVENT.ordinal());
+        searchArticles.setArticle_id(eventArticle.getId());
+        searchArticles.setContent(content);
+        searchArticles.setNickname(eventArticle.getNickname());
+        searchArticles.setTitle(eventArticle.getTitle());
+        searchArticles.setUser_id(eventArticle.getUser_id());
+        searchArticles.setIs_deleted(eventArticle.getIs_deleted() == null ? false : eventArticle.getIs_deleted());
+
+        return searchArticles;
+    }
+
     public void createArticle(Article article) {
         searchMapper.createSearchArticles(articleToSearchArticles(article));
     }
@@ -135,28 +159,42 @@ public class SearchUtil {
         searchMapper.createSearchArticles(articleToSearchArticles(item));
     }
 
+    public void createArticle(EventArticle eventArticle) {
+        searchMapper.createSearchArticles(articleToSearchArticles(eventArticle));
+    }
+
     public void updateArticle(Article article) {
         SearchArticles searchArticles = searchMapper.findArticlesByTableIdAndArticleId(SearchEnum.articleBoard.get(article.getBoard_id()), article.getId());
+        if (searchArticles == null) return;
         searchArticles.update(articleToSearchArticles(article));
         searchMapper.updateSearchArticles(searchArticles);
     }
 
     public void updateArticle(TempArticle tempArticle) {
         SearchArticles searchArticles = searchMapper.findArticlesByTableIdAndArticleId(SearchEnum.ServiceType.ANONYMOUS.ordinal(), tempArticle.getId());
+        if (searchArticles == null) return;
         searchArticles.update(articleToSearchArticles(tempArticle));
         searchMapper.updateSearchArticles(searchArticles);
     }
 
     public void updateArticle(LostItem lostItem) {
         SearchArticles searchArticles = searchMapper.findArticlesByTableIdAndArticleId(SearchEnum.ServiceType.LOST.ordinal(), lostItem.getId());
+        if (searchArticles == null) return;
         searchArticles.update(articleToSearchArticles(lostItem));
         searchMapper.updateSearchArticles(searchArticles);
     }
 
     public void updateArticle(Item item) {
         SearchArticles searchArticles = searchMapper.findArticlesByTableIdAndArticleId(SearchEnum.ServiceType.MARKET.ordinal(), item.getId());
+        if (searchArticles == null) return;
         searchArticles.update(articleToSearchArticles(item));
         searchMapper.updateSearchArticles(searchArticles);
     }
 
+    public void updateArticle(EventArticle eventArticle) {
+        SearchArticles searchArticles = searchMapper.findArticlesByTableIdAndArticleId(SearchEnum.ServiceType.EVENT.ordinal(), eventArticle.getId());
+        if (searchArticles == null) return;
+        searchArticles.update(articleToSearchArticles(eventArticle));
+        searchMapper.updateSearchArticles(searchArticles);
+    }
 }

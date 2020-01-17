@@ -20,13 +20,10 @@ import java.util.Map;
 public class DiningController {
     @Inject
     private DiningService diningService;
-
-    // TODO: menu 부분 TEXT 타입에서 배열로 파싱 필요
+    
     @RequestMapping(value = "/dinings", method = RequestMethod.GET)
     public ResponseEntity getDinings(@ApiParam(required = false) @RequestParam(value = "date", required = false) String date) throws Exception {
-        if(date == null) {
-            date = new SimpleDateFormat("yy-MM-dd").format(new Date());
-        }
-        return new ResponseEntity<List<Map<String, Object>>>(diningService.getDinings(date), HttpStatus.OK);
+
+        return new ResponseEntity<>(diningService.getDinings(date), HttpStatus.OK);
     }
 }

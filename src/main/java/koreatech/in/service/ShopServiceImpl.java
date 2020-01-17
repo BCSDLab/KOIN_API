@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
@@ -289,7 +290,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public Map<String, Object> getShops() throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         List<Shop> shops = shopMapper.getShopList();
         List<Map<String, Object>> shopsMapList = new ArrayList<>();
 
@@ -301,6 +302,8 @@ public class ShopServiceImpl implements ShopService {
             if (shopMap.get("image_urls") != null) {
                 shopMap.replace("image_urls", con.arrayStringParse(shopMap.get("image_urls").toString()));
             }
+            List<EventArticle> eventArticles = shopMapper.getPendingEventByShopId(shop.getId());
+            shopMap.put("event_articles", eventArticles);
             shopsMapList.add(shopMap);
         }
 
@@ -314,6 +317,7 @@ public class ShopServiceImpl implements ShopService {
         //TODO: 초성으로 검색하는 whereInternalName 차후 구현 필요
         Map<String, Object> map;
         List<Menu> menus;
+        List<EventArticle> eventArticles;
         Shop shop;
 
         if (id.matches("^[1-9][0-9]*$")) {
@@ -325,6 +329,7 @@ public class ShopServiceImpl implements ShopService {
             }
             //TODO:domainToMap 전부 try catch로 널값 접근 검사
             menus = shopMapper.getMenus(shop.getId());
+            eventArticles = shopMapper.getPendingEventByShopId(shop.getId());
         }
         else {
             shop = shopMapper.getShopByInternalName(id);
@@ -335,6 +340,7 @@ public class ShopServiceImpl implements ShopService {
             }
             //TODO:domainToMap 전부 try catch로 널값 접근 검사
             menus = shopMapper.getMenus(shop.getId());
+            eventArticles = shopMapper.getPendingEventByShopId(shop.getId());
         }
 
         // Shop view Logging
@@ -367,6 +373,7 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
         }
         map.put("menus", convert_menus);
+        map.put("event_articles", eventArticles);
 
         //image_urls 컬럼을 list로
         try {

@@ -79,8 +79,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         if (lostItem.getIs_deleted() == null) {
             lostItem.setIs_deleted(false);
         }
-        lostAndFoundMapper.createLostItemForAdmin(lostItem);
 
+        lostAndFoundMapper.createLostItemForAdmin(lostItem);
         searchUtil.createArticle(lostItem);
 
         return lostItem;
@@ -197,6 +197,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         lostItem_old.update(lostItem);
         lostAndFoundMapper.updateLostItem(lostItem_old);
+        searchUtil.updateArticle(lostItem_old);
+
         return lostItem_old;
     }
 
@@ -208,6 +210,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
         lostAndFoundMapper.deleteLostItem(id);
+        searchUtil.updateArticle(lostItem);
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -324,7 +327,6 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         lostAndFoundMapper.createLostItem(lostItem);
-
         searchUtil.createArticle(lostItem);
 
         NotiSlack slack_message = new NotiSlack();
@@ -470,6 +472,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         lostItem_old.update(lostItem);
         lostAndFoundMapper.updateLostItem(lostItem_old);
+        searchUtil.updateArticle(lostItem_old);
+
         return lostItem_old;
     }
 
@@ -488,6 +492,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIs_deleted(true);
 
         lostAndFoundMapper.updateLostItem(lostItem);
+        searchUtil.updateArticle(lostItem);
 
         return new HashMap<String, Object>() {{
             put("success", true);

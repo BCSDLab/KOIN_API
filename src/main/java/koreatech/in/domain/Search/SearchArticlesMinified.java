@@ -3,14 +3,12 @@ package koreatech.in.domain.Search;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import koreatech.in.domain.Community.Article;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.MarketPlace.Item;
 import koreatech.in.domain.TemporaryCommunity.TempArticle;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.repository.CommunityMapper;
-import koreatech.in.repository.LostAndFoundMapper;
-import koreatech.in.repository.MarketPlaceMapper;
-import koreatech.in.repository.TemporaryCommunityMapper;
+import koreatech.in.repository.*;
 import koreatech.in.util.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +40,8 @@ public class SearchArticlesMinified {
     private LostAndFoundMapper lostAndFoundMapper; //= (LostAndFoundMapper) BeanUtil.getBean("lostAndFoundMapper");
     @Autowired
     private MarketPlaceMapper marketPlaceMapper; //= (MarketPlaceMapper) BeanUtil.getBean("marketPlaceMapper");
+    @Autowired
+    private EventMapper eventMapper;
 
     public SearchArticlesMinified getAdapter(SearchArticles searchArticles) {
         this.id = searchArticles.getArticle_id();
@@ -74,8 +74,14 @@ public class SearchArticlesMinified {
                 this.hit = item.getHit();
                 this.permalink = String.format("%s/market/%s/%d", env, item.getType() == 0 ? "sell" : "buy", item.getId());
                 break;
+            case 11:
+                EventArticle eventArticle = eventMapper.getEventArticle(searchArticles.getArticle_id());
+                this.hit = eventArticle.getHit();
+                this.comment_count = eventArticle.getComment_count();
+                this.permalink = String.format("%s/board/promotion/%d", env, eventArticle.getId());
+                break;
             default:
-                throw new NotFoundException(new ErrorMessage("non-existent table id", 0));
+                throw new NotFoundException(new ErrorMessage("존재하지 않는 게시판입니다.", 0));
         }
         this.created_at = searchArticles.getCreated_at();
         this.updated_at = searchArticles.getUpdated_at();
