@@ -16,36 +16,30 @@ public class UserCode {
         put("180", "산업경영학부");
     }};
 
-    private static Map<String, Integer> enumIdentity = new HashMap<String, Integer>() {{
-        put("student", 0);      // 재학생
-        put("postGraduate", 1); // 대학원생
-        put("professor", 2);    // 교수
-        put("faculty", 3);      // 교직원
-        put("graduate", 4);     // 졸업생
-    }};
-
     public static boolean isValidatedStudentNumber(Integer identity, String studentNumber) {
-        if(identity.equals(enumIdentity.get("student"))) {
-            if(studentNumber.length() != 10) {
+        if (identity == UserIdentity.STUDENT.getIdentityType()) {
+            if (studentNumber.length() != 10) {
                 return false;
             }
 
             String admissionYear = studentNumber.substring(0, 4);
             String deptCode = studentNumber.substring(4, 7);
 
-            if(!code.keySet().contains(deptCode)) {
+            if (!code.containsKey(deptCode)) {
                 return false;
             }
 
             // 학번이 1992 ~ 신입 학번이 아니면 예외처리
             return admissionYear.compareTo("1992") >= 0 && admissionYear.compareTo((new Date()).toString().substring(0, 4)) <= 0;
-        } else if(identity.equals(enumIdentity.get("postGraduate"))) {
+        } else if (identity.equals(UserIdentity.POSTGRADUATE.getIdentityType())) {
             return false;
-        } else if(identity.equals(enumIdentity.get("professor"))) {
+        } else if (identity.equals(UserIdentity.PROFESSOR.getIdentityType())) {
             return false;
-        } else if(identity.equals(enumIdentity.get("faculty"))) {
+        } else if (identity.equals(UserIdentity.FACULTY.getIdentityType())) {
             return false;
-        } else if(identity.equals(enumIdentity.get("graduate"))) {
+        } else if (identity.equals(UserIdentity.GRADUATE.getIdentityType())) {
+            return false;
+        } else if (identity.equals(UserIdentity.OWNER.getIdentityType())) {
             return false;
         }
 
@@ -53,12 +47,33 @@ public class UserCode {
     }
 
     public static boolean isValidatedDeptNumber(String dept) {
-        for(String key : code.values()) {
-            if(key.equals(dept)) {
-                return true;
-            }
+        return code.containsValue(dept);
+    }
+
+    //    private static Map<String, Integer> enumIdentity = new HashMap<String, Integer>() {{
+//        put("student", 0);      // 재학생
+//        put("postGraduate", 1); // 대학원생
+//        put("professor", 2);    // 교수
+//        put("faculty", 3);      // 교직원
+//        put("graduate", 4);     // 졸업생
+//    }};
+    public enum UserIdentity {
+        STUDENT(0), // 재학생
+        POSTGRADUATE(1), // 대학원생
+        PROFESSOR(2), // 교수
+        FACULTY(3), // 교직원
+        GRADUATE(4), // 졸업생
+        OWNER(5) // 주변상점 점주
+        ;
+
+        private int identityType;
+
+        UserIdentity(int identityType) {
+            this.identityType = identityType;
         }
 
-        return false;
+        public int getIdentityType() {
+            return identityType;
+        }
     }
 }

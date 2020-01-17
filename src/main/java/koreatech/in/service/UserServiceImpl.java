@@ -143,6 +143,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setAnonymous_nickname("익명_" + (System.currentTimeMillis()));
 
         // TODO: default로 셋팅할 수 있는 방법 알아보기
+        if (user.getIdentity() == null) {
+            user.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
+        }
+
         if (user.getIs_graduated() == null) {
             user.setIs_graduated(false);
         }
@@ -188,7 +192,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        if (selectUser.getIdentity() == 4) {
+        if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
             Owner owner = (Owner) selectUser;
             owner.update(user);
             userMapper.updateUser(owner);
@@ -366,7 +370,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Map<String, Object> register(User user, String host) throws Exception {
         // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        user.setIdentity(0);
+        user.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
         // 가입되어 있는 계정인지 체크
         User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
@@ -498,15 +502,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         final String contextPath = host;
         final String toAccount;
-        switch (selectUser.getIdentity()) {
-            case 4:
-                toAccount = userMapper.getOwnerEmail(selectUser.getId());
-                if (toAccount == null)
-                    throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
-                break;
-            case 0: case 1: case 2: case 3: default:
-                toAccount = user.getPortal_account() + "@koreatech.ac.kr";
-                break;
+        if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
+            toAccount = userMapper.getOwnerEmail(selectUser.getId());
+            if (toAccount == null)
+                throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
+        }
+        else {
+            toAccount = user.getPortal_account() + "@koreatech.ac.kr";
         }
 
 //        이전 gmail api 사용한 전송

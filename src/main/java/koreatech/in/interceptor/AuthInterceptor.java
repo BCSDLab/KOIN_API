@@ -4,6 +4,7 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserCode;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.UnauthorizeException;
 import koreatech.in.service.JwtValidator;
@@ -107,7 +108,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             if (interceptedMethod.isAnnotationPresent(Auth.class) && interceptedMethod.getAnnotation(Auth.class).role() == Auth.Role.USER)
                 return true;
             // 유저의 신원이 점주가 아닌데 관리자 권한도 없다면
-            if (user.getIdentity() != 4)
+            if (user.getIdentity() != UserCode.UserIdentity.OWNER.getIdentityType())
                 if (user.getAuthority() == null || !user.getAuthority().getGrant_event())
                     throw new ForbiddenException(new ErrorMessage("해당 작업을 수행할 수 있는 권한이 없습니다.", 0));
         } else if (auth.role() == Auth.Role.USER) { // 일반 유저용 API일 경우
@@ -115,7 +116,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             // 점주 권한용 API라면
             if (interceptedMethod.isAnnotationPresent(Auth.class) && interceptedMethod.getAnnotation(Auth.class).role() == Auth.Role.OWNER) {
                 // 유저의 신원이 점주가 아닌데 관리자 권한도 없다면
-                if (user.getIdentity() != 4)
+                if (user.getIdentity() != UserCode.UserIdentity.OWNER.getIdentityType())
                     if (user.getAuthority() == null || !user.getAuthority().getGrant_event())
                         throw new ForbiddenException(new ErrorMessage("해당 작업을 수행할 수 있는 권한이 없습니다.", 0));
             }
