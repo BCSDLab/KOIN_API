@@ -36,6 +36,11 @@ public class TimeTableServiceImpl implements TimeTableService {
     }
 
     @Override
+    public ArrayList<Map<String,Object>> getSemesterList() throws Exception {
+        return timeTableMapper.getSemesterList();
+    }
+
+    @Override
     public Map<String, Object> getTimeTables(String semester) throws Exception {
         User user = jwtValidator.validate();
 
@@ -224,4 +229,6 @@ public class TimeTableServiceImpl implements TimeTableService {
             put("success", true);
         }};
     }
+
+
 }

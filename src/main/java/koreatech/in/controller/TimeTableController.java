@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -28,6 +29,13 @@ public class TimeTableController {
     public @ResponseBody
     ResponseEntity getLectureList(@ApiParam(value = "학기 (예시:20191)", required = false) @RequestParam(value = "semester_date", defaultValue = "") String semester_date) throws Exception {
         return new ResponseEntity<ArrayList<Lecture>>(timeTableService.getLectureList(semester_date), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/semesters", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getSemesterList() throws Exception {
+        return new ResponseEntity<ArrayList<Map<String,Object>>>(timeTableService.getSemesterList(), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -66,4 +74,6 @@ public class TimeTableController {
     ResponseEntity deleteTimeTableById(@ApiParam(value = "스케줄의 uid", required = true) @RequestParam(value = "id") int id) throws Exception {
         return new ResponseEntity<Map<String, Object>>(timeTableService.deleteTimeTableById(id), HttpStatus.OK);
     }
+
+
 }

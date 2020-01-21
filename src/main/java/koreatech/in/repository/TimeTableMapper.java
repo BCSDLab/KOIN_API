@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @Repository("timeTableMapper")
 public interface TimeTableMapper {
@@ -48,4 +49,7 @@ public interface TimeTableMapper {
 
     @Select("SELECT id FROM koin.semester WHERE semester = #{semester}")
     Integer getSemesterId(@Param("semester") String semester);
+
+    @Select("SELECT * FROM koin.semester")
+    ArrayList<Map<String,Object>> getSemesterList();
 }
