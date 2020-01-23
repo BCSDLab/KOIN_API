@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.TimeTable.Lecture;
+import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.domain.TimeTable.TimeTable;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 public interface TimeTableService {
     ArrayList<Lecture> getLectureList(String semester_date) throws Exception;
 
-    ArrayList<Map<String,Object>> getSemesterList() throws Exception;
+    ArrayList<Semester> getSemesterList() throws Exception;
 
     Map<String, Object> getTimeTables(String semester) throws Exception;
 

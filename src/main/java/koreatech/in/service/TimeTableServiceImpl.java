@@ -4,6 +4,7 @@ import com.google.gson.*;
 
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.TimeTable.Lecture;
+import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.domain.TimeTable.TimeTable;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
@@ -36,7 +37,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     }
 
     @Override
-    public ArrayList<Map<String,Object>> getSemesterList() throws Exception {
+    public ArrayList<Semester> getSemesterList() throws Exception {
         return timeTableMapper.getSemesterList();
     }
 

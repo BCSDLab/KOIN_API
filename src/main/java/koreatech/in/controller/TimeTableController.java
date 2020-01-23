@@ -6,6 +6,7 @@ import io.swagger.annotations.Authorization;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.domain.TimeTable.Lecture;
+import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.service.TimeTableService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,11 @@ public class TimeTableController {
         return new ResponseEntity<ArrayList<Lecture>>(timeTableService.getLectureList(semester_date), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @AuthExcept
     @RequestMapping(value = "/semesters", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getSemesterList() throws Exception {
-        return new ResponseEntity<ArrayList<Map<String,Object>>>(timeTableService.getSemesterList(), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<Semester>>(timeTableService.getSemesterList(), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

@@ -1,6 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.TimeTable.Lecture;
+import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.domain.TimeTable.TimeTable;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -50,6 +51,6 @@ public interface TimeTableMapper {
     @Select("SELECT id FROM koin.semester WHERE semester = #{semester}")
     Integer getSemesterId(@Param("semester") String semester);
 
-    @Select("SELECT * FROM koin.semester")
-    ArrayList<Map<String,Object>> getSemesterList();
+    @Select("SELECT * FROM koin.semester order by semester desc limit 10")
+    ArrayList<Semester> getSemesterList();
 }
