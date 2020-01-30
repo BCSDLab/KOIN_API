@@ -21,7 +21,13 @@ public class CalendarController {
 
     @RequestMapping(value = "/calendars", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getCalendars(@ApiParam(required = true) @RequestParam(value = "year") String year) {
-        return new ResponseEntity<List<Calendar>>(calendarService.getCalendars(year), HttpStatus.OK);
+    ResponseEntity<List<Calendar>> getCalendars(@ApiParam(required = true) @RequestParam(value = "year") String year) {
+        return new ResponseEntity<>(calendarService.getCalendars(year), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/term", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<String> getTerm() throws Exception {
+        return new ResponseEntity<>(calendarService.getTerm(), HttpStatus.OK);
     }
 }
