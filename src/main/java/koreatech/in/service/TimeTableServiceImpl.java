@@ -4,6 +4,7 @@ import com.google.gson.*;
 
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.TimeTable.Lecture;
+import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.domain.TimeTable.TimeTable;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
@@ -33,6 +34,11 @@ public class TimeTableServiceImpl implements TimeTableService {
         }
 
         return timeTableMapper.getLectureList(semester_date);
+    }
+
+    @Override
+    public ArrayList<Semester> getSemesterList() throws Exception {
+        return timeTableMapper.getSemesterList();
     }
 
     @Override
@@ -224,4 +230,6 @@ public class TimeTableServiceImpl implements TimeTableService {
             put("success", true);
         }};
     }
+
+
 }

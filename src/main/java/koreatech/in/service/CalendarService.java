@@ -6,5 +6,9 @@ import koreatech.in.domain.kut.Calendar;
 import java.util.List;
 
 public interface CalendarService {
-    public List<Calendar> getCalendars(String year);
+    List<Calendar> getCalendars(String year);
+
+    String getTerm() throws Exception;
+
+    String createTermForAdmin(String term);
 }
