@@ -78,7 +78,7 @@ public class SearchArticlesMinified {
                 EventArticle eventArticle = eventMapper.getEventArticle(searchArticles.getArticle_id());
                 this.hit = eventArticle.getHit();
                 this.comment_count = eventArticle.getComment_count();
-                this.permalink = String.format("%s/events/%d", env, eventArticle.getId());
+                this.permalink = String.format("%s/board/promotion/%d", env, eventArticle.getId());
                 break;
             default:
                 throw new NotFoundException(new ErrorMessage("존재하지 않는 게시판입니다.", 0));
