@@ -13,6 +13,7 @@ import koreatech.in.repository.SearchMapper;
 import koreatech.in.util.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ public class SearchServiceImpl implements SearchService {
     private SearchMapper searchMapper;
 
     public Map<String, Object> searchShop(SearchCriteria searchCriteria) throws Exception {
-        if (searchCriteria.getQuery().isEmpty())
+        if (!StringUtils.hasText(searchCriteria.getQuery()))
             throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
 
         Map<String, Object> map = new HashMap<>();
@@ -81,7 +82,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     public Map<String, Object> searchCommunity(SearchCriteria searchCriteria) throws Exception {
-        if (searchCriteria.getQuery().isEmpty())
+        if (!StringUtils.hasText(searchCriteria.getQuery()))
             throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
 
         Map<String, Object> map = new HashMap<>();
