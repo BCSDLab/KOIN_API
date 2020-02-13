@@ -16,6 +16,7 @@ import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,7 +73,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty())
+        if (StringUtils.hasText(lostItem.getImage_urls()))
             if (!con.isArrayObjectParse(lostItem.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -112,11 +113,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         for (LostItem lostItem : lostItems) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
             //image_urls 변환
-            if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty()) {
-                try {
-                    map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
-                } catch (Exception e) {
-                }
+            if (StringUtils.hasText(lostItem.getImage_urls())) {
+                map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
             }
             convert_items.add(map_lostItem);
         }
@@ -152,11 +150,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 변환
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty()) {
-            try {
-                map.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
-            } catch (Exception e) {
-            }
+        if (StringUtils.hasText(lostItem.getImage_urls())) {
+            map.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
         }
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
@@ -186,7 +181,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty())
+        if (StringUtils.hasText(lostItem.getImage_urls()))
             if (!con.isArrayObjectParse(lostItem.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -322,7 +317,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty())
+        if (StringUtils.hasText(lostItem.getImage_urls()))
             if (!con.isArrayObjectParse(lostItem.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -368,10 +363,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
             //image_urls 변환
             if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty()) {
-                try {
-                    map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
-                } catch (Exception e) {
-                }
+                map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
             }
             convert_items.add(map_lostItem);
         }
@@ -423,11 +415,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 변환
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty()) {
-            try {
-                map.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
-            } catch (Exception e) {
-            }
+        if (StringUtils.hasText(lostItem.getImage_urls())) {
+            map.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
         }
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
@@ -460,7 +449,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty())
+        if (StringUtils.hasText(lostItem.getImage_urls()))
             if (!con.isArrayObjectParse(lostItem.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -543,11 +532,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         for (LostItem lostItem : items) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
             //image_urls 변환
-            if (lostItem.getImage_urls() != null && !lostItem.getImage_urls().isEmpty()) {
-                try {
-                    map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
-                } catch (Exception e) {
-                }
+            if (StringUtils.hasText(lostItem.getImage_urls())) {
+                map_lostItem.replace("image_urls", con.arrayStringParse(lostItem.getImage_urls()));
             }
             convert_items.add(map_lostItem);
         }

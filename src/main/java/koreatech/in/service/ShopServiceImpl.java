@@ -15,6 +15,7 @@ import koreatech.in.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -43,7 +44,7 @@ public class ShopServiceImpl implements ShopService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
+        if(StringUtils.hasText(shop.getImage_urls())) {
             if(!con.isArrayStringParse(shop.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
         }
@@ -88,11 +89,8 @@ public class ShopServiceImpl implements ShopService {
         for(Shop shop : shops) {
             Map<String, Object> map_shop = domainToMap(shop);
             //image_urls 변환
-            if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
-                try {
-                    map_shop.replace("image_urls", con.arrayStringParse(shop.getImage_urls()));
-                } catch (Exception e) {
-                }
+            if(StringUtils.hasText(shop.getImage_urls())) {
+                map_shop.replace("image_urls", con.arrayStringParse(shop.getImage_urls()));
             }
             convert_shops.add(map_shop);
         }
@@ -183,7 +181,7 @@ public class ShopServiceImpl implements ShopService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
+        if(StringUtils.hasText(shop.getImage_urls())) {
             if(!con.isArrayStringParse(shop.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
         }
@@ -217,7 +215,7 @@ public class ShopServiceImpl implements ShopService {
     public Menu createMenuForAdmin(Menu menu, int shop_id) throws Exception {
         JsonConstructor con = new JsonConstructor();
         //price_type 검증
-        if (!menu.getPrice_type().isEmpty())
+        if (StringUtils.hasText(menu.getPrice_type()))
             if (!con.isArrayObjectParse(menu.getPrice_type()))
                 throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 
@@ -243,7 +241,7 @@ public class ShopServiceImpl implements ShopService {
         Map<String, Object> map = domainToMap(menu);
         JsonConstructor con = new JsonConstructor();
         //price_type 컬럼을 list로
-        if(!menu.getPrice_type().isEmpty()) {
+        if(StringUtils.hasText(menu.getPrice_type())) {
             try {
                 map.replace("price_type", con.arrayObjectParse(menu.getPrice_type()));
             } catch (Exception e) {
@@ -262,7 +260,7 @@ public class ShopServiceImpl implements ShopService {
 
         JsonConstructor con = new JsonConstructor();
         ///price_type 검증
-        if (!menu.getPrice_type().isEmpty())
+        if (StringUtils.hasText(menu.getPrice_type()))
             if (!con.isArrayObjectParse(menu.getPrice_type()))
                 throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 

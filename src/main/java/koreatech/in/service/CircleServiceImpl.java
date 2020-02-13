@@ -13,6 +13,7 @@ import koreatech.in.exception.*;
 import koreatech.in.repository.CircleMapper;
 import koreatech.in.repository.FaqMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class CircleServiceImpl implements CircleService {
 
         JsonConstructor con = new JsonConstructor();
         //link_urls 체크
-        if(circle.getLink_urls() != null && !circle.getLink_urls().isEmpty())
+        if(StringUtils.hasText(circle.getLink_urls()))
             if(con.isArrayObjectParse(circle.getLink_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -121,7 +122,7 @@ public class CircleServiceImpl implements CircleService {
         faq.put("totalPage", faqTotalPage);
         faq.put("totalItemCount", faqTotalCount);
 
-        if(circle.getLink_urls() != null && !circle.getLink_urls().isEmpty()) {
+        if(StringUtils.hasText(circle.getLink_urls())) {
             JsonConstructor con = new JsonConstructor();
             //link_urls 컬럼을 list로
             try {
@@ -164,7 +165,7 @@ public class CircleServiceImpl implements CircleService {
 
         JsonConstructor con = new JsonConstructor();
         //link_urls 체크
-        if(circle.getLink_urls() != null && !circle.getLink_urls().isEmpty())
+        if(StringUtils.hasText(circle.getLink_urls()))
             if(!con.isArrayObjectParse(circle.getLink_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 

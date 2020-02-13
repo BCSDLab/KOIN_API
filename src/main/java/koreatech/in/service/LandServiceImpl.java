@@ -10,6 +10,7 @@ import koreatech.in.repository.LandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -42,7 +43,7 @@ public class LandServiceImpl implements LandService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(land.getImage_urls() != null && !land.getImage_urls().isEmpty())
+        if(StringUtils.hasText(land.getImage_urls()))
             if (!con.isArrayObjectParse(land.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -64,7 +65,7 @@ public class LandServiceImpl implements LandService {
 
         JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(land.getImage_urls() != null && !land.getImage_urls().isEmpty())
+        if(StringUtils.hasText(land.getImage_urls()))
             if (!con.isArrayStringParse(land.getImage_urls()))
                 throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
@@ -129,11 +130,8 @@ public class LandServiceImpl implements LandService {
         Map<String, Object> convertLand = domainToMap(land);
         JsonConstructor con = new JsonConstructor();
 
-        if (land.getImage_urls() != null && !land.getImage_urls().isEmpty()) {
-            try {
-                convertLand.replace("image_urls", con.arrayStringParse(land.getImage_urls()));
-            } catch (Exception e) {
-            }
+        if (StringUtils.hasText(land.getImage_urls())) {
+            convertLand.replace("image_urls", con.arrayStringParse(land.getImage_urls()));
         }
         convertLand.put("permalink", URLEncoder.encode(land.getInternal_name(), "UTF-8"));
         convertLand.put("comments", landComments);

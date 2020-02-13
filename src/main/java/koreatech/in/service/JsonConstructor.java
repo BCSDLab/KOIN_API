@@ -34,7 +34,6 @@ public class JsonConstructor {
     // [{"~~~", "~~~"}] 형태
     public List<Map<String,Object>> arrayObjectParse(JsonArray jsonArray) {
         Gson gson = new Gson();
-        Iterator<JsonElement> iterator = jsonArray.iterator();
         JsonElement jsonElement;
         Type type = new TypeToken<List<Map<String,Object>>>(){}.getType();
 

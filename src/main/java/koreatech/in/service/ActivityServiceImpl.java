@@ -6,6 +6,7 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.ActivityMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -39,11 +40,8 @@ public class ActivityServiceImpl implements ActivityService {
         for(Activity activity : activities) {
             convertActivity = domainToMap(activity);
 
-            if (activity.getImage_urls() != null && !activity.getImage_urls().isEmpty()) {
-                try {
-                    convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
-                } catch (Exception e) {
-                }
+            if (StringUtils.hasText(activity.getImage_urls())) {
+                convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
             }
 
             appendActivities.add(convertActivity);
@@ -72,11 +70,8 @@ public class ActivityServiceImpl implements ActivityService {
         for(Activity activity : activities) {
             convertActivity = domainToMap(activity);
 
-            if (activity.getImage_urls() != null && !activity.getImage_urls().isEmpty()) {
-                try {
-                    convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
-                } catch (Exception e) {
-                }
+            if (StringUtils.hasText(activity.getImage_urls())) {
+                convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
             }
 
             appendActivities.add(convertActivity);

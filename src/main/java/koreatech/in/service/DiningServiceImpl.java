@@ -39,10 +39,7 @@ public class DiningServiceImpl implements DiningService {
         JsonConstructor con = new JsonConstructor();
         for (DiningMenu dining : dinings) {
             Map<String, Object> convertMenu = domainToMap(dining);
-            try {
-                convertMenu.replace("menu", con.arrayStringParse(dining.getMenu()));
-            } catch (Exception e) {
-            }
+            convertMenu.replace("menu", con.arrayStringParse(dining.getMenu()));
             menus.add(convertMenu);
         }
 
