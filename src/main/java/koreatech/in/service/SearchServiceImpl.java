@@ -4,8 +4,6 @@ import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Search.SearchArticles;
 import koreatech.in.domain.Search.SearchArticlesMinified;
-import koreatech.in.domain.Search.SearchComments;
-import koreatech.in.domain.Search.SearchCommentsMinified;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.exception.PreconditionFailedException;
@@ -26,13 +24,15 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     private SearchMapper searchMapper;
 
+    @Autowired
+    private JsonConstructor con;
+
     public Map<String, Object> searchShop(SearchCriteria searchCriteria) throws Exception {
         if (searchCriteria.getQuery().isEmpty())
             throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
 
         Map<String, Object> map = new HashMap<>();
         double totalCount, countByLimit, totalPage;
-        JsonConstructor con = new JsonConstructor();
 
         switch (searchCriteria.getSearchType()) {
             case 0: default: // 상점명 검색
@@ -48,8 +48,8 @@ public class SearchServiceImpl implements SearchService {
                 for (Shop shop : shops) {
                     shop.setPermalink(shop.getInternal_name());
                     Map<String, Object> shopMap = domainToMap(shop);
-                    if (shopMap.get("image_urls") != null && con.isArrayStringParse(shop.getImage_urls())) {
-                        shopMap.replace("image_urls", con.arrayStringParse(shop.getImage_urls()));
+                    if (shopMap.get("image_urls") != null && con.isJsonArrayWithOnlyString(shop.getImage_urls())) {
+                        shopMap.replace("image_urls", con.parseJsonArrayWithOnlyString(shop.getImage_urls()));
                     }
                     shopsMapList.add(shopMap);
                 }
@@ -68,8 +68,8 @@ public class SearchServiceImpl implements SearchService {
                 List<Map<String, Object>> menusMapList = new ArrayList<>();
                 for (Menu menu : menus) {
                     Map<String, Object> menuMap = domainToMap(menu);
-                    if (menuMap.get("price_type") != null && con.isArrayObjectParse(menu.getPrice_type())) {
-                        menuMap.replace("price_type", con.arrayObjectParse(menu.getPrice_type()));
+                    if (menuMap.get("price_type") != null && con.isJsonArrayWithOnlyObject(menu.getPrice_type())) {
+                        menuMap.replace("price_type", con.parseJsonArrayWithObject(menu.getPrice_type()));
                     }
                     menusMapList.add(menuMap);
                 }

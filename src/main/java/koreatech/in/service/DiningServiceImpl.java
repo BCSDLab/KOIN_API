@@ -4,6 +4,7 @@ import koreatech.in.domain.DiningMenu;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.DiningMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -22,6 +23,9 @@ public class DiningServiceImpl implements DiningService {
     @Inject
     DiningMapper diningMapper;
 
+    @Autowired
+    private JsonConstructor con;
+
     @Override
     public List<Map<String, Object>> getDinings(String from) throws Exception {
         LocalDate localDate;
@@ -36,10 +40,9 @@ public class DiningServiceImpl implements DiningService {
         List<DiningMenu> dinings = diningMapper.getList(localDate.format(DateTimeFormatter.ISO_DATE));
         List<Map<String, Object>> menus = new ArrayList<>();
 
-        JsonConstructor con = new JsonConstructor();
         for (DiningMenu dining : dinings) {
             Map<String, Object> convertMenu = domainToMap(dining);
-            convertMenu.replace("menu", con.arrayStringParse(dining.getMenu()));
+            convertMenu.replace("menu", con.parseJsonArrayWithOnlyString(dining.getMenu()));
             menus.add(convertMenu);
         }
 

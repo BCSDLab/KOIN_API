@@ -4,19 +4,17 @@ import koreatech.in.domain.BeanSerializer;
 import koreatech.in.domain.Circle.Circle;
 import koreatech.in.domain.Circle.CircleResponseType;
 import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.DomainToMap;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Faq.Faq;
 import koreatech.in.domain.Faq.FaqResponseType;
-import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.CircleMapper;
 import koreatech.in.repository.FaqMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +30,8 @@ public class CircleServiceImpl implements CircleService {
     @Inject
     FaqMapper faqMapper;
 
-    @Inject
-    JwtValidator jwtValidator;
+    @Autowired
+    private JsonConstructor con;
 
     @Override
     public Map<String, Object> getCirclesForAdmin(Criteria criteria) throws Exception {
@@ -65,11 +63,9 @@ public class CircleServiceImpl implements CircleService {
             throw new ConflictException(new ErrorMessage("exists circle name", 0));
         }
 
-        JsonConstructor con = new JsonConstructor();
         //link_urls 체크
-        if(StringUtils.hasText(circle.getLink_urls()))
-            if(con.isArrayObjectParse(circle.getLink_urls()))
-                throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
+        if(!con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (circle.getIs_deleted() == null) {
             circle.setIs_deleted(false);
@@ -122,15 +118,7 @@ public class CircleServiceImpl implements CircleService {
         faq.put("totalPage", faqTotalPage);
         faq.put("totalItemCount", faqTotalCount);
 
-        if(StringUtils.hasText(circle.getLink_urls())) {
-            JsonConstructor con = new JsonConstructor();
-            //link_urls 컬럼을 list로
-            try {
-                //link_url 리스트를 JsonArray로 변환하고 다시 for문으로 하나씩 map으로 변환해 새 리스트에 add
-                map.replace("link_urls", con.arrayObjectParse(circle.getLink_urls()));
-            } catch (Exception e) {
-            }
-        }
+        map.replace("link_urls", con.parseJsonArrayWithObject(circle.getLink_urls()));
         map.put("faq", faq);
 
         return map;
@@ -163,11 +151,9 @@ public class CircleServiceImpl implements CircleService {
             throw new PreconditionFailedException(new ErrorMessage("invalid category name", 1));
         }
 
-        JsonConstructor con = new JsonConstructor();
         //link_urls 체크
-        if(StringUtils.hasText(circle.getLink_urls()))
-            if(!con.isArrayObjectParse(circle.getLink_urls()))
-                throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
+        if(!con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+            throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 
         selectCircle.update(circle);
         circleMapper.updateCircleForAdmin(selectCircle);

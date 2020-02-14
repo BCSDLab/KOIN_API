@@ -2,130 +2,172 @@ package koreatech.in.service;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.isContain;
 
+@Component
 public class JsonConstructor {
-    private Gson gson = new Gson();
-    public JsonConstructor(){}
+    private static Gson gson = new Gson();
+    private static JsonParser parser = new JsonParser();
 
-    // ["~~~"] 형태
-    public List<Map<String,Object>> arrayStringParse(String jsonString) {
-        List<Map<String,Object>> list = new ArrayList<>();
+    public JsonConstructor() {
+    }
+
+    // 내부에 문자열만 존재하는 ["~~~"] 형태의 JSON을 객체로 binding, 실패 시 null 반환
+    public List<String> parseJsonArrayWithOnlyString(String jsonString) {
+        if (jsonString == null) return null;
+        List<String> list;
         try {
-            Type type = new TypeToken<List<String>>() {}.getType();
-            list = gson.fromJson(jsonString, type);
+            list = gson.fromJson(jsonString, new TypeToken<List<String>>() {}.getType());
         } catch (Exception e) {
+            return null;
         }
         return list;
     }
-    public Boolean isArrayStringParse(String jsonString) {
-        try {
-            arrayStringParse(jsonString);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
 
-    // [{"~~~", "~~~"}] 형태
-    public List<Map<String,Object>> arrayObjectParse(JsonArray jsonArray) {
-        Gson gson = new Gson();
+    // 내부에 문자열만 존재하는 ["~~~"] 형태인지 검사
+    public Boolean isJsonArrayWithOnlyString(String jsonString) {
+        if (jsonString == null) return false;
         JsonElement jsonElement;
-        Type type = new TypeToken<List<Map<String,Object>>>(){}.getType();
-
-        for (int i = 0; i < jsonArray.size(); i++) {
-            jsonElement = jsonArray.get(i);
-            objectParse(jsonElement.getAsJsonObject());
-        }
-        return gson.fromJson(jsonArray, type);
-    }
-
-    public List<Map<String,Object>> arrayObjectParse(String jsonString) throws JsonParseException {
-        List<Map<String,Object>> list = new ArrayList<>();
-        JsonArray jsonArray = new JsonParser().parse(jsonString).getAsJsonArray();
-        list = arrayObjectParse(jsonArray);
-        return list;
-    }
-
-    public Boolean isArrayObjectParse(String jsonString) {
         try {
-            arrayObjectParse(jsonString);
+            jsonElement = parser.parse(jsonString);
+            if (jsonElement == null || !jsonElement.isJsonArray())
+                return false;
+
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            if (jsonArray.size() == 0) return false;
+            for (JsonElement element : jsonArray) {
+                if (element.isJsonObject())
+                    return false;
+            }
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
-    private Map<String,Object> objectParse(JsonObject jsonObject, String[] arrAllowKeys) {
-        Gson gson = new Gson();
-        Iterator<Map.Entry<String,JsonElement>> iterator = jsonObject.entrySet().iterator();
-        Map.Entry<String,JsonElement> entry;
-        Type type = new TypeToken<Map<String,Object>>(){}.getType();
+    // [{"~~~": "~~~", "~~~": "~~~"}] 형태의 JSON을 객체로 binding, 실패 시 null 반환
+    public List<Map<String, Object>> parseJsonArrayWithObject(JsonArray jsonArray) {
+        if (jsonArray == null) return null;
+        List<Map<String, Object>> list;
+        try {
+            list = gson.fromJson(jsonArray, new TypeToken<List<Map<String, Object>>>() {}.getType());
+        } catch (Exception e) {
+            return null;
+        }
+        return list;
+    }
 
-        while (iterator.hasNext()) {
-            entry = iterator.next();
+    // [{"~~~": "~~~", "~~~": "~~~"}] 형태의 JSON을 객체로 binding, 실패 시 null 반환
+    public List<Map<String, Object>> parseJsonArrayWithObject(String jsonString) {
+        if (jsonString == null) return null;
+        List<Map<String, Object>> list;
+        try {
+            JsonElement jsonElement = parser.parse(jsonString);
+            if (jsonElement == null || !jsonElement.isJsonArray())
+                return null;
+
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            list = parseJsonArrayWithObject(jsonArray);
+        } catch (Exception e) {
+            return null;
+        }
+        return list;
+    }
+
+    // 내부에 JSON Object만 존재하는 [{"~~~": "~~~", "~~~": "~~~"}] 형태인지 검사
+    public Boolean isJsonArrayWithOnlyObject(String jsonString) {
+        if (jsonString == null) return false;
+        JsonElement jsonElement;
+        try {
+            jsonElement = parser.parse(jsonString);
+            if (jsonElement == null || !jsonElement.isJsonArray())
+                return false;
+
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            if (jsonArray.size() == 0) return false;
+            for (JsonElement element : jsonArray) {
+                if (!element.isJsonObject())
+                    return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private Map<String, Object> parseJsonObject(JsonObject jsonObject, String[] arrAllowKeys) throws JsonSyntaxException, JsonIOException {
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             if (arrAllowKeys != null && !isContain(arrAllowKeys, entry.getKey())) continue;
             JsonElement value = entry.getValue();
             if (value.isJsonPrimitive()) {
                 try {
                     entry.setValue(new JsonPrimitive(entry.getValue().getAsString()));
-                } catch (Exception e) {}
-
+                } catch (Exception e) {
+                }
             } else if (value.isJsonObject()) {
-                objectParse(value.getAsJsonObject(), arrAllowKeys);
-
+                parseJsonObject(value.getAsJsonObject(), arrAllowKeys);
             } else if (value.isJsonArray()) {
                 JsonArray jsonArray = value.getAsJsonArray();
-                JsonElement jsonElement;
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    jsonElement = jsonArray.get(i);
-                    objectParse(jsonElement.getAsJsonObject(), arrAllowKeys);
+                for (JsonElement element : jsonArray) {
+                    parseJsonObject(element.getAsJsonObject(), arrAllowKeys);
                 }
             }
         }
-        return gson.fromJson(jsonObject, type);
+        return gson.fromJson(jsonObject, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
-    public Map<String,Object> objectParse(JsonObject jsonObject) {
-        Map<String,Object> map = new HashMap<>();
+    public Map<String, Object> parseJsonObject(JsonObject jsonObject) {
+        if (jsonObject == null) return null;
+        Map<String, Object> map;
         try {
-            map = objectParse(jsonObject, null);
+            map = parseJsonObject(jsonObject, null);
         } catch (Exception e) {
+            return null;
         }
         return map;
     }
 
-    public Map<String,Object> objectParse(String jsonString, String[] arrAllowKeys) {
-        Map<String,Object> map = new HashMap<>();
+    public Map<String, Object> parseJsonObject(String jsonString, String[] arrAllowKeys) {
+        if (jsonString == null) return null;
+        Map<String, Object> map;
         try {
-            JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
-            map = objectParse(jsonObject, arrAllowKeys);
+            JsonElement jsonElement = parser.parse(jsonString);
+            if (jsonElement == null || !jsonElement.isJsonObject())
+                return null;
+
+            map = parseJsonObject(jsonElement.getAsJsonObject(), arrAllowKeys);
         } catch (Exception e) {
+            return null;
         }
         return map;
     }
 
-    public Map<String,Object> objectParse(String jsonString) {
-        Map<String,Object> map = new HashMap<>();
+    public Map<String, Object> parseJsonObject(String jsonString) {
+        if (jsonString == null) return null;
+        Map<String, Object> map;
         try {
-            JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
-            map = objectParse(jsonObject, null);
+            JsonElement jsonElement = parser.parse(jsonString);
+            if (jsonElement == null || !jsonElement.isJsonObject())
+                return null;
+
+            map = parseJsonObject(jsonElement.getAsJsonObject(), null);
         } catch (Exception e) {
+            return null;
         }
         return map;
     }
 
-    public Boolean isObjectParse(String jsonString) {
+    public Boolean isJsonObject(String jsonString) {
+        if (jsonString == null) return false;
         try {
-            objectParse(jsonString);
+            JsonElement jsonElement = parser.parse(jsonString);
+            return jsonElement != null && jsonElement.isJsonObject();
         } catch (Exception e) {
             return false;
         }
-        return true;
     }
-
 }

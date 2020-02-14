@@ -5,6 +5,7 @@ import koreatech.in.domain.Homepage.Activity;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.ActivityMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 
@@ -22,6 +22,9 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 public class ActivityServiceImpl implements ActivityService {
     @Resource(name = "activityMapper")
     private ActivityMapper activityMapper;
+
+    @Autowired
+    private JsonConstructor con;
 
     @Override
     public Map<String, Object> getActivities(String year) throws Exception {
@@ -36,13 +39,9 @@ public class ActivityServiceImpl implements ActivityService {
         List<Map<String, Object>> appendActivities = new ArrayList<Map<String, Object>>();
 
         Map<String, Object> convertActivity;
-        JsonConstructor con = new JsonConstructor();
         for(Activity activity : activities) {
             convertActivity = domainToMap(activity);
-
-            if (StringUtils.hasText(activity.getImage_urls())) {
-                convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
-            }
+            convertActivity.replace("image_urls", con.parseJsonArrayWithOnlyString(activity.getImage_urls()));
 
             appendActivities.add(convertActivity);
         }
@@ -66,13 +65,9 @@ public class ActivityServiceImpl implements ActivityService {
         List<Map<String, Object>> appendActivities = new ArrayList<Map<String, Object>>();
 
         Map<String, Object> convertActivity;
-        JsonConstructor con = new JsonConstructor();
         for(Activity activity : activities) {
             convertActivity = domainToMap(activity);
-
-            if (StringUtils.hasText(activity.getImage_urls())) {
-                convertActivity.replace("image_urls", con.arrayStringParse(activity.getImage_urls()));
-            }
+            convertActivity.replace("image_urls", con.parseJsonArrayWithOnlyString(activity.getImage_urls()));
 
             appendActivities.add(convertActivity);
         }
