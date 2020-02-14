@@ -1,7 +1,6 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
@@ -10,11 +9,11 @@ import koreatech.in.domain.Shop.ShopViewLog;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -28,8 +27,12 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 public class ShopServiceImpl implements ShopService {
     @Resource(name="shopMapper")
     private ShopMapper shopMapper;
+
     @Autowired
     JwtValidator jwtValidator;
+
+    @Autowired
+    private JsonConstructor con;
 
     @Transactional
     @Override
@@ -41,12 +44,9 @@ public class ShopServiceImpl implements ShopService {
             throw new PreconditionFailedException(new ErrorMessage("No such Category", 2));
         }
 
-        JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
-            if(!con.isArrayStringParse(shop.getImage_urls()))
-                throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-        }
+        if(!con.isJsonArrayWithOnlyString(shop.getImage_urls()))
+            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         shop.setInternal_name(shop.getName().replace(" ","").toLowerCase());
 
@@ -81,19 +81,12 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public Map<String, Object> getShopsForAdmin(Criteria criteria) throws Exception {
-        JsonConstructor con = new JsonConstructor();
 
         List<Shop> shops = shopMapper.getShopListForAdmin(criteria.getCursor(), criteria.getLimit());
         List<Map<String, Object>> convert_shops = new ArrayList<>();
         for(Shop shop : shops) {
             Map<String, Object> map_shop = domainToMap(shop);
-            //image_urls 변환
-            if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
-                try {
-                    map_shop.replace("image_urls", con.arrayStringParse(shop.getImage_urls()));
-                } catch (Exception e) {
-                }
-            }
+            map_shop.replace("image_urls", con.parseJsonArrayWithOnlyString(shop.getImage_urls()));
             convert_shops.add(map_shop);
         }
 
@@ -140,15 +133,11 @@ public class ShopServiceImpl implements ShopService {
 
         List<Map<String, Object>> convert_menus = new ArrayList<Map<String, Object>>();
 
-        JsonConstructor con = new JsonConstructor();
         try {
             for (Menu menu : menus) {
                 //menu를 map 객체로 바꾼 후 price_type 값을 array_in_convert_price로 교체, 그것을 다시 convert_menus에 추가
                 Map<String, Object> convert_price_menu = domainToMap(menu);
-                try {
-                    convert_price_menu.replace("price_type", con.arrayObjectParse(menu.getPrice_type()));
-                } catch (Exception e) {
-                }
+                convert_price_menu.replace("price_type", con.parseJsonArrayWithObject(menu.getPrice_type()));
                 convert_menus.add(convert_price_menu);
             }
         } catch (Exception e) {
@@ -156,12 +145,8 @@ public class ShopServiceImpl implements ShopService {
         map.put("menus", convert_menus);
 
         //image_urls 컬럼을 list로
-        try {
-            //변환된 list로 값 교체
-            map.replace("image_urls", con.arrayStringParse(map.get("image_urls").toString()));
-        } catch (Exception e) {
-            return map;
-        }
+        //변환된 list로 값 교체
+        map.replace("image_urls", con.parseJsonArrayWithOnlyString(map.get("image_urls").toString()));
         return map;
     }
 
@@ -181,12 +166,9 @@ public class ShopServiceImpl implements ShopService {
             throw new PreconditionFailedException(new ErrorMessage("No such Category", 2));
         }
 
-        JsonConstructor con = new JsonConstructor();
         //image_urls 체크
-        if(shop.getImage_urls() != null && !shop.getImage_urls().isEmpty()) {
-            if(!con.isArrayStringParse(shop.getImage_urls()))
-                throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-        }
+        if(!con.isJsonArrayWithOnlyString(shop.getImage_urls()))
+            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (shop.getName() != null) {
             shop.setInternal_name(shop.getName().replace(" ", "").toLowerCase());
@@ -215,11 +197,9 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     @Override
     public Menu createMenuForAdmin(Menu menu, int shop_id) throws Exception {
-        JsonConstructor con = new JsonConstructor();
         //price_type 검증
-        if (!menu.getPrice_type().isEmpty())
-            if (!con.isArrayObjectParse(menu.getPrice_type()))
-                throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
+        if (!con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
+            throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 
         menu.setShop_id(shop_id);
         if (menu.getIs_deleted() == null) {
@@ -241,14 +221,7 @@ public class ShopServiceImpl implements ShopService {
             throw new NotFoundException(new ErrorMessage("There is no such menu", 0));
 
         Map<String, Object> map = domainToMap(menu);
-        JsonConstructor con = new JsonConstructor();
-        //price_type 컬럼을 list로
-        if(!menu.getPrice_type().isEmpty()) {
-            try {
-                map.replace("price_type", con.arrayObjectParse(menu.getPrice_type()));
-            } catch (Exception e) {
-            }
-        }
+        map.replace("price_type", con.parseJsonArrayWithObject(menu.getPrice_type()));
         return map;
     }
 
@@ -260,11 +233,9 @@ public class ShopServiceImpl implements ShopService {
         if (menu_old == null)
             throw new NotFoundException(new ErrorMessage("There is no such menu", 0));
 
-        JsonConstructor con = new JsonConstructor();
         ///price_type 검증
-        if (!menu.getPrice_type().isEmpty())
-            if (!con.isArrayObjectParse(menu.getPrice_type()))
-                throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
+        if (!con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
+            throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 
 
         menu_old.update(menu);
@@ -294,14 +265,11 @@ public class ShopServiceImpl implements ShopService {
         List<Shop> shops = shopMapper.getShopList();
         List<Map<String, Object>> shopsMapList = new ArrayList<>();
 
-        JsonConstructor con = new JsonConstructor();
 
         for (Shop shop : shops) {
             shop.setPermalink(shop.getInternal_name());
             Map<String, Object> shopMap = domainToMap(shop);
-            if (shopMap.get("image_urls") != null) {
-                shopMap.replace("image_urls", con.arrayStringParse(shopMap.get("image_urls").toString()));
-            }
+            shopMap.replace("image_urls", con.parseJsonArrayWithOnlyString(shopMap.get("image_urls").toString()));
             List<EventArticle> eventArticles = shopMapper.getPendingEventByShopId(shop.getId());
             shopMap.put("event_articles", eventArticles);
             shopsMapList.add(shopMap);
@@ -359,15 +327,11 @@ public class ShopServiceImpl implements ShopService {
 
         List<Map<String, Object>> convert_menus = new ArrayList<Map<String, Object>>();
 
-        JsonConstructor con = new JsonConstructor();
         try {
             for (Menu menu : menus) {
                 //menu를 map 객체로 바꾼 후 price_type 값을 array_in_convert_price로 교체, 그것을 다시 convert_menus에 추가
                 Map<String, Object> convert_price_menu = domainToMap(menu);
-                try {
-                    convert_price_menu.replace("price_type", con.arrayObjectParse(menu.getPrice_type()));
-                } catch (Exception e) {
-                }
+                convert_price_menu.replace("price_type", con.parseJsonArrayWithObject(menu.getPrice_type()));
                 convert_menus.add(convert_price_menu);
             }
         } catch (Exception e) {
@@ -376,12 +340,8 @@ public class ShopServiceImpl implements ShopService {
         map.put("event_articles", eventArticles);
 
         //image_urls 컬럼을 list로
-        try {
-            //변환된 list로 값 교체
-            map.replace("image_urls", con.arrayStringParse(map.get("image_urls").toString()));
-        } catch (Exception e) {
-            return map;
-        }
+        //변환된 list로 값 교체
+        map.replace("image_urls", con.parseJsonArrayWithOnlyString(map.get("image_urls").toString()));
         return map;
     }
 
