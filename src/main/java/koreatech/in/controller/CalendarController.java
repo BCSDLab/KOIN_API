@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CalendarController {
@@ -27,7 +28,7 @@ public class CalendarController {
 
     @RequestMapping(value = "/term", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<String> getTerm() throws Exception {
+    ResponseEntity<Map<String, Object>> getTerm() throws Exception {
         return new ResponseEntity<>(calendarService.getTerm(), HttpStatus.OK);
     }
 }
