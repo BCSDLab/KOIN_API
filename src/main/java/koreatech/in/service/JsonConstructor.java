@@ -38,7 +38,6 @@ public class JsonConstructor {
                 return false;
 
             JsonArray jsonArray = jsonElement.getAsJsonArray();
-            if (jsonArray.size() == 0) return false;
             for (JsonElement element : jsonArray) {
                 if (element.isJsonObject())
                     return false;
@@ -54,6 +53,9 @@ public class JsonConstructor {
         if (jsonArray == null) return null;
         List<Map<String, Object>> list;
         try {
+            for (JsonElement element : jsonArray) {
+                parseJsonObject((element.getAsJsonObject()));
+            }
             list = gson.fromJson(jsonArray, new TypeToken<List<Map<String, Object>>>() {}.getType());
         } catch (Exception e) {
             return null;
@@ -88,7 +90,6 @@ public class JsonConstructor {
                 return false;
 
             JsonArray jsonArray = jsonElement.getAsJsonArray();
-            if (jsonArray.size() == 0) return false;
             for (JsonElement element : jsonArray) {
                 if (!element.isJsonObject())
                     return false;

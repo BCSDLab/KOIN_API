@@ -7,20 +7,18 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Faq.Faq;
 import koreatech.in.domain.Faq.FaqResponseType;
-import koreatech.in.exception.*;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CircleMapper;
 import koreatech.in.repository.FaqMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 @Service
 public class CircleServiceImpl implements CircleService {
@@ -39,8 +37,8 @@ public class CircleServiceImpl implements CircleService {
 
         double totalCount = circleMapper.totalCount();
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Circle> circleList = circleMapper.getCircleListForAdmin(criteria.getCursor(), criteria.getLimit());
@@ -64,7 +62,7 @@ public class CircleServiceImpl implements CircleService {
         }
 
         //link_urls 체크
-        if(!con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+        if (circle.getLink_urls() != null && !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (circle.getIs_deleted() == null) {
@@ -82,8 +80,8 @@ public class CircleServiceImpl implements CircleService {
 
         double totalCount = circleMapper.totalCount();
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Circle> circles = circleMapper.getCircleList(criteria.getCursor(), criteria.getLimit());
@@ -111,7 +109,7 @@ public class CircleServiceImpl implements CircleService {
         int faqTotalCount = faqMapper.totalCountByCircle(id);
         int faqTotalPage = (int) Math.ceil(faqTotalCount / (double) limit);
 
-        int cursor = (page -1) * limit;
+        int cursor = (page - 1) * limit;
 
         Map<String, Object> faq = new HashMap<String, Object>();
         faq.put("items", BeanSerializer.getSerializedResult(Faq.class, new BeanSerializer(FaqResponseType.getArray()), faqMapper.getFaqListByCircle(cursor, limit, id), List.class));
@@ -152,7 +150,7 @@ public class CircleServiceImpl implements CircleService {
         }
 
         //link_urls 체크
-        if(!con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+        if (circle.getLink_urls() != null && !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
             throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 
         selectCircle.update(circle);
