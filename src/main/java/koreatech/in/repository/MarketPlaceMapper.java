@@ -84,6 +84,9 @@ public interface MarketPlaceMapper {
     @Select("SELECT COUNT(*) AS totalCount FROM koin.items WHERE IS_DELETED = 0 AND TYPE=#{type}")
     Integer totalItemCountByType(@Param("type") int type);
 
+    @Select("SELECT COUNT(*) AS totalCount FROM koin.items WHERE TYPE=#{type} AND USER_ID = #{user_id} AND IS_DELETED = 0")
+    Integer totalMyItemCountByType(@Param("type") int type, @Param("user_id") int user_id);
+
     @Select("SELECT COUNT(*) AS totalCount FROM koin.items WHERE TYPE=#{type}")
     Integer totalItemCountByTypeForAdmin(@Param("type") int type);
 
