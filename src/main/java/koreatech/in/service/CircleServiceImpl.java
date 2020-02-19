@@ -62,7 +62,7 @@ public class CircleServiceImpl implements CircleService {
         }
 
         //link_urls 체크
-        if (circle.getLink_urls() == null || !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+        if (circle.getLink_urls() != null && !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
             throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 
         if (circle.getIs_deleted() == null) {
