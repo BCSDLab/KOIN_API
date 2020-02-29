@@ -1,13 +1,12 @@
 package koreatech.in.domain;
 
 import koreatech.in.skillresponse.KakaoBotEnum;
+import org.springframework.data.redis.core.ValueOperations;
 
+import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 public class KakaoBot {
     private static final Map<String, String> changeWord = new HashMap<String, String>() {{
@@ -25,40 +24,37 @@ public class KakaoBot {
     // 방학중 셔틀 정보 : https://www.koreatech.ac.kr/kor/CMS/Contents/Contents.do?mCode=MN318
     // 2019년 겨울 방학 셔틀 : https://www.koreatech.ac.kr/kor/CMS/NoticeMgr/view.do?mCode=MN230&post_seq=25166&board_id=14
     private static final String[] expressFromKoreatechToTerminal = {
-            "08:00",
+            "08:35",
             "09:35",
-            "10:30",
-            "11:45",
+            "10:35",
+            "11:30",
             "12:35",
-            "14:00",
-            "15:05",
-            "16:00",
-            "16:55",
-            "18:05",
-            "18:55",
-            "20:00",
-            "21:05",
-            "21:55"
+            "13:35",
+            "14:35",
+            "15:30",
+            "16:35",
+            "17:35",
+            "18:35",
+            "19:35",
+            "20:30",
+            "22:05"
     };
 
     private static final String[] expressFromTerminalToKoreatech = {
             "07:00",
-            "07:30",
+            "08:00",
             "09:00",
             "10:00",
-            "10:30",
             "11:00",
             "12:00",
             "13:00",
             "14:00",
-            "14:30",
             "15:00",
             "16:00",
             "17:00",
-            "17:50",
-            "19:30",
+            "18:00",
+            "19:00",
             "20:30",
-            "21:00"
     };
     private static final String[][] shuttleFromKoreatech = {
             { // 월요일
