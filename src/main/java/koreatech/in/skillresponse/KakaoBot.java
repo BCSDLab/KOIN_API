@@ -1,6 +1,28 @@
 package koreatech.in.skillresponse;
 
-public class KakaoBotEnum {
+import java.util.HashMap;
+import java.util.Map;
+
+public class KakaoBot {
+    private static final Map<String, String> changeWord = new HashMap<String, String>() {{
+        put("아침", "BREAKFAST");
+        put("점심", "LUNCH");
+        put("저녁", "DINNER");
+        put("한기대", "koreatech");
+        put("야우리", "terminal");
+        put("천안역", "station");
+    }};
+
+    private static final String[] restaurantList = {"한식", "일품식", "특식", "양식", "능수관", "수박여"}; //"2캠퍼스"
+
+    public static String[] getRestaurantList() {
+        return restaurantList;
+    }
+
+    public static String getChangedWord(String beforeWord) {
+        return changeWord.get(beforeWord);
+    }
+
     public enum TemplateType {
         SIMPLETEXT("simpleText"), // 간단한 텍스트형 출력 요소
         SIMPLEIMAGE("simpleImage"), // 간단한 이미지형 출력 요소
@@ -61,14 +83,42 @@ public class KakaoBotEnum {
 
     public enum BusType {
         SHUTTLE("학교셔틀"),
-        EXPRESS("고속버스"),
-        CITY("시내버스")
-        ;
+        EXPRESS("대성고속"),
+        CITY("시내버스");
 
         private String typeText;
 
-        BusType(String typeText) { this.typeText = typeText; }
+        BusType(String typeText) {
+            this.typeText = typeText;
+        }
 
-        public String getTypeText() { return typeText; }
+        public String getTypeText() {
+            return typeText;
+        }
+    }
+
+    public enum TermCode {
+        FIRST_REGULAR_SEMESTER(10),
+        FIRST_SEASONAL_SEMESTER(11),
+        FIRST_VACATION(12),
+        SECOND_REGULAR_SEMESTER(20),
+        SECOND_SEASONAL_SEMESTER(21),
+        SECOND_VACATION(22);
+
+        private int termCode;
+
+        TermCode(int termCode) {
+            this.termCode = termCode;
+        }
+
+        public static boolean isValidTermCode(String termCode) {
+            for (TermCode code : TermCode.values())
+                if (termCode.equals(String.valueOf(code.getTermCode()))) return true;
+            return false;
+        }
+
+        public int getTermCode() {
+            return termCode;
+        }
     }
 }

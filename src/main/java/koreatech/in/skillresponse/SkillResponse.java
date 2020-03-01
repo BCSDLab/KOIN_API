@@ -37,7 +37,7 @@ public class SkillResponse {
         JsonObject field = new JsonObject();
         JsonObject type = new JsonObject();
         field.addProperty("text", text);
-        type.add(KakaoBotEnum.TemplateType.SIMPLETEXT.getTypeText(), field);
+        type.add(KakaoBot.TemplateType.SIMPLETEXT.getTypeText(), field);
 
         outputs.add(type);
     }
@@ -48,7 +48,7 @@ public class SkillResponse {
         JsonObject type = new JsonObject();
         field.addProperty("imageUrl", imageUrl);
         field.addProperty("altText", altText);
-        type.add(KakaoBotEnum.TemplateType.SIMPLEIMAGE.getTypeText(), field);
+        type.add(KakaoBot.TemplateType.SIMPLEIMAGE.getTypeText(), field);
 
         outputs.add(type);
     }
@@ -96,14 +96,14 @@ public class SkillResponse {
             if (description != null) field.addProperty("description", description);
             if (thumbnail != null) field.add("thumbnail", thumbnail);
             if (buttons.size() != 0) field.add("buttons", buttons);
-            type.add(KakaoBotEnum.TemplateType.BASICCARD.getTypeText(), field);
+            type.add(KakaoBot.TemplateType.BASICCARD.getTypeText(), field);
             return type;
         }
     }
 
     public void addQujckReplies(String label, String action, String messageText) throws PreconditionFailedException {
         if (quickReplies.size() >= 10) throw new PreconditionFailedException(new ErrorMessage("quickReplies의 제한은 10개 이하입니다.", 0));
-        if (!action.equals(KakaoBotEnum.QuickRepliesActionType.MESSAGE.getTypeText()))
+        if (!action.equals(KakaoBot.QuickRepliesActionType.MESSAGE.getTypeText()))
             throw new PreconditionFailedException(new ErrorMessage("quickReplies의 action이 올바르게 설정되지 않았습니다.", 0));
         if (label.length() > 8) throw new PreconditionFailedException(new ErrorMessage("quickReplies에서 label은 최대 8자 제한입니다.", 0));
 
@@ -117,7 +117,7 @@ public class SkillResponse {
 
     public void addQujckReplies(String label, String action, String messageText, String blockId) throws Exception {
         if (quickReplies.size() >= 10) throw new PreconditionFailedException(new ErrorMessage("quickReplies의 제한은 10개 이하입니다.", 0));
-        if (!action.equals(KakaoBotEnum.QuickRepliesActionType.BLOCK.getTypeText()))
+        if (!action.equals(KakaoBot.QuickRepliesActionType.BLOCK.getTypeText()))
             throw new PreconditionFailedException(new ErrorMessage("quickReplies의 action이 올바르게 설정되지 않았습니다.", 0));
         if (label.length() > 8) throw new PreconditionFailedException(new ErrorMessage("quickReplies에서 label은 최대 8자 제한입니다.", 0));
 
@@ -230,23 +230,23 @@ public class SkillResponse {
             JsonObject button = new JsonObject();
             button.addProperty("action", action);
             button.addProperty("label", label);
-            if (action.equals(KakaoBotEnum.ButtonActionType.WEBLINK.getTypeText())) {
+            if (action.equals(KakaoBot.ButtonActionType.WEBLINK.getTypeText())) {
                 if (webLinkUrl == null)
                     throw new PreconditionFailedException(new ErrorMessage("Button에서 action이 webLink일 경우, webLinkUrl은 필수 설정 항목입니다.", 0));
                 button.addProperty("webLinkUrl", webLinkUrl);
-            } else if (action.equals(KakaoBotEnum.ButtonActionType.OSLINK.getTypeText())) {
+            } else if (action.equals(KakaoBot.ButtonActionType.OSLINK.getTypeText())) {
                 if (osLink == null)
                     throw new PreconditionFailedException(new ErrorMessage("Button에서 action이 osLink일 경우, osLink는 필수 설정 항목입니다.", 0));
                 button.addProperty("osLink", osLink);
-            } else if (action.equals(KakaoBotEnum.ButtonActionType.MESSAGE.getTypeText())) {
+            } else if (action.equals(KakaoBot.ButtonActionType.MESSAGE.getTypeText())) {
                 if (messageText == null)
                     throw new PreconditionFailedException(new ErrorMessage("Button에서 action이 message일 경우, messageText는 필수 설정 항목입니다.", 0));
                 button.addProperty("messageText", messageText);
-            } else if (action.equals(KakaoBotEnum.ButtonActionType.PHONE.getTypeText())) {
+            } else if (action.equals(KakaoBot.ButtonActionType.PHONE.getTypeText())) {
                 if (phoneNumber == null)
                     throw new PreconditionFailedException(new ErrorMessage("Button에서 action이 phone일 경우, phoneNumber은 필수 설정 항목입니다.", 0));
                 button.addProperty("phoneNumber", phoneNumber);
-            } else if (action.equals(KakaoBotEnum.ButtonActionType.BLOCK.getTypeText())) {
+            } else if (action.equals(KakaoBot.ButtonActionType.BLOCK.getTypeText())) {
                 if (phoneNumber == null)
                     throw new PreconditionFailedException(new ErrorMessage("Button에서 action이 block일 경우, blockId은 필수 설정 항목입니다.", 0));
                 button.addProperty("blockId", blockId);

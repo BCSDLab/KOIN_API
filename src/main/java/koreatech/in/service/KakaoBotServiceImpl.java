@@ -4,10 +4,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import koreatech.in.domain.KakaoBot;
+import koreatech.in.domain.KakaoBot.BusFactory;
+import koreatech.in.domain.KakaoBot.BusForTerm;
+import koreatech.in.skillresponse.KakaoBot;
 import koreatech.in.skillresponse.SkillResponse;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +25,8 @@ import java.util.Optional;
 
 @Service
 public class KakaoBotServiceImpl implements KakaoBotService {
+    @Resource(name="redisTemplate")
+    private ValueOperations<String, String> valueOps;
 
     @Override
     public String checkJsonNull(JsonElement nullableJson) {
@@ -106,22 +112,11 @@ public class KakaoBotServiceImpl implements KakaoBotService {
         StringBuilder resultNow = new StringBuilder("[바로 도착]\n");
         StringBuilder resultNext = new StringBuilder("[다음 도착]\n");
 
+        BusForTerm bus = BusFactory.createBus(valueOps.get("termCode"));
         // 셔틀버스 운행정보
-        KakaoBot.searchShuttleTime(departEnglish, arrivalEnglish, resultNow, resultNext); // 학기중 셔틀버스
-        // 방학중 셔틀버스(주말과 공휴일 운영 X)
-        /*
-            대학 출발
-            14:00
-
-            터미널 출발
-            14:25
-
-            천안역 > 학교
-            14:30
-         */
-
+        bus.searchShuttleTime(departEnglish, arrivalEnglish, resultNow, resultNext);
         // 대성고속 운행정보
-        KakaoBot.searchExpressTime(departEnglish, arrivalEnglish, resultNow, resultNext);
+        bus.searchExpressTime(departEnglish, arrivalEnglish, resultNow, resultNext);
 
         // 시내버스 운행정보
         String URL = String.format("https://api.koreatech.in/buses?depart=%s&arrival=%s", departEnglish, arrivalEnglish);
