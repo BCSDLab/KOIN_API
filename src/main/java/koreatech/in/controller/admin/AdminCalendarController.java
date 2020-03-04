@@ -24,7 +24,7 @@ public class AdminCalendarController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/term", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<String> createTerm(@ApiParam(required = true, value = "10: 1학기 정규, 11: 1학기 계절, 20: 2학기 정규, 21: 2학기 계절") @RequestBody String term) {
+    ResponseEntity<String> createTerm(@ApiParam(required = true, value = "10: 1학기 정규, 11: 1학기 계절, 12: 1학기 계절 이후, 20: 2학기 정규, 21: 2학기 계절, 22: 2학기 계절 이후") @RequestBody String term) {
 
         return new ResponseEntity<>(calendarService.createTermForAdmin(term), HttpStatus.CREATED);
     }

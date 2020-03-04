@@ -5,6 +5,7 @@ import koreatech.in.domain.kut.Calendar;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CalendarMapper;
+import koreatech.in.skillresponse.KakaoBot;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
@@ -31,21 +32,24 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Map<String, Object> getTerm() throws Exception {
-        String term = valueOps.get("termCode");
+    public Map<String, Object> getTerm() {
+        String termCode = valueOps.get("termCode");
 
         // 데이터 존재여부 확인
-        if (term == null) {
+        if (termCode == null) {
             throw new NotFoundException(new ErrorMessage("저장된 학기 코드가 없습니다.", 0));
         }
         return new HashMap<String, Object>() {{
-            put("term", term);
+            put("term", termCode);
         }};
     }
 
     @Override
-    public String createTermForAdmin(String term) {
-        valueOps.set("termCode", term);
-        return term;
+    public String createTermForAdmin(String termCode) {
+        if (!KakaoBot.TermCode.isValidTermCode(termCode)) {
+            throw new PreconditionFailedException(new ErrorMessage("올바른 학기 코드가 아닙니다.", 0));
+        }
+        valueOps.set("termCode", termCode);
+        return termCode;
     }
 }
