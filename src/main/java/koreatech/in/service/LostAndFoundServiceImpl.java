@@ -75,7 +75,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyObject(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (lostItem.getIs_deleted() == null) {
@@ -173,7 +173,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyObject(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -307,7 +307,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyObject(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         lostAndFoundMapper.createLostItem(lostItem);
@@ -429,7 +429,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영

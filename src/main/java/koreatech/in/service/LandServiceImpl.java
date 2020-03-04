@@ -45,7 +45,7 @@ public class LandServiceImpl implements LandService {
         land.setInternal_name(land.getName().replace(" ","").toLowerCase());
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyObject(land.getImage_urls()))
+        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         landMapper.createLandForAdmin(land);
@@ -65,7 +65,7 @@ public class LandServiceImpl implements LandService {
         }
 
         //image_urls 체크
-        if (!con.isJsonArrayWithOnlyString(land.getImage_urls()))
+        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         land_old.update(land);

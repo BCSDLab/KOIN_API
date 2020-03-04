@@ -105,7 +105,6 @@ public class BusTago {
 
         int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
 
-        Gson gson = new Gson();
         if (count <= 1) {
             BusArrivalInfo col = new BusArrivalInfo();
             if (count == 1) {
@@ -115,7 +114,6 @@ public class BusTago {
         }
 
         result = con.parseJsonArrayWithObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
-
         return result;
     }
 

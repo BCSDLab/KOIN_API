@@ -45,7 +45,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         //image_urls 체크
-        if(!con.isJsonArrayWithOnlyString(shop.getImage_urls()))
+        if(shop.getImage_urls() != null && !con.isJsonArrayWithOnlyString(shop.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         shop.setInternal_name(shop.getName().replace(" ","").toLowerCase());
@@ -167,7 +167,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         //image_urls 체크
-        if(!con.isJsonArrayWithOnlyString(shop.getImage_urls()))
+        if(shop.getImage_urls() != null && !con.isJsonArrayWithOnlyString(shop.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (shop.getName() != null) {
@@ -198,7 +198,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Menu createMenuForAdmin(Menu menu, int shop_id) throws Exception {
         //price_type 검증
-        if (!con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
+        if (menu.getPrice_type() != null && !con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
             throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 
         menu.setShop_id(shop_id);
@@ -234,7 +234,7 @@ public class ShopServiceImpl implements ShopService {
             throw new NotFoundException(new ErrorMessage("There is no such menu", 0));
 
         ///price_type 검증
-        if (!con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
+        if (menu.getPrice_type() != null && !con.isJsonArrayWithOnlyObject(menu.getPrice_type()))
             throw new PreconditionFailedException(new ErrorMessage("Price_type is not valid", 0));
 
 
