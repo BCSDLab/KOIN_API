@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 public class Land {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
-    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "원룸 건물 이름은 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "원룸 건물 이름", example = "10")
+    @Size(max = 255, message = "건물 이름은 255자 이내여야 합니다.")
+    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "건물 이름은 비워둘 수 없습니다.")
+    @ApiModelProperty(notes = "건물 이름", example = "라이프")
     private String name;
-    @ApiModelProperty(notes = "고유 링크", example = "라이프")
+    @ApiModelProperty(hidden = true)
     private String internal_name;
     @ApiModelProperty(notes = "방 크기", example = "3.5")
     private Double size;
@@ -33,14 +33,20 @@ public class Land {
     private String address;
     @ApiModelProperty(notes = "세부사항", example = "세부사항입니다.")
     private String description;
+    @Max(value = Integer.MAX_VALUE, message = "입력할 수 없는 층수입니다.")
+    @Min(value = 0, message = "입력할 수 없는 층수입니다.")
     @ApiModelProperty(notes = "층수", example = "4")
     private Integer floor;
+    @Size(max = 255, message = "보증금은 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "보증금", example = "35.5")
     private String deposit;
+    @Size(max = 255, message = "월세는 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "월세", example = "170(6개월)")
     private String monthly_fee;
+    @Size(max = 255, message = "전세는 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "전세", example = "43.2")
     private String charter_fee;
+    @Size(max = 255, message = "관리비는 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "관리비", example = "21(1인)/22(2인)/23(3인)")
     private String management_fee;
     @ApiModelProperty(notes = "냉장고 보유 여부", example = "1")

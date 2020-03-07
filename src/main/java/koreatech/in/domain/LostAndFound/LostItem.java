@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.User.User;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 public class LostItem {
@@ -20,10 +17,12 @@ public class LostItem {
     @Max(value = 1, message = "서비스 타입은 0 또는 1이여야 합니다.")
     @ApiModelProperty(notes = "서비스 타입(0: 습득 서비스, 1: 분실 서비스)", example = "0")
     private Integer type;
+    @Size(max = 255, message = "제목은 255자 이내여야 합니다.")
     @NotNull(groups = { ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class }, message = "게시글 제목은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "제목", example = "아이패드 주웠습니다")
     private String title;
-    @ApiModelProperty(notes = "주운 장소", example = "2공 앞 벤치")
+    @Size(max = 255, message = "분실물 위치는 255자 이내여야 합니다.")
+    @ApiModelProperty(notes = "분실물 위치", example = "2공 앞 벤치")
     private String location;
     @ApiModelProperty(notes = "내용", example = "내용")
     private String content;
@@ -39,11 +38,12 @@ public class LostItem {
     @ApiModelProperty(notes = "전화번호(포맷형식: 010-0000-0000, 010-000-0000", example = "010-0000-0000")
     private String phone;
     @ApiModelProperty(notes = "전화번호 공개 여부(0: 비공개, 1: 공개)", example = "0")
-    private Boolean is_phone_open=false;
+    private Boolean is_phone_open = false;
     @ApiModelProperty(notes = "이미지 링크, string으로 받아서 저장 후 json 으로 반환", example = "['http://url.com', 'http://url.com']")
     private String image_urls;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
+    @Size(max = 510, message = "썸네일 이미지 링크는 510자 이내여야 합니다.")
     @ApiModelProperty(notes = "대표이미지, 썸네일 이미지", example = "http://url.com")
     private String thumbnail;
     @ApiModelProperty(notes = "조회수", example = "1")

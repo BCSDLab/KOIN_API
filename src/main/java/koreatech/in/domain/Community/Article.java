@@ -7,6 +7,7 @@ import koreatech.in.domain.User.User;
 import org.jsoup.Jsoup;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 public class Article {
@@ -16,6 +17,7 @@ public class Article {
     @NotNull(groups = { ValidationGroups.Create.class, ValidationGroups.CreateAdmin.class, ValidationGroups.Update.class, ValidationGroups.UpdateAdmin.class }, message = "board_id는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "게시판의 고유 id", example = "10")
     private Integer board_id;
+    @Size(max = 255, message = "제목은 255자 이내여야 합니다.")
     @NotNull(groups = { ValidationGroups.Create.class, ValidationGroups.CreateAdmin.class }, message = "게시글 제목은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "제목", example = "제목입니다.")
     private String title;

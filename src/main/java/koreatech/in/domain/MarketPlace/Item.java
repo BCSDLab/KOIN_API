@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.User.User;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 public class Item {
@@ -20,6 +17,7 @@ public class Item {
     @Max(value = 1, message = "서비스 타입은 0 또는 1이여야 합니다.")
     @ApiModelProperty(notes = "서비스 타입(0: 팝니다 서비스, 1: 삽니다 서비스)", example = "0")
     private Integer type;
+    @Size(max = 255, message = "제목은 255자 이내여야 합니다.")
     @NotNull(groups = { ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class }, message = "게시글 제목은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "제목", example = "아이패드 팝니다")
     private String title;
@@ -33,15 +31,18 @@ public class Item {
     @Max(value = 2, message = "상태 정보는 0, 1, 2 중 하나여야 합니다.")
     @ApiModelProperty(notes = "상태 정보(0: 판매중, 1: 판매완료, 2: 판매중지)", example = "0")
     private Integer state;
+    @Max(value = Integer.MAX_VALUE, message = "입력할 수 없는 가격입니다.")
+    @Min(value = 0, message = "입력할 수 없는 가격입니다.")
     @ApiModelProperty(notes = "가격", example = "21000")
-    private Integer price=0;
+    private Integer price = 0;
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "전화번호(포맷형식: 010-0000-0000, 010-000-0000", example = "010-0000-0000")
     private String phone;
     @ApiModelProperty(notes = "전화번호 공개 여부(0: 비공개, 1: 공개)", example = "0")
-    private Boolean is_phone_open=false;
+    private Boolean is_phone_open = false;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
+    @Size(max = 510, message = "썸네일 이미지 링크는 510자 이내여야 합니다.")
     @ApiModelProperty(notes = "대표이미지, 썸네일 이미지", example = "http://url.com")
     private String thumbnail;
     @ApiModelProperty(notes = "조회수", example = "1")

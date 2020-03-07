@@ -43,13 +43,13 @@ public interface UserMapper {
     @Update("UPDATE koin.users_owners AS owner SET owner.email = #{email} WHERE owner.user_id = #{id}")
     void updateOwner(Owner owner);
 
-    @Select("SELECT COUNT(*) AS totalCount FROM koin.users")
+    @Select("SELECT COUNT(*) AS totalCount FROM koin.users WHERE IS_DELETED = 0")
     Integer totalCount();
 
-    @Select("SELECT * FROM koin.users WHERE PORTAL_ACCOUNT = #{portal_account}")
+    @Select("SELECT * FROM koin.users WHERE PORTAL_ACCOUNT = #{portal_account} AND IS_DELETED = 0")
     User getUserByPortalAccount(String portal_account);
 
-    @Select("SELECT * FROM koin.users WHERE NICKNAME = #{nickname}")
+    @Select("SELECT * FROM koin.users WHERE NICKNAME = #{nickname} AND IS_DELETED = 0")
     User getUserByNickName(String nickname);
 
     @Select("SELECT * FROM koin.users WHERE AUTH_TOKEN = #{authToken}")
