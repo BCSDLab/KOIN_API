@@ -6,16 +6,19 @@ import koreatech.in.annotation.ValidationGroups;
 import org.jsoup.Jsoup;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 public class TempArticle {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
+    @Size(max = 255, message = "제목은 255자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.Create.class, message = "게시글 제목은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "제목", example = "제목입니다.")
     private String title;
     @ApiModelProperty(notes = "내용", example = "내용입니다.")
     private String content;
+    @Size(max = 50, message = "닉네임은 50자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.Create.class, message = "닉네임은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "작성자의 닉네임", example = "jahona")
     private String nickname;

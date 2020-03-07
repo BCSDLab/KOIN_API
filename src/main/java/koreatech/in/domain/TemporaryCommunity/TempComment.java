@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 public class TempComment {
@@ -15,6 +16,7 @@ public class TempComment {
     @NotNull(groups = ValidationGroups.Create.class, message = "댓글 내용은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "내용", example = "내용입니다.")
     private String content;
+    @Size(max = 50, message = "닉네임은 50자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.Create.class, message = "닉네임은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "작성자의 닉네임", example = "jahona")
     private String nickname;

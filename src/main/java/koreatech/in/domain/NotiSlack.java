@@ -1,9 +1,5 @@
 package koreatech.in.domain;
 
-import org.springframework.beans.factory.annotation.Value;
-
-import java.util.Map;
-
 public class NotiSlack {
     private String color;
     private String author_name;

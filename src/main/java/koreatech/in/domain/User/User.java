@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Date;
 
@@ -21,12 +22,15 @@ public class User implements UserDetails {
     @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "비밀번호는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
     protected String password;
+    @Size(max = 50, message = "닉네임은 50자 이내여야 합니다.")
     @ApiModelProperty(notes = "닉네임", example = "bbo")
     protected String nickname;
     @ApiModelProperty(notes = "익명 닉네임", example = "익명_1522771686642")
     protected String anonymous_nickname;
-    @ApiModelProperty(notes = "이름", example = "정혁")
+    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
+    @ApiModelProperty(notes = "이름", example = "정보혁")
     protected String name;
+    @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
     @ApiModelProperty(notes = "학번", example = "2013136000")
     protected String student_number;
     @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부", example = "컴퓨터공학부")
