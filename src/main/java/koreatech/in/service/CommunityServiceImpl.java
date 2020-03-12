@@ -455,19 +455,15 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public Article createArticle(Article article) throws Exception {
         User user = jwtValidator.validate();
+        if (user.getNickname() == null)
+            throw new PreconditionFailedException(new ErrorMessage("닉네임이 필요합니다.", 2));
 
         Board board = communityMapper.getBoard(article.getBoard_id());
 
         if (board == null)
             throw new NotFoundException(new ErrorMessage("invalid board id", 2));
 
-//        if (board.getIs_notice() && (user.getAuthority() == null || !user.getAuthority().getGrant_community())) {
-//            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-//        }
-//        else {
         article.setIs_notice(false);
-//        }
-
         article.setUser_id(user.getId());
         //TODO: (B)기존 Purifier로 content 필터링했던 부분 추가
         article.setNickname(user.getNickname());
@@ -556,6 +552,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public Article updateArticle(Article article, int id) throws Exception {
         User user = jwtValidator.validate();
+        if (user.getNickname() == null)
+            throw new PreconditionFailedException(new ErrorMessage("닉네임이 필요합니다.", 2));
 
         Article article_old = communityMapper.getArticle(id);
         if (article_old == null)
@@ -602,7 +600,7 @@ public class CommunityServiceImpl implements CommunityService {
         User user = jwtValidator.validate();
 
         if (user.getNickname() == null)
-            throw new PreconditionFailedException(new ErrorMessage("nickname is required", 0));
+            throw new PreconditionFailedException(new ErrorMessage("닉네임이 필요합니다.", 0));
 
         Article article = communityMapper.getArticle(article_id);
         if (article == null)

@@ -5,11 +5,13 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 public class Faq {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
+    @Size(max = 255, message = "질문은 255자 이내여야 합니다.")
     @NotNull(groups = { ValidationGroups.CreateAdmin.class, ValidationGroups.UpdateAdmin.class }, message = "질문은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "질문", example = "질문1")
     private String question;

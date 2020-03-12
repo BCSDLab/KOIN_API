@@ -1,8 +1,9 @@
 package koreatech.in.schedule;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import koreatech.in.domain.BusArrivalInfo;
-import koreatech.in.domain.NotiSlack;
 import koreatech.in.service.JsonConstructor;
 import koreatech.in.util.SlackNotiSender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +25,6 @@ import java.util.Map;
 
 @Service("busTagoSchedule")
 public class BusTago {
-    private String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
-
-    @Value("${OPEN_API_KEY}")
-    private static String OPEN_API_KEY;
-    @Value("${OPEN_API_KEY}")
-    private void setOpenApiKey(String key) { OPEN_API_KEY = key; }
-    public static String getOpenApiKey() { return OPEN_API_KEY; }
-
-    public int[] avaliableBus = {400, 401, 402, 493};
-
-    @Autowired
-    SlackNotiSender slackNotiSender;
-
-    private static String cityCode = "34010";
     public static List<List<String>> nodeIds = new ArrayList<List<String>>() {{
         add(new ArrayList<String>() {{
             add("CAB285000405");
@@ -56,25 +43,31 @@ public class BusTago {
             add("terminal");
         }});
     }};
-
+    private static String OPEN_API_KEY;
+    private static String cityCode = "34010";
     private static ValueOperations<String, List<Map<String, Object>>> valueOps;
-    @Resource(name = "redisTemplate")
-    public void setValueOps(ValueOperations<String, List<Map<String, Object>>> _valueOps) {
-        valueOps = _valueOps;
+    public int[] avaliableBus = {400, 401, 402, 493};
+
+    @Autowired
+    SlackNotiSender slackNotiSender;
+
+    private static JsonConstructor con;
+
+    private String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
+
+    @Value("${OPEN_API_KEY}")
+    private void setOpenApiKey(String key) {
+        OPEN_API_KEY = key;
     }
 
-    private void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
-        String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId.get(0));
-
-        List<Map<String, Object>> info = requestBusArrivalInfo(cityCode, nodeId);
-
-        valueOps.set(cacheKey, info);
+    @Autowired
+    private void setCon(JsonConstructor jsonConstructor) {
+        con = jsonConstructor;
     }
 
     private static List<Map<String, Object>> requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
 
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-        JsonConstructor con = new JsonConstructor();
 
         StringBuilder urlBuilder = new StringBuilder("http://openapi.tago.go.kr/openapi/service/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList"); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8") + "=" + OPEN_API_KEY); /*Service Key*/
@@ -101,9 +94,8 @@ public class BusTago {
         }
         rd.close();
         conn.disconnect();
-//        System.out.println(sb.toString());
 
-        if (!con.isObjectParse(sb.toString())) return result;
+        if (!con.isJsonObject(sb.toString())) return result;
 
         JsonObject nodeInfo = new JsonParser().parse(sb.toString()).getAsJsonObject();
 
@@ -113,25 +105,36 @@ public class BusTago {
 
         int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
 
-        Gson gson = new Gson();
-        if (count <=1) {
+        if (count <= 1) {
             BusArrivalInfo col = new BusArrivalInfo();
             if (count == 1) {
-                result.add(con.objectParse(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonObject("item")));
+                result.add(con.parseJsonObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonObject("item")));
             }
             return result;
         }
 
-        result = con.arrayObjectParse(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
-
+        result = con.parseJsonArrayWithObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
         return result;
+    }
+
+    @Resource(name = "redisTemplate")
+    public void setValueOps(ValueOperations<String, List<Map<String, Object>>> _valueOps) {
+        valueOps = _valueOps;
+    }
+
+    private void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
+        String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId.get(0));
+
+        List<Map<String, Object>> info = requestBusArrivalInfo(cityCode, nodeId);
+
+        valueOps.set(cacheKey, info);
     }
 
     @Scheduled(cron = "0 */1 * * * *")
     public void handle() {
         try {
-            for (List<String> nodeId: nodeIds) {
-                System.out.println("updating...("+cityCode+","+nodeId.get(0)+","+nodeId.get(1)+")\n");
+            for (List<String> nodeId : nodeIds) {
+                System.out.println("updating...(" + cityCode + "," + nodeId.get(0) + "," + nodeId.get(1) + ")\n");
                 updateAndCacheBusArrivalInfo(cityCode, nodeId);
             }
         } catch (NullPointerException e) {
@@ -153,7 +156,7 @@ public class BusTago {
     }
 
     public List<Map<String, Object>> getBusArrivalInfo(String nodeId) {
-        return getBusArrivalInfo(cityCode,nodeId);
+        return getBusArrivalInfo(cityCode, nodeId);
     }
 
 //    private void sendError(Exception e) {

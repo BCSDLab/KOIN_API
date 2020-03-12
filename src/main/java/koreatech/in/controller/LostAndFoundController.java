@@ -64,7 +64,7 @@ public class LostAndFoundController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateLostItem(@ApiParam(value="(optional: type, title, location, date, content, state, phone, is_phone_open, thumbnail)", required = false) @RequestBody @Validated(ValidationGroups.Update.class) LostItem lostItem, BindingResult bindingResult, @ApiParam(required = true) @PathVariable int id) throws Exception {
+    ResponseEntity updateLostItem(@ApiParam(value="(required: type), (optional: title, location, date, content, state, phone, is_phone_open, thumbnail)", required = false) @RequestBody @Validated(ValidationGroups.Update.class) LostItem lostItem, BindingResult bindingResult, @ApiParam(required = true) @PathVariable int id) throws Exception {
         LostItem clear = new LostItem();
         return new ResponseEntity<LostItem>(lostAndFoundService.updateLostItem((LostItem) StringXssChecker.xssCheck(lostItem, clear), id), HttpStatus.CREATED);
     }

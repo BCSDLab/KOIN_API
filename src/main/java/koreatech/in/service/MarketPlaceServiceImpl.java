@@ -452,7 +452,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
             throw new PreconditionFailedException(new ErrorMessage("invalid type", 0));
         }
 
-        double totalCount = marketPlaceMapper.totalItemCountByType(type);
+        double totalCount = marketPlaceMapper.totalMyItemCountByType(type, user.getId());
         //TODO: paging을 위한 중복코드, 반복코드 개선방법 찾기
         int totalPage = (int)Math.ceil(totalCount / criteria.getLimit());
 

@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -439,11 +440,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 //
 //        mailSender.send(preparator);
 
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<>();
         model.put("authToken", authToken);
         model.put("contextPath", contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", "UTF-8", model);
 
         sesMailSender.sendMail("no-reply@bcsdlab.com", toAccount, "코인 이메일 회원가입 인증", text);
 
@@ -531,7 +532,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 //
 //        mailSender.send(preparator);
 
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<>();
         model.put("resetToken", resetToken);
         model.put("contextPath", contextPath);
 
@@ -693,14 +694,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> checkUserNickName(String nickname) {
-        User user = userMapper.getUserByNickName(nickname);
+        if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
 
+        User user = userMapper.getUserByNickName(nickname);
         if (user != null) {
-            throw new ConflictException(new ErrorMessage("nickname impossible use", 0));
+            throw new ConflictException(new ErrorMessage("사용할 수 없는 닉네임입니다.", 0));
         }
 
         return new HashMap<String, Object>() {{
-            put("success", "nickname possible use");
+            put("success", "사용 가능한 닉네임입니다.");
         }};
     }
 
