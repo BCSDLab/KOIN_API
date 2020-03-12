@@ -22,7 +22,7 @@ public class User implements UserDetails {
     @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "비밀번호는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
     protected String password;
-    @Size(max = 50, message = "닉네임은 50자 이내여야 합니다.")
+    @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
     @ApiModelProperty(notes = "닉네임", example = "bbo")
     protected String nickname;
     @ApiModelProperty(notes = "익명 닉네임", example = "익명_1522771686642")
