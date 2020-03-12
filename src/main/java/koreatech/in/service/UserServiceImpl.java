@@ -694,7 +694,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> checkUserNickName(String nickname) {
-        if (StringUtils.isEmpty(nickname) || nickname.length() > 50)
+        if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
 
         User user = userMapper.getUserByNickName(nickname);
