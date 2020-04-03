@@ -1,14 +1,9 @@
 package koreatech.in.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsync;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
-import com.amazonaws.services.simpleemail.model.*;
-import koreatech.in.annotation.Auth;
-import koreatech.in.domain.*;
+import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -19,13 +14,8 @@ import koreatech.in.repository.UserMapper;
 import koreatech.in.util.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,8 +27,8 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.mail.internet.MimeMessage;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
@@ -55,16 +45,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private SesMailSender sesMailSender;
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
     private VelocityEngine velocityEngine;
-
-    @Value("${AWS_ACCESS_KEY_ID}")
-    private String AWS_ACCESS_KEY_ID;
-
-    @Value("${AWS_SECRET_KEY}")
-    private String AWS_SECRET_KEY;
 
     @Autowired
     private JwtValidator jwtValidator;
@@ -73,7 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private JwtTokenGenerator jwtTokenGenerator;
 
     @Autowired
-    SlackNotiSender slackNotiSender;
+    private SlackNotiSender slackNotiSender;
 
     @Inject
     private PasswordEncoder passwordEncoder;
@@ -306,7 +287,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String getToken = valueOps.get("user@"+selectUser.getId().toString());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            valueOps.set("user@"+selectUser.getId().toString(),getToken);
+            valueOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -577,6 +558,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     public Map<String, Object> withdraw() throws Exception {
         User user = jwtValidator.validate();
+        userMapper.deleteUser(user.getId());
+        redisTemplate.delete("user@" + user.getId().toString());
 
         NotiSlack slack_message = new NotiSlack();
 
@@ -584,10 +567,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         slack_message.setText(user.getPortal_account() + "님이 탈퇴하셨습니다.");
 
         slackNotiSender.noticeWithdraw(slack_message);
-
-        userMapper.deleteUser(user.getId());
-
-        // TODO: 추후 jwt 토큰 이력도 지우기
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -723,10 +702,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(selectUser);
         Map<String,Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        String getToken = valueOps.get("user@"+selectUser.getId().toString());
+        String getToken = valueOps.get("user@" + selectUser.getId().toString());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            valueOps.set("user@"+selectUser.getId().toString(),getToken);
+            valueOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -740,9 +719,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> logout() {
-        // TODO: jwt 이력 삭제
-        User user = jwtValidator.validate();
-        redisTemplate.delete("user@" + user.getId().toString());
+        jwtValidator.validate();
 
         return new HashMap<String, Object>() {{
             put("success", "logout");
