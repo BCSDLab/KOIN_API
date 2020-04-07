@@ -134,15 +134,15 @@ public class BusTago {
     public void handle() {
         try {
             for (List<String> nodeId : nodeIds) {
-                System.out.println("updating...(" + cityCode + "," + nodeId.get(0) + "," + nodeId.get(1) + ")\n");
+//                System.out.println("updating...(" + cityCode + "," + nodeId.get(0) + "," + nodeId.get(1) + ")\n");
                 updateAndCacheBusArrivalInfo(cityCode, nodeId);
             }
         } catch (NullPointerException e) {
 //            sendError(e);
-            System.out.println(e.toString());
+//            System.out.println(e.toString());
         } catch (Exception e) {
 //            sendError(e);
-            System.out.println(e.toString() + "\n");
+//            System.out.println(e.toString() + "\n");
         }
     }
 

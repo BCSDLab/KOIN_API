@@ -1,9 +1,13 @@
 package koreatech.in.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.UnauthorizeException;
 import org.springframework.data.redis.core.ValueOperations;
@@ -17,16 +21,19 @@ public class JwtTokenGenerator {
     private Key key;
 
     @Resource(name = "redisTemplate")
-    private ValueOperations<String, Key> valueOps;
+    private ValueOperations<String, Key> valueOpsStrKey;
+
+    @Resource(name = "redisTemplate")
+    private ValueOperations<String, String> valueOpsStrStr;
 
     public JwtTokenGenerator() { }
 
     @PostConstruct
     public void keySetter() {
-        key = valueOps.get("secretKey");
+        key = valueOpsStrKey.get("secretKey");
         if (key == null) {
             key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-            valueOps.set("secretKey", key);
+            valueOpsStrKey.set("secretKey", key);
         }
     }
 
@@ -39,31 +46,27 @@ public class JwtTokenGenerator {
     public int me(String token) {
         try {
             Claims body = Jwts.parser().setSigningKey(this.key).parseClaimsJws(token).getBody();
-
-            Date expiredAt = body.getExpiration();
-
-            if(expiredAt.getTime() - new Date().getTime() < 0) {
-                throw new UnauthorizeException(new ErrorMessage("Invalid JWT", 0));
+            int userId = Integer.parseInt(body.getSubject());
+            String redisToken = valueOpsStrStr.get("user@" + userId);
+            if (!token.equals(redisToken)) {
+                throw new UnauthorizeException(new ErrorMessage("토큰이 변경되었습니다. 다시 로그인해주세요.", 0));
             }
-
-            return Integer.parseInt(body.getSubject());
-        } catch (Exception e) {
-            throw new UnauthorizeException(new ErrorMessage("Invalid JWT", 0));
+            return userId;
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new UnauthorizeException(new ErrorMessage("잘못된 접근입니다.", 0));
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizeException(new ErrorMessage("토큰이 만료되었습니다.", 0));
         }
     }
 
     public Boolean isExpired(String token) {
         try {
-            Claims body = Jwts.parser().setSigningKey(this.key).parseClaimsJws(token).getBody();
-
-            Date expiredAt = body.getExpiration();
-
-            if(expiredAt.getTime() - new Date().getTime() < 0) {
-                return true;
-            }
-        } catch (Exception e) {
+            Jwts.parser().setSigningKey(this.key).parseClaimsJws(token);
+            return false;
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new UnauthorizeException(new ErrorMessage("잘못된 접근입니다.", 0));
+        } catch (ExpiredJwtException e) {
             return true;
         }
-        return false;
     }
 }

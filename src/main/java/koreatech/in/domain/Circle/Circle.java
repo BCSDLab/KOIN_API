@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class Circle {
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "동아리 카테고리는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "예술분야(C001), 공연분야(C002), 운동분야(C003), 학술분야(C004), 종교분야(C005), 사회봉사(C006), 준동아리(C007)", example = "C001")
     private String category;
+    @Size(max = 50, message = "동아리 이름은 50자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "동아리 이름은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "동아리 이름", example = "BCSD LAB")
     private String name;
@@ -33,11 +35,14 @@ public class Circle {
     private Boolean is_deleted;
     @ApiModelProperty(notes = "담당교수", example = "교수님")
     private String professor;
+    @Size(max = 255, message = "동아리방 위치 설명은 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "동아리방 위치", example = "동아리방 412호")
     private String location;
+    @Size(max = 255, message = "주요사업 설명은 255자 이내여야 합니다.")
     @ApiModelProperty(notes = "주요사업", example = "컴퓨터 고치기")
     private String major_business;
-    @ApiModelProperty(notes = "메인 소개 홈페이지", example = "https://bcsdlab.com")
+    @Size(max = 255, message = "동아리 홈페이지 링크는 255자 이내여야 합니다.")
+    @ApiModelProperty(notes = "동아리 홈페이지", example = "https://bcsdlab.com")
     private String introduce_url;
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")

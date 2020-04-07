@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 public class Menu {
@@ -12,6 +13,7 @@ public class Menu {
     private Integer id;
     @ApiModelProperty(notes = "상점의 고유 id", example = "10")
     private Integer shop_id;
+    @Size(max = 255, message = "메뉴 이름은 255자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "메뉴 이름은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "메뉴", example = "치즈불닭")
     private String name;

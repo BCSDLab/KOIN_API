@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.*;
 
 public class Shop {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
+    @Size(max = 50, message = "가게 이름은 50자 이내여야 합니다.")
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "가게 이름은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "가게 이름", example = "써니 숯불 도시락")
     private String name;
@@ -38,8 +38,10 @@ public class Shop {
     private String description;
     @ApiModelProperty(notes = "배달 가능 여부", example = "false")
     private Boolean delivery;
+    @Max(value = Integer.MAX_VALUE, message = "입력할 수 없는 가격입니다.")
+    @Min(value = 0, message = "입력할 수 없는 가격입니다.")
     @ApiModelProperty(notes = "배달 금액", example = "20000")
-    private Integer delivery_price=0;
+    private Integer delivery_price = 0;
     @ApiModelProperty(notes = "카드 가능 여부", example = "false")
     private Boolean pay_card;
     @ApiModelProperty(notes = "계좌이체 가능 여부", example = "false")
