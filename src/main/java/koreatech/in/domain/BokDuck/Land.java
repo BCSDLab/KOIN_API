@@ -460,7 +460,7 @@ public class Land {
             this.opt_electronic_door_locks = land.opt_electronic_door_locks;
         }
         if(land.opt_bidet != null) {
-            this.opt_desk = land.opt_desk;
+            this.opt_bidet = land.opt_bidet;
         }
         if(land.opt_veranda != null) {
             this.opt_veranda = land.opt_veranda;
