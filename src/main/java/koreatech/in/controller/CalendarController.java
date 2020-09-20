@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.kut.Calendar;
 import koreatech.in.service.CalendarService;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ public class CalendarController {
     @Inject
     private CalendarService calendarService;
 
+    @ApiOff
     @RequestMapping(value = "/calendars", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<List<Calendar>> getCalendars(@ApiParam(required = true) @RequestParam(value = "year") String year) {

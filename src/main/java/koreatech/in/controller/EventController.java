@@ -1,10 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.*;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.annotation.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
@@ -31,6 +28,7 @@ public class EventController {
     @Inject
     private EventService eventService;
 
+    @ApiOff
     @AuthExcept
     @ApiOperation(value = "전체 홍보글 조회")
     @RequestMapping(value = "/events", method = RequestMethod.GET)
@@ -40,6 +38,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getEventArticles(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "홍보글 작성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events", method = RequestMethod.POST)
@@ -50,6 +49,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.createEventArticle((EventArticle) StringXssChecker.xssCheck(eventArticle, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @AuthExcept
     @ApiOperation(value = "특정 홍보글 조회")
     @RequestMapping(value = "/events/{id}", method = RequestMethod.GET)
@@ -59,6 +59,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getEventArticle(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "홍보글 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/{id}", method = RequestMethod.PUT)
@@ -68,6 +69,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.updateEventArticle((EventArticle) StringXssChecker.xssCheck(eventArticle, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "홍보글 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -76,6 +78,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.deleteEventArticle(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @Auth(role = Auth.Role.USER)
     @ParamValid
     @ApiOperation(value = "홍보글 댓글 작성", authorizations = {@Authorization(value = "Authorization")})
@@ -95,6 +98,7 @@ public class EventController {
 //        return new ResponseEntity<>(eventService.getEventComment(articleId, commentId), HttpStatus.OK);
 //    }
 
+    @ApiOff
     @Auth(role = Auth.Role.USER)
     @ParamValid
     @ApiOperation(value = "홍보글 댓글 수정", authorizations = {@Authorization(value = "Authorization")})
@@ -105,6 +109,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.updateEventComment((EventComment) StringXssChecker.xssCheck(comment, clear), articleId, commentId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @Auth(role = Auth.Role.USER)
     @ApiOperation(value = "홍보글 댓글 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/{articleId}/comments/{commentId}", method = RequestMethod.DELETE)
@@ -114,6 +119,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.deleteEventComment(articleId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "점주의 가게 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/my/shops", method = RequestMethod.GET)
     public @ResponseBody
@@ -122,6 +128,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getMyShops(), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "점주의 진행 중인 홍보 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/pending/my", method = RequestMethod.GET)
     public @ResponseBody
@@ -130,6 +137,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getMyPendingEvent(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @AuthExcept
     @ApiOperation(value = "진행 중인 전체 홍보글 조회")
     @RequestMapping(value = "/events/pending", method = RequestMethod.GET)
@@ -139,6 +147,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getPendingEvents(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @AuthExcept
     @ApiOperation(value = "마감된 전체 홍보글 조회")
     @RequestMapping(value = "/events/closed", method = RequestMethod.GET)
@@ -148,6 +157,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getClosedEvents(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "특정 홍보글 수정 권한 확인", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/events/grant/check", method = RequestMethod.POST)
     public @ResponseBody
@@ -158,6 +168,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.checkGrantEditEvent(article_id.get("article_id")), HttpStatus.OK);
     }
 
+    @ApiOff
     @AuthExcept
     @ApiOperation(value = "진행 중인 이벤트 랜덤 조회")
     @RequestMapping(value = "/events/pending/random", method = RequestMethod.GET)

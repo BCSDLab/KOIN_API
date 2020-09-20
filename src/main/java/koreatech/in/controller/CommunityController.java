@@ -3,10 +3,7 @@ package koreatech.in.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.annotation.*;
 import koreatech.in.domain.Community.Article;
 import koreatech.in.domain.Community.Board;
 import koreatech.in.domain.Community.Comment;
@@ -34,6 +31,7 @@ public class CommunityController {
     @Inject
     private CommunityService communityService;
 
+    @ApiOff
     @AuthExcept
     @RequestMapping(value = "/boards", method = RequestMethod.GET)
     public @ResponseBody
@@ -42,6 +40,7 @@ public class CommunityController {
         return new ResponseEntity<List<Board>>(communityService.getBoards(), HttpStatus.OK);
     }
 
+    @ApiOff
     @AuthExcept
     @RequestMapping(value = "/boards/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -59,6 +58,7 @@ public class CommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.getArticles(boardId, criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
@@ -68,6 +68,7 @@ public class CommunityController {
         return new ResponseEntity<Article>(communityService.createArticle((Article)StringXssChecker.xssCheck(article, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @AuthExcept
     @RequestMapping(value = "/articles/new/list", method = RequestMethod.GET)
     public @ResponseBody
@@ -93,6 +94,7 @@ public class CommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.getArticle(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.PUT)
@@ -102,6 +104,7 @@ public class CommunityController {
         return new ResponseEntity<Article>(communityService.updateArticle((Article)StringXssChecker.xssCheck(article, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -110,6 +113,7 @@ public class CommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.deleteArticle(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{articleId}/comments", method = RequestMethod.POST)
@@ -119,6 +123,7 @@ public class CommunityController {
         return new ResponseEntity<Comment>(communityService.createComment((Comment)StringXssChecker.xssCheck(comment,clear), articleId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{articleId}/comments/{commentId}", method = RequestMethod.GET)
     public @ResponseBody
@@ -127,6 +132,7 @@ public class CommunityController {
         return new ResponseEntity<Comment>(communityService.getComment(articleId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{articleId}/comments/{commentId}", method = RequestMethod.PUT)
@@ -136,6 +142,7 @@ public class CommunityController {
         return new ResponseEntity<Comment>(communityService.updateComment((Comment)StringXssChecker.xssCheck(comment,clear), articleId, commentId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/{articleId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -144,6 +151,7 @@ public class CommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.deleteComment(articleId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/articles/grant/check", method = RequestMethod.POST)
     public @ResponseBody
