@@ -3,6 +3,7 @@ package koreatech.in.controller.admin;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -28,6 +29,7 @@ public class AdminCommunityController {
     @Inject
     CommunityService communityService;
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/boards", method = RequestMethod.POST)
@@ -37,6 +39,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Board>(communityService.createBoardForAdmin(board), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/boards", method = RequestMethod.GET)
     public @ResponseBody
@@ -45,6 +48,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.getBoardsForAdmin(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/boards/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -53,6 +57,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Board>(communityService.getBoardForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/boards/{id}", method = RequestMethod.PUT)
@@ -62,6 +67,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Board>(communityService.updateBoardForAdmin(board, id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/boards/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -121,7 +127,7 @@ public class AdminCommunityController {
         Comment clear = new Comment();
         return new ResponseEntity<Comment>(communityService.createCommentForAdmin((Comment)StringXssChecker.xssCheck(comment,clear), articleId), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{articleId}/comments/{commentId}", method = RequestMethod.GET)
     public @ResponseBody
