@@ -1,10 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.*;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.annotation.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.LostAndFound.LostItem;
@@ -32,7 +29,7 @@ import java.util.Map;
 public class LostAndFoundController {
     @Inject
     private LostAndFoundService lostAndFoundService;
-
+    @ApiOff
     @AuthExcept
     @RequestMapping(value = "/lost/lostItems", method = RequestMethod.GET)
     public @ResponseBody
@@ -42,7 +39,7 @@ public class LostAndFoundController {
         //TODO: 현재 lost_items 테이블 date 컬럼이 DATE 형식이라 0000-00-00 select시 에러발생, Varchar로 변경
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.getLostItems(type, criteria), HttpStatus.OK);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems", method = RequestMethod.POST)
@@ -51,7 +48,7 @@ public class LostAndFoundController {
         LostItem clear = new LostItem();
         return new ResponseEntity<LostItem>(lostAndFoundService.createLostItem((LostItem) StringXssChecker.xssCheck(lostItem, clear)), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @AuthExcept
     @RequestMapping(value = "/lost/lostItems/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -59,7 +56,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.getLostItem(id), HttpStatus.OK);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{id}", method = RequestMethod.PUT)
@@ -68,7 +65,7 @@ public class LostAndFoundController {
         LostItem clear = new LostItem();
         return new ResponseEntity<LostItem>(lostAndFoundService.updateLostItem((LostItem) StringXssChecker.xssCheck(lostItem, clear), id), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -76,7 +73,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.deleteLostItem(id), HttpStatus.OK);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{id}/state", method = RequestMethod.PUT)
     public @ResponseBody
@@ -84,7 +81,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<LostItem>(lostAndFoundService.updateStateOfLostItem(state.getState(), id), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/my/lostItems", method = RequestMethod.GET)
     public @ResponseBody
@@ -94,7 +91,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{lostItemId}/comments", method = RequestMethod.POST)
@@ -103,7 +100,7 @@ public class LostAndFoundController {
         LostItemComment clear = new LostItemComment();
         return new ResponseEntity<LostItemComment>(lostAndFoundService.createLostItemComment((LostItemComment)StringXssChecker.xssCheck(lostItemComment, clear), lost_item_id), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.PUT)
@@ -112,7 +109,7 @@ public class LostAndFoundController {
         LostItemComment clear = new LostItemComment();
         return new ResponseEntity<LostItemComment>(lostAndFoundService.updateLostItemComment((LostItemComment)StringXssChecker.xssCheck(lostItemComment, clear), lost_item_id, commentId), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.GET)
     public @ResponseBody
@@ -120,7 +117,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<LostItemComment>(lostAndFoundService.getLostItemComment(lost_item_id, commentId), HttpStatus.OK);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -128,7 +125,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.deleteLostItemComment(lost_item_id, commentId), HttpStatus.OK);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/grant/check", method = RequestMethod.POST)
     public @ResponseBody
@@ -138,7 +135,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Boolean>>(lostAndFoundService.checkGrantEditLostItem(lostItem_id.get("lostItem_id")), HttpStatus.OK);
     }
-
+    @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
@@ -150,7 +147,7 @@ public class LostAndFoundController {
 
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.lostItemImagesUpload(fileList), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lost/lostItems/image/thumbnail/upload", method = RequestMethod.POST)
     public @ResponseBody

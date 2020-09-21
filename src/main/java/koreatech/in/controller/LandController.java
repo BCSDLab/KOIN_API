@@ -3,10 +3,7 @@ package koreatech.in.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.annotation.*;
 import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.service.LandService;
 import koreatech.in.util.StringXssChecker;
@@ -27,6 +24,7 @@ public class LandController {
     @Inject
     private LandService landService;
 
+
     @AuthExcept
     @RequestMapping(value = "/lands", method = RequestMethod.GET)
     public @ResponseBody
@@ -36,6 +34,7 @@ public class LandController {
     }
 
 //    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+
     @AuthExcept
     @RequestMapping(value = "/lands/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -43,7 +42,7 @@ public class LandController {
 
         return new ResponseEntity<Map<String, Object>>(landService.getLand(id), HttpStatus.OK);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.PUT)
@@ -52,7 +51,7 @@ public class LandController {
 
         return new ResponseEntity<LandComment>(landService.updateLandComment(landComment, id), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.POST)
@@ -61,7 +60,7 @@ public class LandController {
         LandComment clear = new LandComment();
         return new ResponseEntity<LandComment>(landService.createLandComment((LandComment)StringXssChecker.xssCheck(landComment, clear), id), HttpStatus.CREATED);
     }
-
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
