@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.service.SearchService;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class SearchController {
     @Inject
     private SearchService searchService;
 
+    @ApiOff
     @RequestMapping(value = "/articles/search", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity searchCommunity(@ModelAttribute("searchCriteria") SearchCriteria searchCriteria) throws Exception {
@@ -24,6 +26,7 @@ public class SearchController {
         return new ResponseEntity<>(searchService.searchCommunity(searchCriteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/shops/search", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity searchShop(@ModelAttribute("searchCriteria") SearchCriteria searchCriteria) throws Exception {
