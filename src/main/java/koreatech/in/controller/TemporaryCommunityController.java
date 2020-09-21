@@ -3,6 +3,7 @@ package koreatech.in.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Criteria.Criteria;
@@ -29,6 +30,7 @@ public class TemporaryCommunityController {
     @Inject
     private TemporaryCommunityService tempCommunityService;
 
+    @ApiOff
     @RequestMapping(value = "/temp/articles", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getArticles(@ModelAttribute("criteria") Criteria criteria) throws Exception {
@@ -38,6 +40,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @RequestMapping(value = "/temp/articles", method = RequestMethod.POST)
     public @ResponseBody
@@ -47,6 +50,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<TempArticle>(tempCommunityService.createArticle((TempArticle)StringXssChecker.xssCheck(article, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/articles/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getArticle(@ApiParam(required = true) @PathVariable int id) throws Exception {
@@ -55,6 +59,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(article, HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @RequestMapping(value = "/temp/articles/{id}", method = RequestMethod.PUT)
     public @ResponseBody
@@ -64,6 +69,7 @@ public class TemporaryCommunityController {
     }
 
     //TODO: password가 한글로 입력되었을 경우 header에 실을때 에러
+    @ApiOff
     @RequestMapping(value = "/temp/articles/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity deleteArticle(@ApiParam(required = true) @PathVariable int id,
@@ -72,6 +78,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(tempCommunityService.deleteArticle(id, password), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @RequestMapping(value = "/temp/articles/{articleId}/comments", method = RequestMethod.POST)
     public @ResponseBody
@@ -80,6 +87,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<TempComment>(tempCommunityService.createComment((TempComment)StringXssChecker.xssCheck(comment,clear), articleId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/articles/{articleId}/comments/{commentId}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getComment(@ApiParam(required = true) @PathVariable int articleId, @ApiParam(required = true) @PathVariable int commentId) throws Exception {
@@ -87,6 +95,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(tempCommunityService.getComment(articleId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @RequestMapping(value = "/temp/articles/{articleId}/comments/{commentId}", method = RequestMethod.PUT)
     public @ResponseBody
@@ -95,6 +104,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<TempComment>(tempCommunityService.updateComment((TempComment)StringXssChecker.xssCheck(comment,clear), articleId, commentId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/articles/{articleId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity deleteComment(@ApiParam(required = true) @PathVariable int articleId,
@@ -104,6 +114,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(tempCommunityService.deleteComment(articleId, commentId, password), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/articles/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditArticle(@ApiParam(value = "(required: article_id, password)", required = true) @RequestBody Map<String, Object> param) throws Exception {
@@ -116,6 +127,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Boolean>>(tempCommunityService.checkGrantEditArticle(article_id, password), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/comments/grant/check", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity checkGrantEditComment(@ApiParam(value = "(required: comment_id, password)", required = true) @RequestBody Map<String, Object> param) throws Exception {
@@ -128,6 +140,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Boolean>>(tempCommunityService.checkGrantEditComment(comment_id, password), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
@@ -138,6 +151,7 @@ public class TemporaryCommunityController {
         return new ResponseEntity<Map<String, Object>>(tempCommunityService.itemImagesUpload(fileMap), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/temp/items/image/thumbnail/upload", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity itemThumbnailImageUpload(@ApiParam(required = true) MultipartFile image) throws Exception {
