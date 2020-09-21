@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.*;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.util.UploadFileUtils;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class UploadController {
     private UploadFileUtils uploadFileUtils;
 
     // 단일 이미지 업로드
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/upload/image", method = RequestMethod.POST)
     public @ResponseBody
@@ -40,6 +42,7 @@ public class UploadController {
     }
 
     // 다중 이미지 업로드
+    @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )

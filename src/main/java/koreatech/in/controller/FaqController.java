@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Faq.Faq;
 import koreatech.in.service.FaqService;
@@ -18,6 +19,7 @@ public class FaqController {
     @Inject
     private FaqService faqService;
 
+    @ApiOff
     @RequestMapping(value = "/faqs", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getFaqList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
@@ -26,6 +28,7 @@ public class FaqController {
         return new ResponseEntity<Map<String, Object>>(faqService.getFaqList(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/faqs/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getFaq(@ApiParam(required = true) @PathVariable int id) throws Exception {

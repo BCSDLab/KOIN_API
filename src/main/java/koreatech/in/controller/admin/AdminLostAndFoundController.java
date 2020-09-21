@@ -3,6 +3,7 @@ package koreatech.in.controller.admin;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -28,6 +29,7 @@ public class AdminLostAndFoundController {
     @Inject
     LostAndFoundService lostAndFoundService;
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems", method = RequestMethod.POST)
@@ -37,6 +39,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<LostItem>(lostAndFoundService.createLostItemForAdmin((LostItem) StringXssChecker.xssCheck(lostItem, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/admin/lost/lostItems", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getLostItems(@ApiParam(value = "서비스 타입(0: 습득 서비스, 1: 분실 서비스)", required = false) @RequestParam(value = "type", required = false, defaultValue="3") int type,
@@ -45,6 +48,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.getLostItemsForAdmin(type, criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/admin/lost/lostItems/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getLostItem(@ApiParam(required = true) @PathVariable int id) throws Exception {
@@ -52,6 +56,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.getLostItemForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{id}", method = RequestMethod.PUT)
@@ -61,6 +66,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<LostItem>(lostAndFoundService.updateLostItemForAdmin((LostItem) StringXssChecker.xssCheck(lostItem, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -69,6 +75,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<Map<String, Object>>(lostAndFoundService.deleteLostItemForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{lostItemId}/comments", method = RequestMethod.POST)
@@ -78,6 +85,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<LostItemComment>(lostAndFoundService.createLostItemCommentForAdmin((LostItemComment)StringXssChecker.xssCheck(lostItemComment, clear), lost_item_id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.PUT)
@@ -87,6 +95,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<LostItemComment>(lostAndFoundService.updateLostItemCommentForAdmin((LostItemComment)StringXssChecker.xssCheck(lostItemComment, clear), lost_item_id, commentId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.GET)
     public @ResponseBody
@@ -95,6 +104,7 @@ public class AdminLostAndFoundController {
         return new ResponseEntity<LostItemComment>(lostAndFoundService.getLostItemCommentForAdmin(lost_item_id, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lost/lostItems/{lostItemId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody

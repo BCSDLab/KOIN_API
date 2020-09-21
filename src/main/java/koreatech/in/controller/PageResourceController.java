@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.PageResource.PageResource;
 import koreatech.in.service.PageResourceService;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class PageResourceController {
     @Inject
     private PageResourceService pageResourceService;
 
+    @ApiOff
     @RequestMapping(value = "/cardNews", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getCardNews() throws Exception {

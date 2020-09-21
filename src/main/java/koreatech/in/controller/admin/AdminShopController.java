@@ -3,6 +3,7 @@ package koreatech.in.controller.admin;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -78,6 +79,7 @@ public class AdminShopController {
         return new ResponseEntity<Menu>(shopService.createMenuForAdmin(menu, shop_id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/shops/{shopId}/menus/{id}", method = RequestMethod.GET)
     public @ResponseBody
