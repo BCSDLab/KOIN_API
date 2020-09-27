@@ -3,6 +3,7 @@ package koreatech.in.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.domain.TimeTable.Lecture;
@@ -62,6 +63,7 @@ public class TimeTableController {
         return new ResponseEntity<Map<String, Object>>(timeTableService.updateTimeTable(timetable_log), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/timetables", method = RequestMethod.DELETE)
     public @ResponseBody

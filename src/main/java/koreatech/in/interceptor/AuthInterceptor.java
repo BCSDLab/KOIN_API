@@ -1,5 +1,6 @@
 package koreatech.in.interceptor;
 
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.domain.ErrorMessage;
@@ -24,6 +25,11 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!(handler instanceof HandlerMethod)) return true;
         HandlerMethod handlerMethod = (HandlerMethod) handler;
+
+        ApiOff apiOff = handlerMethod.getMethod().getDeclaredAnnotation(ApiOff.class);
+        // ApiOff 어노테이션이 있는 메소드라면
+        if (apiOff != null)
+            throw new ForbiddenException(new ErrorMessage("해당 작업을 수행할 수 있는 권한이 없습니다.", 0));
 
         Auth auth = handlerMethod.getMethod().getDeclaringClass().getAnnotation(Auth.class);
         if (auth == null || auth.role() == Auth.Role.NONE) return true; // Auth 어노테이션이 없거나 아무 권한이 필요 없다면

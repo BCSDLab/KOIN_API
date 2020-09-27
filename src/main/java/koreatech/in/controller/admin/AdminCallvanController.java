@@ -3,6 +3,7 @@ package koreatech.in.controller.admin;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -24,6 +25,7 @@ public class AdminCallvanController {
     @Inject
     private CallvanService callvanService;
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/callvan/companies", method = RequestMethod.POST)
@@ -32,6 +34,7 @@ public class AdminCallvanController {
         return new ResponseEntity<Company>(callvanService.createCompanyForAdmin(company), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/callvan/companies/{id}", method = RequestMethod.PUT)
@@ -40,6 +43,7 @@ public class AdminCallvanController {
         return new ResponseEntity<Company>(callvanService.updateCompanyForAdmin(company, id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/callvan/companies/{id}", method = RequestMethod.DELETE)
     public @ResponseBody

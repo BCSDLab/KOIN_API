@@ -3,6 +3,7 @@ package koreatech.in.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -27,6 +28,7 @@ public class CallvanController {
     @Inject
     private CallvanService callvanService;
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/companies", method = RequestMethod.GET)
     public @ResponseBody
@@ -34,6 +36,7 @@ public class CallvanController {
         return new ResponseEntity<List<Company>>(callvanService.getCompanies(), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/companies/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -41,6 +44,7 @@ public class CallvanController {
         return new ResponseEntity<Company>(callvanService.getCompany(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/companies/{id}/call", method = RequestMethod.PUT)
     public @ResponseBody
@@ -48,6 +52,7 @@ public class CallvanController {
         return new ResponseEntity<Company>(callvanService.increaseCallCount(id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms", method = RequestMethod.GET)
     public @ResponseBody
@@ -55,6 +60,7 @@ public class CallvanController {
         return new ResponseEntity<List<Room>>(callvanService.getRooms(), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms", method = RequestMethod.POST)
@@ -63,6 +69,7 @@ public class CallvanController {
         return new ResponseEntity<Room>(callvanService.createRoom(room), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -70,6 +77,7 @@ public class CallvanController {
         return new ResponseEntity<Room>(callvanService.getRoom(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms/{id}", method = RequestMethod.PUT)
@@ -78,6 +86,7 @@ public class CallvanController {
         return new ResponseEntity<Room>(callvanService.updateRoom(room, id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -85,6 +94,7 @@ public class CallvanController {
         return new ResponseEntity<Map<String, Object>>(callvanService.deleteRoom(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms/participant", method = RequestMethod.POST)
     public @ResponseBody
@@ -92,6 +102,7 @@ public class CallvanController {
         return new ResponseEntity<Room>(callvanService.participateRoom(participant), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/callvan/rooms/participant", method = RequestMethod.DELETE)
     public @ResponseBody
