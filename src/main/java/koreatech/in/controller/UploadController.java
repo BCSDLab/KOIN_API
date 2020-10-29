@@ -28,7 +28,6 @@ public class UploadController {
     private UploadFileUtils uploadFileUtils;
 
     // 단일 이미지 업로드
-    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/upload/image", method = RequestMethod.POST)
     public @ResponseBody
@@ -42,7 +41,6 @@ public class UploadController {
     }
 
     // 다중 이미지 업로드
-    @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
