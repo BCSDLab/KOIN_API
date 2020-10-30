@@ -145,7 +145,6 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Boolean>>(marketPlaceService.checkGrantEditItem(item_id.get("item_id")), HttpStatus.OK);
     }
 
-    @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
