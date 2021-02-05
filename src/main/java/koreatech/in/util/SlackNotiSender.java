@@ -175,7 +175,7 @@ public class SlackNotiSender {
     public String noticeQuestion(String message)
     {
         String result = "질문을 등록할 수 없습니다.";
-        if (isStage()) {
+        if (isProduction()) {
             Map<String, Object> params = new HashMap<String, Object>() {{
                 put("channel", "#질의응답");
                 put("text", message);
