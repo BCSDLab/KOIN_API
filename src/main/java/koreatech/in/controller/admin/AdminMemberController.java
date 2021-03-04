@@ -64,7 +64,7 @@ public class AdminMemberController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {
         return new ResponseEntity( memberService.uploadImage(multipartFile, flag), HttpStatus.OK);
