@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -60,5 +61,12 @@ public class AdminMemberController {
     public @ResponseBody
     ResponseEntity deleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<Map<String, Object>>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.DELETE)
+    public @ResponseBody
+    ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {
+        return new ResponseEntity( memberService.uploadImage(multipartFile, flag), HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package koreatech.in.util;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -56,7 +57,26 @@ public class UploadFileUtils {
 
         return uploadedFileName;
     }
+    // 이미지 업로드 전용
+    public String uploadFile(String uploadPath, String originalFileName, byte[] byteData, MultipartFile multipartFile) throws Exception {
+        int index = originalFileName.lastIndexOf(".");
+        String fileExt = originalFileName.substring(index+1);
 
+        UUID uid = UUID.randomUUID();
+
+        String savedName = "/" + uid.toString() + "-" + System.currentTimeMillis() + "." + fileExt;
+
+
+
+        String uploadedFileName = savedName.replace(File.separatorChar, '/');
+
+        //S3Util 의 fileUpload 메서드로 파일을 업로드한다.
+        s3Util.fileUpload(bucketName, uploadPath + uploadedFileName, byteData, multipartFile);
+        //System.out.println(uploadPath + uploadedFileName);
+
+
+        return uploadedFileName;
+    }
     private String calcPath(String uploadPath) {
         Calendar cal = Calendar.getInstance();
         String yearPath = File.separator + cal.get(Calendar.YEAR);
