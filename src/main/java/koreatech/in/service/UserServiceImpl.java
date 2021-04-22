@@ -139,7 +139,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
-        userMapper.createUser(user);
+        try {
+            userMapper.createUser(user);
+        } catch (SQLException sqlException){
+            if(sqlException.getErrorCode() == 1062)
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+        }
 
         return user;
     }
@@ -393,12 +398,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         if (selectUser == null) {
+            //userMapper.createUser(user);
+
             try {
                 userMapper.createUser(user);
             } catch (SQLException sqlException){
                 if(sqlException.getErrorCode() == 1062)
                     throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
+
 
         } else {
             user.setId(selectUser.getId());
