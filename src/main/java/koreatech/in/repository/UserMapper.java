@@ -1,5 +1,6 @@
 package koreatech.in.repository;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
@@ -11,7 +12,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Repository("userMapper")
-public interface UserMapper {
+public interface UserMapper{
     @Select("SELECT * FROM koin.users ORDER BY created_at LIMIT #{cursor}, #{limit}")
     List<User> getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
@@ -21,7 +22,7 @@ public interface UserMapper {
     @Insert("INSERT INTO koin.users (PORTAL_ACCOUNT, PASSWORD, NAME, NICKNAME, GENDER, IDENTITY, IS_GRADUATED, MAJOR, STUDENT_NUMBER, PHONE_NUMBER, AUTH_TOKEN, AUTH_EXPIRED_AT, IS_AUTHED, ANONYMOUS_NICKNAME, PROFILE_IMAGE_URL) " +
             "VALUES (#{portal_account}, #{password}, #{name}, #{nickname}, #{gender}, #{identity}, #{is_graduated}, #{major}, #{student_number}, #{phone_number}, #{auth_token}, #{auth_expired_at}, #{is_authed}, #{anonymous_nickname}, #{profile_image_url})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
-    void createUser(User user) throws SQLIntegrityConstraintViolationException;
+    void createUser(User user) throws SQLException;
 
     @Delete("DELETE FROM koin.users WHERE ID = #{id}")
     void deleteUser(@Param("id") int id);

@@ -1,6 +1,5 @@
 package koreatech.in.service;
 
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
@@ -29,7 +28,6 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -143,12 +141,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
             userMapper.createUser(user);
-        } catch (SQLIntegrityConstraintViolationException sqlIntegrityConstraintViolationException) {
+        } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
 
         return user;
     }
+
 
     @Override
     public User updateUserForAdmin(User user, int id) {
@@ -401,7 +400,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (selectUser == null) {
             try {
                 userMapper.createUser(user);
-            } catch (SQLIntegrityConstraintViolationException sqlIntegrityConstraintViolationException) {
+            } catch (SQLException sqlException) {
                 throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
 
