@@ -176,6 +176,8 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shop_old.update(shop);
+        shop_old.setWeekend_open_time(shop.getWeekend_open_time());
+        shop_old.setWeekend_close_time(shop.getWeekend_close_time());
         shopMapper.updateShopForAdmin(shop_old);
         return shop_old;
     }
@@ -261,10 +263,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public Map<String, Object> getShops() throws Exception {
+
         Map<String, Object> map = new HashMap<>();
         List<Shop> shops = shopMapper.getShopList();
         List<Map<String, Object>> shopsMapList = new ArrayList<>();
-
 
         for (Shop shop : shops) {
             shop.setPermalink(shop.getInternal_name());
@@ -313,6 +315,7 @@ public class ShopServiceImpl implements ShopService {
 
         // Shop view Logging
         User user = jwtValidator.validate();
+
         if (user != null) {
             // Get ip address
             HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
