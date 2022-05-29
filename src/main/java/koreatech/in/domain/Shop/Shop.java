@@ -84,6 +84,7 @@ public class Shop {
         add("S007");
         add("S008");
         add("S009");
+        add("S010");
     }};
 
     public Integer getId() {
