@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.schedule.BusTago;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
@@ -12,43 +13,42 @@ import java.util.stream.IntStream;
 
 @Service
 public class BusServiceImpl implements BusService {
-
     @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String,Object>>> valueOps;
+    private ValueOperations<String, List<Map<String, Object>>> valueOps;
 
-    private BusTago tago = new BusTago();
+    private final BusTago tago;
+
+    @Autowired
+    public BusServiceImpl(BusTago tago) {
+        this.tago = tago;
+    }
 
     @Override
-    public Map<String, Object> getBus (String depart, String arrival) throws Exception {
+    public Map<String, Object> getBus(String depart, String arrival) throws Exception {
         String target;
         List<Map<String, Object>> result;
         Map<String, Object> response = new HashMap<String, Object>();
 
         if (depart.equals("koreatech") && (arrival.equals("station") || arrival.equals("terminal"))) {
-            target=depart;
-        }
-        else if(depart.equals("terminal") && (arrival.equals("station") || arrival.equals("koreatech"))) {
-            target=depart;
-        }
-        else if(depart.equals("station") && arrival.equals("terminal")) {
-            target=depart +'-'+arrival;
-        }
-        else if(depart.equals("station") && arrival.equals("koreatech")) {
-            target=depart +'-'+arrival;
-        }
-        else {
+            target = depart;
+        } else if (depart.equals("terminal") && (arrival.equals("station") || arrival.equals("koreatech"))) {
+            target = depart;
+        } else if (depart.equals("station") && arrival.equals("terminal")) {
+            target = depart + '-' + arrival;
+        } else if (depart.equals("station") && arrival.equals("koreatech")) {
+            target = depart + '-' + arrival;
+        } else {
             throw new PreconditionFailedException(new ErrorMessage("invalid depart or arrival", 1));
         }
-        for (List<String> param: BusTago.nodeIds) {
+        for (List<String> param : BusTago.nodeIds) {
             if (!param.get(1).equals(target)) continue;
             result = tago.getBusArrivalInfo(param.get(0));
-
             //버스 정보가 없을 경우
-            if (result.isEmpty()) return new HashMap<String, Object>();
+            if (result.isEmpty()) return response;
 
             List<Map<String, Object>> tempResult = new ArrayList<Map<String, Object>>();
-            for (Map<String, Object> info: result) {
-                if (IntStream.of(tago.avaliableBus).anyMatch(x -> x == Integer.parseInt(info.get("routeno").toString()))) {
+            for (Map<String, Object> info : result) {
+                if (IntStream.of(tago.availableBus).anyMatch(x -> x == Integer.parseInt(info.get("routeno").toString()))) {
                     tempResult.add(info);
                 }
             }

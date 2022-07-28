@@ -1,6 +1,5 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.service.BusService;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class BusController {
 
     @RequestMapping(value = "/buses", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getBus(@ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart, @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception{
-        return new ResponseEntity<Map<String,Object>>(busService.getBus(depart, arrival), HttpStatus.OK);
+    ResponseEntity<Map<String,Object>> getBus(@ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart, @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception {
+        return new ResponseEntity<>(busService.getBus(depart, arrival), HttpStatus.OK);
     }
 }
