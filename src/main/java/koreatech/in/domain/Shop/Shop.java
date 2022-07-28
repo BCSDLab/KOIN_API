@@ -3,10 +3,13 @@ package koreatech.in.domain.Shop;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.util.*;
 
+@NoArgsConstructor
 public class Shop {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
@@ -30,6 +33,13 @@ public class Shop {
     @Pattern(regexp = "^[0-9]{2}:[0-9]{2}", message = "시간 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "마감 시간", example = "23:00")
     private String close_time;
+    @Pattern(regexp = "^[0-9]{2}:[0-9]{2}", message = "시간 형식이 올바르지 않습니다.")
+    @ApiModelProperty(notes = "마감 시간", example = "23:00")
+    private String weekend_open_time;
+    @Pattern(regexp = "^[0-9]{2}:[0-9]{2}", message = "시간 형식이 올바르지 않습니다.")
+    @ApiModelProperty(notes = "마감 시간", example = "23:00")
+    private String weekend_close_time;
+
     @ApiModelProperty(notes = "이미지 링크, string으로 받아서 저장 후 json 으로 반환, key와 value는 큰따옴표로 감싸야 함", example = "[ A : B ]")
     private String image_urls;
     @ApiModelProperty(notes = "주소", example = "한국 어딘가")
@@ -74,6 +84,7 @@ public class Shop {
         add("S007");
         add("S008");
         add("S009");
+        add("S010");
     }};
 
     public Integer getId() {
@@ -138,6 +149,22 @@ public class Shop {
 
     public void setClose_time(String close_time) {
         this.close_time = close_time;
+    }
+
+    public String getWeekend_open_time() {
+        return weekend_open_time;
+    }
+
+    public void setWeekend_open_time(String weekend_open_time) {
+        this.weekend_open_time = weekend_open_time;
+    }
+
+    public String getWeekend_close_time() {
+        return weekend_close_time;
+    }
+
+    public void setWeekend_close_time(String weekend_close_time) {
+        this.weekend_close_time = weekend_close_time;
     }
 
     public String getImage_urls() {
@@ -308,5 +335,26 @@ public class Shop {
         if(shop.permalink != null) {
             this.permalink = shop.permalink;
         }
+    }
+
+    @Builder
+    public Shop(String name, String category, String phone, String open_time, String close_time, String weekend_open_time, String weekend_close_time, String image_urls, String address, String description, Boolean delivery, Integer delivery_price, Boolean pay_card, Boolean pay_bank, Boolean is_event, String remarks, Boolean is_deleted) {
+        this.name = name;
+        this.category = category;
+        this.phone = phone;
+        this.open_time = open_time;
+        this.close_time = close_time;
+        this.weekend_open_time = weekend_open_time;
+        this.weekend_close_time = weekend_close_time;
+        this.image_urls = image_urls;
+        this.address = address;
+        this.description = description;
+        this.delivery = delivery;
+        this.delivery_price = delivery_price;
+        this.pay_card = pay_card;
+        this.pay_bank = pay_bank;
+        this.is_event = is_event;
+        this.remarks = remarks;
+        this.is_deleted = is_deleted;
     }
 }

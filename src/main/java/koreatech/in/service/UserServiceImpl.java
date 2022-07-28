@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -138,10 +139,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
-        userMapper.createUser(user);
+        try {
+            userMapper.createUser(user);
+        } catch (SQLException sqlException) {
+            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+        }
 
         return user;
     }
+
 
     @Override
     public User updateUserForAdmin(User user, int id) {
@@ -392,7 +398,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         if (selectUser == null) {
-            userMapper.createUser(user);
+            try {
+                userMapper.createUser(user);
+            } catch (SQLException sqlException) {
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+            }
+
+
         } else {
             user.setId(selectUser.getId());
             userMapper.updateUser(user);

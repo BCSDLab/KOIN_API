@@ -42,9 +42,9 @@ public interface ShopMapper {
     @Select("SELECT * FROM koin.shops WHERE NAME=#{name}")
     Shop getShopByNameForAdmin(@Param("name") String name);
 
-    @Insert("INSERT INTO koin.shops (name, internal_name, chosung, category, phone, open_time, close_time, image_urls, address, description, delivery, " +
+    @Insert("INSERT INTO koin.shops (name, internal_name, chosung, category, phone, open_time, close_time, weekend_open_time, weekend_close_time, image_urls, address, description, delivery, " +
             "delivery_price, pay_card, pay_bank, is_event, remarks, is_deleted) " +
-            "VALUES (#{name}, #{internal_name}, #{chosung}, #{category}, #{phone}, #{open_time}, #{close_time}, #{image_urls}, #{address}, #{description}, #{delivery}, " +
+            "VALUES (#{name}, #{internal_name}, #{chosung}, #{category}, #{phone}, #{open_time}, #{close_time}, #{weekend_open_time}, #{weekend_close_time}, #{image_urls}, #{address}, #{description}, #{delivery}, " +
             "#{delivery_price}, #{pay_card}, #{pay_bank}, #{is_event}, #{remarks}, #{is_deleted})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void createShopForAdmin(Shop shop);
@@ -55,7 +55,7 @@ public interface ShopMapper {
     @Select("SELECT * FROM koin.shops ORDER BY created_at DESC LIMIT #{cursor}, #{limit}")
     List<Shop> getShopListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
-    @Update("UPDATE koin.shops SET NAME=#{name}, INTERNAL_NAME=#{internal_name}, CHOSUNG=#{chosung}, CATEGORY=#{category}, PHONE=#{phone}, OPEN_TIME=#{open_time}, CLOSE_TIME=#{close_time}, IMAGE_URLS=#{image_urls}, " +
+    @Update("UPDATE koin.shops SET NAME=#{name}, INTERNAL_NAME=#{internal_name}, CHOSUNG=#{chosung}, CATEGORY=#{category}, PHONE=#{phone}, OPEN_TIME=#{open_time}, CLOSE_TIME=#{close_time}, weekend_open_time=#{weekend_open_time}, weekend_close_time=#{weekend_close_time}, IMAGE_URLS=#{image_urls}, " +
             "ADDRESS=#{address}, DESCRIPTION=#{description}, DELIVERY=#{delivery}, DELIVERY_PRICE=#{delivery_price}, PAY_CARD=#{pay_card}, PAY_BANK=#{pay_bank}, IS_DELETED=#{is_deleted}, IS_EVENT=#{is_event}, REMARKS=#{remarks} " +
             "WHERE ID = #{id}")
     void updateShopForAdmin(Shop shop);

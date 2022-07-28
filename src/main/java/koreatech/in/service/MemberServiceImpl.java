@@ -7,9 +7,13 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
+import koreatech.in.util.UploadFileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +26,9 @@ public class MemberServiceImpl implements MemberService{
 
     @Resource(name = "trackMapper")
     private TrackMapper trackMapper;
+
+    @Inject
+    UploadFileUtils uploadFileUtils;
 
     @Override
     public List<Member> getMembers() throws Exception {
@@ -115,4 +122,46 @@ public class MemberServiceImpl implements MemberService{
             put("success", true);
         }};
     }
+
+    @Override
+    public String uploadImage(MultipartFile multipartFile, Integer flag) throws Exception{
+        if ( multipartFile == null){
+            throw new Exception();
+        }
+
+        if ( flag == null){
+            throw new Exception();
+        }
+        String directory = "bcsdlab_page_assets/" + "img/" + "people/";
+        switch (flag){
+            case 1:
+                directory += "android";
+                break;
+            case 2:
+                directory +="backend";
+                break;
+            case 3:
+                directory +="frontend";
+                break;
+            case 4:
+                directory += "game";
+                break;
+            case 5:
+                directory += "HR";
+                break;
+            case 6:
+                directory += "P&M";
+                break;
+            case 7:
+                directory += "uiux";
+                break;
+            default:
+                throw new Exception();
+        }
+        String url = uploadFileUtils.uploadFile(directory,multipartFile.getOriginalFilename(), multipartFile.getBytes(), multipartFile);
+
+
+        return "https://static.koreatech.in/" + directory + url;
+    }
+
 }
