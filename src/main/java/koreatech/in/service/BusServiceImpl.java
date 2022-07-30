@@ -107,13 +107,13 @@ public class BusServiceImpl implements BusService {
     @Override
     public String getSchedule(String busType, String region) {
         if (!StringUtils.hasText(busType) || (!"express".equals(busType) && !StringUtils.hasText(region))) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid region or busType", 0));
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
 
         String redisKey = String.format(BUS_SCHEDULE_CACHE_KEY, busType, "express".equals(busType) ? "" : region);
         final JsonElement[] jsonElement = new JsonElement[]{new JsonObject()};
         jsonElement[0] = gson.toJsonTree(Optional.ofNullable(strValueOps.get(redisKey))
-                .orElseThrow(() -> new NotFoundException(new ErrorMessage("invalid region or busType", 0))));
+                .orElseThrow(() -> new NotFoundException(new ErrorMessage("해당 버스가 존재하지 않습니다.", 0))));
 
         return jsonElement[0].getAsString();
     }

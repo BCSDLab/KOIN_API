@@ -6,19 +6,17 @@ import koreatech.in.domain.Community.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.Criteria.SearchCriteria;
-import koreatech.in.domain.Search.SearchArticles;
-import koreatech.in.domain.Search.SearchEnum;
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.*;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CommunityMapper;
-import koreatech.in.repository.SearchMapper;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.util.DateUtil;
 import koreatech.in.util.SearchUtil;
 import koreatech.in.util.SlackNotiSender;
+import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -29,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 @Service("communityService")
@@ -54,8 +51,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Autowired
     SlackNotiSender slackNotiSender;
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String, Object>>> valueOps;
+    @Autowired
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Override
     public Board createBoardForAdmin(Board board) throws Exception {
@@ -445,10 +442,11 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<Map<String, Object>> getCachedHotArticle() throws Exception {
-
         String cacheKey = Article.getHotArticlesCacheKey();
 
-        return valueOps.get(cacheKey);
+        List<Map<String, Object>> ret = new ArrayList<>();
+        ret = (List<Map<String, Object>>) stringRedisUtilObj.getDataAsString(cacheKey, ret.getClass());
+        return ret;
     }
 
     @Transactional

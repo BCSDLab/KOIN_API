@@ -5,13 +5,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import koreatech.in.domain.Bus.BusArrivalInfo;
 import koreatech.in.service.JsonConstructor;
+import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,8 +49,8 @@ public class BusTago {
     @Value("${OPEN_API_KEY}")
     private static String OPEN_API_KEY;
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String, Object>>> valueOps;
+    @Autowired
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Autowired
     private JsonConstructor con;
@@ -109,7 +108,7 @@ public class BusTago {
     public void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId.get(0));
         List<Map<String, Object>> info = requestBusArrivalInfo(cityCode, nodeId);
-        valueOps.set(cacheKey, info);
+        stringRedisUtilObj.setDataAsString(cacheKey, info);
     }
 
     @Scheduled(cron = "0 */3 * * * *")
@@ -130,7 +129,13 @@ public class BusTago {
 
     private List<Map<String, Object>> getBusArrivalInfo(String cityCode, String nodeId) {
         String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId);
-        return valueOps.get(cacheKey);
+        List<Map<String, Object>> ret = new ArrayList<>();
+        try {
+            ret = (List<Map<String, Object>>) stringRedisUtilObj.getDataAsString(cacheKey, ret.getClass());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
     public List<Map<String, Object>> getBusArrivalInfo(String nodeId) {

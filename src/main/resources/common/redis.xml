@@ -25,4 +25,9 @@
           p:valueSerializer-ref="stringRedisSerializer"
           p:hashValueSerializer-ref="stringRedisSerializer"
     />
+
+    <bean id="stringRedisTemplate"
+          class="org.springframework.data.redis.core.StringRedisTemplate"
+          p:connectionFactory-ref="jedisConnFactory"
+    />
 </beans>
