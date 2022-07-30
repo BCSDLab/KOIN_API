@@ -434,12 +434,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         sesMailSender.sendMail("no-reply@bcsdlab.com", toAccount, "코인 이메일 회원가입 인증", text);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.");
-
-        slackNotiSender.noticeRegister(slack_message);
+        slackNotiSender.noticeRegister(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.")
+                .build());
 
         return new HashMap<String, Object>() {{
             put("success", "send mail for user authentication to entered email address");
@@ -458,12 +456,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userMapper.updateUser(user);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 가입하셨습니다.");
-
-        slackNotiSender.noticeRegister(slack_message);
+        slackNotiSender.noticeRegister(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 가입하셨습니다.")
+                .build());
 
         return true;
     }
@@ -565,12 +561,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.deleteUser(user.getId());
         stringRedisUtilStr.deleteData("user@" + user.getId().toString());
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 탈퇴하셨습니다.");
-
-        slackNotiSender.noticeWithdraw(slack_message);
+        slackNotiSender.noticeWithdraw(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 탈퇴하셨습니다.")
+                .build());
 
         return new HashMap<String, Object>() {{
             put("success", true);

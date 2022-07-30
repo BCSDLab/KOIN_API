@@ -95,14 +95,12 @@ public class EventServiceImpl implements EventService {
         eventMapper.createEventArticle(eventArticle);
         searchUtil.createArticle(eventArticle);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(eventArticle.getNickname() + "님이 작성");
-        slack_message.setTitle(eventArticle.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/board/promotion/" + eventArticle.getId().toString());
-
-        slackNotiSender.noticeLostItem(slack_message);
+//        slackNotiSender.noticeLostItem(NotiSlack.builder()
+//                .color("#36a64f")
+//                .author_name(eventArticle.getNickname() + "님이 작성")
+//                .title(eventArticle.getTitle())
+//                .title_link("https://koreatech.in/board/promotion/" + eventArticle.getId().toString())
+//                .build());
 
         return eventArticle;
     }
@@ -229,15 +227,13 @@ public class EventServiceImpl implements EventService {
         article.setComment_count(article.getComment_count() + 1);
         eventMapper.updateEventArticle(article);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(user.getNickname() + "님이 작성");
-        slack_message.setTitle(article.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/board/promotion/" + article.getId().toString());
-        slack_message.setText(comment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+//        slackNotiSender.noticeComment(NotiSlack.builder()
+//                .color("#36a64f")
+//                .author_name(user.getNickname() + "님이 작성")
+//                .title(article.getTitle())
+//                .title_link("https://koreatech.in/board/promotion/" + article.getId().toString())
+//                .text(comment.getContent() + "...")
+//                .build());
 
         return comment;
     }

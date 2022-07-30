@@ -105,7 +105,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         double countByLimit = totalCount / criteria.getLimit();
         int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Map<String, Object>> convert_items = new ArrayList<>();
@@ -313,14 +313,12 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostAndFoundMapper.createLostItem(lostItem);
         searchUtil.createArticle(lostItem);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(lostItem.getNickname() + "님이 작성");
-        slack_message.setTitle(lostItem.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString());
-
-        slackNotiSender.noticeLostItem(slack_message);
+        slackNotiSender.noticeLostItem(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(lostItem.getNickname() + "님이 작성")
+                .title(lostItem.getTitle())
+                .title_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString())
+                .build());
 
         return lostItem;
     }
@@ -341,8 +339,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         }
 
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Map<String, Object>> convert_items = new ArrayList<>();
@@ -501,7 +499,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         //TODO: paging을 위한 중복코드, 반복코드 개선방법 찾기
         double countByLimit = totalCount / criteria.getLimit();
         int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<LostItem> items = lostAndFoundMapper.getMyLostItemList(criteria.getCursor(), criteria.getLimit(), type, user.getId());
@@ -543,15 +541,13 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setComment_count(lostItem.getComment_count() + 1);
         lostAndFoundMapper.updateLostItem(lostItem);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(lostItemComment.getNickname() + "님이 작성");
-        slack_message.setTitle(lostItem.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString());
-        slack_message.setText(lostItemComment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+        slackNotiSender.noticeComment(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(lostItemComment.getNickname() + "님이 작성")
+                .title(lostItem.getTitle())
+                .title_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString())
+                .text(lostItemComment.getContent() + "...")
+                .build());
 
         return lostItemComment;
     }
@@ -671,7 +667,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         String originalFileName = image.getOriginalFilename();
         int index = originalFileName.lastIndexOf(".");
         String fileName = originalFileName.substring(0, index);
-        String fileExt = originalFileName.substring(index+1);
+        String fileExt = originalFileName.substring(index + 1);
 
         File file = new File(fileName);
         image.transferTo(file);
@@ -684,7 +680,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         // TODO: 스케줄 처리할 것
         uploadFileUtils.removeThumbnail(file.getAbsolutePath(), originalFileName, fileExt);
 
-        return new HashMap<String, Object>(){{
+        return new HashMap<String, Object>() {{
             put("url", url);
         }};
     }
@@ -697,15 +693,14 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
             Date expiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
 
             //TODO: update Or insert 구현시 개선
-            if(viewLog == null) {
+            if (viewLog == null) {
                 viewLog = new LostItemViewLog();
                 viewLog.setArticle_id(lostItem.getId());
                 viewLog.setUser_id(user.getId());
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 lostAndFoundMapper.createViewLog(viewLog);
-            }
-            else {
+            } else {
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 lostAndFoundMapper.updateViewLog(viewLog);

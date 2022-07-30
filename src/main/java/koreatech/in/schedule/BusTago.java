@@ -4,7 +4,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import koreatech.in.domain.Bus.BusArrivalInfo;
+import koreatech.in.domain.NotiSlack;
 import koreatech.in.service.JsonConstructor;
+import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,11 +57,12 @@ public class BusTago {
     @Autowired
     private JsonConstructor con;
 
+    @Autowired
+    private SlackNotiSender sender;
+
     private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
 
     private List<Map<String, Object>> requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
-        List<Map<String, Object>> result = new ArrayList<>();
-
         String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
                 "&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8") + // 도시 코드
                 "&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId.get(0), "UTF-8") + // 정거장 ID
@@ -84,8 +87,26 @@ public class BusTago {
         rd.close();
         conn.disconnect();
 
+        List<Map<String, Object>> result = new ArrayList<>();
         try {
             JsonObject nodeInfo = new JsonParser().parse(sb.toString()).getAsJsonObject();
+            String resultCode = nodeInfo.getAsJsonObject("response").getAsJsonObject("header").getAsJsonObject("resultCode").getAsString();
+            if ("12".equals(resultCode)) {
+                sendErrorNotice("버스도착정보 공공 API 서비스가 폐기되었습니다.");
+                return result;
+            } else if ("20".equals(resultCode)) {
+                sendErrorNotice("버스도착정보 공공 API 서비스가 접근 거부 상태입니다.");
+                return result;
+            } else if ("22".equals(resultCode)) {
+                sendErrorNotice("버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.");
+                return result;
+            } else if ("30".equals(resultCode)) {
+                sendErrorNotice("등록되지 않은 버스도착정보 공공 API 서비스 키입니다.");
+                return result;
+            } else if ("31".equals(resultCode)) {
+                sendErrorNotice("버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.");
+                return result;
+            }
             int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
             if (count <= 1) {
                 BusArrivalInfo col = new BusArrivalInfo();
@@ -96,9 +117,6 @@ public class BusTago {
             }
             result = con.parseJsonArrayWithObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
         } catch (JsonSyntaxException e) {
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
             return result;
         }
 
@@ -140,5 +158,13 @@ public class BusTago {
 
     public List<Map<String, Object>> getBusArrivalInfo(String nodeId) {
         return getBusArrivalInfo(CITY_CODE, nodeId);
+    }
+
+    private void sendErrorNotice(String message) {
+        sender.noticeError(NotiSlack.builder()
+                .color("danger")
+                .title(String.format("%s.%s", "BusTago", "requestBusArrivalInfo"))
+                .text(message)
+                .build());
     }
 }
