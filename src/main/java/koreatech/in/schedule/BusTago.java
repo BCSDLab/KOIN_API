@@ -3,7 +3,7 @@ package koreatech.in.schedule;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import koreatech.in.domain.BusArrivalInfo;
+import koreatech.in.domain.Bus.BusArrivalInfo;
 import koreatech.in.service.JsonConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,20 +47,16 @@ public class BusTago {
 
     private final String CITY_CODE = "34010";
 
-    private final String OPEN_API_KEY;
+    @Value("${OPEN_API_KEY}")
+    private static String OPEN_API_KEY;
 
     @Resource(name = "redisTemplate")
     private ValueOperations<String, List<Map<String, Object>>> valueOps;
 
-    private final JsonConstructor con;
-
-    private final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
-
     @Autowired
-    public BusTago(@Value("${OPEN_API_KEY}") String open_api_key, JsonConstructor con) {
-        this.OPEN_API_KEY = open_api_key;
-        this.con = con;
-    }
+    private JsonConstructor con;
+
+    private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
 
     private List<Map<String, Object>> requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         List<Map<String, Object>> result = new ArrayList<>();

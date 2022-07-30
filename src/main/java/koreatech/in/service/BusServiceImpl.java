@@ -1,26 +1,53 @@
 package koreatech.in.service;
 
+import com.google.gson.*;
+import koreatech.in.domain.Bus.Course;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.repository.BusMapper;
 import koreatech.in.schedule.BusTago;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.IntStream;
 
 @Service
 public class BusServiceImpl implements BusService {
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String, Object>>> valueOps;
-
-    private final BusTago tago;
+    @Autowired
+    private BusMapper busMapper;
 
     @Autowired
-    public BusServiceImpl(BusTago tago) {
-        this.tago = tago;
+    private BusTago tago;
+
+    private static final String BUS_SCHEDULE_CACHE_KEY = "Tago@busSchedule.%s.%s";
+
+    private static final Gson gson = new Gson();
+
+    @Resource(name = "redisTemplate")
+    private RedisTemplate<String, String> strRedisTemplate;
+
+    private ValueOperations<String, String> strValueOps = null;
+
+    @PostConstruct
+    void init() {
+        strValueOps = strRedisTemplate.opsForValue();
+    }
+
+    public static class sortByArrtime implements Comparator<Map<String, Object>> {
+        @Override
+        public int compare(Map<String, Object> a, Map<String, Object> b) {
+            int aArrtime = Integer.parseInt(a.get("arrtime").toString());
+            int bArrtime = Integer.parseInt(b.get("arrtime").toString());
+            if (aArrtime == bArrtime) return 0;
+            return aArrtime < bArrtime ? -1 : 1;
+        }
     }
 
     @Override
@@ -72,13 +99,22 @@ public class BusServiceImpl implements BusService {
         return response;
     }
 
-    public class sortByArrtime implements Comparator<Map<String, Object>> {
-        @Override
-        public int compare(Map<String, Object> a, Map<String, Object> b) {
-            int aArrtime = Integer.parseInt(a.get("arrtime").toString());
-            int bArrtime = Integer.parseInt(b.get("arrtime").toString());
-            if (aArrtime == bArrtime) return 0;
-            return aArrtime < bArrtime ? -1 : 1;
+    @Override
+    public ArrayList<Course> getCourses() {
+        return busMapper.getCourses();
+    }
+
+    @Override
+    public String getSchedule(String busType, String region) {
+        if (!StringUtils.hasText(busType) || (!"express".equals(busType) && !StringUtils.hasText(region))) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid region or busType", 0));
         }
+
+        String redisKey = String.format(BUS_SCHEDULE_CACHE_KEY, busType, "express".equals(busType) ? "" : region);
+        final JsonElement[] jsonElement = new JsonElement[]{new JsonObject()};
+        jsonElement[0] = gson.toJsonTree(Optional.ofNullable(strValueOps.get(redisKey))
+                .orElseThrow(() -> new NotFoundException(new ErrorMessage("invalid region or busType", 0))));
+
+        return jsonElement[0].getAsString();
     }
 }
