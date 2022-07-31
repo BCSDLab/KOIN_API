@@ -1,7 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
-import koreatech.in.domain.Bus.Course;
+import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.service.BusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +35,15 @@ public class BusController {
     // 통학버스 노선
     @RequestMapping(value = "/bus/courses", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ArrayList<Course>> getCourses() {
+    ResponseEntity<ArrayList<SchoolBusCourse>> getCourses() {
         return new ResponseEntity<>(busService.getCourses(), HttpStatus.OK);
     }
 
     // 통학버스 시간표
-    @RequestMapping(value = "/bus/schedule", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/bus/timetable", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public @ResponseBody
-    ResponseEntity<String> getSchedule(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
+    ResponseEntity<String> getTimetable(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
                                        @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
-        return new ResponseEntity<>(busService.getSchedule(busType, region), HttpStatus.OK);
+        return new ResponseEntity<>(busService.getTimetable(busType, region), HttpStatus.OK);
     }
 }

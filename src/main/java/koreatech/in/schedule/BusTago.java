@@ -62,7 +62,7 @@ public class BusTago {
 
     private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
 
-    private List<Map<String, Object>> requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
+    private String requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
                 "&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8") + // 도시 코드
                 "&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId.get(0), "UTF-8") + // 정거장 ID
@@ -87,26 +87,18 @@ public class BusTago {
         rd.close();
         conn.disconnect();
 
+        return sb.toString();
+    }
+
+    private List<Map<String, Object>> extractBusArrivalInfo(String response) {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
-            JsonObject nodeInfo = new JsonParser().parse(sb.toString()).getAsJsonObject();
+            JsonObject nodeInfo = new JsonParser().parse(response).getAsJsonObject();
             String resultCode = nodeInfo.getAsJsonObject("response").getAsJsonObject("header").getAsJsonObject("resultCode").getAsString();
-            if ("12".equals(resultCode)) {
-                sendErrorNotice("버스도착정보 공공 API 서비스가 폐기되었습니다.");
-                return result;
-            } else if ("20".equals(resultCode)) {
-                sendErrorNotice("버스도착정보 공공 API 서비스가 접근 거부 상태입니다.");
-                return result;
-            } else if ("22".equals(resultCode)) {
-                sendErrorNotice("버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.");
-                return result;
-            } else if ("30".equals(resultCode)) {
-                sendErrorNotice("등록되지 않은 버스도착정보 공공 API 서비스 키입니다.");
-                return result;
-            } else if ("31".equals(resultCode)) {
-                sendErrorNotice("버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.");
+            if (checkError(resultCode)) {
                 return result;
             }
+
             int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
             if (count <= 1) {
                 BusArrivalInfo col = new BusArrivalInfo();
@@ -125,7 +117,7 @@ public class BusTago {
 
     public void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId.get(0));
-        List<Map<String, Object>> info = requestBusArrivalInfo(cityCode, nodeId);
+        List<Map<String, Object>> info = extractBusArrivalInfo(requestBusArrivalInfo(cityCode, nodeId));
         stringRedisUtilObj.setDataAsString(cacheKey, info);
     }
 
@@ -158,6 +150,21 @@ public class BusTago {
 
     public List<Map<String, Object>> getBusArrivalInfo(String nodeId) {
         return getBusArrivalInfo(CITY_CODE, nodeId);
+    }
+
+    private boolean checkError(String resultCode) {
+        if ("12".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스가 폐기되었습니다.");
+        } else if ("20".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스가 접근 거부 상태입니다.");
+        } else if ("22".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.");
+        } else if ("30".equals(resultCode)) {
+            sendErrorNotice("등록되지 않은 버스도착정보 공공 API 서비스 키입니다.");
+        } else if ("31".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.");
+        }
+        return "00".equals(resultCode);
     }
 
     private void sendErrorNotice(String message) {

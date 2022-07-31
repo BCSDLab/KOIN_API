@@ -1,20 +1,20 @@
 package koreatech.in.service;
 
-import com.google.gson.*;
-import koreatech.in.domain.Bus.Course;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.BusMapper;
 import koreatech.in.schedule.BusTago;
+import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -26,19 +26,12 @@ public class BusServiceImpl implements BusService {
     @Autowired
     private BusTago tago;
 
-    private static final String BUS_SCHEDULE_CACHE_KEY = "Tago@busSchedule.%s.%s";
+    private static final String SCHOOL_BUS_TIMETABLE_CACHE_KEY = "Tago@busTimetable.%s.%s";
 
     private static final Gson gson = new Gson();
 
-    @Resource(name = "redisTemplate")
-    private RedisTemplate<String, String> strRedisTemplate;
-
-    private ValueOperations<String, String> strValueOps = null;
-
-    @PostConstruct
-    void init() {
-        strValueOps = strRedisTemplate.opsForValue();
-    }
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
 
     public static class sortByArrtime implements Comparator<Map<String, Object>> {
         @Override
@@ -65,7 +58,7 @@ public class BusServiceImpl implements BusService {
         } else if (depart.equals("station") && arrival.equals("koreatech")) {
             target = depart + '-' + arrival;
         } else {
-            throw new PreconditionFailedException(new ErrorMessage("invalid depart or arrival", 1));
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 1));
         }
         for (List<String> param : BusTago.nodeIds) {
             if (!param.get(1).equals(target)) continue;
@@ -100,20 +93,24 @@ public class BusServiceImpl implements BusService {
     }
 
     @Override
-    public ArrayList<Course> getCourses() {
+    public ArrayList<SchoolBusCourse> getCourses() {
         return busMapper.getCourses();
     }
 
     @Override
-    public String getSchedule(String busType, String region) {
+    public String getTimetable(String busType, String region) {
         if (!StringUtils.hasText(busType) || (!"express".equals(busType) && !StringUtils.hasText(region))) {
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
 
-        String redisKey = String.format(BUS_SCHEDULE_CACHE_KEY, busType, "express".equals(busType) ? "" : region);
+        String redisKey = String.format(SCHOOL_BUS_TIMETABLE_CACHE_KEY, busType, "express".equals(busType) ? "" : region);
         final JsonElement[] jsonElement = new JsonElement[]{new JsonObject()};
-        jsonElement[0] = gson.toJsonTree(Optional.ofNullable(strValueOps.get(redisKey))
-                .orElseThrow(() -> new NotFoundException(new ErrorMessage("해당 버스가 존재하지 않습니다.", 0))));
+        try {
+            jsonElement[0] = gson.toJsonTree(Optional.ofNullable(stringRedisUtilStr.getDataAsString(redisKey))
+                    .orElseThrow(() -> new NotFoundException(new ErrorMessage("해당 버스가 존재하지 않습니다.", 0))));
+        } catch (IOException e) {
+            throw new NotFoundException(new ErrorMessage("해당 버스가 존재하지 않습니다.", 0));
+        }
 
         return jsonElement[0].getAsString();
     }
