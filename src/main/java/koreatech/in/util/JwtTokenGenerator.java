@@ -5,34 +5,48 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.UnauthorizeException;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 
-@NoArgsConstructor
 public class JwtTokenGenerator {
     @Autowired
-    private StringRedisUtilObj stringRedisUtilObj;
+    private StringRedisUtilStr stringRedisUtilStr;
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    private SecretKeySpec key;
+    private SecretKey key;
+
+    public static String convertSecretKeyToString(SecretKey secretKey) {
+        byte[] rawData = secretKey.getEncoded();
+        return Base64.getEncoder().encodeToString(rawData);
+    }
+
+    public static SecretKey convertStringToSecretKey(String encodedKey) {
+        if (!StringUtils.hasText(encodedKey)) {
+            return null;
+        }
+        byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
+    }
 
     @PostConstruct
     public void keySetter() throws IOException {
         try {
-            key = (SecretKeySpec) stringRedisUtilObj.getDataAsString("secretKey", SecretKeySpec.class);
+            key = convertStringToSecretKey(stringRedisUtilStr.getDataAsString("secretKey"));
             if (key == null) {
-                key = (SecretKeySpec) Keys.secretKeyFor(signatureAlgorithm);
-                stringRedisUtilObj.setDataAsString("secretKey", key);
+                key = Keys.secretKeyFor(signatureAlgorithm);
+                stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(key));
             }
         } catch (IOException | IllegalArgumentException e) {
-            key = (SecretKeySpec) Keys.secretKeyFor(signatureAlgorithm);
-            stringRedisUtilObj.setDataAsString("secretKey", key);
+            key = Keys.secretKeyFor(signatureAlgorithm);
+            stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(key));
         }
     }
 
@@ -45,7 +59,7 @@ public class JwtTokenGenerator {
         try {
             Claims body = Jwts.parser().setSigningKey(this.key).parseClaimsJws(token).getBody();
             int userId = Integer.parseInt(body.getSubject());
-            String redisToken = (String) stringRedisUtilObj.getDataAsString("user@" + userId, String.class);
+            String redisToken = stringRedisUtilStr.getDataAsString("user@" + userId);
             if (!token.equals(redisToken)) {
                 throw new UnauthorizeException(new ErrorMessage("토큰이 변경되었습니다. 다시 로그인해주세요.", 0));
             }

@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class BusTago {
     private final String CITY_CODE = "34010";
 
     @Value("${OPEN_API_KEY}")
-    private static String OPEN_API_KEY;
+    private String OPEN_API_KEY;
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -66,6 +67,7 @@ public class BusTago {
         String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
                 "&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8") + // 도시 코드
                 "&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId.get(0), "UTF-8") + // 정거장 ID
+                "&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + "20" +
                 "&_type=json";
 
         URL url = new URL(urlBuilder);
@@ -75,9 +77,9 @@ public class BusTago {
 
         BufferedReader rd;
         if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
         } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8));
         }
         StringBuilder sb = new StringBuilder();
         String line;
@@ -94,20 +96,21 @@ public class BusTago {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
             JsonObject nodeInfo = new JsonParser().parse(response).getAsJsonObject();
-            String resultCode = nodeInfo.getAsJsonObject("response").getAsJsonObject("header").getAsJsonObject("resultCode").getAsString();
+            String resultCode = nodeInfo.getAsJsonObject("response").getAsJsonObject("header").getAsJsonPrimitive("resultCode").getAsString();
             if (checkError(resultCode)) {
                 return result;
             }
 
-            int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
+            JsonObject bodyObject = nodeInfo.getAsJsonObject("response").getAsJsonObject("body");
+            int count = bodyObject.get("totalCount").getAsInt();
             if (count <= 1) {
                 BusArrivalInfo col = new BusArrivalInfo();
                 if (count == 1) {
-                    result.add(con.parseJsonObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonObject("item")));
+                    result.add(con.parseJsonObject(bodyObject.getAsJsonObject("items").getAsJsonObject("item")));
                 }
                 return result;
             }
-            result = con.parseJsonArrayWithObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
+            result = con.parseJsonArrayWithObject(bodyObject.getAsJsonObject("items").getAsJsonArray("item"));
         } catch (JsonSyntaxException e) {
             return result;
         }
@@ -121,7 +124,7 @@ public class BusTago {
         stringRedisUtilObj.setDataAsString(cacheKey, info);
     }
 
-    @Scheduled(cron = "0 */3 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void handle() {
         try {
             for (List<String> nodeId : nodeIds) {
@@ -164,7 +167,7 @@ public class BusTago {
         } else if ("31".equals(resultCode)) {
             sendErrorNotice("버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.");
         }
-        return "00".equals(resultCode);
+        return !"00".equals(resultCode);
     }
 
     private void sendErrorNotice(String message) {

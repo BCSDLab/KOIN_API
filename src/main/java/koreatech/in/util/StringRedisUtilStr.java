@@ -23,8 +23,7 @@ public class StringRedisUtilStr extends StringRedisUtil<String> {
 
     @Override
     public void setDataAsString(String key, String data) throws IOException {
-        String value = objectMapper.writeValueAsString(data);
-        valOps.set(key, value);
+        valOps.set(key, data);
     }
 
     public String getDataAsString(String key) throws IOException {
@@ -39,8 +38,7 @@ public class StringRedisUtilStr extends StringRedisUtil<String> {
 
     @Override
     public void setDataAsSet(String key, String data) throws IOException {
-        String value = objectMapper.writeValueAsString(data);
-        setOps.add(key, value);
+        setOps.add(key, data);
     }
 
     public ArrayList<String> getDataAsSet(String key) throws IOException {
