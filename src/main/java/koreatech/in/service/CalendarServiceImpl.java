@@ -6,11 +6,12 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CalendarMapper;
 import koreatech.in.skillresponse.KakaoBot;
-import org.springframework.data.redis.core.ValueOperations;
+import koreatech.in.util.StringRedisUtilStr;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,8 @@ public class CalendarServiceImpl implements CalendarService {
     @Inject
     CalendarMapper calendarMapper;
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, String> valueOps;
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
 
     @Override
     public List<Calendar> getCalendars(String year) {
@@ -33,10 +34,14 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Map<String, Object> getTerm() {
-        String termCode = valueOps.get("termCode");
-
-        // 데이터 존재여부 확인
-        if (termCode == null) {
+        String termCode;
+        try {
+            termCode = stringRedisUtilStr.getDataAsString("termCode");
+            // 데이터 존재여부 확인
+            if (termCode == null) {
+                throw new NotFoundException(new ErrorMessage("저장된 학기 코드가 없습니다.", 0));
+            }
+        } catch (IOException e) {
             throw new NotFoundException(new ErrorMessage("저장된 학기 코드가 없습니다.", 0));
         }
         return new HashMap<String, Object>() {{
@@ -45,11 +50,11 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public String createTermForAdmin(String termCode) {
+    public String createTermForAdmin(String termCode) throws IOException {
         if (!KakaoBot.TermCode.isValidTermCode(termCode)) {
             throw new PreconditionFailedException(new ErrorMessage("올바른 학기 코드가 아닙니다.", 0));
         }
-        valueOps.set("termCode", termCode);
+        stringRedisUtilStr.setDataAsString("termCode", termCode);
         return termCode;
     }
 }
