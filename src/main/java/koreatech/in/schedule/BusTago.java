@@ -1,31 +1,36 @@
 package koreatech.in.schedule;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import koreatech.in.domain.BusArrivalInfo;
+import com.google.gson.JsonSyntaxException;
+import koreatech.in.domain.Bus.BusArrivalInfo;
+import koreatech.in.domain.NotiSlack;
 import koreatech.in.service.JsonConstructor;
 import koreatech.in.util.SlackNotiSender;
+import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service("busTagoSchedule")
 public class BusTago {
-    public static List<List<String>> nodeIds = new ArrayList<List<String>>() {{
+    public static final List<List<String>> nodeIds = new ArrayList<List<String>>() {{
         add(new ArrayList<String>() {{
             add("CAB285000405");
             add("koreatech");
@@ -43,49 +48,44 @@ public class BusTago {
             add("terminal");
         }});
     }};
-    private static String OPEN_API_KEY;
-    private static String cityCode = "34010";
-    private static ValueOperations<String, List<Map<String, Object>>> valueOps;
-    public int[] avaliableBus = {400, 401, 402, 493};
 
-    @Autowired
-    SlackNotiSender slackNotiSender;
+    public final int[] availableBus = {400, 401, 402, 493};
 
-    private static JsonConstructor con;
-
-    private String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
+    private final String CITY_CODE = "34010";
 
     @Value("${OPEN_API_KEY}")
-    private void setOpenApiKey(String key) {
-        OPEN_API_KEY = key;
-    }
+    private String OPEN_API_KEY;
 
     @Autowired
-    private void setCon(JsonConstructor jsonConstructor) {
-        con = jsonConstructor;
-    }
+    private StringRedisUtilObj stringRedisUtilObj;
 
-    private static List<Map<String, Object>> requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
+    @Autowired
+    private JsonConstructor con;
 
-        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+    @Autowired
+    private SlackNotiSender sender;
 
-        StringBuilder urlBuilder = new StringBuilder("http://openapi.tago.go.kr/openapi/service/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList"); /*URL*/
-        urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8") + "=" + OPEN_API_KEY); /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8")); /*도시코드*/
-        urlBuilder.append("&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId.get(0), "UTF-8")); /*정류소ID*/
-        urlBuilder.append("&_type=json");
+    private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
 
-        URL url = new URL(urlBuilder.toString());
+    private static final String CACHE_KEY_BUS_ERROR_ALERT = "Tago@busErrorAlert";
+
+    private String requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
+        String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
+                "&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8") + // 도시 코드
+                "&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId.get(0), "UTF-8") + // 정거장 ID
+                "&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + "20" +
+                "&_type=json";
+
+        URL url = new URL(urlBuilder);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-type", "application/json");
-//        System.out.println("built url: " + url);
-//        System.out.println("Response code: " + conn.getResponseCode());
+
         BufferedReader rd;
         if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
         } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8));
         }
         StringBuilder sb = new StringBuilder();
         String line;
@@ -95,54 +95,50 @@ public class BusTago {
         rd.close();
         conn.disconnect();
 
-        if (!con.isJsonObject(sb.toString())) return result;
+        return sb.toString();
+    }
 
-        JsonObject nodeInfo = new JsonParser().parse(sb.toString()).getAsJsonObject();
-
-        if (!nodeInfo.has("response") || !nodeInfo.getAsJsonObject("response").has("body") || !nodeInfo.getAsJsonObject("response").getAsJsonObject("body").has("totalCount")) {
-            return result;
-        }
-
-        int count = nodeInfo.getAsJsonObject("response").getAsJsonObject("body").get("totalCount").getAsInt();
-
-        if (count <= 1) {
-            BusArrivalInfo col = new BusArrivalInfo();
-            if (count == 1) {
-                result.add(con.parseJsonObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonObject("item")));
+    private List<Map<String, Object>> extractBusArrivalInfo(String response) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            JsonObject nodeInfo = new JsonParser().parse(response).getAsJsonObject();
+            String resultCode = nodeInfo.getAsJsonObject("response").getAsJsonObject("header").getAsJsonPrimitive("resultCode").getAsString();
+            if (checkError(resultCode)) {
+                return result;
             }
+
+            JsonObject bodyObject = nodeInfo.getAsJsonObject("response").getAsJsonObject("body");
+            int count = bodyObject.get("totalCount").getAsInt();
+            if (count <= 1) {
+                BusArrivalInfo col = new BusArrivalInfo();
+                if (count == 1) {
+                    result.add(con.parseJsonObject(bodyObject.getAsJsonObject("items").getAsJsonObject("item")));
+                }
+                return result;
+            }
+            result = con.parseJsonArrayWithObject(bodyObject.getAsJsonObject("items").getAsJsonArray("item"));
+        } catch (JsonSyntaxException e) {
             return result;
         }
 
-        result = con.parseJsonArrayWithObject(nodeInfo.getAsJsonObject("response").getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item"));
         return result;
     }
 
-    @Resource(name = "redisTemplate")
-    public void setValueOps(ValueOperations<String, List<Map<String, Object>>> _valueOps) {
-        valueOps = _valueOps;
-    }
-
-    private void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
+    public void updateAndCacheBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId.get(0));
-
-        List<Map<String, Object>> info = requestBusArrivalInfo(cityCode, nodeId);
-
-        valueOps.set(cacheKey, info);
+        List<Map<String, Object>> info = extractBusArrivalInfo(requestBusArrivalInfo(cityCode, nodeId));
+        stringRedisUtilObj.setDataAsString(cacheKey, info);
     }
 
     @Scheduled(cron = "0 */1 * * * *")
     public void handle() {
         try {
             for (List<String> nodeId : nodeIds) {
-//                System.out.println("updating...(" + cityCode + "," + nodeId.get(0) + "," + nodeId.get(1) + ")\n");
-                updateAndCacheBusArrivalInfo(cityCode, nodeId);
+//                System.out.println("updating...(" + CITY_CODE + "," + nodeId.get(0) + "," + nodeId.get(1) + ")\n");
+                updateAndCacheBusArrivalInfo(CITY_CODE, nodeId);
             }
-        } catch (NullPointerException e) {
-//            sendError(e);
-//            System.out.println(e.toString());
         } catch (Exception e) {
-//            sendError(e);
-//            System.out.println(e.toString() + "\n");
+            e.printStackTrace();
         }
     }
 
@@ -152,21 +148,48 @@ public class BusTago {
 
     private List<Map<String, Object>> getBusArrivalInfo(String cityCode, String nodeId) {
         String cacheKey = getBusArrivalInfoCacheKey(cityCode, nodeId);
-        return valueOps.get(cacheKey);
+        List<Map<String, Object>> ret = new ArrayList<>();
+        try {
+            ret = (List<Map<String, Object>>) stringRedisUtilObj.getDataAsString(cacheKey, ret.getClass());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
     public List<Map<String, Object>> getBusArrivalInfo(String nodeId) {
-        return getBusArrivalInfo(cityCode, nodeId);
+        return getBusArrivalInfo(CITY_CODE, nodeId);
     }
 
-//    private void sendError(Exception e) {
-//        NotiSlack slack_message = new NotiSlack();
-//
-//        slack_message.setColor("danger");
-//        slack_message.setTitle("DiningMenu command error");
-//        slack_message.setText(e.toString());
-//
-//        slackNotiSender.noticeError(slack_message, "버스 정보 업데이트", "busTago");
-//    }
+    private boolean checkError(String resultCode) {
+        if ("12".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스가 폐기되었습니다.");
+        } else if ("20".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스가 접근 거부 상태입니다.");
+        } else if ("22".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.");
+        } else if ("30".equals(resultCode)) {
+            sendErrorNotice("등록되지 않은 버스도착정보 공공 API 서비스 키입니다.");
+        } else if ("31".equals(resultCode)) {
+            sendErrorNotice("버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.");
+        }
+        return !"00".equals(resultCode);
+    }
 
+    private void sendErrorNotice(String message) {
+        try {
+            String cacheValue = (String) stringRedisUtilObj.getDataAsString(CACHE_KEY_BUS_ERROR_ALERT, String.class);
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+            if (cacheValue == null || Period.between(ZonedDateTime.parse(cacheValue).toLocalDate(), now.toLocalDate()).getDays() >= 1) {
+                stringRedisUtilObj.setDataAsString(CACHE_KEY_BUS_ERROR_ALERT, now.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                sender.noticeError(NotiSlack.builder()
+                        .color("danger")
+                        .title(String.format("%s.%s", "BusTago", "requestBusArrivalInfo"))
+                        .text(message)
+                        .build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -31,14 +31,13 @@ public class SlackCrash {
         String errorName = exception.getClass().getSimpleName(); // PreconditionFailedException
 
         String message = String.format("%s %s Line %d\n```%s\n\n===== [Arguments] =====\n%s```", errorName, errorFile, errorLine, errorMessage, errorArgs);
-
-
-        NotiSlack slack_message = new NotiSlack();
-        slack_message.setColor("danger");
-        slack_message.setTitle(String.format("%s.%s", errorService, errorMethod));
-        slack_message.setText(message);
-        sender.noticeError(slack_message);
+        sender.noticeError(NotiSlack.builder()
+                .color("danger")
+                .title(String.format("%s.%s", errorService, errorMethod))
+                .text(message)
+                .build());
     }
+
     @AfterThrowing(pointcut = "execution(* koreatech.in.controller.*Controller.*(..))", throwing = "exception")
     public void sendSlackHookingOnCrash(JoinPoint joinPoint, Throwable exception) {
         if (exception instanceof ParentException)
@@ -52,12 +51,10 @@ public class SlackCrash {
         String errorName = exception.getClass().getSimpleName(); // PreconditionFailedException
 
         String message = String.format("%s %s Line %d\n```%s```", errorName, errorFile, errorLine, errorMessage);
-
-
-        NotiSlack slack_message = new NotiSlack();
-        slack_message.setColor("danger");
-        slack_message.setTitle(String.format("%s.%s", errorService, errorMethod));
-        slack_message.setText(message);
-        sender.noticeError(slack_message);
+        sender.noticeError(NotiSlack.builder()
+                .color("danger")
+                .title(String.format("%s.%s", errorService, errorMethod))
+                .text(message)
+                .build());
     }
 }

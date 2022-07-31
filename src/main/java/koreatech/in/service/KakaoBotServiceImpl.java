@@ -8,10 +8,10 @@ import koreatech.in.domain.KakaoBot.BusFactory;
 import koreatech.in.domain.KakaoBot.BusForTerm;
 import koreatech.in.skillresponse.KakaoBot;
 import koreatech.in.skillresponse.SkillResponse;
-import org.springframework.data.redis.core.ValueOperations;
+import koreatech.in.util.StringRedisUtilStr;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,8 +25,9 @@ import java.util.Optional;
 
 @Service
 public class KakaoBotServiceImpl implements KakaoBotService {
-    @Resource(name="redisTemplate")
-    private ValueOperations<String, String> valueOps;
+
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
 
     @Override
     public String checkJsonNull(JsonElement nullableJson) {
@@ -112,7 +113,7 @@ public class KakaoBotServiceImpl implements KakaoBotService {
         StringBuilder resultNow = new StringBuilder("[바로 도착]\n");
         StringBuilder resultNext = new StringBuilder("[다음 도착]\n");
 
-        BusForTerm bus = BusFactory.createBus(valueOps.get("termCode"));
+        BusForTerm bus = BusFactory.createBus(stringRedisUtilStr.getDataAsString("termCode"));
         // 셔틀버스 운행정보
         bus.searchShuttleTime(departEnglish, arrivalEnglish, resultNow, resultNext);
         // 대성고속 운행정보

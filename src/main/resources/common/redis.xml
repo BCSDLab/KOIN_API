@@ -12,9 +12,22 @@
           p:port="${redis.port}"
     />
 
+    <bean id="stringRedisSerializer"
+          class="org.springframework.data.redis.serializer.StringRedisSerializer"
+    />
+
     <!-- redis template definition -->
     <bean id="redisTemplate"
           class="org.springframework.data.redis.core.RedisTemplate"
+          p:connectionFactory-ref="jedisConnFactory"
+          p:keySerializer-ref="stringRedisSerializer"
+          p:hashKeySerializer-ref="stringRedisSerializer"
+          p:valueSerializer-ref="stringRedisSerializer"
+          p:hashValueSerializer-ref="stringRedisSerializer"
+    />
+
+    <bean id="stringRedisTemplate"
+          class="org.springframework.data.redis.core.StringRedisTemplate"
           p:connectionFactory-ref="jedisConnFactory"
     />
 </beans>
