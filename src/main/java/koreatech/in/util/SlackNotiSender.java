@@ -21,12 +21,9 @@ public class SlackNotiSender {
     @Value("${project.env}")
     private String env;
 
-    //TODO:: 추후 메세지 큐로 후킹 처리하기
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    private RestTemplate restTemplate = new RestTemplate();
-
-    public void noticeError(Object data)
-    {
+    public void noticeError(Object data) {
         if (isProduction() || isStage()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -38,16 +35,14 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_crash_url,params,String.class);
+                restTemplate.postForObject(notify_crash_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticeError() { noticeError("test"); }
 
-    public void noticePost(Object data)
-    {
+    public void noticePost(Object data) {
         if (isProduction()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -59,19 +54,14 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_koin_url,params,String.class);
+                restTemplate.postForObject(notify_koin_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticePost()
-    {
-        noticePost("test");
-    }
 
-    public void noticeComment(Object data)
-    {
+    public void noticeComment(Object data) {
         if (isProduction()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -83,19 +73,14 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_koin_url,params,String.class);
+                restTemplate.postForObject(notify_koin_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticeComment()
-    {
-        noticeComment("test");
-    }
 
-    public void noticeWithdraw(Object data)
-    {
+    public void noticeWithdraw(Object data) {
         if (isProduction()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -106,27 +91,18 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_koin_url,params,String.class);
+                restTemplate.postForObject(notify_koin_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticeWithdraw()
-    {
-        noticeWithdraw("test");
-    }
-    public void noticeRegister(Object data)
-    {
+
+    public void noticeRegister(Object data) {
         noticeWithdraw(data);
     }
-    public void noticeRegister()
-    {
-        noticeRegister("test");
-    }
 
-    public void noticeItem(Object data)
-    {
+    public void noticeItem(Object data) {
         if (isProduction()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -138,18 +114,14 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_koin_url,params,String.class);
+                restTemplate.postForObject(notify_koin_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticeItem()
-    {
-        noticeItem("test");
-    }
-    public void noticeLostItem(Object data)
-    {
+
+    public void noticeLostItem(Object data) {
         if (isProduction()) {
             List<Object> attachment = new ArrayList<Object>();
             attachment.add(data);
@@ -161,19 +133,14 @@ public class SlackNotiSender {
             }};
 
             try {
-                restTemplate.postForObject(notify_koin_url,params,String.class);
+                restTemplate.postForObject(notify_koin_url, params, String.class);
             } catch (RestClientException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void noticeLostItem()
-    {
-        noticeLostItem("test");
-    }
 
-    public String noticeQuestion(String message)
-    {
+    public String noticeQuestion(String message) {
         String result = "질문을 등록할 수 없습니다.";
         if (isProduction()) {
             Map<String, Object> params = new HashMap<String, Object>() {{
@@ -182,7 +149,7 @@ public class SlackNotiSender {
             }};
 
             try {
-                String response = restTemplate.postForObject(notify_question_url,params,String.class);
+                String response = restTemplate.postForObject(notify_question_url, params, String.class);
                 result = response.equals("ok") ? "질문이 등록되었습니다. #질의응답 채널에서 확인하세요." : "질문을 등록하지 못했습니다.";
             } catch (RestClientException e) {
                 result = "질문을 등록하지 못했습니다.";
@@ -198,14 +165,14 @@ public class SlackNotiSender {
     }
 
     private Boolean isProduction() {
-        return env.equals("production");
+        return "production".equals(env);
     }
 
     private Boolean isStage() {
-        return env.equals("stage");
+        return "stage".equals(env);
     }
 
     private Boolean isDev() {
-        return env.equals("dev");
+        return "dev".equals(env);
     }
 }

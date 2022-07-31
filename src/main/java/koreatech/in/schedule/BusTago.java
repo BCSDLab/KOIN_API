@@ -20,6 +20,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +66,8 @@ public class BusTago {
     private SlackNotiSender sender;
 
     private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
+
+    private static final String CACHE_KEY_BUS_ERROR_ALERT = "Tago@busErrorAlert";
 
     private String requestBusArrivalInfo(String cityCode, List<String> nodeId) throws IOException {
         String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
@@ -171,10 +177,19 @@ public class BusTago {
     }
 
     private void sendErrorNotice(String message) {
-        sender.noticeError(NotiSlack.builder()
-                .color("danger")
-                .title(String.format("%s.%s", "BusTago", "requestBusArrivalInfo"))
-                .text(message)
-                .build());
+        try {
+            String cacheValue = (String) stringRedisUtilObj.getDataAsString(CACHE_KEY_BUS_ERROR_ALERT, String.class);
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+            if (cacheValue == null || Period.between(ZonedDateTime.parse(cacheValue).toLocalDate(), now.toLocalDate()).getDays() >= 1) {
+                stringRedisUtilObj.setDataAsString(CACHE_KEY_BUS_ERROR_ALERT, now.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                sender.noticeError(NotiSlack.builder()
+                        .color("danger")
+                        .title(String.format("%s.%s", "BusTago", "requestBusArrivalInfo"))
+                        .text(message)
+                        .build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
