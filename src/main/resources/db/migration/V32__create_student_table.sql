@@ -12,4 +12,4 @@ CREATE TABLE `students` (
   UNIQUE KEY `anonymous_nickname_UNIQUE` (`anonymous_nickname`))
 ENGINE = InnoDB
 DEFAULT CHARSET = utf8
-COLLATE = utf8;
+COLLATE = utf8_bin;
