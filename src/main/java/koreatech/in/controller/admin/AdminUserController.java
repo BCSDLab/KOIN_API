@@ -9,7 +9,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

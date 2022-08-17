@@ -4,13 +4,12 @@ import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.LandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;

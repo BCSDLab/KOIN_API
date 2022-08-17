@@ -6,7 +6,7 @@ import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.LostAndFound.LostItemComment;
 import koreatech.in.domain.LostAndFound.LostItemViewLog;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.LostAndFoundMapper;
 import koreatech.in.util.DateUtil;
@@ -16,7 +16,6 @@ import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -146,7 +145,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, String> profile = new HashMap<String, String>();
 
         map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
-        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
         map.put("user", profile);
         map.put("comments", comments);
 
@@ -397,7 +396,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, String> profile = new HashMap<String, String>();
 
         map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
-        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
         map.put("user", profile);
         map.put("comments", comments);
 

@@ -2,8 +2,8 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
 
 import java.util.Map;
 

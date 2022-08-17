@@ -2,8 +2,8 @@ package koreatech.in.repository;
 
 //import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 

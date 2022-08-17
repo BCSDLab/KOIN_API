@@ -1,7 +1,7 @@
 package koreatech.in.domain.TimeTable;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;

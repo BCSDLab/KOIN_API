@@ -1,8 +1,8 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
+import koreatech.in.domain.user.User;
+import koreatech.in.domain.user.UserCode;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;

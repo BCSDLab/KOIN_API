@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

@@ -1,4 +1,4 @@
-package koreatech.in.domain.User;
+package koreatech.in.domain.user;
 
 public class UserResponseType {
     private static String[] toAdminArray = new String[] {

@@ -4,10 +4,10 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserResponseType;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
+import koreatech.in.domain.user.UserCode;
+import koreatech.in.domain.user.UserResponseType;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User createUserForAdmin(User user) {
         // 가입되어 있는 계정인지 체크
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        User selectUser = userMapper.getUserByPortalAccount(user.getAccount());
 
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
@@ -129,8 +129,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setIs_graduated(false);
         }
 
-        if (user.getIs_authed() == null) {
-            user.setIs_authed(false);
+        if (user.getIsAuthed() == null) {
+            user.setIsAuthed(false);
         }
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
@@ -266,9 +266,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> loginForAdmin(User user) throws Exception {
-        final User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        final User selectUser = userMapper.getUserByPortalAccount(user.getAccount());
 
-        if (selectUser == null || !selectUser.getIs_authed()) {
+        if (selectUser == null || !selectUser.getIsAuthed()) {
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
         }
 
@@ -280,7 +280,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UnauthorizeException(new ErrorMessage("There is no authority", 0));
         }
 
-        selectUser.setLast_logged_at(new Date().toString());
+        selectUser.setLastLoggedAt(new Date().toString());
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
@@ -334,7 +334,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 adminToMap.put("users", null);
             } else {
                 Map<String, Object> userToMap = new HashMap<String, Object>() {{
-                    put("portal_account", user.getPortal_account());
+                    put("portal_account", user.getAccount());
                 }};
 
                 adminToMap.put("users", userToMap);
@@ -354,11 +354,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
         // 가입되어 있는 계정인지 체크
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        User selectUser = userMapper.getUserByPortalAccount(user.getAccount());
 
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
-        if (selectUser != null && (selectUser.getIs_authed() || selectUser.getAuth_expired_at().getTime() - (new Date()).getTime() > 0)) {
+        if (selectUser != null && (selectUser.getIsAuthed() || selectUser.getAuthExpiredAt().getTime() - (new Date()).getTime() > 0)) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
 
@@ -382,11 +382,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 가입 메일에 있는 토큰의 유효기간 설정
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String authToken = SHA256Util.getEncrypt(user.getPortal_account(), authExpiredAt.toString());
+        final String authToken = SHA256Util.getEncrypt(user.getAccount(), authExpiredAt.toString());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setAuth_token(authToken);
-        user.setAuth_expired_at(authExpiredAt);
+        user.setAuthToken(authToken);
+        user.setAuthExpiredAt(authExpiredAt);
         user.setAnonymous_nickname("익명_" + (System.currentTimeMillis()));
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
@@ -404,7 +404,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         final String contextPath = host;
-        final String toAccount = user.getPortal_account() + "@koreatech.ac.kr";
+        final String toAccount = user.getAccount() + "@koreatech.ac.kr";
 
 //        이전 gmail api 사용한 전송
 //        MimeMessagePreparator preparator = new MimeMessagePreparator() {
@@ -436,7 +436,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         slackNotiSender.noticeRegister(NotiSlack.builder()
                 .color("good")
-                .text(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.")
+                .text(user.getAccount() + "님이 이메일 인증을 요청하였습니다.")
                 .build());
 
         return new HashMap<String, Object>() {{
@@ -448,17 +448,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean authenticate(String authToken) {
         User user = userMapper.getUserByAuthToken(authToken);
 
-        if (user == null || user.getIs_authed() || user.getAuth_expired_at().getTime() - (new Date()).getTime() < 0) {
+        if (user == null || user.getIsAuthed() || user.getAuthExpiredAt().getTime() - (new Date()).getTime() < 0) {
             return false;
         }
 
-        user.setIs_authed(true);
+        user.setIsAuthed(true);
 
         userMapper.updateUser(user);
 
         slackNotiSender.noticeRegister(NotiSlack.builder()
                 .color("good")
-                .text(user.getPortal_account() + "님이 가입하셨습니다.")
+                .text(user.getAccount() + "님이 가입하셨습니다.")
                 .build());
 
         return true;
@@ -466,20 +466,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> changePasswordConfig(User user, String host) {
-        if (user.getPortal_account() == null) {
+        if (user.getAccount() == null) {
             throw new ValidationException(new ErrorMessage("portal_account is required", 0));
         }
 
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        User selectUser = userMapper.getUserByPortalAccount(user.getAccount());
         if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("invalid authenticate", 0));
         }
 
         Date resetExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String resetToken = SHA256Util.getEncrypt(user.getPortal_account(), resetExpiredAt.toString());
+        final String resetToken = SHA256Util.getEncrypt(user.getAccount(), resetExpiredAt.toString());
 
-        selectUser.setReset_expired_at(resetExpiredAt);
-        selectUser.setReset_token(resetToken);
+        selectUser.setResetExpiredAt(resetExpiredAt);
+        selectUser.setResetToken(resetToken);
 
         userMapper.updateUser(selectUser);
 
@@ -490,7 +490,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (toAccount == null)
                 throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
         } else {
-            toAccount = user.getPortal_account() + "@koreatech.ac.kr";
+            toAccount = user.getAccount() + "@koreatech.ac.kr";
         }
 
 //        이전 gmail api 사용한 전송
@@ -530,7 +530,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean changePasswordInput(String resetToken) {
         User user = userMapper.getUserByResetToken(resetToken);
 
-        if ((user == null) || (user.getReset_expired_at().getTime() - (new Date()).getTime() < 0)) {
+        if ((user == null) || (user.getResetExpiredAt().getTime() - (new Date()).getTime() < 0)) {
             return false;
         }
 
@@ -541,13 +541,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean changePasswordAuthenticate(String password, String resetToken) {
         User selectUser = userMapper.getUserByResetToken(resetToken);
 
-        if ((selectUser == null) || (selectUser.getReset_expired_at().getTime() - (new Date()).getTime() < 0)) {
+        if ((selectUser == null) || (selectUser.getResetExpiredAt().getTime() - (new Date()).getTime() < 0)) {
             return false;
         }
 
         // TODO: password hashing
         selectUser.setPassword(passwordEncoder.encode(password));
-        selectUser.setReset_expired_at(new Date());
+        selectUser.setResetExpiredAt(new Date());
 
         userMapper.updateUser(selectUser);
 
@@ -563,7 +563,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         slackNotiSender.noticeWithdraw(NotiSlack.builder()
                 .color("good")
-                .text(user.getPortal_account() + "님이 탈퇴하셨습니다.")
+                .text(user.getAccount() + "님이 탈퇴하셨습니다.")
                 .build());
 
         return new HashMap<String, Object>() {{
@@ -586,7 +586,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setIdentity(user_old.getIdentity());
 
         // 인증받은 유저인지 체크
-        if (!user_old.getIs_authed()) {
+        if (!user_old.getIsAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
 
@@ -632,7 +632,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 인증받은 유저인지 체크
-        if (!user_old.getIs_authed()) {
+        if (!user_old.getIsAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
 
@@ -685,9 +685,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        final User selectUser = userMapper.getUserByPortalAccount(user.getAccount());
 
-        if (selectUser == null || !selectUser.getIs_authed()) {
+        if (selectUser == null || !selectUser.getIsAuthed()) {
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
         }
 
@@ -695,7 +695,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
-        selectUser.setLast_logged_at(new Date().toString());
+        selectUser.setLastLoggedAt(new Date().toString());
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 

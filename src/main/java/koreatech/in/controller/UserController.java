@@ -7,8 +7,8 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -40,8 +40,8 @@ public class UserController {
             user.setIs_graduated(false);
         }
 
-        if (user.getIs_authed() == null) {
-            user.setIs_authed(false);
+        if (user.getIsAuthed() == null) {
+            user.setIsAuthed(false);
         }
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기

@@ -1,4 +1,4 @@
-package koreatech.in.domain.User;
+package koreatech.in.domain.user;
 
 import java.util.Date;
 import java.util.HashMap;
