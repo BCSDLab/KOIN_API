@@ -2,6 +2,7 @@ package koreatech.in.domain.user;
 
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
+import lombok.Getter;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Date;
 
+@Getter
 public abstract class User implements UserDetails {
     @ApiModelProperty(notes = "고유 id", example = "10")
     protected Integer id;

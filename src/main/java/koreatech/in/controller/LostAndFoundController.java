@@ -7,7 +7,6 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.LostAndFound.LostItemComment;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.service.LostAndFoundService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

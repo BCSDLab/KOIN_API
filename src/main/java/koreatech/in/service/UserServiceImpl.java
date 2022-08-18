@@ -10,7 +10,7 @@ import koreatech.in.domain.user.UserCode;
 import koreatech.in.domain.user.UserResponseType;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.UserMapper;
+import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User getUserForAdmin(int id) throws Exception {
-        User selectUser = userMapper.getUser(id);
+        User selectUser = userMapper.getUserById(id);
 
         if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User updateUserForAdmin(User user, int id) {
-        User selectUser = userMapper.getUser(id);
+        User selectUser = userMapper.getUserById(id);
         if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> deleteUserForAdmin(int id) {
-        User selectUser = userMapper.getUser(id);
+        User selectUser = userMapper.getUserById(id);
         if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
@@ -205,7 +205,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
-        User selectUser = userMapper.getUser(userId);
+        User selectUser = userMapper.getUserById(userId);
         if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
@@ -329,7 +329,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         for (Authority admin : admins) {
             Map<String, Object> adminToMap = domainToMap(admin);
-            User user = userMapper.getUser(admin.getUser_id());
+            User user = userMapper.getUserById(admin.getUser_id());
             if (user == null) {
                 adminToMap.put("users", null);
             } else {
@@ -486,7 +486,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         final String contextPath = host;
         final String toAccount;
         if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
-            toAccount = userMapper.getOwnerEmail(selectUser.getId());
+            toAccount = userMapper.getUserEmail(selectUser.getId());
             if (toAccount == null)
                 throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
         } else {
