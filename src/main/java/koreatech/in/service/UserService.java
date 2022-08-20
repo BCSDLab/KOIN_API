@@ -21,6 +21,8 @@ public interface UserService {
 
     Map<String, Object> withdraw() throws Exception;
 
+    Student getStudent() throws Exception;
+
     Map<String,Object> updateStudentInformation(Student student) throws Exception;
 
     Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;

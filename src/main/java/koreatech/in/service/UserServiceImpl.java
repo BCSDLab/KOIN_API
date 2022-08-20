@@ -383,4 +383,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userMapper.getUserByAccount(account)
                 .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
     }
+
+    @Override
+    public Student getStudent() {
+        User user = jwtValidator.validate();
+        return studentMapper.getStudentById(user.getId())
+                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+    }
 }

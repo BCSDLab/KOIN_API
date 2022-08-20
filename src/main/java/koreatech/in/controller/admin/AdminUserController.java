@@ -10,6 +10,7 @@ import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.user.User;
+import koreatech.in.domain.user.student.Student;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,18 +44,26 @@ public class AdminUserController {
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/student/users", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createUser(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) User user, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<User>(adminUserService.createStudentForAdmin(user), HttpStatus.CREATED);
+    ResponseEntity createUser(
+            @ApiParam(value = "(required: portal_account, password), " +
+                    "(optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true)
+            @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Student student,
+            BindingResult bindingResult) throws Exception {
+
+        return new ResponseEntity<User>(adminUserService.createStudentForAdmin(student), HttpStatus.CREATED);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUser(@ApiParam(value = "(optional: portal_account, password, name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) User user, BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<User>(adminUserService.updateStudentForAdmin(user, id), HttpStatus.CREATED);
+    ResponseEntity updateUser(@ApiParam(value = "(optional: portal_account, password, name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = false)
+                              @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Student student,
+                              BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+
+        return new ResponseEntity<User>(adminUserService.updateStudentForAdmin(student, id), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
