@@ -13,7 +13,7 @@ import java.util.Collection;
 @Setter
 public class Student extends User {
     @ApiModelProperty(notes = "익명 닉네임", example = "익명_1522771686642")
-    private String anonymous_nickname;
+    private String anonymousNickname;
     @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
     @ApiModelProperty(notes = "학번", example = "2013136000")
     private String studentNumber;

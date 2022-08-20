@@ -8,6 +8,6 @@ import java.util.Optional;
 @Repository
 public interface StudentMapper {
     void createStudent();
-    Optional<Student> getStudentById(Long id);
-    Integer getStudentIdentity(Long id);
+    Optional<Student> getStudentById(Integer id);
+    Integer getStudentIdentity(Integer id);
 }

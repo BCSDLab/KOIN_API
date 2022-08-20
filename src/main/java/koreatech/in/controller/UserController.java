@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
+//TODO DTO 사용
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
@@ -49,14 +50,14 @@ public class UserController {
 
         User clear = new User();
 
-        return new ResponseEntity<Map<String, Object>>(userService.register((User)StringXssChecker.xssCheck(user, clear), getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((User)StringXssChecker.xssCheck(user, clear), getHost(request)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/me", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity me() throws Exception {
-        return new ResponseEntity<Object>(userService.me(), HttpStatus.OK);
+        return new ResponseEntity<Object>(userService.getUserWhenJwtVerified(), HttpStatus.OK);
     }
 
     @ParamValid
@@ -67,7 +68,7 @@ public class UserController {
 
         User clear = new User();
 
-        return new ResponseEntity<>(userService.updateUserInformation((User) StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateStudentInformation((User) StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -112,12 +113,12 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
+    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(user, getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(account, getHost(request)), HttpStatus.CREATED);
     }
 
     private String getHost(HttpServletRequest request) {

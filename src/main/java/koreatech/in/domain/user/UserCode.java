@@ -14,6 +14,7 @@ public class UserCode {
         put("151", "디자인건축공학부");
         put("174", "에너지신소재화학공학부");
         put("180", "산업경영학부");
+        // TODO 새로운 학과 추가 고용 서비스 정책 학과
     }};
 
     public static boolean isValidatedStudentNumber(Integer identity, String studentNumber) {

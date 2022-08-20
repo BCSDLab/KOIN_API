@@ -64,11 +64,7 @@ public class FaqServiceImpl implements FaqService {
     public Map<String, Object> getFaqList(Criteria criteria) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        double totalCount = faqMapper.totalCount();
-        double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
-            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
+        Integer totalPage = criteria.calcTotalPage(faqMapper.totalCount());
 
         map.put("faqs", faqMapper.getFaqList(criteria.getCursor(), criteria.getLimit()));
         map.put("totalPage", totalPage);

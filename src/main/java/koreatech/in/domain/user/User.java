@@ -2,7 +2,9 @@ package koreatech.in.domain.user;
 
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.domain.Authority;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
@@ -12,6 +14,7 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Getter
+@Setter
 public abstract class User implements UserDetails {
     @ApiModelProperty(notes = "고유 id", example = "10")
     protected Integer id;
@@ -45,6 +48,8 @@ public abstract class User implements UserDetails {
     protected String lastLoggedAt;
     @ApiModelProperty(notes = "프로필 이미지 링크", example = "https://static.koreatech.in/upload/~~")
     protected String profileImageUrl;
+    protected Date LastLoggedAt;
+    protected Authority authority;
     protected UserType userType;
 
     @Override

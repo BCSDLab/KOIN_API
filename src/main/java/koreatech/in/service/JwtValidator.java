@@ -44,7 +44,7 @@ public class JwtValidator {
         if (authToken.equals("undefined")) // 추후 프론트엔드 측에서 변경
             return null;
 
-        Long userId = (long)jwtTokenGenerator.me(authToken);
+        Integer userId = jwtTokenGenerator.me(authToken);
 
         User user = userMapper.getUserById(userId)
                 .orElseThrow(()->new ValidationException(new ErrorMessage("token not validate", 402)));
