@@ -139,7 +139,4 @@ public interface CommunityMapper {
 
     @Update("UPDATE koin.articles SET HIT = HIT + 1 WHERE IS_DELETED = 0 AND ID = #{id}")
     void increaseHit(@Param("id") int id);
-
-    @ResultMap("")
-
 }
