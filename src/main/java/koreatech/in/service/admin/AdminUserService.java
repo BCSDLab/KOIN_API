@@ -12,9 +12,9 @@ public interface AdminUserService {
 
     User getUserForAdmin(int id) throws Exception;
 
-    User createStudentForAdmin(Student student);
+    Student createStudentForAdmin(Student student);
 
-    User updateUserForAdmin(User user, int id);
+    Student updateStudentForAdmin(Student user, int id);
 
     Map<String, Object> deleteUserForAdmin(int id);
 

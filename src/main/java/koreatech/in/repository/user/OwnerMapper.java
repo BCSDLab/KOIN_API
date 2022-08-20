@@ -16,5 +16,6 @@ public interface OwnerMapper {
     void updateOwner(Owner owner);
     void insertOwner(Owner owner);
     void safeDeleteOwner(Owner owner);
+    void deleteOwner(Integer id);
 
 }

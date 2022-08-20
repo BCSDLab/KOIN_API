@@ -10,4 +10,5 @@ public interface StudentMapper {
     void createStudent();
     Optional<Student> getStudentById(Integer id);
     Integer getStudentIdentity(Integer id);
+    void deleteStudent(Integer id);
 }

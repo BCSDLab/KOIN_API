@@ -6,6 +6,7 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.UserCode;
 import koreatech.in.domain.user.UserResponseType;
+import koreatech.in.domain.user.UserType;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.student.Student;
 import koreatech.in.exception.ConflictException;
@@ -13,20 +14,18 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.exception.UnauthorizeException;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.user.OwnerMapper;
+import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.service.UserService;
 import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.SesMailSender;
-import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -34,26 +33,21 @@ import java.util.concurrent.TimeUnit;
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
-// TODO userService 호출하여 중복코드 처리하기
+
 @Service
+@RequiredArgsConstructor
 public class AdminUserServiceImpl implements AdminUserService{
-    @Resource(name = "userMapper")
-    private UserMapper userMapper;
 
-    @Autowired
-    private AuthorityMapper authorityMapper;
+    private final UserMapper userMapper;
+    private final StudentMapper studentMapper;
+    private final OwnerMapper ownerMapper;
+    private final AuthorityMapper authorityMapper;
+    private final JwtValidator jwtValidator;
+    private final JwtTokenGenerator jwtTokenGenerator;
+    private final PasswordEncoder passwordEncoder;
+    private final StringRedisUtilStr stringRedisUtilStr;
+    private final UserService userService;
 
-    @Autowired
-    private JwtValidator jwtValidator;
-
-    @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
-
-    @Inject
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) {
         Integer totalCount = userMapper.getTotalCount();
@@ -73,7 +67,7 @@ public class AdminUserServiceImpl implements AdminUserService{
     }
 
     @Override
-    public User createStudentForAdmin(Student student) {
+    public Student createStudentForAdmin(Student student) {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
         if(userMapper.isAccountAlreadyUsed(student.getAccount()) > 0){
@@ -82,7 +76,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            if (isUserNickNameAlreadyUsed(student.getNickname())){
+            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
@@ -125,45 +119,38 @@ public class AdminUserServiceImpl implements AdminUserService{
 
 
     @Override
-    public User updateUserForAdmin(User user, int id) {
-        User selectUser = userMapper.getUserById(id)
+    public Student updateStudentForAdmin(Student student, int id) {
+        Student selectUser = studentMapper.getStudentById(id)
                 .orElseThrow(()-> new NotFoundException(new ErrorMessage("No User", 0)));
 
-        user.setIdentity(selectUser.getIdentity());
+        student.setIdentity(selectUser.getIdentity());
 
         // 닉네임 중복 체크
-        if (user.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(user.getNickname());
+        if (student.getNickname() != null) {
+            User selectUser2 = userMapper.getUserByNickName(student.getNickname()).get();
             if (selectUser2 != null && !selectUser.getId().equals(selectUser2.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
 
         // 학번 유효성 체크
-        if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
+        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
         // 학과 유효성 체크
-        if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
+        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
 
-        if (user.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (student.getPassword() != null) {
+            student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
 
-        if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
-            Owner owner = (Owner) selectUser;
-            owner.update(user);
-            userMapper.updateUser(owner);
-            userMapper.updateOwner(owner);
-        } else {
-            selectUser.update(user);
-            userMapper.updateUser(selectUser);
-        }
+        selectUser.update(student);
+        userMapper.updateUser(selectUser);
 
-        return user;
+        return student;
     }
 
     @Override
@@ -171,6 +158,12 @@ public class AdminUserServiceImpl implements AdminUserService{
         User selectUser = userMapper.getUserById(id)
                 .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
 
+        if (selectUser.getUserType().equals(UserType.STUDENT)){
+            studentMapper.deleteStudent(id);
+
+        } else {
+            ownerMapper.deleteOwner(id);
+        }
         userMapper.deleteUser(id);
 
         return new HashMap<String, Object>() {{
