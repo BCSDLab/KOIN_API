@@ -45,10 +45,9 @@ public abstract class User implements UserDetails {
     protected Date authExpiredAt;
     protected String resetToken;
     protected Date resetExpiredAt;
-    protected String lastLoggedAt;
     @ApiModelProperty(notes = "프로필 이미지 링크", example = "https://static.koreatech.in/upload/~~")
     protected String profileImageUrl;
-    protected Date LastLoggedAt;
+    protected Date lastLoggedAt;
     protected Authority authority;
     protected UserType userType;
 
