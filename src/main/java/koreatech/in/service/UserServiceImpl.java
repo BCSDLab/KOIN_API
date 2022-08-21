@@ -348,7 +348,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
-        selectUser.setLastLoggedAt(new Date().toString());
+        selectUser.setLastLoggedAt(new Date());
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 

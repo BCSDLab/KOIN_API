@@ -244,7 +244,7 @@ public class AdminUserServiceImpl implements AdminUserService{
             throw new UnauthorizeException(new ErrorMessage("There is no authority", 0));
         }
 
-        selectUser.setLastLoggedAt(new Date().toString());
+        selectUser.setLastLoggedAt(new Date());
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
