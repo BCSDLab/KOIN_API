@@ -21,13 +21,20 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 @Service
-@RequiredArgsConstructor
 public class JwtValidator {
 
-    private final JwtTokenGenerator jwtTokenGenerator;
-    private final UserMapper userMapper;
-    private final AuthorityMapper authorityMapper;
-    private final OwnerMapper ownerMapper;
+    @Autowired
+    private JwtTokenGenerator jwtTokenGenerator;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private AuthorityMapper authorityMapper;
+
+    @Autowired
+    private OwnerMapper ownerMapper;
+
 
     public User validate() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();

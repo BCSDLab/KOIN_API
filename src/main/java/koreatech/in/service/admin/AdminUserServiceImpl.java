@@ -22,6 +22,7 @@ import koreatech.in.service.UserService;
 import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,20 +34,32 @@ import java.util.concurrent.TimeUnit;
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
-
 @Service
-@RequiredArgsConstructor
 public class AdminUserServiceImpl implements AdminUserService{
 
-    private final UserMapper userMapper;
-    private final StudentMapper studentMapper;
-    private final OwnerMapper ownerMapper;
-    private final AuthorityMapper authorityMapper;
-    private final JwtValidator jwtValidator;
-    private final JwtTokenGenerator jwtTokenGenerator;
-    private final PasswordEncoder passwordEncoder;
-    private final StringRedisUtilStr stringRedisUtilStr;
-    private final UserService userService;
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private StudentMapper studentMapper;
+
+    @Autowired
+    private OwnerMapper ownerMapper;
+
+    @Autowired
+    private AuthorityMapper authorityMapper;
+
+    @Autowired
+    private JwtValidator jwtValidator;
+
+    @Autowired
+    private JwtTokenGenerator jwtTokenGenerator;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
 
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) {

@@ -37,21 +37,39 @@ import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 // TODO 리터럴 문자열 전부 제거
 @Service("userService")
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private final UserMapper userMapper;
-    private final AuthorityMapper authorityMapper;
-    private final SesMailSender sesMailSender;
-    private final VelocityEngine velocityEngine;
-    private final JwtValidator jwtValidator;
-    private final JwtTokenGenerator jwtTokenGenerator;
-    private final SlackNotiSender slackNotiSender;
-    private final OwnerMapper ownerMapper;
-    private final StringRedisUtilStr stringRedisUtilStr;
-    private final StudentMapper studentMapper;
+    @Autowired
+    private UserMapper userMapper;
 
-    @Inject
+    @Autowired
+    private AuthorityMapper authorityMapper;
+
+    @Autowired
+    private SesMailSender sesMailSender;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
+
+    @Autowired
+    private JwtValidator jwtValidator;
+
+    @Autowired
+    private JwtTokenGenerator jwtTokenGenerator;
+
+    @Autowired
+    private SlackNotiSender slackNotiSender;
+
+    @Autowired
+    private OwnerMapper ownerMapper;
+
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
+
+    @Autowired
+    private StudentMapper studentMapper;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Value("${redis.key.login_prefix}")
