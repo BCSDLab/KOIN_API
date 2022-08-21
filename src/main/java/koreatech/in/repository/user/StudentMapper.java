@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Repository
 public interface StudentMapper {
-    void createStudent();
+    void insertStudent(Student student);
     Optional<Student> getStudentById(Integer id);
     Integer getStudentIdentity(Integer id);
     void deleteStudent(Integer id);

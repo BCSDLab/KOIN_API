@@ -13,7 +13,6 @@ import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.*;
-import lombok.RequiredArgsConstructor;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -107,7 +104,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
-            userMapper.createUser(student);
+            userMapper.insertUser(student);
+            studentMapper.insertStudent(student);
         } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
@@ -161,7 +159,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return false;
         }
 
-        userMapper.updateUserIsAuth(true);
+        userMapper.updateUserIsAuthed(user.getId(), true);
 
         slackNotiSender.noticeRegister(NotiSlack.builder()
                 .color("good")
@@ -178,13 +176,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ValidationException(new ErrorMessage("account is required", 0));
         }
 
-        // TODO 유저 전체가 아닌 필요한 것만 조회?
         User selectUser = userMapper.getUserByAccount(account)
                 .orElseThrow(()->new NotFoundException(new ErrorMessage("invalid authenticate", 0)));
 
         Date resetExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         final String resetToken = SHA256Util.getEncrypt(account, resetExpiredAt.toString());
-        userMapper.updateResetTokenAndResetTokenExpiredTime(resetToken, resetExpiredAt);
+        userMapper.updateResetTokenAndResetTokenExpiredTime(selectUser.getId(), resetToken, resetExpiredAt);
 
         sendResetTokenByEmailForAuthenticate(resetToken, host, selectUser.getEmail());
 
@@ -359,7 +356,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserPasswordByAccount(user.getAccount())
+        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount())
                 .orElseThrow(()->new UnauthorizeException(new ErrorMessage("There is no such ID", 0)));
 
         if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {

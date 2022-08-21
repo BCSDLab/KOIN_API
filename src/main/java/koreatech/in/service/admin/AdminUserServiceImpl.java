@@ -7,7 +7,6 @@ import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.UserCode;
 import koreatech.in.domain.user.UserResponseType;
 import koreatech.in.domain.user.UserType;
-import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.student.Student;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
@@ -18,10 +17,8 @@ import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
-import koreatech.in.service.UserService;
 import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -122,7 +119,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
-            userMapper.createUser(student);
+            userMapper.insertUser(student);
         } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
@@ -246,7 +243,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public Map<String, Object> loginForAdmin(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserPasswordByAccount(user.getAccount())
+        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount())
                 .orElseThrow(()->new UnauthorizeException(new ErrorMessage("There is no such ID", 0)));
 
         if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
