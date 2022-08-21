@@ -11,4 +11,6 @@ public interface StudentMapper {
     Optional<Student> getStudentById(Integer id);
     Integer getStudentIdentity(Integer id);
     void deleteStudent(Integer id);
+    // TODO 쿼리 추가 필요
+    void updateStudent(Student student);
 }
