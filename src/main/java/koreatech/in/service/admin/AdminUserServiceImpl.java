@@ -120,6 +120,7 @@ public class AdminUserServiceImpl implements AdminUserService{
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
             userMapper.insertUser(student);
+            // TODO need to insert student
         } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
@@ -159,6 +160,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
         selectUser.update(student);
         userMapper.updateUser(selectUser);
+        // TODO need to update student
 
         return student;
     }

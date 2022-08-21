@@ -289,6 +289,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         student_old.update(student);
         userMapper.updateUser(student_old);
+        // TODO student update 필요
 
         Map<String, Object> map = domainToMapWithExcept(student_old, UserResponseType.getArray(), false);
 
