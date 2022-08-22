@@ -99,7 +99,6 @@ ALTER TABLE `koin`.`students`
     CHANGE COLUMN `student_number` `student_number` VARCHAR(20) NULL DEFAULT NULL COMMENT '학번' ,
     CHANGE COLUMN `major` `major` VARCHAR(50) NULL DEFAULT NULL COMMENT '전공' ,
     CHANGE COLUMN `identity` `identity` SMALLINT NULL DEFAULT NULL COMMENT '신원(0: 학생, 1: 대학원생)' ,
-    CHANGE COLUMN `email` `email` VARCHAR(100) NOT NULL COMMENT '학교 email' ,
     CHANGE COLUMN `is_graduated` `is_graduated` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '졸업 여부' ,
     CHANGE COLUMN `auth_token` `auth_token` VARCHAR(255) NULL DEFAULT NULL COMMENT '이메일 인증 토큰' ,
     CHANGE COLUMN `auth_expired_at` `auth_expired_at` VARCHAR(255) NULL DEFAULT NULL COMMENT '이메일 인증 토큰 만료 시간' ,
