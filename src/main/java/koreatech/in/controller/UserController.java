@@ -7,8 +7,9 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
+import koreatech.in.domain.user.student.Student;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
+//TODO DTO 사용
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
@@ -32,42 +34,42 @@ public class UserController {
 
     @AuthExcept
     @ParamValid
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity register(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) User user, BindingResult bindingResult, HttpServletRequest request) throws Exception {
+    ResponseEntity studentRegister(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) Student student, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         // TODO: default로 셋팅할 수 있는 방법 알아보기
-        if (user.getIs_graduated() == null) {
-            user.setIs_graduated(false);
+        if (student.getIsGraduated() == null) {
+            student.setIsGraduated(false);
         }
 
-        if (user.getIs_authed() == null) {
-            user.setIs_authed(false);
+        if (student.getIsAuthed() == null) {
+            student.setIsAuthed(false);
         }
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        User clear = new User();
+        Student clear = new Student();
 
-        return new ResponseEntity<Map<String, Object>>(userService.register((User)StringXssChecker.xssCheck(user, clear), getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((Student) StringXssChecker.xssCheck(student, clear), getHost(request)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity me() throws Exception {
-        return new ResponseEntity<Object>(userService.me(), HttpStatus.OK);
+        return new ResponseEntity<Object>(userService.getStudent(), HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUserInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) User user, BindingResult bindingResult) throws Exception {
+    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) Student student, BindingResult bindingResult) throws Exception {
 
-        User clear = new User();
+        Student clear = new Student();
 
-        return new ResponseEntity<>(userService.updateUserInformation((User) StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateStudentInformation((Student) StringXssChecker.xssCheck(student, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -86,6 +88,7 @@ public class UserController {
     @RequestMapping(value = "/user/me", method = RequestMethod.DELETE)
     public @ResponseBody ResponseEntity withdraw() throws Exception {
 
+        // TODO soft delete 방식으로 변경?
         return new ResponseEntity<Map<String, Object>>(userService.withdraw(), HttpStatus.OK);
     }
 
@@ -112,12 +115,12 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
+    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(user, getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(account, getHost(request)), HttpStatus.CREATED);
     }
 
     private String getHost(HttpServletRequest request) {

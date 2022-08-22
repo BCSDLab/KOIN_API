@@ -3,11 +3,8 @@ package koreatech.in.service;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Faq.Faq;
-import koreatech.in.domain.User.User;
-import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.UnauthorizeException;
 import koreatech.in.repository.FaqMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,11 +64,7 @@ public class FaqServiceImpl implements FaqService {
     public Map<String, Object> getFaqList(Criteria criteria) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        double totalCount = faqMapper.totalCount();
-        double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
-            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
+        Integer totalPage = criteria.calcTotalPage(faqMapper.totalCount());
 
         map.put("faqs", faqMapper.getFaqList(criteria.getCursor(), criteria.getLimit()));
         map.put("totalPage", totalPage);

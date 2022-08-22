@@ -6,14 +6,13 @@ import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
 import koreatech.in.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 

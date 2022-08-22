@@ -6,10 +6,9 @@ import koreatech.in.domain.MarketPlace.Item;
 import koreatech.in.domain.MarketPlace.ItemComment;
 import koreatech.in.domain.MarketPlace.ItemViewLog;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.MarketPlaceMapper;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.util.SearchUtil;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.UploadFileUtils;
@@ -136,7 +135,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         Map<String, Object> map = domainToMap(item);
         Map<String, String> profile = new HashMap<String, String>();
-        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
         map.put("user", profile);
         map.put("comments", itemComments);
 
@@ -327,7 +326,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         Map<String, Object> map = domainToMap(item);
         Map<String, String> profile = new HashMap<String, String>();
-        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
         map.put("user", profile);
         map.put("comments", itemComments);
 

@@ -6,7 +6,7 @@ import koreatech.in.domain.Community.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;

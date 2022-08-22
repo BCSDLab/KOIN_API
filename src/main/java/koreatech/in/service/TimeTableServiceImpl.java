@@ -6,7 +6,7 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.TimeTable.Lecture;
 import koreatech.in.domain.TimeTable.Semester;
 import koreatech.in.domain.TimeTable.TimeTable;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.TimeTableMapper;
 import org.springframework.beans.factory.annotation.Autowired;

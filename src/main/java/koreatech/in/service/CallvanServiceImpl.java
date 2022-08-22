@@ -4,7 +4,7 @@ import koreatech.in.domain.Callvan.Company;
 import koreatech.in.domain.Callvan.Participant;
 import koreatech.in.domain.Callvan.Room;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.user.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.CallvanMapper;
 import org.springframework.stereotype.Service;

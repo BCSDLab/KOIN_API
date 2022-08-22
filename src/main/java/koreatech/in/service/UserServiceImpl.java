@@ -1,19 +1,21 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserResponseType;
+import koreatech.in.domain.user.owner.Owner;
+import koreatech.in.domain.user.User;
+import koreatech.in.domain.user.UserCode;
+import koreatech.in.domain.user.UserResponseType;
+import koreatech.in.domain.user.student.Student;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.UserMapper;
+import koreatech.in.repository.user.OwnerMapper;
+import koreatech.in.repository.user.StudentMapper;
+import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -32,9 +32,11 @@ import java.util.concurrent.TimeUnit;
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
+// TODO 리터럴 문자열 전부 제거
 @Service("userService")
 public class UserServiceImpl implements UserService, UserDetailsService {
-    @Resource(name = "userMapper")
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -55,499 +57,176 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private SlackNotiSender slackNotiSender;
 
-    @Inject
-    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private OwnerMapper ownerMapper;
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
 
-    public Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception {
-        double totalCount = userMapper.totalCount();
-        double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+    @Autowired
+    private StudentMapper studentMapper;
 
-        if (totalPage < 0)
-            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        Map<String, Object> map = new HashMap<>();
+    @Value("${redis.key.login_prefix}")
+    private String redisLoginTokenKeyPrefix;
 
-        map.put("items", userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit()));
-        map.put("totalPage", totalPage);
-
-        return map;
-    }
-
+    @Transactional
     @Override
-    public User getUserForAdmin(int id) throws Exception {
-        User selectUser = userMapper.getUser(id);
+    public Map<String, Object> StudentRegister(Student student, String host) throws Exception {
+        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
+        student.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
-        if (selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("User not found.", 0));
-        }
-
-        return selectUser;
-    }
-
-    @Override
-    public User createUserForAdmin(User user) {
-        // 가입되어 있는 계정인지 체크
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
+        Student selectUser = userMapper.<Student>getUserByAccount(student.getAccount()).get();
 
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
+        // 가입 요청 후, 인증 토큰의 유효기간이 초과된 경우는 회원가입 재시도 가능
         // TODO: 메일 인증 하지 않은 경우 조건 추가
         if (selectUser != null) {
-            throw new NotFoundException(new ErrorMessage("already exists", 0));
-        }
-
-        // 닉네임 중복 체크
-        if (user.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(user.getNickname());
-            if (selectUser2 != null) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            if (selectUser.getIsAuthed() || !isTokenExpired(selectUser.getAuthExpiredAt())) {
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
 
-        // 학번 유효성 체크
-        if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
+       checkInputDataValidationForRegister(student);
 
-        // 학과 유효성 체크
-        if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
+        // 가입 메일에 있는 토큰의 유효기간 설정
+        // TODO 추상화 + 정적 팩토리 메소드 혹은 빌더 패턴을 이용하여 생성하도록 수정
+        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
+        final String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
+        student.setAuthToken(authToken);
+        student.setAuthExpiredAt(authExpiredAt);
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setAnonymous_nickname("익명_" + (System.currentTimeMillis()));
-
-        // TODO: default로 셋팅할 수 있는 방법 알아보기
-        if (user.getIdentity() == null) {
-            user.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
-        }
-
-        if (user.getIs_graduated() == null) {
-            user.setIs_graduated(false);
-        }
-
-        if (user.getIs_authed() == null) {
-            user.setIs_authed(false);
-        }
+        student.setPassword(passwordEncoder.encode(student.getPassword()));
+        student.setAnonymousNickname("익명_" + (System.currentTimeMillis()));
+        student.setEmail(student.getAccount() + "@koreatech.ac.kr");
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
-            userMapper.createUser(user);
+            userMapper.insertUser(student);
+            studentMapper.insertStudent(student);
         } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
 
-        return user;
-    }
+        sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
 
-
-    @Override
-    public User updateUserForAdmin(User user, int id) {
-        User selectUser = userMapper.getUser(id);
-        if (selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-
-        user.setIdentity(selectUser.getIdentity());
-
-        // 닉네임 중복 체크
-        if (user.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(user.getNickname());
-            if (selectUser2 != null && !selectUser.getId().equals(selectUser2.getId())) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-
-        // 학번 유효성 체크
-        if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        // 학과 유효성 체크
-        if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
-
-        if (user.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
-        if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
-            Owner owner = (Owner) selectUser;
-            owner.update(user);
-            userMapper.updateUser(owner);
-            userMapper.updateOwner(owner);
-        } else {
-            selectUser.update(user);
-            userMapper.updateUser(selectUser);
-        }
-
-        return user;
-    }
-
-    @Override
-    public Map<String, Object> deleteUserForAdmin(int id) {
-        User selectUser = userMapper.getUser(id);
-        if (selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-
-        userMapper.deleteUser(id);
+        slackNotiSender.noticeRegister(NotiSlack.builder()
+                .color("good")
+                .text(student.getAccount() + "님이 이메일 인증을 요청하였습니다.")
+                .build());
 
         return new HashMap<String, Object>() {{
-            put("success", "delete user");
+            put("success", "send mail for student authentication to entered email address");
         }};
     }
 
-    @Transactional
-    @Override
-    public Authority createPermissionForAdmin(Authority authority, int userId) {
-        User selectUser = userMapper.getUser(userId);
-        if (selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-
-        authority.init();
-        authority.setUser_id(userId);
-
-        Authority selectAuthority = authorityMapper.getAuthorityByUserId(userId);
-        if (selectAuthority != null) {
-            throw new PreconditionFailedException(new ErrorMessage("already have authority", 0));
-        }
-
-        authorityMapper.createAuthority(authority);
-
-        return authority;
-    }
-
-    @Override
-    public Authority getPermissionForAdmin(int userId) {
-        Authority authority = authorityMapper.getAuthorityByUserId(userId);
-
-        if (authority == null) {
-            throw new NotFoundException(new ErrorMessage("No Authority", 0));
-        }
-
-        return authority;
-    }
-
-    @Override
-    public Authority updatePermissionForAdmin(Authority authority, int userId) {
-        Authority selectAuthority = authorityMapper.getAuthorityByUserId(userId);
-
-        if (selectAuthority == null) {
-            throw new NotFoundException(new ErrorMessage("No Authority", 0));
-        }
-
-        selectAuthority.update(authority);
-
-        authorityMapper.updateAuthorityByUserId(selectAuthority, userId);
-
-        return authority;
-    }
-
-    @Override
-    public Map<String, Object> deletePermissionForAdmin(int userId) {
-        Authority selectAuthority = authorityMapper.getAuthorityByUserId(userId);
-
-        if (selectAuthority == null) {
-            throw new NotFoundException(new ErrorMessage("No Authority", 0));
-        }
-
-        authorityMapper.deleteAuthority(userId);
-
-        return new HashMap<String, Object>() {{
-            put("success", "delete authority");
-        }};
-    }
-
-    @Override
-    public Map<String, Object> loginForAdmin(User user) throws Exception {
-        final User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
-
-        if (selectUser == null || !selectUser.getIs_authed()) {
-            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
-        }
-
-        if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
-            throw new UnauthorizeException(new ErrorMessage("password not match", 0));
-        }
-
-        if (userMapper.getAuthorityByUserIdForAdmin(selectUser.getId()) == null) {
-            throw new UnauthorizeException(new ErrorMessage("There is no authority", 0));
-        }
-
-        selectUser.setLast_logged_at(new Date().toString());
-        userMapper.updateUser(selectUser);
-        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
-
-        String getToken = stringRedisUtilStr.getDataAsString("user@" + selectUser.getId().toString());
-        if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
-            getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
-        }
-
-        final String token = getToken;
-
-        return new HashMap<String, Object>() {{
-            put("user", map);
-            put("token", token);
-        }};
-    }
-
-    @Override
-    public Map<String, Object> logoutForAdmin() {
-        // TODO: jwt 이력 삭제
-        User user = jwtValidator.validate();
-        stringRedisUtilStr.deleteData("user@" + user.getId().toString());
-
-        return new HashMap<String, Object>() {{
-            put("success", "logout");
-        }};
-    }
-
-    @Override
-    public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        limit = Math.min(limit, 50);
-        page = Math.max(page, 1);
-
-        double totalCount = authorityMapper.totalAuthorityCount();
-        double countByLimit = totalCount / limit;
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / limit);
-        if (totalPage < 0)
-            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
-
-        int cursor = (page - 1) * limit;
-
-        List<Authority> admins = authorityMapper.getAuthorityList(cursor, limit);
-        List<Map<String, Object>> listedAdmin = new ArrayList<>();
-
-        for (Authority admin : admins) {
-            Map<String, Object> adminToMap = domainToMap(admin);
-            User user = userMapper.getUser(admin.getUser_id());
-            if (user == null) {
-                adminToMap.put("users", null);
-            } else {
-                Map<String, Object> userToMap = new HashMap<String, Object>() {{
-                    put("portal_account", user.getPortal_account());
-                }};
-
-                adminToMap.put("users", userToMap);
-            }
-            listedAdmin.add(adminToMap);
-        }
-        map.put("admins", listedAdmin);
-        map.put("totalPage", totalPage);
-
-        return map;
-    }
-
-    @Transactional
-    @Override
-    public Map<String, Object> register(User user, String host) throws Exception {
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        user.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
-
-        // 가입되어 있는 계정인지 체크
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
-
-        // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
-        // TODO: 메일 인증 하지 않은 경우 조건 추가
-        if (selectUser != null && (selectUser.getIs_authed() || selectUser.getAuth_expired_at().getTime() - (new Date()).getTime() > 0)) {
-            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-        }
-
-        // 닉네임 중복 체크
-        if (user.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(user.getNickname());
-            if (selectUser2 != null) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-
-        // 학번 유효성 체크
-        if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        // 학과 유효성 체크
-        if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
-
-        // 가입 메일에 있는 토큰의 유효기간 설정
-        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String authToken = SHA256Util.getEncrypt(user.getPortal_account(), authExpiredAt.toString());
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setAuth_token(authToken);
-        user.setAuth_expired_at(authExpiredAt);
-        user.setAnonymous_nickname("익명_" + (System.currentTimeMillis()));
-
-        // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
-        if (selectUser == null) {
-            try {
-                userMapper.createUser(user);
-            } catch (SQLException sqlException) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-            }
-
-
-        } else {
-            user.setId(selectUser.getId());
-            userMapper.updateUser(user);
-        }
-
-        final String contextPath = host;
-        final String toAccount = user.getPortal_account() + "@koreatech.ac.kr";
-
-//        이전 gmail api 사용한 전송
-//        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-//            @Override
-//            public void prepare(MimeMessage mimeMessage) throws Exception {
-//                MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-//                message.setSubject("코인 이메일 회원가입 인증");
-//                message.setTo(toAccount);
-//                message.setFrom("bcsdlab@gmail.com");
-//
-//                Map model = new HashMap();
-//                model.put("authToken", authToken);
-//                model.put("contextPath", contextPath);
-//
-//                String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", model);
-//                message.setText(text, true);
-//            }
-//        };
-//
-//        mailSender.send(preparator);
-
+    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
         Map<String, Object> model = new HashMap<>();
         model.put("authToken", authToken);
         model.put("contextPath", contextPath);
 
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", "UTF-8", model);
 
-        sesMailSender.sendMail("no-reply@bcsdlab.com", toAccount, "코인 이메일 회원가입 인증", text);
+        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
+    }
 
-        slackNotiSender.noticeRegister(NotiSlack.builder()
-                .color("good")
-                .text(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.")
-                .build());
+    private void checkInputDataValidationForRegister(Student student){
+        // 닉네임 중복 체크
+        if (student.getNickname() != null) {
+            if(isUserNickNameAlreadyUsed(student.getNickname())){
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
 
-        return new HashMap<String, Object>() {{
-            put("success", "send mail for user authentication to entered email address");
-        }};
+        // 학번 유효성 체크
+        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        }
+
+        // 학과 유효성 체크
+        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+        }
     }
 
     @Override
     public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+        User user = userMapper.getUserByAuthToken(authToken).get();
 
-        if (user == null || user.getIs_authed() || user.getAuth_expired_at().getTime() - (new Date()).getTime() < 0) {
+        if (user == null || user.getIsAuthed() || isTokenExpired(user.getAuthExpiredAt())) {
             return false;
         }
 
-        user.setIs_authed(true);
-
-        userMapper.updateUser(user);
+        userMapper.updateUserIsAuthed(user.getId(), true);
 
         slackNotiSender.noticeRegister(NotiSlack.builder()
                 .color("good")
-                .text(user.getPortal_account() + "님이 가입하셨습니다.")
+                .text(user.getAccount() + "님이 가입하셨습니다.")
                 .build());
 
         return true;
     }
 
     @Override
-    public Map<String, Object> changePasswordConfig(User user, String host) {
-        if (user.getPortal_account() == null) {
-            throw new ValidationException(new ErrorMessage("portal_account is required", 0));
+    public Map<String, Object> changePasswordConfig(String account, String host) {
+        // TODO client 로부터 받을 때 validation 확인
+        if (account == null) {
+            throw new ValidationException(new ErrorMessage("account is required", 0));
         }
 
-        User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
-        if (selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("invalid authenticate", 0));
-        }
+        User selectUser = userMapper.getUserByAccount(account)
+                .orElseThrow(()->new NotFoundException(new ErrorMessage("invalid authenticate", 0)));
 
         Date resetExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String resetToken = SHA256Util.getEncrypt(user.getPortal_account(), resetExpiredAt.toString());
+        final String resetToken = SHA256Util.getEncrypt(account, resetExpiredAt.toString());
+        userMapper.updateResetTokenAndResetTokenExpiredTime(selectUser.getId(), resetToken, resetExpiredAt);
 
-        selectUser.setReset_expired_at(resetExpiredAt);
-        selectUser.setReset_token(resetToken);
-
-        userMapper.updateUser(selectUser);
-
-        final String contextPath = host;
-        final String toAccount;
-        if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
-            toAccount = userMapper.getOwnerEmail(selectUser.getId());
-            if (toAccount == null)
-                throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
-        } else {
-            toAccount = user.getPortal_account() + "@koreatech.ac.kr";
-        }
-
-//        이전 gmail api 사용한 전송
-//        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-//            @Override
-//            public void prepare(MimeMessage mimeMessage) throws Exception {
-//                MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-//                message.setSubject("코인 패스워드 초기화 인증");
-//                message.setTo(toAccount);
-//                message.setFrom("bcsdlab@gmail.com");
-//
-//                Map model = new HashMap();
-//                model.put("resetToken", resetToken);
-//                model.put("contextPath", contextPath);
-//
-//                String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", model);
-//                message.setText(text, true);
-//            }
-//        };
-//
-//        mailSender.send(preparator);
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("resetToken", resetToken);
-        model.put("contextPath", contextPath);
-
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
-
-        sesMailSender.sendMail("no-reply@bcsdlab.com", toAccount, "코인 패스워드 초기화 인증", text);
+        sendResetTokenByEmailForAuthenticate(resetToken, host, selectUser.getEmail());
 
         return new HashMap<String, Object>() {{
             put("success", "send authenticate mail to your account email");
         }};
     }
 
+    private void sendResetTokenByEmailForAuthenticate(String resetToken, String contextPath, String email) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("resetToken", resetToken);
+        model.put("contextPath", contextPath);
+
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
+
+        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
+    }
+
     @Override
     public Boolean changePasswordInput(String resetToken) {
-        User user = userMapper.getUserByResetToken(resetToken);
+        User user = userMapper.getUserByResetToken(resetToken).get();
 
-        if ((user == null) || (user.getReset_expired_at().getTime() - (new Date()).getTime() < 0)) {
+        if ((user == null) || isTokenExpired(user.getResetExpiredAt())) {
             return false;
-        }
 
-        return true;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean isTokenExpired(Date expiredAt) {
+        return expiredAt.getTime() - (new Date()).getTime() < 0;
     }
 
     @Override
     public Boolean changePasswordAuthenticate(String password, String resetToken) {
-        User selectUser = userMapper.getUserByResetToken(resetToken);
+        User selectUser = userMapper.getUserByResetToken(resetToken).get();
 
-        if ((selectUser == null) || (selectUser.getReset_expired_at().getTime() - (new Date()).getTime() < 0)) {
+        if ((selectUser == null) || isTokenExpired(selectUser.getResetExpiredAt())) {
             return false;
         }
 
         // TODO: password hashing
         selectUser.setPassword(passwordEncoder.encode(password));
-        selectUser.setReset_expired_at(new Date());
+        selectUser.setResetExpiredAt(new Date());
 
         userMapper.updateUser(selectUser);
 
@@ -559,11 +238,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> withdraw() throws Exception {
         User user = jwtValidator.validate();
         userMapper.deleteUser(user.getId());
-        stringRedisUtilStr.deleteData("user@" + user.getId().toString());
+        stringRedisUtilStr.deleteData("student@" + user.getId().toString());
 
         slackNotiSender.noticeWithdraw(NotiSlack.builder()
                 .color("good")
-                .text(user.getPortal_account() + "님이 탈퇴하셨습니다.")
+                .text(user.getAccount() + "님이 탈퇴하셨습니다.")
                 .build());
 
         return new HashMap<String, Object>() {{
@@ -571,56 +250,53 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }};
     }
 
-    @Override
-    public User me() throws Exception {
-        User user = jwtValidator.validate();
-
-        return user;
-    }
 
     @Override
     @Transactional
-    public Map<String, Object> updateUserInformation(User user) throws Exception {
-        User user_old = jwtValidator.validate();
+    public Map<String, Object> updateStudentInformation(Student student) throws Exception {
+        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId())
+                .orElseThrow(()->new ValidationException(new ErrorMessage("token not validate", 402)));
 
-        user.setIdentity(user_old.getIdentity());
+        student.setIdentity(student_old.getIdentity());
 
         // 인증받은 유저인지 체크
-        if (!user_old.getIs_authed()) {
+        if (!student_old.getIsAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
 
         // 닉네임 중복 체크
-        if (user.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(user.getNickname());
-            if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
+        if (student.getNickname() != null) {
+            User selectUser = userMapper.getUserByNickName(student.getNickname()).get();
+            if (selectUser != null && !student_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
 
         // 학번 유효성 체크
-        if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
+        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
         // 학과 유효성 체크
-        if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
+        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
 
         // TODO: hashing passowrd
-        if (user.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (student.getPassword() != null) {
+            student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
 
-        user_old.update(user);
-        userMapper.updateUser(user_old);
+        student_old.update(student);
+        userMapper.updateUser(student_old);
+        studentMapper.updateStudent(student_old);
 
-        Map<String, Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
+        Map<String, Object> map = domainToMapWithExcept(student_old, UserResponseType.getArray(), false);
 
         return map;
     }
 
+    // TODO owner 정보 업데이트 
     @Override
     @Transactional
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
@@ -632,26 +308,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 인증받은 유저인지 체크
-        if (!user_old.getIs_authed()) {
+        if (!user_old.getIsAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
 
         // 닉네임 중복 체크
         if (owner.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(owner.getNickname());
+            User selectUser = userMapper.getUserByNickName(owner.getNickname()).get();
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
-        }
-
-        // 학번 유효성 체크
-        if (owner.getStudent_number() != null && !UserCode.isValidatedStudentNumber(owner.getIdentity(), owner.getStudent_number())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        // 학과 유효성 체크
-        if (owner.getMajor() != null && !UserCode.isValidatedDeptNumber(owner.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
 
         // TODO: hashing passowrd
@@ -661,48 +327,53 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         user_old.update(owner);
         userMapper.updateUser(user_old);
-        userMapper.updateOwner(user_old);
+        ownerMapper.updateOwner(user_old);
 
-        Map<String, Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
-
-        return map;
+        return domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
     }
 
     @Override
     public Map<String, Object> checkUserNickName(String nickname) {
-        if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
-            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
-
-        User user = userMapper.getUserByNickName(nickname);
-        if (user != null) {
-            throw new ConflictException(new ErrorMessage("사용할 수 없는 닉네임입니다.", 0));
-        }
+        checkNicknameValidAndNotUsed(nickname);
 
         return new HashMap<String, Object>() {{
             put("success", "사용 가능한 닉네임입니다.");
         }};
     }
 
+    private void checkNicknameValidAndNotUsed(String nickname){
+        // TODO 클라이언트에서 넘어올때 확인하도록 수정
+        if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
+
+        if (isUserNickNameAlreadyUsed(nickname)) {
+            throw new ConflictException(new ErrorMessage("사용할 수 없는 닉네임입니다.", 0));
+        }
+    }
+
+    private boolean isUserNickNameAlreadyUsed(String nickname){
+        return userMapper.isNicknameAlreadyUsed(nickname) > 0;
+    }
+
     @Override
     public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getUserByPortalAccount(user.getPortal_account());
-
-        if (selectUser == null || !selectUser.getIs_authed()) {
-            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
-        }
+        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount())
+                .orElseThrow(()->new UnauthorizeException(new ErrorMessage("There is no such ID", 0)));
 
         if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
-        selectUser.setLast_logged_at(new Date().toString());
+        selectUser.setLastLoggedAt(new Date());
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        String getToken = stringRedisUtilStr.getDataAsString("user@" + selectUser.getId().toString());
+        // ?? 레디스에서 이전 로그인 토큰이 있는지 확인 후, 없거나 expired 됐다면 재발급 후 반환
+        // regenerateTokenAndSetRedisIfTokenNotExistOrExpired();
+        String getToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + selectUser.getId());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+            stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -724,13 +395,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String portal_account) throws UsernameNotFoundException {
-        User user = userMapper.getUserByPortalAccount(portal_account);
+    public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
+        return userMapper.getUserByAccount(account)
+                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+    }
 
-        if (user == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-
-        return user;
+    @Override
+    public Student getStudent() {
+        User user = jwtValidator.validate();
+        return studentMapper.getStudentById(user.getId())
+                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
     }
 }

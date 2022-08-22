@@ -1,13 +1,9 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.User.User;
 import koreatech.in.domain.Version.Version;
 import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.UnauthorizeException;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.repository.VersionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
