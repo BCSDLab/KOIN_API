@@ -78,17 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
         student.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
-        Student selectUser = userMapper.<Student>getUserByAccount(student.getAccount()).get();
-
-        // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
-        // TODO: 메일 인증 하지 않은 경우 조건 추가
-        if (selectUser != null) {
-            if (selectUser.getIsAuthed() || !isTokenExpired(selectUser.getAuthExpiredAt())) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-            }
-        }
-
-       checkInputDataValidationForRegister(student);
+        checkInputDataValidationForRegister(student);
 
         // 가입 메일에 있는 토큰의 유효기간 설정
         // TODO 추상화 + 정적 팩토리 메소드 혹은 빌더 패턴을 이용하여 생성하도록 수정
@@ -132,6 +122,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkInputDataValidationForRegister(Student student){
+        User selectUser = userMapper.getUserByAccount(student.getAccount()).get();
+
+        // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
+        // TODO: 메일 인증 하지 않은 경우 조건 추가
+        if (selectUser != null) {
+            if (selectUser.getIsAuthed() || !isTokenExpired(selectUser.getAuthExpiredAt())) {
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+            }
+        }
+
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
             if(isUserNickNameAlreadyUsed(student.getNickname())){
@@ -140,12 +140,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
+        if (!student.isStudentNumberValidated()) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
         // 학과 유효성 체크
-        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
+        if (!student.isStudentMajorValidated()) {
             throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
     }
