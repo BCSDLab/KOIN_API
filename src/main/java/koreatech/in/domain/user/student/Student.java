@@ -2,7 +2,6 @@ package koreatech.in.domain.user.student;
 
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.user.User;
-import koreatech.in.domain.user.UserCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -58,23 +57,5 @@ public class Student extends User {
     @Override
     public boolean isEnabled() {
         return false;
-    }
-
-    public boolean isStudentNumberValidated() {
-        if(this.identity != null && this.studentNumber != null) {
-            return UserCode.isValidatedStudentNumber(this.identity, this.studentNumber);
-
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isStudentMajorValidated() {
-        if (this.major != null) {
-            return UserCode.isValidatedDeptNumber(this.major);
-
-        } else {
-            return false;
-        }
     }
 }

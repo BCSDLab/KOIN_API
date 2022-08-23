@@ -19,8 +19,8 @@
     <select id="isAccountAlreadyUsed" resultType="Integer">
         select count(*)
         from koin.users
-        where account=#{account}
-         and is_deleted=0 limit 1;
+        where account=#{account} and is_deleted=0
+        limit 1;
     </select>
 
     <select id="isNicknameAlreadyUsed" resultType="Integer">
