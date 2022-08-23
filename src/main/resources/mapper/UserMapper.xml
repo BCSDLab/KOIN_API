@@ -77,7 +77,8 @@
                 authExpiredAt,
                 isAuthed,
                 profileImageUrl,
-                userType)
+                userType
+        )
         VALUES (
             #{account},
             #{password},
@@ -89,7 +90,8 @@
             #{auth_expired_at},
             #{is_authed},
             #{profile_image_url},
-            #{user_type});
+            #{user_type}
+        );
         <selectKey keyProperty="id" resultType="Long">
             SELECT LAST_INSERT_ID();
         </selectKey>

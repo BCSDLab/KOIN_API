@@ -9,20 +9,22 @@
     </select>
 
     <insert id="insertStudent">
-            INSERT IGNORE
-            INTO koin.students (
-                anonymous_nickname,
-                student_number
-                major,
-                identity,
-                is_graduated)
-            VALUES (
+        INSERT IGNORE
+        INTO koin.students (
+            anonymous_nickname,
+            student_number
+            major,
+            identity,
+            is_graduated
+        )
+        VALUES (
             #{anonymousNickname},
             #{studentNumber},
             #{major},
             #{identity},
-            #{isGraduated},
-            <selectKey keyProperty="id" resultType="Long">
+            #{isGraduated}
+        );
+        <selectKey keyProperty="id" resultType="Long">
                 SELECT LAST_INSERT_ID();
             </selectKey>
     </insert>

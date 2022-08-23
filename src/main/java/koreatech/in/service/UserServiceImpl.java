@@ -81,7 +81,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Student selectUser = userMapper.<Student>getUserByAccount(student.getAccount()).get();
 
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
-        // 가입 요청 후, 인증 토큰의 유효기간이 초과된 경우는 회원가입 재시도 가능
         // TODO: 메일 인증 하지 않은 경우 조건 추가
         if (selectUser != null) {
             if (selectUser.getIsAuthed() || !isTokenExpired(selectUser.getAuthExpiredAt())) {
