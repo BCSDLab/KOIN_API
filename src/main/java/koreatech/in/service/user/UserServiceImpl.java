@@ -1,5 +1,6 @@
-package koreatech.in.service;
+package koreatech.in.service.user;
 
+import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.user.owner.Owner;
@@ -12,6 +13,7 @@ import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
+import koreatech.in.service.JwtValidator;
 import koreatech.in.util.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
-// TODO 리터럴 문자열 전부 제거
 @Service("userService")
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -74,37 +74,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public Map<String, Object> StudentRegister(Student student, String host) throws Exception {
+    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception {
+        Student student = request.toEntity();
         // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        student.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
+        student.changeIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
-        Student selectUser = userMapper.<Student>getUserByAccount(student.getAccount()).get();
+        checkInputDataDuplicationAndValidation(student);
 
-        // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
-        // TODO: 메일 인증 하지 않은 경우 조건 추가
-        if (selectUser != null) {
-            if (selectUser.getIsAuthed() || !isTokenExpired(selectUser.getAuthExpiredAt())) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-            }
-        }
-
-       checkInputDataValidationForRegister(student);
-
-        // 가입 메일에 있는 토큰의 유효기간 설정
-        // TODO 추상화 + 정적 팩토리 메소드 혹은 빌더 패턴을 이용하여 생성하도록 수정
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
-        student.setAuthToken(authToken);
-        student.setAuthExpiredAt(authExpiredAt);
+        String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
+        student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
+        student.changePassword(passwordEncoder.encode(student.getPassword()));
 
-        student.setPassword(passwordEncoder.encode(student.getPassword()));
-        student.setAnonymousNickname("익명_" + (System.currentTimeMillis()));
-        student.setEmail(student.getAccount() + "@koreatech.ac.kr");
-
-        // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
         try {
-            userMapper.insertUser(student);
-            studentMapper.insertStudent(student);
+            insertStudentToDB(student);
         } catch (SQLException sqlException) {
             throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
         }
@@ -121,6 +104,37 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }};
     }
 
+    private void checkInputDataDuplicationAndValidation(Student student){
+        checkAccountAndNicknameDuplication(student);
+        checkStudentNumberAndMajorValidation(student);
+    }
+
+    private void checkAccountAndNicknameDuplication(Student student){
+        User selectUser = userMapper.getUserByAccount(student.getAccount());
+
+        if (selectUser != null) {
+            if (selectUser.getIsAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+            }
+        }
+
+        if (student.getNickname() != null) {
+            if(isNicknameAlreadyUsed(student.getNickname())){
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+    }
+
+    private void checkStudentNumberAndMajorValidation(Student student){
+        if (!student.isStudentNumberValidated()) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        }
+
+        if (!student.isMajorValidated()) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+        }
+    }
+
     private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
         Map<String, Object> model = new HashMap<>();
         model.put("authToken", authToken);
@@ -131,28 +145,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
     }
 
-    private void checkInputDataValidationForRegister(Student student){
-        // 닉네임 중복 체크
-        if (student.getNickname() != null) {
-            if(isUserNickNameAlreadyUsed(student.getNickname())){
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-
-        // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        // 학과 유효성 체크
-        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
+    private void insertStudentToDB(Student student) throws SQLException{
+        userMapper.insertUser(student);
+        studentMapper.insertStudent(student);
     }
 
     @Override
     public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken).get();
+        User user = userMapper.getUserByAuthToken(authToken);
 
         if (user == null || user.getIsAuthed() || isTokenExpired(user.getAuthExpiredAt())) {
             return false;
@@ -175,8 +175,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ValidationException(new ErrorMessage("account is required", 0));
         }
 
-        User selectUser = userMapper.getUserByAccount(account)
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("invalid authenticate", 0)));
+        User selectUser = userMapper.getUserByAccount(account);
+        if(selectUser == null){
+            throw new NotFoundException(new ErrorMessage("invalid authenticate", 0));
+        }
 
         Date resetExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         final String resetToken = SHA256Util.getEncrypt(account, resetExpiredAt.toString());
@@ -201,7 +203,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Boolean changePasswordInput(String resetToken) {
-        User user = userMapper.getUserByResetToken(resetToken).get();
+        User user = userMapper.getUserByResetToken(resetToken);
 
         if ((user == null) || isTokenExpired(user.getResetExpiredAt())) {
             return false;
@@ -217,7 +219,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Boolean changePasswordAuthenticate(String password, String resetToken) {
-        User selectUser = userMapper.getUserByResetToken(resetToken).get();
+        User selectUser = userMapper.getUserByResetToken(resetToken);
 
         if ((selectUser == null) || isTokenExpired(selectUser.getResetExpiredAt())) {
             return false;
@@ -253,10 +255,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public Map<String, Object> updateStudentInformation(Student student) throws Exception {
-        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId())
-                .orElseThrow(()->new ValidationException(new ErrorMessage("token not validate", 402)));
+        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
+        if(student_old == null){
+            throw new ValidationException(new ErrorMessage("token not validate", 402));
+        }
 
-        student.setIdentity(student_old.getIdentity());
+        student.changeIdentity(student_old.getIdentity());
 
         // 인증받은 유저인지 체크
         if (!student_old.getIsAuthed()) {
@@ -265,7 +269,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(student.getNickname()).get();
+            User selectUser = userMapper.getUserByNickName(student.getNickname());
             if (selectUser != null && !student_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -313,7 +317,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 닉네임 중복 체크
         if (owner.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(owner.getNickname()).get();
+            User selectUser = userMapper.getUserByNickName(owner.getNickname());
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -345,19 +349,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
 
-        if (isUserNickNameAlreadyUsed(nickname)) {
+        if (isNicknameAlreadyUsed(nickname)) {
             throw new ConflictException(new ErrorMessage("사용할 수 없는 닉네임입니다.", 0));
         }
     }
 
-    private boolean isUserNickNameAlreadyUsed(String nickname){
+    private boolean isNicknameAlreadyUsed(String nickname){
         return userMapper.isNicknameAlreadyUsed(nickname) > 0;
     }
 
     @Override
     public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount())
-                .orElseThrow(()->new UnauthorizeException(new ErrorMessage("There is no such ID", 0)));
+        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount());
+
+        if(selectUser == null){
+            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
+        }
 
         if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
@@ -395,14 +402,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
-        return userMapper.getUserByAccount(account)
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+        UserDetails userDetails = userMapper.getUserByAccount(account);
+        if(userDetails == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
+        return userDetails;
     }
 
     @Override
     public Student getStudent() {
         User user = jwtValidator.validate();
-        return studentMapper.getStudentById(user.getId())
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+
+        Student student = studentMapper.getStudentById(user.getId());
+        if(student == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
+        return student;
     }
 }

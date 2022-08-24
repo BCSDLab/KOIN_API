@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,6 +16,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public abstract class User implements UserDetails {
     @ApiModelProperty(notes = "고유 id", example = "10")
     protected Integer id;
@@ -50,6 +52,19 @@ public abstract class User implements UserDetails {
     protected Date lastLoggedAt;
     protected Authority authority;
     protected UserType userType;
+    protected Boolean isDeleted;
+    protected Date createdAt;
+    protected Date updatedAt;
+
+    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender) {
+        this.account = account;
+        this.password = password;
+        this.nickname = nickname;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.gender = gender;
+    }
 
     @Override
     public String toString() {
@@ -59,6 +74,7 @@ public abstract class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
                 ", gender=" + gender +
                 ", is_authed=" + isAuthed +
                 ", auth_token='" + authToken + '\'' +
@@ -107,5 +123,21 @@ public abstract class User implements UserDetails {
         if (user.lastLoggedAt != null) {
             this.lastLoggedAt = user.lastLoggedAt;
         }
+    }
+
+    public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
+        this.authToken = authToken;
+        this.authExpiredAt = authExpiredAt;
+    }
+
+    public void changePassword(String password){
+        this.password = password;
+    }
+
+    public boolean isAwaitingEmailAuthenticate(){
+        return !isAuthed && !isAuthTokenExpired();
+    }
+    public boolean isAuthTokenExpired(){
+        return authExpiredAt.getTime() - (new Date()).getTime() < 0;
     }
 }

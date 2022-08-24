@@ -1,4 +1,4 @@
-package koreatech.in.controller;
+package koreatech.in.controller.user;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -7,11 +7,15 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.student.Student;
-import koreatech.in.service.UserService;
+import koreatech.in.repository.user.StudentMapper;
+import koreatech.in.repository.user.UserMapper;
+import koreatech.in.service.user.UserService;
 import koreatech.in.util.StringXssChecker;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,33 +29,43 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
-//TODO DTO 사용
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
     @Inject
     private UserService userService;
 
+    @Autowired
+    StudentMapper studentMapper;
+
+    @Autowired
+    UserMapper userMapper;
+
     @AuthExcept
     @ParamValid
+    @ApiOperation(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity studentRegister(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) Student student, BindingResult bindingResult, HttpServletRequest request) throws Exception {
-        // TODO: default로 셋팅할 수 있는 방법 알아보기
+    ResponseEntity studentRegister(
+            @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
+            BindingResult bindingResult,
+            HttpServletRequest httpServletRequest) throws Exception {
+
+        /*    // TODO: default로 셋팅할 수 있는 방법 알아보기
         if (student.getIsGraduated() == null) {
             student.setIsGraduated(false);
         }
 
         if (student.getIsAuthed() == null) {
             student.setIsAuthed(false);
-        }
+        }*/
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        Student clear = new Student();
+        StudentRegisterRequest clear = new StudentRegisterRequest();
 
-        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((Student) StringXssChecker.xssCheck(student, clear), getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

@@ -4,33 +4,32 @@
     <select id="getStudentById" resultMap="studentResult">
         select * from koin.users as user
         join koin.students as student
-        on user.id=student.student_id
+        on user.id=student.user_id
         where user.id=#{id}
     </select>
 
     <insert id="insertStudent">
         INSERT IGNORE
         INTO koin.students (
+            user_id,
             anonymous_nickname,
-            student_number
+            student_number,
             major,
             identity,
             is_graduated
         )
         VALUES (
+            #{id},
             #{anonymousNickname},
             #{studentNumber},
             #{major},
             #{identity},
             #{isGraduated}
         );
-        <selectKey keyProperty="id" resultType="Long">
-                SELECT LAST_INSERT_ID();
-            </selectKey>
     </insert>
 
     <delete id="deleteStudent">
-        DELETE FROM koin.students WHERE ID = #{id};
+        DELETE FROM koin.students WHERE user_id = #{id};
     </delete>
 
     <resultMap id="studentResult" extends="userResultMap" type="koreatech.in.domain.user.student.Student">

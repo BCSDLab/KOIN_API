@@ -8,7 +8,7 @@ import java.util.Optional;
 @Repository
 public interface StudentMapper {
     void insertStudent(Student student);
-    Optional<Student> getStudentById(Integer id);
+    Student getStudentById(Integer id);
     Integer getStudentIdentity(Integer id);
     void deleteStudent(Integer id);
     // TODO 쿼리 추가 필요
