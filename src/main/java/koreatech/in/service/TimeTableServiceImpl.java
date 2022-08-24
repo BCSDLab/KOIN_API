@@ -104,9 +104,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         }
 
         String semester = jsonObject.get("semester").getAsString();
-        int semester_id = timeTableMapper.getSemesterId(semester);
+        Integer semester_id = timeTableMapper.getSemesterId(semester);
 
-        if (timeTableMapper.checkSemesterExistsById(semester_id) == 0) {
+        if (semester_id == null) {
             throw new PreconditionFailedException(new ErrorMessage("There's no such semester.", 0));
         }
         if (!jsonObject.get("timetable").isJsonArray()) {
@@ -158,9 +158,9 @@ public class TimeTableServiceImpl implements TimeTableService {
 
 
         String semester = jsonObject.get("semester").getAsString();
-        int semester_id = timeTableMapper.getSemesterId(semester);
+        Integer semester_id = timeTableMapper.getSemesterId(semester);
 
-        if (timeTableMapper.checkSemesterExistsById(semester_id) == 0) {
+        if (semester_id == null) {
             throw new PreconditionFailedException(new ErrorMessage("There's no such semester.", 0));
         }
 
