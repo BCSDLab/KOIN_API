@@ -1,5 +1,6 @@
-package koreatech.in.service;
+package koreatech.in.service.user;
 
+import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.user.owner.Owner;
@@ -9,7 +10,7 @@ import koreatech.in.domain.user.student.Student;
 import java.util.Map;
 
 public interface UserService {
-    Map<String, Object> StudentRegister(Student student, String host) throws Exception;
+    Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception;
 
     Boolean authenticate(String authToken);
 

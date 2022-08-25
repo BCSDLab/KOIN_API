@@ -53,11 +53,13 @@ public class JwtValidator {
 
         Integer userId = jwtTokenGenerator.me(authToken);
 
-        User user = userMapper.getUserById(userId)
-                .orElseThrow(()->new ValidationException(new ErrorMessage("token not validate", 402)));
+        User user = userMapper.getUserById(userId);
+
+        if(user == null){
+            throw new ValidationException(new ErrorMessage("token not validate", 402));
+        }
 
         Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
-
         user.setAuthority(authority);
 
         return user;

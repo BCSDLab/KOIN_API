@@ -72,8 +72,11 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public User getUserForAdmin(int id) {
-        return userMapper.getUserById(id)
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("User not found.", 0)));
+        User user = userMapper.getUserById(id);
+        if(user == null){
+            throw new NotFoundException(new ErrorMessage("User not found.", 0));
+        }
+        return user;
     }
 
     @Override
@@ -131,14 +134,17 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public Student updateStudentForAdmin(Student student, int id) {
-        Student selectUser = studentMapper.getStudentById(id)
-                .orElseThrow(()-> new NotFoundException(new ErrorMessage("No User", 0)));
+        Student selectUser = studentMapper.getStudentById(id);
+
+        if(selectUser == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
 
         student.setIdentity(selectUser.getIdentity());
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(student.getNickname()).get();
+            User selectUser2 = userMapper.getUserByNickName(student.getNickname());
             if (selectUser2 != null && !selectUser.getId().equals(selectUser2.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -167,8 +173,11 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public Map<String, Object> deleteUserForAdmin(int id) {
-        User selectUser = userMapper.getUserById(id)
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+        User selectUser = userMapper.getUserById(id);
+
+        if(selectUser == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
 
         if (selectUser.getUserType().equals(UserType.STUDENT)){
             studentMapper.deleteStudent(id);
@@ -186,8 +195,10 @@ public class AdminUserServiceImpl implements AdminUserService{
     @Transactional
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
-        User selectUser = userMapper.getUserById(userId)
-                .orElseThrow(()->new NotFoundException(new ErrorMessage("No User", 0)));
+        User selectUser = userMapper.getUserById(userId);
+        if(selectUser == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
 
         authority.init();
         authority.setUser_id(userId);
@@ -245,8 +256,11 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public Map<String, Object> loginForAdmin(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount())
-                .orElseThrow(()->new UnauthorizeException(new ErrorMessage("There is no such ID", 0)));
+        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount());
+
+        if(selectUser == null){
+            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
+        }
 
         if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
@@ -287,7 +301,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         limit = Math.min(limit, 50);
         page = Math.max(page, 1);
@@ -305,7 +319,7 @@ public class AdminUserServiceImpl implements AdminUserService{
 
         for (Authority admin : admins) {
             Map<String, Object> adminToMap = domainToMap(admin);
-            User user = userMapper.getUserById(admin.getUser_id()).get();
+            User user = userMapper.getUserById(admin.getUser_id());
             if (user == null) {
                 adminToMap.put("users", null);
             } else {
