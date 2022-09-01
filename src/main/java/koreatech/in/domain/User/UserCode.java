@@ -14,6 +14,7 @@ public class UserCode {
         put("151", "디자인건축공학부");
         put("174", "에너지신소재화학공학부");
         put("180", "산업경영학부");
+        put("185", "고용서비스정책학과");
     }};
 
     public static boolean isValidatedStudentNumber(Integer identity, String studentNumber) {
