@@ -1,10 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.Event.EventArticle;
-import koreatech.in.domain.Shop.Menu;
-import koreatech.in.domain.Shop.ShopMenuDetail;
-import koreatech.in.domain.Shop.Shop;
-import koreatech.in.domain.Shop.ShopViewLog;
+import koreatech.in.domain.Shop.*;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -91,6 +88,34 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shops SET HIT = HIT + 1 WHERE IS_DELETED = 0 AND ID = #{id}")
     void increaseHit(@Param("id") int id);
+
+    // -------------------- 아래부터 코인 리뉴얼시 개발된 메소드 ----------------------
+
+    @Select("SELECT * FROM koin.shop_menu_categorys " +
+            "WHERE name = #{name}")
+    ShopMenuCategory getCategoryByNameForAdmin(@Param("name") String name);
+
+    @Insert("INSERT INTO koin.shop_menu_categorys (NAME) " +
+            "VALUES (#{name})")
+    void createCategoryForAdmin(ShopMenuCategory category);
+
+    @Select("SELECT * FROM koin.shop_menu_categorys " +
+            "WHERE is_deleted = 0")
+    List<ShopMenuCategory> getAllCategoryForAdmin();
+
+    @Select("SELECT * FROM koin.shop_menu_categorys " +
+            "WHERE id = #{id}")
+    ShopMenuCategory getCategoryByIdForAdmin(@Param("id") int id);
+
+    @Update("UPDATE koin.shop_menu_categorys SET name = #{name}, is_deleted = #{is_deleted} " +
+            "WHERE id = #{id}")
+    void updateCategoryForAdmin(ShopMenuCategory category);
+
+    @Update("UPDATE koin.shop_menu_categorys SET is_deleted = 1 WHERE id = #{id}")
+    void softDeleteCategoryByIdForAdmin(@Param("id") int id);
+
+    @Delete("DELETE FROM koin.shop_menu_categorys WHERE id = #{id}")
+    void hardDeleteCategoryByIdForAdmin(@Param("id") int id);
 
     @Select("SELECT * FROM koin.shop_menus WHERE is_deleted = 0")
     List<Menu> getAllMenusForAdmin();

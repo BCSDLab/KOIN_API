@@ -3,10 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
-import koreatech.in.domain.Shop.Menu;
-import koreatech.in.domain.Shop.ShopMenuDetail;
-import koreatech.in.domain.Shop.Shop;
-import koreatech.in.domain.Shop.ShopViewLog;
+import koreatech.in.domain.Shop.*;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
@@ -374,6 +371,127 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createCategoryForAdmin(String categoryName) {
+        // 이름으로 카테고리 조회
+        ShopMenuCategory selectedCategory = shopMapper.getCategoryByNameForAdmin(categoryName);
+
+        // db에 존재하는 경우
+        if (selectedCategory != null) {
+            // soft delete 되지 않았다면
+            if (!selectedCategory.getIs_deleted()) {
+                throw new ConflictException(new ErrorMessage("카테고리 이름이 이미 존재합니다.", 0));
+            }
+            // soft delete 되었다면
+            else {
+                // soft delete 해제후 업데이트
+                selectedCategory.setIs_deleted(false);
+                shopMapper.updateCategoryForAdmin(selectedCategory);
+
+                return new HashMap<String, Object>() {{
+                    put("success", true);
+                }};
+            }
+        }
+
+        // db에 존재하지 않는 경우 새로 insert
+        ShopMenuCategory newCategory = new ShopMenuCategory();
+        newCategory.setName(categoryName);
+        shopMapper.createCategoryForAdmin(newCategory);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> getAllCategoryForAdmin() {
+        // soft delete 되지 않은 카테고리들만 조회한다.
+        List<ShopMenuCategory> categories = shopMapper.getAllCategoryForAdmin();
+
+        if (categories == null) {
+            throw new NotFoundException(new ErrorMessage("카테고리 목록이 없습니다.", 0));
+        }
+        return new HashMap<String, Object>() {{
+            put("categories", categories);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> getCategoryForAdmin(Integer id) {
+        // id로 카테고리 조회
+        ShopMenuCategory category = shopMapper.getCategoryByIdForAdmin(id);
+
+        // DB에 없거나, soft delete 되었다면
+        if ((category == null) || (category.getIs_deleted())) {
+            throw new NotFoundException(new ErrorMessage("해당 카테고리가 없습니다.", 0));
+        }
+        return new HashMap<String, Object>() {{
+            put("category", category);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> updateCategoryForAdmin(Integer id, String categoryName) {
+        ShopMenuCategory category = shopMapper.getCategoryByIdForAdmin(id);
+
+        if ((category == null) || (category.getIs_deleted())) {
+            throw new NotFoundException(new ErrorMessage("없는 카테고리입니다.", 0));
+        }
+
+        // 중복되는 이름의 카테고리가 있는지 확인하기 위해 조회해본다.
+        ShopMenuCategory selectedCategoryByName = shopMapper.getCategoryByNameForAdmin(categoryName);
+        // 이미 DB에 존재할 경우
+        if (selectedCategoryByName != null) {
+            // id가 같을때
+            if (id == selectedCategoryByName.getId()) {
+                throw new ConflictException(new ErrorMessage(String.format("이미 '%s'(으)로 설정되어 있습니다.", categoryName), 1));
+            }
+            // id가 다를때
+            else {
+                // soft delete 되어있다면
+                if (selectedCategoryByName.getIs_deleted()) {
+                    // unique 충돌 방지를 위해 hard delete
+                    shopMapper.hardDeleteCategoryByIdForAdmin(selectedCategoryByName.getId());
+                }
+                // soft delete 안되어있다면
+                else {
+                    throw new ConflictException(new ErrorMessage("이미 이름이 중복되는 카테고리가 있습니다.", 2));
+                }
+            }
+        }
+
+        category.setName(categoryName);
+        shopMapper.updateCategoryForAdmin(category);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> deleteCategoryForAdmin(Integer id) {
+        // id로 카테고리 조회
+        ShopMenuCategory category = shopMapper.getCategoryByIdForAdmin(id);
+
+        // DB에 없거나, soft delete 되었다면
+        if ((category == null) || (category.getIs_deleted())) {
+            throw new NotFoundException(new ErrorMessage("없는 카테고리입니다.", 0));
+        }
+
+        // soft delete
+        shopMapper.softDeleteCategoryByIdForAdmin(id);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
     }
 
     @Override

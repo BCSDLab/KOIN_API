@@ -18,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.SHOP)
@@ -59,6 +60,43 @@ public class AdminShopController {
     ResponseEntity updateShop(@ApiParam(value = "(optional: name, category, phone, open_time, close_time, image_urls, address, description, delivery, delivery_price, pay_card, pay_bank, is_event, remarks, is_deleted)", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) CreateShopDTO request, BindingResult bindingResult, @ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
 
         return new ResponseEntity<Shop>(shopService.updateShopForAdmin(request.toEntity(), id), HttpStatus.CREATED);
+    }
+
+    // ------------------------------- 여기부터 코인 리뉴얼 API -----------------------------------
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/category", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity createCategory(@ApiParam(required = true) @RequestBody @Valid CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(shopService.createCategoryForAdmin(dto.getName()), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/categorys", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getAllCategory() throws Exception {
+        return new ResponseEntity<>(shopService.getAllCategoryForAdmin(), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getCategory(@ApiParam(required = true) @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(shopService.getCategoryForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity updateCategory(@ApiParam(required = true) @PathVariable Integer id, @ApiParam(required = true) @RequestBody @Valid CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(shopService.updateCategoryForAdmin(id, dto.getName()), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.DELETE)
+    public @ResponseBody
+    ResponseEntity deleteCategory(@ApiParam(required = true) @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(shopService.deleteCategoryForAdmin(id), HttpStatus.OK);
     }
 
     /**

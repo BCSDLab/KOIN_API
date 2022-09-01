@@ -29,5 +29,15 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuForAdmin(int shop_id, int id) throws Exception;
 
+    Map<String, Object> createCategoryForAdmin(String categoryName);
+
+    Map<String, Object> getAllCategoryForAdmin();
+
+    Map<String, Object> getCategoryForAdmin(Integer id);
+
+    Map<String, Object> updateCategoryForAdmin(Integer id, String categoryName);
+
+    Map<String, Object> deleteCategoryForAdmin(Integer id);
+
     Map<String, Object> migratePriceType() throws Exception;
 }
