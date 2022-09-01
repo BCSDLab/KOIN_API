@@ -28,4 +28,6 @@ public interface ShopService {
     Menu updateMenuForAdmin(Menu menu, int shop_id, int id) throws Exception;
 
     Map<String, Object> deleteMenuForAdmin(int shop_id, int id) throws Exception;
+
+    Map<String, Object> migratePriceType() throws Exception;
 }

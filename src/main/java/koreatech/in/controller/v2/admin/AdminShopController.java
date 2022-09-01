@@ -60,4 +60,17 @@ public class AdminShopController {
 
         return new ResponseEntity<Shop>(shopService.updateShopForAdmin(request.toEntity(), id), HttpStatus.CREATED);
     }
+
+    /**
+     *  shop_menus의 price_type(json) 컬럼 데이터들을 parsing해서 shop_menu_details에 마이그레이션하는 API입니다.
+     *  코인 리뉴얼시 프로덕션에서 호출이 성공적으로 이루어진 후에는, 더이상 호출하면 안됩니다.
+     *  admin 계정으로 호출 예정입니다.
+     */
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/migrate", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity migratePriceType() throws Exception {
+
+        return new ResponseEntity<Map<String, Object>>(shopService.migratePriceType(), HttpStatus.OK);
+    }
 }

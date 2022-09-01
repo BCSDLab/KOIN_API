@@ -4,6 +4,7 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
+import koreatech.in.domain.Shop.ShopMenuDetail;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
 import koreatech.in.domain.User.User;
@@ -13,7 +14,6 @@ import koreatech.in.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -374,5 +374,54 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> migratePriceType() {
+        List<Menu> menus = shopMapper.getAllMenusForAdmin();
+
+        // shop_menus 테이블의 레코드들을 하나씩 순회한다.
+        for (Menu menu : menus) {
+            Integer shop_menu_id = menu.getId();
+
+            /*
+                shop_menus 테이블의 price_type 컬럼 데이터는 JSON의 리스트 형태로 되어있다.
+                ex) [{"size":"소","price":"16000"},{"size":"중","price":"20000"},{"size":"대","price":"24000"}]
+
+                이것을 파싱하여 List<Map> 타입으로 가져온다.
+             */
+            List<Map<String, Object>> priceTypes = con.parseJsonArrayWithObject(menu.getPrice_type());
+
+            /*
+                가져온 데이터들을 하나씩 순회하면서 size(shop_menus 테이블에서는 옵션의 의미를 가지고있음)와 price를 추출하여
+                shop_menu_details 테이블에 insert 한다.
+             */
+            for (Map<String, Object> priceType : priceTypes) {
+                String option = (String) priceType.get("size");
+                String priceString = (String) priceType.get("price");
+                int priceInt = Integer.parseInt(priceString);
+                Integer price = priceInt;
+
+                ShopMenuDetail shopMenuDetail = new ShopMenuDetail();
+                shopMenuDetail.setShop_menu_id(shop_menu_id);
+                shopMenuDetail.setPrice(price);
+
+                // 단일 메뉴 (옵션이 '기본'인 경우)는 option을 null로 저장하도록 한다.
+                if (option.equals("기본")) {
+                    shopMenuDetail.setOption(null);
+                } else {
+                    shopMenuDetail.setOption(option);
+                }
+
+                shopMapper.createMenuDetailForAdmin(shopMenuDetail);
+            }
+        }
+
+        // 정상적으로 insert되었는지 확인하기 위해 조회해서 response body에 담아준다.
+        List<ShopMenuDetail> menuDetails = shopMapper.getAllMenuDetailsForAdmin();
+        return new HashMap<String, Object>() {{
+            put("menu_details", menuDetails);
+        }};
     }
 }

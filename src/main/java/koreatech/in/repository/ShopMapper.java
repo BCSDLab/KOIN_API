@@ -2,13 +2,13 @@ package koreatech.in.repository;
 
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
+import koreatech.in.domain.Shop.ShopMenuDetail;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository("shopMapper")
 public interface ShopMapper {
@@ -91,4 +91,14 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shops SET HIT = HIT + 1 WHERE IS_DELETED = 0 AND ID = #{id}")
     void increaseHit(@Param("id") int id);
+
+    @Select("SELECT * FROM koin.shop_menus WHERE is_deleted = 0")
+    List<Menu> getAllMenusForAdmin();
+
+    @Insert("INSERT INTO koin.shop_menu_details (SHOP_MENU_ID, `OPTION`, PRICE)" +
+            "VALUES (#{shop_menu_id}, #{option}, #{price})")
+    void createMenuDetailForAdmin(ShopMenuDetail menuDetail);
+
+    @Select("SELECT * FROM koin.shop_menu_details WHERE is_deleted = 0")
+    List<ShopMenuDetail> getAllMenuDetailsForAdmin();
 }
