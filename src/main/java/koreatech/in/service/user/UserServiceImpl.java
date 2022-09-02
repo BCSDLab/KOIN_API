@@ -1,6 +1,7 @@
 package koreatech.in.service.user;
 
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
+import koreatech.in.controller.user.dto.request.UserLoginRequest;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.user.UserType;
@@ -361,36 +362,46 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount());
-
+    public Map<String, Object> login(String account, String password) throws Exception {
+        final User selectUser = userMapper.getAuthedUserByAccount(account);
         if(selectUser == null){
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
         }
 
-        if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
+        if (!passwordEncoder.matches(password, selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
-        selectUser.setLastLoggedAt(new Date());
-        userMapper.updateUser(selectUser);
+        userMapper.updateLastLoggedAt(selectUser.getId(), new Date());
+
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        // ?? 레디스에서 이전 로그인 토큰이 있는지 확인 후, 없거나 expired 됐다면 재발급 후 반환
-        // regenerateTokenAndSetRedisIfTokenNotExistOrExpired();
-        String getToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + selectUser.getId());
-        if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
-            getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+        String loginToken = getLoginTokenFromRedis(selectUser);
+        if (isTokenNotExistOrExpired(loginToken)) {
+            loginToken = regenerateLoginTokenAndSetRedis(selectUser.getId());
         }
 
-        final String token = getToken;
+        final String token = loginToken;
 
         return new HashMap<String, Object>() {{
             put("user", map);
             put("token", token);
             put("ttl", 4320);
         }};
+    }
+
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String getLoginTokenFromRedis(User user) throws Exception{
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private String regenerateLoginTokenAndSetRedis(Integer userId) {
+        String loginToken = jwtTokenGenerator.generate(userId);
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, loginToken, 72, TimeUnit.HOURS);
+        return loginToken;
     }
 
     @Override

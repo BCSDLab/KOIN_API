@@ -120,7 +120,6 @@
             NICKNAME = #{nickname},
             GENDER = #{gender},
             USER_TYPE = #{userType},
-            IS_GRADUATED = #{isGraduated},
             PHONE_NUMBER = #{phoneNumber},
             AUTH_TOKEN = #{authToken},
             AUTH_EXPIRED_AT = #{authExpiredAt},
@@ -129,6 +128,12 @@
             RESET_EXPIRED_AT = #{resetExpiredAt},
             PROFILE_IMAGE_URL = #{profileImageUrl}
         WHERE ID = #{id}
+    </update>
+
+    <update id="updateLastLoggedAt">
+        UPDATE koin.users
+        SET last_logged_at=#{currentDate}
+        WHERE id=#{id}
     </update>
 
     <delete id="deleteUser">

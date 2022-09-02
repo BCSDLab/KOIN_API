@@ -24,6 +24,7 @@ public interface UserMapper{
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
     void updateUser(User user);
+    void updateLastLoggedAt(@Param("id")int id, @Param("currentDate") Date currentDate);
     Integer getTotalCount();
     User getUserByAccount(String account);
     User getUserByNickName(String nickname);
