@@ -173,7 +173,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> changePasswordConfig(String account, String host) {
-        // TODO client 로부터 받을 때 validation 확인
         if (account == null) {
             throw new ValidationException(new ErrorMessage("account is required", 0));
         }

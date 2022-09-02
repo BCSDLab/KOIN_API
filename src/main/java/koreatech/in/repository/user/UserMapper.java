@@ -15,7 +15,7 @@ public interface UserMapper{
     Integer isNicknameAlreadyUsed(String nickname);
     User getAuthedUserByAccount(String account);
     void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
-    void updateResetTokenAndResetTokenExpiredTime(Integer id, String resetToken, Date resetTokenExpiredTime);
+    void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
     void insertUser(User user) throws SQLException;

@@ -107,7 +107,7 @@
         update koin.users
         set
             reset_token=#{resetToken},
-            reset_token_expired_at=#{resetTokenExpiredTime}
+            reset_expired_at=#{resetTokenExpiredTime}
         where id=#{id}
     </update>
 
