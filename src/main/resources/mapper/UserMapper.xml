@@ -135,7 +135,7 @@
         DELETE FROM koin.users WHERE ID = #{id};
     </delete>
 
-    <resultMap type="koreatech.in.domain.user.User" extends="userResultMap" id="userDiscriminator">
+    <resultMap type="koreatech.in.domain.user.student.Student" extends="userResultMap" id="userDiscriminator">
 
 <!--        <discriminator javaType="String" column="user_type">-->
 <!--            <case value="STUDENT" resultType="koreatech.in.domain.user.student.Student"/>-->
@@ -143,7 +143,7 @@
 <!--        </discriminator>-->
     </resultMap>
 
-    <resultMap id="userResultMap" type="koreatech.in.domain.user.User">
+    <resultMap id="userResultMap" type="koreatech.in.domain.user.student.Student">
         <id property="id" column="id"/>
         <result property="account" column="account"/>
         <result property="password" column="password"/>
