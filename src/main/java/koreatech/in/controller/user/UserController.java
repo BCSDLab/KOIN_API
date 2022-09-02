@@ -38,9 +38,6 @@ public class UserController {
     @Autowired
     StudentMapper studentMapper;
 
-    @Autowired
-    UserMapper userMapper;
-
     @AuthExcept
     @ParamValid
     @ApiOperation(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
