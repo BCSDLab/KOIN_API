@@ -348,7 +348,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkNicknameValidAndNotUsed(String nickname){
-        // TODO 클라이언트에서 넘어올때 확인하도록 수정
         if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
 
