@@ -41,9 +41,6 @@ public class StudentRegisterRequest {
     @ApiModelProperty(notes = "성별(남:0, 여:1)", example = "0")
     private Integer gender;
 
-    @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원, 4: 졸업생)", example = "0")
-    private Integer identity;
-
     @ApiModelProperty(notes = "졸업 여부", example = "false")
     private Boolean isGraduated;
 
@@ -58,7 +55,7 @@ public class StudentRegisterRequest {
     @ApiModelProperty(notes = "휴대폰 번호", example = "010-0000-0000")
     private String phoneNumber;
 
-    public Student toEntity(){
+    public Student toEntity(Integer identity){
         if (isGraduated == null) {
             isGraduated = false;
         }
@@ -66,10 +63,8 @@ public class StudentRegisterRequest {
         return Student.builder()
                 .account(account)
                 .password(password)
-                .email(account+"@koreatech.ac.kr")
                 .name(name)
                 .nickname(nickname)
-                .anonymousNickname("익명_" + (System.currentTimeMillis()))
                 .gender(gender)
                 .identity(identity)
                 .isGraduated(isGraduated)

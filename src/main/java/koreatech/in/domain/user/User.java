@@ -56,7 +56,7 @@ public abstract class User implements UserDetails {
     protected Date createdAt;
     protected Date updatedAt;
 
-    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender) {
+    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender, UserType userType) {
         this.account = account;
         this.password = password;
         this.nickname = nickname;
@@ -64,6 +64,7 @@ public abstract class User implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.gender = gender;
+        this.userType = userType;
     }
 
     @Override

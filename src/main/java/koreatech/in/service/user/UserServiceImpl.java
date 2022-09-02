@@ -3,6 +3,7 @@ package koreatech.in.service.user;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
+import koreatech.in.domain.user.UserType;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.UserCode;
@@ -75,16 +76,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception {
-        Student student = request.toEntity();
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        student.changeIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
-
+        Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
         checkInputDataDuplicationAndValidation(student);
 
+        String email = student.getAccount()+"@koreatech.ac.kr";
+        String anonymousNickname = "익명_" + (System.currentTimeMillis());
+        student.setEmail(email);
+        student.setAnonymousNickname(anonymousNickname);
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
         student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
-        student.changePassword(passwordEncoder.encode(student.getPassword()));
+        String encodedPassword = passwordEncoder.encode(student.getPassword());
+        student.changePassword(encodedPassword);
 
         try {
             insertStudentToDB(student);
@@ -111,7 +114,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void checkAccountAndNicknameDuplication(Student student){
         User selectUser = userMapper.getUserByAccount(student.getAccount());
-
         if (selectUser != null) {
             if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
                 throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
