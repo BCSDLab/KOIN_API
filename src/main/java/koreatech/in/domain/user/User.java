@@ -135,7 +135,7 @@ public abstract class User implements UserDetails {
     }
 
     public boolean isAwaitingEmailAuthenticate(){
-        return isUserAuthed() && !isAuthTokenExpired();
+        return !isUserAuthed() && !isAuthTokenExpired();
     }
     public boolean isUserAuthed() { return isAuthed == null ? false : isAuthed; }
     public boolean isAuthTokenExpired(){

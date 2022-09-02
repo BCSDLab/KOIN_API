@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User selectUser = userMapper.getUserByAccount(student.getAccount());
 
         if (selectUser != null) {
-            if (selectUser.getIsAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
+            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
                 throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
