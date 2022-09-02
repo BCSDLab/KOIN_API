@@ -48,15 +48,6 @@ public class UserController {
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) throws Exception {
 
-        /*    // TODO: default로 셋팅할 수 있는 방법 알아보기
-        if (student.getIsGraduated() == null) {
-            student.setIsGraduated(false);
-        }
-
-        if (student.getIsAuthed() == null) {
-            student.setIsAuthed(false);
-        }*/
-
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
