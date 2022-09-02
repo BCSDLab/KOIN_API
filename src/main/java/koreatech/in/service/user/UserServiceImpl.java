@@ -156,7 +156,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean authenticate(String authToken) {
         User user = userMapper.getUserByAuthToken(authToken);
 
-        if (user == null || user.getIsAuthed() || isTokenExpired(user.getAuthExpiredAt())) {
+        if (user == null || user.isUserAuthed() || user.isAuthTokenExpired()) {
             return false;
         }
 

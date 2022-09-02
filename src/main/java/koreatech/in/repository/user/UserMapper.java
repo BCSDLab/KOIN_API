@@ -14,7 +14,7 @@ public interface UserMapper{
     Integer isAccountAlreadyUsed(String account);
     Integer isNicknameAlreadyUsed(String nickname);
     User getAuthedUserByAccount(String account);
-    void updateUserIsAuthed(Integer id, Boolean isAuth);
+    void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(Integer id, String resetToken, Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
