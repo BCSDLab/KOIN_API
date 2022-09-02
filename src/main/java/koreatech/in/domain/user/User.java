@@ -135,9 +135,10 @@ public abstract class User implements UserDetails {
     }
 
     public boolean isAwaitingEmailAuthenticate(){
-        return !isAuthed && !isAuthTokenExpired();
+        return isUserAuthed() && !isAuthTokenExpired();
     }
+    public boolean isUserAuthed() { return isAuthed == null ? false : isAuthed; }
     public boolean isAuthTokenExpired(){
-        return authExpiredAt.getTime() - (new Date()).getTime() < 0;
+        return authExpiredAt == null ? false : authExpiredAt.getTime() - (new Date()).getTime() < 0;
     }
 }
