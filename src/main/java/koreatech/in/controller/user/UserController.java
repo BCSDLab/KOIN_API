@@ -10,6 +10,7 @@ import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
+import koreatech.in.controller.user.dto.response.LoginResponse;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.student.Student;
@@ -172,7 +173,7 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/login", method = RequestMethod.POST)
     public ResponseEntity login(@ApiParam(value = "(required: account, password)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) UserLoginRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(userService.login(request.getAccount(), request.getPassword()), HttpStatus.OK);
+        return new ResponseEntity<LoginResponse>(userService.login(request.getAccount(), request.getPassword()), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
