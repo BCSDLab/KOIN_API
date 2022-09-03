@@ -369,8 +369,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userMapper.updateLastLoggedAt(selectUser.getId(), new Date());
 
-        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
-
         String loginToken = getLoginTokenFromRedis(selectUser);
         if (isTokenNotExistOrExpired(loginToken)) {
             loginToken = regenerateLoginTokenAndSetRedis(selectUser.getId());
