@@ -11,6 +11,7 @@ import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
 import koreatech.in.controller.user.dto.response.LoginResponse;
+import koreatech.in.controller.user.dto.response.StudentResponse;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.student.Student;
@@ -62,8 +63,10 @@ public class UserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity me() throws Exception {
-        return new ResponseEntity<Object>(userService.getStudent(), HttpStatus.OK);
+    ResponseEntity getStudent() throws Exception {
+        Student student = userService.getStudent();
+        StudentResponse response = new StudentResponse(student);
+        return new ResponseEntity<Object>(response, HttpStatus.OK);
     }
 
     @ParamValid
