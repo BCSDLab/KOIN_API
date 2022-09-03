@@ -8,6 +8,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
+import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
@@ -54,7 +55,7 @@ public class UserController {
 
         StudentRegisterRequest clear = new StudentRegisterRequest();
 
-        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister(StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -68,11 +69,9 @@ public class UserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) Student student, BindingResult bindingResult) throws Exception {
-
-        Student clear = new Student();
-
-        return new ResponseEntity<>(userService.updateStudentInformation((Student) StringXssChecker.xssCheck(student, clear)), HttpStatus.CREATED);
+    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
+        UpdateUserRequest clear = new UpdateUserRequest();
+        return new ResponseEntity<>(userService.updateStudentInformation(StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -84,7 +83,7 @@ public class UserController {
 
         Owner clear = new Owner();
 
-        return new ResponseEntity<>(userService.updateOwnerInformation((Owner) StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateOwnerInformation(StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

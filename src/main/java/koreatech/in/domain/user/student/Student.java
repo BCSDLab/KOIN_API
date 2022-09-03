@@ -77,7 +77,26 @@ public class Student extends User {
     }
 
     public void changeIdentity(Integer identity){
+        this.identity = identity;
+    }
 
+    public void update(Student student){
+        super.update(student);
+        if(student.anonymousNickname != null) {
+            this.anonymousNickname = student.getAnonymousNickname();
+        }
+        if(student.studentNumber != null) {
+            this.studentNumber = student.getStudentNumber();
+        }
+        if(student.major != null) {
+            this.major = student.major;
+        }
+        if(student.identity != null) {
+            this.identity = student.identity;
+        }
+        if(student.isGraduated != null) {
+            this.isGraduated = student.isGraduated;
+        }
     }
 
     @Builder

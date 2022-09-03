@@ -1,10 +1,9 @@
 package koreatech.in.service.user;
 
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
-import koreatech.in.controller.user.dto.request.UserLoginRequest;
+import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.user.UserType;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.UserCode;
@@ -109,32 +108,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
-        checkAccountAndNicknameDuplication(student);
-        checkStudentNumberAndMajorValidation(student);
+        checkAccountDuplication(student);
+        checkNicknameDuplicationWithoutSameUser(student);
+        checkStudentNumberValidation(student);
+        checkMajorValidation(student);
     }
 
-    private void checkAccountAndNicknameDuplication(Student student){
+    private void checkNicknameDuplicationWithoutSameUser(Student student) {
+        if (student.getNickname() != null) {
+            User selectUser = userMapper.getUserByNickName(student.getNickname());
+            if (selectUser != null && !student.equals(selectUser)) {
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+    }
+
+    private void checkAccountDuplication(Student student) {
         User selectUser = userMapper.getUserByAccount(student.getAccount());
         if (selectUser != null) {
             if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
                 throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
+    }
 
-        if (student.getNickname() != null) {
-            if(isNicknameAlreadyUsed(student.getNickname())){
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+    private void checkMajorValidation(Student student) {
+        if (!student.isMajorValidated()) {
+            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
     }
 
-    private void checkStudentNumberAndMajorValidation(Student student){
+    private void checkStudentNumberValidation(Student student) {
         if (!student.isStudentNumberValidated()) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        if (!student.isMajorValidated()) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
         }
     }
 
@@ -256,38 +262,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String, Object> updateStudentInformation(Student student) throws Exception {
+    public Map<String, Object> updateStudentInformation(UpdateUserRequest request) throws Exception {
+        Student student = request.toEntity();
+
         Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if(student_old == null){
+        if (student_old == null) {
             throw new ValidationException(new ErrorMessage("token not validate", 402));
         }
-
         student.changeIdentity(student_old.getIdentity());
 
-        // 인증받은 유저인지 체크
-        if (!student_old.getIsAuthed()) {
+        if (!student_old.isUserAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
-
-        // 닉네임 중복 체크
-        if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(student.getNickname());
-            if (selectUser != null && !student_old.getId().equals(selectUser.getId())) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+        checkNicknameDuplicationWithoutSameUser(student);
+        if (student.getStudentNumber() != null) {
+            checkStudentNumberValidation(student);
         }
-
-        // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        if (student.getMajor() != null) {
+            checkMajorValidation(student);
         }
-
-        // 학과 유효성 체크
-        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
-
-        // TODO: hashing passowrd
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
         }

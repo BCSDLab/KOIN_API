@@ -1,6 +1,7 @@
 package koreatech.in.service.user;
 
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
+import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
@@ -25,7 +26,7 @@ public interface UserService {
 
     Student getStudent() throws Exception;
 
-    Map<String,Object> updateStudentInformation(Student student) throws Exception;
+    Map<String,Object> updateStudentInformation(UpdateUserRequest request) throws Exception;
 
     Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 

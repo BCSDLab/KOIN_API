@@ -103,6 +103,12 @@ public abstract class User implements UserDetails {
         if (user.gender != null) {
             this.gender = user.gender;
         }
+        if(user.phoneNumber != null) {
+            this.phoneNumber = user.phoneNumber;
+        }
+        if(user.email != null) {
+            this.email = user.email;
+        }
         if (user.isAuthed != null) {
             this.isAuthed = user.isAuthed;
         }
@@ -141,5 +147,9 @@ public abstract class User implements UserDetails {
     public boolean isUserAuthed() { return isAuthed == null ? false : isAuthed; }
     public boolean isAuthTokenExpired(){
         return authExpiredAt == null ? false : authExpiredAt.getTime() - (new Date()).getTime() < 0;
+    }
+
+    public boolean equals(User user){
+        return user.id != null && this.id != null && this.id.equals(user.id);
     }
 }
