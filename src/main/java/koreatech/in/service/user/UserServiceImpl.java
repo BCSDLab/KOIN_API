@@ -134,14 +134,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkMajorValidation(Student student) {
-        if (!student.isMajorValidated()) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+        if (student.getMajor() != null) {
+            if (!student.isMajorValidated()) {
+                throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+            }
         }
     }
 
     private void checkStudentNumberValidation(Student student) {
-        if (!student.isStudentNumberValidated()) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        if (student.getStudentNumber() != null) {
+            if (!student.isStudentNumberValidated()) {
+                throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+            }
         }
     }
 
