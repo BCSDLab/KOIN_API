@@ -4,6 +4,7 @@ import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
 import koreatech.in.controller.user.dto.response.LoginResponse;
+import koreatech.in.controller.user.dto.response.StudentResponse;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.user.owner.Owner;
@@ -27,7 +28,7 @@ public interface UserService {
 
     Student getStudent() throws Exception;
 
-    Map<String,Object> updateStudentInformation(UpdateUserRequest request) throws Exception;
+    StudentResponse updateStudentInformation(UpdateUserRequest request) throws Exception;
 
     Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 

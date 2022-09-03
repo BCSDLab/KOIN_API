@@ -3,6 +3,7 @@ package koreatech.in.service.user;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.response.LoginResponse;
+import koreatech.in.controller.user.dto.response.StudentResponse;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.user.owner.Owner;
@@ -267,7 +268,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String, Object> updateStudentInformation(UpdateUserRequest request) throws Exception {
+    public StudentResponse updateStudentInformation(UpdateUserRequest request) throws Exception {
         Student student = request.toEntity();
 
         Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
@@ -294,9 +295,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(student_old);
         studentMapper.updateStudent(student_old);
 
-        Map<String, Object> map = domainToMapWithExcept(student_old, UserResponseType.getArray(), false);
-
-        return map;
+        return new StudentResponse(student_old);
     }
 
     // TODO owner 정보 업데이트 
