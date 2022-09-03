@@ -3,6 +3,7 @@ package koreatech.in.service.user;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
 import koreatech.in.controller.user.dto.request.UserLoginRequest;
+import koreatech.in.controller.user.dto.response.LoginResponse;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.user.owner.Owner;
@@ -32,7 +33,7 @@ public interface UserService {
 
     Map<String, Object> checkUserNickName(String nickname) throws Exception;
 
-    Map<String, Object> login(String account, String password) throws Exception;
+    LoginResponse login(String account, String password) throws Exception;
 
     Map<String, Object> logout();
 }

@@ -2,6 +2,7 @@ package koreatech.in.service.user;
 
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
 import koreatech.in.controller.user.dto.request.UpdateUserRequest;
+import koreatech.in.controller.user.dto.response.LoginResponse;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.user.owner.Owner;
@@ -353,7 +354,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Map<String, Object> login(String account, String password) throws Exception {
+    public LoginResponse login(String account, String password) throws Exception {
         final User selectUser = userMapper.getAuthedUserByAccount(account);
         if(selectUser == null){
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
@@ -372,13 +373,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             loginToken = regenerateLoginTokenAndSetRedis(selectUser.getId());
         }
 
-        final String token = loginToken;
-
-        return new HashMap<String, Object>() {{
-            put("user", map);
-            put("token", token);
-            put("ttl", 4320);
-        }};
+        return new LoginResponse(selectUser, 4320, loginToken);
     }
 
     private boolean isTokenNotExistOrExpired(String getToken) {
