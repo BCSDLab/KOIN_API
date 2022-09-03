@@ -71,7 +71,7 @@ public class UserController {
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
         UpdateUserRequest clear = new UpdateUserRequest();
