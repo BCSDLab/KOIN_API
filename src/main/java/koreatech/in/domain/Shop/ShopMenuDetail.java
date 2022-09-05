@@ -1,24 +1,17 @@
 package koreatech.in.domain.Shop;
 
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Date;
 
 public class ShopMenuDetail {
-    @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
-    @ApiModelProperty(notes = "상점 메뉴의 고유 id", example = "10")
     private Integer shop_menu_id;
-    @ApiModelProperty(notes = "옵션 이름", example = "대")
     private String option;
-    @ApiModelProperty(notes = "가격", example = "23000")
     private Integer price;
-    @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
-    @ApiModelProperty(hidden = true)
     private Date created_at;
-    @ApiModelProperty(hidden = true)
     private Date updated_at;
+
+    public ShopMenuDetail() {}
 
     public Integer getId() {
         return id;
@@ -75,4 +68,17 @@ public class ShopMenuDetail {
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
     }
+
+    public void initForSingleMenu(Integer shop_menu_id, Integer price) {
+        this.shop_menu_id = shop_menu_id;
+        this.option = null;
+        this.price = price;
+    }
+
+    public void initForOptionMenu(Integer shop_menu_id, String option, Integer price) {
+        this.shop_menu_id = shop_menu_id;
+        this.option = option;
+        this.price = price;
+    }
 }
+

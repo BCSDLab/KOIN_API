@@ -1,9 +1,12 @@
 package koreatech.in.service;
 
+import koreatech.in.controller.v2.dto.ShopMenuDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ShopService {
@@ -29,15 +32,21 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuForAdmin(int shop_id, int id) throws Exception;
 
-    Map<String, Object> createCategoryForAdmin(String categoryName);
+    Map<String, Object> createMenuCategoryForAdmin(String categoryName) throws Exception;
 
-    Map<String, Object> getAllCategoryForAdmin();
+    Map<String, Object> getAllMenuCategoryForAdmin() throws Exception;
 
-    Map<String, Object> getCategoryForAdmin(Integer id);
+    Map<String, Object> getMenuCategoryForAdmin(Integer id) throws Exception;
 
-    Map<String, Object> updateCategoryForAdmin(Integer id, String categoryName);
+    Map<String, Object> updateMenuCategoryForAdmin(Integer id, String categoryName) throws Exception;
 
-    Map<String, Object> deleteCategoryForAdmin(Integer id);
+    Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
+
+    Map<String, Object> createMenuForOwner(ShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+
+    ShopMenuDTO getShopMenu(Integer shopId, Integer menuId) throws Exception;
+
+    Map<String, Object> deleteMenuForOwner(Integer shopId, Integer menuId) throws Exception;
 
     Map<String, Object> migratePriceType() throws Exception;
 }

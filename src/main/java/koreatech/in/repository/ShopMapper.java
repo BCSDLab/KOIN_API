@@ -122,7 +122,34 @@ public interface ShopMapper {
 
     @Insert("INSERT INTO koin.shop_menu_details (SHOP_MENU_ID, `OPTION`, PRICE)" +
             "VALUES (#{shop_menu_id}, #{option}, #{price})")
-    void createMenuDetailForAdmin(ShopMenuDetail menuDetail);
+    void createMenuDetailForAdmin(ShopMenuDetail shopMenuDetail);
+
+
+    @Insert("INSERT INTO koin.shop_menus (shop_id, name, description, is_hidden) " +
+            "VALUES (#{shop_id}, #{name}, #{description}, #{is_hidden})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
+    void createMenuForOwner(ShopMenu shopMenu);
+
+    @Insert("INSERT INTO koin.shop_menu_category_map (shop_menu_id, shop_menu_category_id) " +
+            "VALUES (#{shop_menu_id}, #{shop_menu_category_id})")
+    void createMenuCategoryMap(ShopMenuCategoryMap shopMenuCategoryMap);
+
+    @Insert("INSERT INTO koin.shop_menu_images (shop_menu_id, image_url) " +
+            "VALUES (#{shop_menu_id}, #{image_url})")
+    void createMenuImageForOwner(ShopMenuImage shopMenuImage);
+
+    @Select("SELECT * FROM koin.shop_menu_details WHERE shop_menu_id = #{shop_menu_id}")
+    List<ShopMenuDetail> getMenuDetailByIdForOwner(@Param("shop_menu_id") int shop_menu_id);
+
+    @Select("SELECT * FROM koin.shop_menus WHERE id = #{id}")
+    ShopMenu getMenuByIdForOwner(@Param("id") int id);
+
+    @Select("SELECT * FROM koin.shop_menu_category_map WHERE shop_menu_id = #{shop_menu_id}")
+    List<ShopMenuCategoryMap> getMenuCategoryMapsForOwner(@Param("shop_menu_id") int shop_menu_id);
+
+    @Select("SELECT * FROM koin.shop_menu_images WHERE shop_menu_id = #{shop_menu_id}")
+    List<ShopMenuImage> getMenuImagesForOwner(@Param("shop_menu_id") int shop_menu_id);
+
 
     @Select("SELECT * FROM koin.shop_menu_details WHERE is_deleted = 0")
     List<ShopMenuDetail> getAllMenuDetailsForAdmin();
