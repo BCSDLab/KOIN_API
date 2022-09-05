@@ -10,3 +10,8 @@ CREATE TABLE `shop_menu_categorys` (
 ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
+
+INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('대표 메뉴');
+INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('전체 메뉴');
+INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('세트 메뉴');
+INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('사이드 메뉴');

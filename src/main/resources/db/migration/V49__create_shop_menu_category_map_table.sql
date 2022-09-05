@@ -1,5 +1,5 @@
-CREATE TABLE `shop_menu_category_map` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_category_map 고유 id',
+CREATE TABLE `shop_menu_shop_menu_category_map` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_shop_menu_category_map 고유 id',
   `shop_menu_id` int unsigned NOT NULL COMMENT 'shop_menus 고유 id',
   `shop_menu_category_id` int unsigned NOT NULL COMMENT 'shop_menu_categorys 고유 id',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '삭제 여부',
