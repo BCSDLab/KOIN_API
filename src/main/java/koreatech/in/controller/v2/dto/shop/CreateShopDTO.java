@@ -1,4 +1,4 @@
-package koreatech.in.controller.v2.dto;
+package koreatech.in.controller.v2.dto.shop;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;

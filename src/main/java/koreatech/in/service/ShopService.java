@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
-import koreatech.in.controller.v2.dto.ShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
+import koreatech.in.controller.v2.dto.shop.ShopMenuResponseDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
@@ -30,7 +31,7 @@ public interface ShopService {
 
     Menu updateMenuForAdmin(Menu menu, int shop_id, int id) throws Exception;
 
-    Map<String, Object> deleteMenuForAdmin(int shop_id, int id) throws Exception;
+    Map<String, Object> deleteMenuForAdmin(int id) throws Exception;
 
     Map<String, Object> createMenuCategoryForAdmin(String categoryName) throws Exception;
 
@@ -42,11 +43,11 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
 
-    Map<String, Object> createMenuForOwner(ShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+    Map<String, Object> createMenuForOwner(ShopMenuRequestDTO dto, List<MultipartFile> images) throws Exception;
 
-    ShopMenuDTO getShopMenu(Integer shopId, Integer menuId) throws Exception;
+    ShopMenuResponseDTO getShopMenu(Integer menuId) throws Exception;
 
-    Map<String, Object> deleteMenuForOwner(Integer shopId, Integer menuId) throws Exception;
+    Map<String, Object> deleteMenuForOwner(Integer menuId) throws Exception;
 
     Map<String, Object> migratePriceType() throws Exception;
 }

@@ -13,7 +13,7 @@ public class ShopMenuImage {
     private Date created_at;
     private Date updated_at;
 
-    public void setImage(Integer shop_menu_id, String image_url) {
+    public ShopMenuImage(Integer shop_menu_id, String image_url) {
         this.shop_menu_id = shop_menu_id;
         this.image_url = image_url;
     }

@@ -1,24 +1,21 @@
 package koreatech.in.controller.v2.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.controller.v2.dto.CreateShopDTO;
-import koreatech.in.controller.v2.dto.ShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.CreateShopDTO;
+import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -103,29 +100,28 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(id), HttpStatus.OK);
     }
 
+    @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/menu", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createMenu(@ModelAttribute("menu") String menuJson, MultipartHttpServletRequest multipartRequest) throws Exception {
-
-        ShopMenuDTO shopMenuDTO = new ObjectMapper().readValue(menuJson, ShopMenuDTO.class);
-        List<MultipartFile> images = multipartRequest.getFiles("images");
-
-        return new ResponseEntity<>(shopService.createMenuForOwner(shopMenuDTO, images), HttpStatus.CREATED);
+    ResponseEntity createMenu(
+            @RequestPart("menu") @Validated(ValidationGroups.Create.class) ShopMenuRequestDTO dto, BindingResult bindingResult,
+            @RequestPart("images") List<MultipartFile> images) throws Exception {
+        return new ResponseEntity<>(shopService.createMenuForOwner(dto, images), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMenu(@PathVariable Integer shopId, @PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.getShopMenu(shopId, menuId), HttpStatus.OK);
+    ResponseEntity getMenu(@PathVariable Integer menuId) throws Exception {
+        return new ResponseEntity<>(shopService.getShopMenu(menuId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteMenu(@PathVariable Integer shopId, @PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.deleteMenuForAdmin(shopId, menuId), HttpStatus.OK);
+    ResponseEntity deleteMenu(@PathVariable Integer menuId) throws Exception {
+        return new ResponseEntity<>(shopService.deleteMenuForAdmin(menuId), HttpStatus.OK);
     }
 
 

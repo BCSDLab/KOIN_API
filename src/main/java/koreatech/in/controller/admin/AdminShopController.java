@@ -100,8 +100,8 @@ public class AdminShopController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/shops/{shopId}/menus/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteMenu(@ApiParam(required = true) @PathVariable(value = "shopId") int shopId, @ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+    ResponseEntity deleteMenu(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
 
-        return new ResponseEntity<Map<String, Object>>(shopService.deleteMenuForAdmin(shopId, id), HttpStatus.OK);
+        return new ResponseEntity<Map<String, Object>>(shopService.deleteMenuForAdmin(id), HttpStatus.OK);
     }
 }

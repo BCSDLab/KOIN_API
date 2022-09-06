@@ -10,23 +10,3 @@ CREATE TABLE `shop_shop_menu_category_map` (
 ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
-
-INSERT INTO `koin`.`shop_shop_menu_category_map`
-    (`shop_id`, `shop_menu_category_id`)
-SELECT `id`, 1
-FROM koin.shops;
-
-INSERT INTO `koin`.`shop_shop_menu_category_map`
-(`shop_id`, `shop_menu_category_id`)
-SELECT `id`, 2
-FROM koin.shops;
-
-INSERT INTO `koin`.`shop_shop_menu_category_map`
-(`shop_id`, `shop_menu_category_id`)
-SELECT `id`, 3
-FROM koin.shops;
-
-INSERT INTO `koin`.`shop_shop_menu_category_map`
-(`shop_id`, `shop_menu_category_id`)
-SELECT `id`, 4
-FROM koin.shops;

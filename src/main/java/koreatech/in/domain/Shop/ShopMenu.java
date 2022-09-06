@@ -1,6 +1,6 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.controller.v2.dto.ShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
 import lombok.Getter;
 
 import java.util.Date;
@@ -16,7 +16,9 @@ public class ShopMenu {
     private Date created_at;
     private Date updated_at;
 
-    public void init(ShopMenuDTO dto) {
+    public ShopMenu() {}
+
+    public ShopMenu(ShopMenuRequestDTO dto) {
         this.shop_id = dto.getShop_id();
         this.name = dto.getName();
         this.description = dto.getDescription();

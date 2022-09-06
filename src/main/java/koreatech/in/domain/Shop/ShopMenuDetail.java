@@ -69,13 +69,13 @@ public class ShopMenuDetail {
         this.updated_at = updated_at;
     }
 
-    public void initForSingleMenu(Integer shop_menu_id, Integer price) {
+    public ShopMenuDetail(Integer shop_menu_id, Integer price) {
         this.shop_menu_id = shop_menu_id;
         this.option = null;
         this.price = price;
     }
 
-    public void initForOptionMenu(Integer shop_menu_id, String option, Integer price) {
+    public ShopMenuDetail(Integer shop_menu_id, String option, Integer price) {
         this.shop_menu_id = shop_menu_id;
         this.option = option;
         this.price = price;
