@@ -623,7 +623,12 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional
     public Map<String, Object> deleteMenuForOwner(Integer menuId) {
-        return null;
+        shopMapper.deleteAllForInvolvedWithMenuForOwner(menuId);
+
+        return new HashMap<String, Object>() {{
+            put("message", "메뉴가 삭제되었습니다.");
+            put("success", true);
+        }};
     }
 
     @Override

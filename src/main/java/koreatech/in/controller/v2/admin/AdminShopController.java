@@ -121,7 +121,7 @@ public class AdminShopController {
     @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity deleteMenu(@PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.deleteMenuForAdmin(menuId), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.deleteMenuForOwner(menuId), HttpStatus.OK);
     }
 
 

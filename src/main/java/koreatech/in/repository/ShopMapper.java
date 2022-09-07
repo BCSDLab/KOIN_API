@@ -125,7 +125,7 @@ public interface ShopMapper {
             "SELECT shop_menu_category_id " +
             "FROM koin.shop_shop_menu_category_map " +
             "WHERE shop_id = #{shop_id} AND is_deleted = 0 " +
-            ") ORDER BY id ASC;")
+            ") ORDER BY id ASC")
     List<String> getExistentCategoryNamesByShopId(@Param("shop_id") int shop_id);
 
     @Select("SELECT name FROM shop_menu_categorys " +
@@ -133,11 +133,29 @@ public interface ShopMapper {
             "SELECT shop_menu_category_id " +
             "FROM koin.shop_menu_shop_menu_category_map " +
             "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0 " +
-            ") ORDER BY id ASC;")
+            ") ORDER BY id ASC")
     List<String> getSelectedCategoryNamesByMenuId(@Param("shop_menu_id") int shop_menu_id);
 
     @Select("SELECT image_url FROM koin.shop_menu_images WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
     List<String> getMenuImageUrls(@Param("shop_menu_id") int shop_menu_id);
+
+    @Update("UPDATE " +
+               "koin.shop_menus sm, " +
+               "koin.shop_menu_details smd, " +
+               "koin.shop_menu_images smi, " +
+               "koin.shop_menu_shop_menu_category_map smsmcm " +
+            "SET " +
+               "sm.is_deleted = 1, " +
+               "smd.is_deleted = 1, " +
+               "smi.is_deleted = 1, " +
+               "smsmcm.is_deleted = 1 " +
+            "WHERE " +
+               "sm.id = #{shop_menu_id} " +
+               "AND smd.shop_menu_id = #{shop_menu_id} " +
+               "AND smi.shop_menu_id = #{shop_menu_id} " +
+               "AND smsmcm.shop_menu_id = #{shop_menu_id}")
+    void deleteAllForInvolvedWithMenuForOwner(@Param("shop_menu_id") int shop_menu_id);
+
 
     @Select("SELECT * FROM koin.shop_menu_categorys " +
             "WHERE name = #{name}")
