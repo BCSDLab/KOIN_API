@@ -25,4 +25,10 @@ public class ShopMenu {
         this.description = dto.getDescription();
         this.is_hidden = false;
     }
+
+    public ShopMenu update(UpdateShopMenuDTO dto) {
+        this.name = dto.getName();
+        this.description = dto.getDescription();
+        return this;
+    }
 }

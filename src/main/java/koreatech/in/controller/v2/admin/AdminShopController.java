@@ -141,8 +141,7 @@ public class AdminShopController {
             @PathVariable Integer menuId,
             @RequestPart("menu") @Valid UpdateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
-        dto.init(menuId, images);
-        return new ResponseEntity<>(shopService.updateMenuForOwner(dto), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.updateMenuForOwner(dto.init(menuId, images)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

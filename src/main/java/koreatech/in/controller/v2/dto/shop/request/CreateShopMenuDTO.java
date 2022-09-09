@@ -25,7 +25,7 @@ public class CreateShopMenuDTO {
     @ApiModelProperty(notes = "단일 메뉴일때의 가격", example = "12000")
     private Integer single_price;
 
-    @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격")
+    @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격", example = "[{\"소\": 10000}, {\"중\": 12000}, {\"대\": 14000}]")
     private List<Map<String, Integer>> option_prices;
 
     @NotNull(message = "메뉴 당 카테고리는 최소 1개 선택되어야 합니다.")
