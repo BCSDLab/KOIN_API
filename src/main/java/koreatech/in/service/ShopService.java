@@ -45,13 +45,11 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
 
-    List<String> getMenuCategoriesOfShop(Integer id) throws Exception;
+    List<String> getMenuCategoriesOfShopForOwner(Integer id) throws Exception;
 
-    Map<String, Object> updateMenuCategoriesOfShop(Integer shopId, UpdateShopMenuCategoryDTO dto);
+    Map<String, Object> updateMenuCategoriesOfShopForOwner(Integer shopId, UpdateShopMenuCategoryDTO dto);
 
-    Map<String, Object> updateExistentCategories(Integer id) throws Exception;
-
-    //Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
+    Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
 
     ResponseShopMenuDTO getShopMenu(Integer menuId) throws Exception;
 

@@ -28,13 +28,9 @@ public class CreateShopMenuDTO {
     @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격")
     private List<Map<String, Integer>> option_prices;
 
-    @NotNull(message = "존재하는 카테고리명 리스트는 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "존재하는 카테고리명 리스트")
-    private List<String> existent_categories;
-
-    @NotNull(message = "선택된 카테고리명 리스트는 비워둘 수 없습니다.")
+    @NotNull(message = "메뉴 당 카테고리는 최소 1개 선택되어야 합니다.")
     @ApiModelProperty(notes = "선택된 카테고리명 리스트")
-    private List<String> selected_categories;
+    private List<String> categories;
 
     @ApiModelProperty(notes = "메뉴 구성 설명")
     private String description;

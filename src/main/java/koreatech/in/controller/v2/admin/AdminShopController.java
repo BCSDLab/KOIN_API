@@ -106,7 +106,7 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getMenuCategoriesOfShop(@PathVariable Integer shopId) throws Exception {
-        return new ResponseEntity<>(shopService.getMenuCategoriesOfShop(shopId), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.getMenuCategoriesOfShopForOwner(shopId), HttpStatus.OK);
     }
 
     @ParamValid
@@ -114,7 +114,7 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateMenuCategoriesOfShop(@PathVariable Integer shopId, @RequestBody UpdateShopMenuCategoryDTO dto) throws Exception {
-        return new ResponseEntity<>(shopService.updateMenuCategoriesOfShop(shopId, dto), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.updateMenuCategoriesOfShopForOwner(shopId, dto), HttpStatus.OK);
     }
 
     @ParamValid
@@ -124,7 +124,7 @@ public class AdminShopController {
     ResponseEntity createMenu(
             @RequestPart("menu") @Valid CreateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.createMenuForOwner(dto.init(images)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
