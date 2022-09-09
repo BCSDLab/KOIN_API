@@ -1,4 +1,4 @@
-CREATE TABLE `shop_menu_categorys` (
+CREATE TABLE `shop_menu_categories` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_categorys 고유 id',
   `name` varchar(255) NOT NULL COMMENT '카테고리 이름',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '삭제 여부',
@@ -11,7 +11,7 @@ ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
 
-INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('대표 메뉴');
-INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('전체 메뉴');
-INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('세트 메뉴');
-INSERT INTO `koin`.`shop_menu_categorys` (`name`) VALUES ('사이드 메뉴');
+INSERT INTO `koin`.`shop_menu_categories` (`name`) VALUES ('대표 메뉴');
+INSERT INTO `koin`.`shop_menu_categories` (`name`) VALUES ('전체 메뉴');
+INSERT INTO `koin`.`shop_menu_categories` (`name`) VALUES ('세트 메뉴');
+INSERT INTO `koin`.`shop_menu_categories` (`name`) VALUES ('사이드 메뉴');

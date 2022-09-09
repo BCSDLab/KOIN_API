@@ -1,16 +1,17 @@
-package koreatech.in.controller.v2.dto.shop;
+package koreatech.in.controller.v2.dto.shop.result;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Map;
 
-@Getter
-public class ShopMenuResponseDTO {
+@Getter @ToString
+public class ResultShopMenuDTO {
+    private Integer id;
+    private Integer shop_id;
     private String name;
-    private Boolean is_single;
-    private Integer single_price;
-    private List<Map<String, Integer>> option_prices;
+    private List<Map<String, Object>> option_prices;
     private List<String> existent_categories;
     private List<String> selected_categories;
     private String description;

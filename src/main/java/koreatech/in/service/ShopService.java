@@ -1,7 +1,9 @@
 package koreatech.in.service;
 
-import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
-import koreatech.in.controller.v2.dto.shop.ShopMenuResponseDTO;
+import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
+import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
@@ -43,9 +45,17 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
 
-    Map<String, Object> createMenuForOwner(ShopMenuRequestDTO dto, List<MultipartFile> images) throws Exception;
+    List<String> getMenuCategoriesOfShop(Integer id) throws Exception;
 
-    ShopMenuResponseDTO getShopMenu(Integer menuId) throws Exception;
+    Map<String, Object> updateMenuCategoriesOfShop(Integer shopId, UpdateShopMenuCategoryDTO dto);
+
+    Map<String, Object> updateExistentCategories(Integer id) throws Exception;
+
+    //Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
+
+    ResponseShopMenuDTO getShopMenu(Integer menuId) throws Exception;
+
+    Map<String, Object> updateMenuForOwner(UpdateShopMenuDTO dto) throws Exception;
 
     Map<String, Object> deleteMenuForOwner(Integer menuId) throws Exception;
 

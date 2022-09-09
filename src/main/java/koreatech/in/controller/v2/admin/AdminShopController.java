@@ -4,8 +4,10 @@ import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.controller.v2.dto.shop.CreateShopDTO;
-import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
+import koreatech.in.controller.v2.dto.shop.request.CreateShopDTO;
+import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
+import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.service.ShopService;
@@ -64,7 +66,7 @@ public class AdminShopController {
     }
 
     // ------------------------------- 여기부터 코인 리뉴얼 API -----------------------------------
-    @ParamValid
+    /*@ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/menus/category", method = RequestMethod.POST)
     public @ResponseBody
@@ -98,6 +100,21 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity deleteMenuCategory(@ApiParam(required = true) @PathVariable Integer id) throws Exception {
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(id), HttpStatus.OK);
+    }*/
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getMenuCategoriesOfShop(@PathVariable Integer shopId) throws Exception {
+        return new ResponseEntity<>(shopService.getMenuCategoriesOfShop(shopId), HttpStatus.OK);
+    }
+
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity updateMenuCategoriesOfShop(@PathVariable Integer shopId, @RequestBody UpdateShopMenuCategoryDTO dto) throws Exception {
+        return new ResponseEntity<>(shopService.updateMenuCategoriesOfShop(shopId, dto), HttpStatus.OK);
     }
 
     @ParamValid
@@ -105,9 +122,9 @@ public class AdminShopController {
     @RequestMapping(value = "/menu", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity createMenu(
-            @RequestPart("menu") @Validated(ValidationGroups.Create.class) ShopMenuRequestDTO dto, BindingResult bindingResult,
+            @RequestPart("menu") @Valid CreateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
-        return new ResponseEntity<>(shopService.createMenuForOwner(dto, images), HttpStatus.CREATED);
+        return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
@@ -115,6 +132,17 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity getMenu(@PathVariable Integer menuId) throws Exception {
         return new ResponseEntity<>(shopService.getShopMenu(menuId), HttpStatus.OK);
+    }
+
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.PUT)
+    ResponseEntity updateMenu(
+            @PathVariable Integer menuId,
+            @RequestPart("menu") @Valid UpdateShopMenuDTO dto, BindingResult bindingResult,
+            @RequestPart("images") List<MultipartFile> images) throws Exception {
+        dto.init(menuId, images);
+        return new ResponseEntity<>(shopService.updateMenuForOwner(dto), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

@@ -1,6 +1,7 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.controller.v2.dto.shop.ShopMenuRequestDTO;
+import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
 import lombok.Getter;
 
 import java.util.Date;
@@ -18,7 +19,7 @@ public class ShopMenu {
 
     public ShopMenu() {}
 
-    public ShopMenu(ShopMenuRequestDTO dto) {
+    public ShopMenu(CreateShopMenuDTO dto) {
         this.shop_id = dto.getShop_id();
         this.name = dto.getName();
         this.description = dto.getDescription();
