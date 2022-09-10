@@ -4,7 +4,7 @@ import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.result.ResultShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.result.ShopMenuResult;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
@@ -591,62 +591,46 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional
     public ResponseShopMenuDTO getShopMenu(Integer menuId) throws Exception {
-        ResponseShopMenuDTO responseDto = new ResponseShopMenuDTO();
-        // TODO : SubQuery로 List<Map<>> 조회가 가능한지 알아보기
-        ResultShopMenuDTO getResult = shopMapper.getShopMenu(menuId);
-
-        System.out.println(getResult.toString());
-
         /*
-             String name;
-             String description;
-             Integer single_price;
-             List option_prices;
+             private String name; O
+             private Boolean is_single; O
+             private Integer single_price; O
+             private List<Map<String, Integer>> option_prices; O
+             private List<String> categories;
+             private String description; O
+             private List<String> image_urls;
          */
 
-        /*for (ShopMenuResponseDTO dto : getResult) {
-            System.out.println(dto.toString());
-        }*/
+        ResponseShopMenuDTO responseDto = new ResponseShopMenuDTO();
+        // TODO : SubQuery로 List<Map<>> 조회가 가능한지 알아보기
+        List<ShopMenuResult> menuResults = shopMapper.getShopMenus(menuId);
 
-        /*
-            String name;                              // shop_menus.name
-            Boolean is_single;                        // 코드에서 setting
-            Integer single_price;                     // shop_menu_details.price
-            List<Map<String, Integer>> option_prices; // shop_menu_details.price
-            List<String> existent_categories;         // shop_shop_menu_categorys.name
-            List<String> selected_categories;         // shop_menu_shop_menu_categorys.name
-            String description;                       // shop_menus.name
-            List<String> image_urls;                  // shop_menu_images.image_url
-        */
-
-        /*if (getResult == null) {
-            throw new NotFoundException(new ErrorMessage("잘못된 요청입니다.", 0));
+        if (menuResults == null) {
+            throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
         }
 
-        // 단일메뉴일 경우
-        if (getResult.size() == 1 && getResult.get(0).getOption() == null) {
-            responseDTO.setSingleMenu(getResult.get(0).getPrice());
+        if ((menuResults.size() == 1) && (menuResults.get(0).getOption() == null)) {
+            responseDto.setForSingleMenu(menuResults.get(0).getPrice());
         } else {
-            List<Map<String, Integer>> optionPrices = new ArrayList<>();
-            getResult.forEach(dto -> {
-                if (dto.getShop_id() == null) {
-                    throw new NotFoundException(new ErrorMessage("상점 정보가 없습니다.", 1));
-                }
-                if (dto.getId() == null) {
-                    throw new NotFoundException(new ErrorMessage("메뉴 정보가 없습니다.", 2));
+            List<Map<String, Integer>> optionPrices = new LinkedList<>();
+            menuResults.forEach(menuResult -> {
+                if (menuResult.getId() == null) {
+                    throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
                 }
                 optionPrices.add(new HashMap<String, Integer>() {{
-                    put(dto.getOption(), dto.getPrice());
+                    put(menuResult.getOption(), menuResult.getPrice());
                 }});
             });
-            responseDTO.addOptionPrice(optionPrices);
+
+            responseDto.setForOptionMenu(optionPrices);
         }
 
-        responseDTO.setExistentCategories(shopMapper.getExistentCategoryNamesByShopId(getResult.get(0).getShop_id()));
-        responseDTO.setSelectedCategories(shopMapper.getSelectedCategoryNamesByMenuId(menuId));
-        responseDTO.setImages(shopMapper.getMenuImageUrls(menuId));*/
+        responseDto.setName(menuResults.get(0).getName());
+        responseDto.setDescription(menuResults.get(0).getDescription());
+        responseDto.setCategories(shopMapper.getMenuCategoriesOfMenuByMenuId(menuId));
+        responseDto.setImageUrls(shopMapper.getMenuImageUrls(menuId));
 
-        return null;
+        return responseDto;
     }
 
     @Override

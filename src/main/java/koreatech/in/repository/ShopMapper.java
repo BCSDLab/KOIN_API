@@ -1,6 +1,6 @@
 package koreatech.in.repository;
 
-import koreatech.in.controller.v2.dto.shop.result.ResultShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.result.ShopMenuResult;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.*;
 import org.apache.ibatis.annotations.*;
@@ -12,8 +12,6 @@ import java.util.List;
 public interface ShopMapper {
     @Select("SELECT * FROM koin.shops WHERE IS_DELETED = 0")
     List<Shop> getShopList();
-
-    ResultShopMenuDTO getShopMenu(@Param("shop_menu_id") int shop_menu_id);
 
     @Select("SELECT * FROM koin.shops WHERE IS_DELETED = 0 AND ID=#{id}")
     Shop getShopById(@Param("id") int id);
@@ -210,6 +208,19 @@ public interface ShopMapper {
             "AND smsmcm.shop_menu_id = #{shop_menu_id}")
     void deleteAllForInvolvedWithMenu(@Param("shop_menu_id") int shop_menu_id);
 
+    @Select("SELECT sm.id, sm.name, sm.description, sm.is_hidden, smd.option, smd.price " +
+            "FROM koin.shop_menus sm " +
+            "LEFT JOIN koin.shop_menu_details smd " +
+            "ON sm.id = smd.shop_menu_id " +
+            "WHERE sm.id = #{id} " +
+            "ORDER BY smd.price ASC")
+    List<ShopMenuResult> getShopMenus(@Param("id") int shopMenuId);
+
+    @Select("SELECT image_url " +
+            "FROM koin.shop_menu_images " +
+            "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
+    List<String> getMenuImageUrls(@Param("shop_menu_id") int shopMenuId);
+
 
 
 
@@ -239,9 +250,6 @@ public interface ShopMapper {
     @Select("SELECT shop_menu_id FROM koin.shop_menu_shop_menu_category_map" +
             "WHERE shop_menu_category_id = #{shop_menu_category_id} AND is_deleted = 0")
     List<Integer> get(@Param("shop_menu_category_id") int shop_menu_category_id);
-
-    @Select("SELECT image_url FROM koin.shop_menu_images WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
-    List<String> getMenuImageUrls(@Param("shop_menu_id") int shop_menu_id);
 
     @Select("SELECT * FROM koin.shop_menu_categorys " +
             "WHERE name = #{name}")
