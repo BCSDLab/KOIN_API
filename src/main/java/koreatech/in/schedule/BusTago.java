@@ -5,7 +5,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import koreatech.in.domain.Bus.BusArrivalInfo;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.service.JsonConstructor;
+import koreatech.in.util.JsonConstructor;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,9 +60,6 @@ public class BusTago {
     private StringRedisUtilObj stringRedisUtilObj;
 
     @Autowired
-    private JsonConstructor con;
-
-    @Autowired
     private SlackNotiSender sender;
 
     private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo.%s.%s";
@@ -110,13 +107,12 @@ public class BusTago {
             JsonObject bodyObject = nodeInfo.getAsJsonObject("response").getAsJsonObject("body");
             int count = bodyObject.get("totalCount").getAsInt();
             if (count <= 1) {
-                BusArrivalInfo col = new BusArrivalInfo();
                 if (count == 1) {
-                    result.add(con.parseJsonObject(bodyObject.getAsJsonObject("items").getAsJsonObject("item")));
+                    result.add(JsonConstructor.parseJsonObject(bodyObject.getAsJsonObject("items").getAsJsonObject("item")));
                 }
                 return result;
             }
-            result = con.parseJsonArrayWithObject(bodyObject.getAsJsonObject("items").getAsJsonArray("item"));
+            result = JsonConstructor.parseJsonArrayWithObject(bodyObject.getAsJsonObject("items").getAsJsonArray("item"));
         } catch (JsonSyntaxException e) {
             return result;
         }

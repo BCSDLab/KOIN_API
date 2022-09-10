@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
+import koreatech.in.domain.Bus.BusRemainTime;
 import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.service.BusService;
 import org.slf4j.Logger;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 @Controller
+@RequestMapping(value = "/bus")
 public class BusController {
     private static final Logger logger = LoggerFactory.getLogger(BusController.class);
 
@@ -25,25 +26,26 @@ public class BusController {
     private BusService busService;
 
     // 시내버스
-    @RequestMapping(value = "/buses", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<Map<String, Object>> getBus(@ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart,
-                                               @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception {
-        return new ResponseEntity<>(busService.getBus(depart, arrival), HttpStatus.OK);
+    ResponseEntity<BusRemainTime> getRemainTime(@ApiParam(value = "버스 종류(city, express, school)", required = true) @RequestParam(value = "bus_type") String busType,
+                                                @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart,
+                                                @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception {
+        return new ResponseEntity<>(busService.getRemainTime(busType, depart, arrival), HttpStatus.OK);
     }
 
     // 통학버스 노선
-    @RequestMapping(value = "/bus/courses", method = RequestMethod.GET)
+    @RequestMapping(value = "/courses", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ArrayList<SchoolBusCourse>> getCourses() {
         return new ResponseEntity<>(busService.getCourses(), HttpStatus.OK);
     }
 
     // 통학버스 시간표
-    @RequestMapping(value = "/bus/timetable", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/timetable", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public @ResponseBody
     ResponseEntity<String> getTimetable(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
-                                       @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
+                                        @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
         return new ResponseEntity<>(busService.getTimetable(busType, region), HttpStatus.OK);
     }
 }

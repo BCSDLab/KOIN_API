@@ -10,6 +10,7 @@
         http://www.springframework.org/schema/context/spring-context-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:component-scan base-package="koreatech.in.service" />
+    <context:component-scan base-package="koreatech.in.domain" />
     <context:component-scan base-package="koreatech.in.repository" />
     <context:component-scan base-package="koreatech.in.aop" />
     <context:component-scan base-package="koreatech.in.util" />
