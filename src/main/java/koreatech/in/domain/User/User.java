@@ -33,7 +33,7 @@ public class User implements UserDetails {
     @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
     @ApiModelProperty(notes = "학번", example = "2013136000")
     protected String student_number;
-    @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부", example = "컴퓨터공학부")
+    @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부, 고용서비스정책학과", example = "컴퓨터공학부")
     protected String major;
     @ApiModelProperty(notes = "신원(0: 학생, 1: 대학원생, 2: 교수, 3: 교직원, 4: 졸업생, 5: 점주)", example = "0")
     protected Integer identity;
