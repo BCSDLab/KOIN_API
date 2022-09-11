@@ -9,6 +9,7 @@ public class UserCode {
 
     private static final Map<String, String> deptMap = new HashMap<String, String>() {{
         put("20", "기계공학부");
+        put("35", "컴퓨터공학부");
         put("36", "컴퓨터공학부");
         put("40", "메카트로닉스공학부");
         put("61", "전기전자통신공학부");
