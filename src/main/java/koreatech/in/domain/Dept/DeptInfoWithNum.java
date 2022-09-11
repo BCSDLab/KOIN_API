@@ -7,10 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DeptInfo {
-
-    @ApiModelProperty(name = "학과 번호", example = "36", readOnly = true)
-    private String dept_num;
+public class DeptInfoWithNum {
 
     @ApiModelProperty(name = "학과명", example = "컴퓨터공학부", readOnly = true)
     private String name;
@@ -21,4 +18,7 @@ public class DeptInfo {
     @ApiModelProperty(hidden = true)
     @JsonIgnore
     private Boolean is_deleted;
+
+    @ApiModelProperty(name = "학과 번호", example = "36", readOnly = true)
+    private String dept_num;
 }

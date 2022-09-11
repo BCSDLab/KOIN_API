@@ -1,7 +1,7 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.ApiParam;
-import koreatech.in.domain.Dept.DeptInfo;
+import koreatech.in.domain.Dept.DeptInfoVO;
+import koreatech.in.domain.Dept.DeptNum;
 import koreatech.in.service.DeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,16 +22,15 @@ public class DeptController {
 
     @RequestMapping(value = "/depts", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<List<DeptInfo>> getAllDeptInfo() {
+    ResponseEntity<List<DeptInfoVO>> getAllDeptInfo() {
 
         return new ResponseEntity<>(deptService.getAllDeptInfo(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/dept", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<DeptInfo> findDept(@RequestParam(value = "dept_num", required = false) String deptNum,
-                                      @RequestParam(value = "name", required = false) String name) {
+    ResponseEntity<DeptNum> findDept(@RequestParam(value = "dept_num") String deptNum) {
 
-        return new ResponseEntity<>(deptService.findDept(deptNum, name), HttpStatus.OK);
+        return new ResponseEntity<>(deptService.findDept(deptNum), HttpStatus.OK);
     }
 }

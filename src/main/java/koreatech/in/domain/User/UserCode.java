@@ -1,8 +1,5 @@
 package koreatech.in.domain.User;
 
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;

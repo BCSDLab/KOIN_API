@@ -1,12 +1,13 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Dept.DeptInfo;
+import koreatech.in.domain.Dept.DeptInfoVO;
+import koreatech.in.domain.Dept.DeptNum;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface DeptService {
 
-    List<DeptInfo> getAllDeptInfo();
+    ArrayList<DeptInfoVO> getAllDeptInfo();
 
-    DeptInfo findDept(String deptNum, String name);
+    DeptNum findDept(String deptNum);
 }
