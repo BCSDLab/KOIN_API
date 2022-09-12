@@ -105,16 +105,16 @@ public class AdminShopController {
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMenuCategoriesOfShop(@PathVariable Integer shopId) throws Exception {
-        return new ResponseEntity<>(shopService.getMenuCategoriesOfShopForOwner(shopId), HttpStatus.OK);
+    ResponseEntity getMenuCategories(@PathVariable Integer shopId) throws Exception {
+        return new ResponseEntity<>(shopService.getMenuCategoriesForOwner(shopId), HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateMenuCategoriesOfShop(@PathVariable Integer shopId, @RequestBody UpdateShopMenuCategoryDTO dto) throws Exception {
-        return new ResponseEntity<>(shopService.updateMenuCategoriesOfShopForOwner(shopId, dto), HttpStatus.OK);
+    ResponseEntity updateMenuCategories(@PathVariable Integer shopId, @RequestBody UpdateShopMenuCategoryDTO dto) throws Exception {
+        return new ResponseEntity<>(shopService.updateMenuCategoriesForOwner(dto.init(shopId)), HttpStatus.OK);
     }
 
     @ParamValid
@@ -136,7 +136,7 @@ public class AdminShopController {
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.POST)
     ResponseEntity updateMenu(
             @PathVariable Integer menuId,
             @RequestPart("menu") @Valid UpdateShopMenuDTO dto, BindingResult bindingResult,
@@ -149,19 +149,5 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity deleteMenu(@PathVariable Integer menuId) throws Exception {
         return new ResponseEntity<>(shopService.deleteMenuForOwner(menuId), HttpStatus.OK);
-    }
-
-
-    /**
-     *  shop_menus의 price_type(json) 컬럼 데이터들을 parsing해서 shop_menu_details에 마이그레이션하는 API입니다.
-     *  코인 리뉴얼시 프로덕션에서 호출이 성공적으로 이루어진 후에는, 더이상 호출하면 안됩니다.
-     *  admin 계정으로 호출 예정입니다.
-     */
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/migrate", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity migratePriceType() throws Exception {
-
-        return new ResponseEntity<Map<String, Object>>(shopService.migratePriceType(), HttpStatus.OK);
     }
 }

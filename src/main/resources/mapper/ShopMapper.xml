@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.ShopMapper">
+    <select id="getMenuResponse" resultMap="ShopMenuResponse">
+        SELECT id, `name`, description
+        FROM koin.shop_menus
+        WHERE id = #{shop_menu_id}
+    </select>
+
+    <resultMap id="ShopMenuResponse" type="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO" >
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <collection property="option_prices" column="id" javaType="java.util.List"
+                    ofType="java.util.Map" select="getOptionPricesByMenuId"/>
+        <collection property="categories" column="id" javaType="java.util.List"
+                    ofType="java.lang.String" select="getCategoriesByMenuId"/>
+        <collection property="image_urls" column="id" javaType="java.util.List"
+                    ofType="java.lang.String" select="getImageUrlsByMenuId"/>
+    </resultMap>
+
+    <select id="getOptionPricesByMenuId" resultType="java.util.HashMap">
+        SELECT `option`, price
+        FROM koin.shop_menu_details
+        WHERE shop_menu_id = #{shop_menu_id}
+        ORDER BY price ASC
+    </select>
+
+    <select id="getCategoriesByMenuId" resultType="java.lang.String">
+        SELECT name
+        FROM koin.shop_menu_categories
+        WHERE id IN (
+        SELECT shop_menu_category_id
+        FROM koin.shop_menu_shop_menu_category_map
+        WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
+        ) ORDER BY id ASC
+    </select>
+
+    <select id="getImageUrlsByMenuId" resultType="java.lang.String">
+        SELECT image_url
+        FROM koin.shop_menu_images
+        WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
+        ORDER BY id ASC
+    </select>
+</mapper>

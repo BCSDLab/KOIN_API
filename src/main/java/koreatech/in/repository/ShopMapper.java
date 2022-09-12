@@ -1,5 +1,6 @@
 package koreatech.in.repository;
 
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.result.ShopMenuResult;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.*;
@@ -98,10 +99,12 @@ public interface ShopMapper {
             "SELECT shop_menu_category_id " +
             "FROM koin.shop_shop_menu_category_map " +
             "WHERE shop_id = #{shop_id} AND is_deleted = 0 " +
-            ") ORDER BY id ASC")
+            ") AND is_deleted = 0")
     List<String> getMenuCategoriesOfShopByShopId(@Param("shop_id") int shopId);
 
-    @Insert("INSERT IGNORE INTO koin.shop_menu_categories (`name`) VALUES (#{name})")
+    @Insert("INSERT IGNORE INTO koin.shop_menu_categories " +
+            "(`name`) " +
+            "VALUES (#{name})")
     @SelectKey(statement = "SELECT id FROM koin.shop_menu_categories " +
                            "WHERE name = #{name}", keyProperty = "id", before = false, resultType = int.class)
     void createMenuCategory(ShopMenuCategory shopMenuCategory);
@@ -180,7 +183,7 @@ public interface ShopMapper {
             "SELECT shop_menu_category_id " +
             "FROM koin.shop_menu_shop_menu_category_map " +
             "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0 " +
-            ") ORDER BY id ASC")
+            ") AND is_deleted = 0")
     List<String> getMenuCategoriesOfMenuByMenuId(@Param("shop_menu_id") int shopMenuId);
 
     @Update("UPDATE koin.shop_menu_shop_menu_category_map " +
@@ -208,18 +211,7 @@ public interface ShopMapper {
             "AND smsmcm.shop_menu_id = #{shop_menu_id}")
     void deleteAllForInvolvedWithMenu(@Param("shop_menu_id") int shop_menu_id);
 
-    @Select("SELECT sm.id, sm.name, sm.description, sm.is_hidden, smd.option, smd.price " +
-            "FROM koin.shop_menus sm " +
-            "LEFT JOIN koin.shop_menu_details smd " +
-            "ON sm.id = smd.shop_menu_id " +
-            "WHERE sm.id = #{id} " +
-            "ORDER BY smd.price ASC")
-    List<ShopMenuResult> getShopMenus(@Param("id") int shopMenuId);
-
-    @Select("SELECT image_url " +
-            "FROM koin.shop_menu_images " +
-            "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
-    List<String> getMenuImageUrls(@Param("shop_menu_id") int shopMenuId);
+    ResponseShopMenuDTO getMenuResponse(@Param("shop_menu_id") int shopMenuId);
 
 
 

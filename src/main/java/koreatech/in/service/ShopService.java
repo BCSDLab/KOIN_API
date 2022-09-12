@@ -45,9 +45,9 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
 
-    List<String> getMenuCategoriesOfShopForOwner(Integer id) throws Exception;
+    List<String> getMenuCategoriesForOwner(Integer id) throws Exception;
 
-    Map<String, Object> updateMenuCategoriesOfShopForOwner(Integer shopId, UpdateShopMenuCategoryDTO dto);
+    Map<String, Object> updateMenuCategoriesForOwner(UpdateShopMenuCategoryDTO dto);
 
     Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
 

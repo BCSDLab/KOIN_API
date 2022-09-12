@@ -25,11 +25,12 @@ public class CreateShopMenuDTO {
     @ApiModelProperty(notes = "단일 메뉴일때의 가격", example = "12000")
     private Integer single_price;
 
-    @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격", example = "[{\"소\": 10000}, {\"중\": 12000}, {\"대\": 14000}]")
-    private List<Map<String, Integer>> option_prices;
+    @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트",
+            example = "[{\"price\":5000,\"option\":\"보통\"},{\"price\":6000,\"option\":\"곱빼기\"}]")
+    private List<Map<String, Object>> option_prices;
 
     @NotNull(message = "메뉴 당 카테고리는 최소 1개 선택되어야 합니다.")
-    @ApiModelProperty(notes = "선택된 카테고리명 리스트")
+    @ApiModelProperty(notes = "선택된 카테고리명 리스트", example = "[\"대표 메뉴\"]")
     private List<String> categories;
 
     @ApiModelProperty(notes = "메뉴 구성 설명")
