@@ -695,50 +695,18 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public Map<String, Object> migratePriceType() {
-        List<Menu> menus = shopMapper.getAllMenusForAdmin();
+    public Map<String, Object> hideMenuForOwner(Integer menuId) throws Exception {
+        ShopMenu menu = shopMapper.getMenuById(menuId);
 
-        // shop_menus 테이블의 레코드들을 하나씩 순회한다.
-        for (Menu menu : menus) {
-            Integer shop_menu_id = menu.getId();
-
-            /*
-                shop_menus 테이블의 price_type 컬럼 데이터는 JSON의 리스트 형태로 되어있다.
-                ex) [{"size":"소","price":"16000"},{"size":"중","price":"20000"},{"size":"대","price":"24000"}]
-
-                이것을 파싱하여 List<Map> 타입으로 가져온다.
-             */
-            List<Map<String, Object>> priceTypes = con.parseJsonArrayWithObject(menu.getPrice_type());
-
-            /*
-                가져온 데이터들을 하나씩 순회하면서 size(shop_menus 테이블에서는 옵션의 의미를 가지고있음)와 price를 추출하여
-                shop_menu_details 테이블에 insert 한다.
-             */
-            for (Map<String, Object> priceType : priceTypes) {
-                String option = (String) priceType.get("size");
-                String priceString = (String) priceType.get("price");
-                int priceInt = Integer.parseInt(priceString);
-                Integer price = priceInt;
-
-                ShopMenuDetail shopMenuDetail = new ShopMenuDetail();
-                shopMenuDetail.setShop_menu_id(shop_menu_id);
-                shopMenuDetail.setPrice(price);
-
-                // 단일 메뉴 (옵션이 '기본'인 경우)는 option을 null로 저장하도록 한다.
-                if (option.equals("기본")) {
-                    shopMenuDetail.setOption(null);
-                } else {
-                    shopMenuDetail.setOption(option);
-                }
-
-                shopMapper.createMenuDetail(shopMenuDetail);
-            }
+        if (menu == null) {
+            throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
         }
 
-        // 정상적으로 insert되었는지 확인하기 위해 조회해서 response body에 담아준다.
-        List<ShopMenuDetail> menuDetails = shopMapper.getAllMenuDetailsForAdmin();
+        shopMapper.updateMenu(menu.hide());
+
         return new HashMap<String, Object>() {{
-            put("menu_details", menuDetails);
+            put("message", String.format("%s 메뉴가 정상적으로 숨김처리 되었습니다.", menu.getName()));
+            put("success", true);
         }};
     }
 }

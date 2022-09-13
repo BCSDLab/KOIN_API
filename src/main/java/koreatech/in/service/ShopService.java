@@ -57,5 +57,5 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuForOwner(Integer menuId) throws Exception;
 
-    Map<String, Object> migratePriceType() throws Exception;
+    Map<String, Object> hideMenuForOwner(Integer menuId) throws Exception;
 }

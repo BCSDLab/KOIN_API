@@ -31,4 +31,9 @@ public class ShopMenu {
         this.description = dto.getDescription();
         return this;
     }
+
+    public ShopMenu hide() {
+        this.is_hidden = true;
+        return this;
+    }
 }

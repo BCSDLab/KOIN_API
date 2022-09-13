@@ -150,4 +150,11 @@ public class AdminShopController {
     ResponseEntity deleteMenu(@PathVariable Integer menuId) throws Exception {
         return new ResponseEntity<>(shopService.deleteMenuForOwner(menuId), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menu/{menuId}/hide", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity hideMenu(@PathVariable Integer menuId) throws Exception {
+        return new ResponseEntity<>(shopService.hideMenuForOwner(menuId), HttpStatus.OK);
+    }
 }
