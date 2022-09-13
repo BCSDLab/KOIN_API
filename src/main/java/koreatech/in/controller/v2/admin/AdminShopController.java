@@ -102,13 +102,6 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(id), HttpStatus.OK);
     }*/
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getMenuCategories(@PathVariable Integer shopId) throws Exception {
-        return new ResponseEntity<>(shopService.getMenuCategoriesForOwner(shopId), HttpStatus.OK);
-    }
-
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
@@ -131,7 +124,7 @@ public class AdminShopController {
     @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getMenu(@PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.getShopMenu(menuId), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.getMenuForOwner(menuId), HttpStatus.OK);
     }
 
     @ParamValid
@@ -156,5 +149,12 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity hideMenu(@PathVariable Integer menuId) throws Exception {
         return new ResponseEntity<>(shopService.hideMenuForOwner(menuId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/{shopId}/menus", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getMenus(@PathVariable Integer shopId) throws Exception {
+        return new ResponseEntity<>(shopService.getMenusForOwner(shopId), HttpStatus.OK);
     }
 }

@@ -3,8 +3,8 @@ package koreatech.in.service;
 import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.result.ShopMenuResult;
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuForOwnerDTO;
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
@@ -502,12 +502,6 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<String> getMenuCategoriesForOwner(Integer shopId) throws Exception {
-        return shopMapper.getMenuCategoriesOfShopByShopId(shopId);
-    }
-
-    @Override
     @Transactional
     public Map<String, Object> updateMenuCategoriesForOwner(UpdateShopMenuCategoryDTO dto) {
         List<String> existingCategories = shopMapper.getMenuCategoriesOfShopByShopId(dto.getShop_id());
@@ -600,8 +594,8 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopMenuDTO getShopMenu(Integer menuId) throws Exception {
-        ResponseShopMenuDTO responseDto = shopMapper.getMenuResponse(menuId);
+    public ResponseShopMenuForOwnerDTO getMenuForOwner(Integer menuId) throws Exception {
+        ResponseShopMenuForOwnerDTO responseDto = shopMapper.getResponseMenuForOwner(menuId);
 
         if (responseDto == null) {
             throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
@@ -671,7 +665,7 @@ public class ShopServiceImpl implements ShopService {
             existingCategories.remove(category);
         });
 
-        // 삭제할 카테고리
+        // 원래 선택됐었지만 이번에 선택되지 않은 카테고리
         existingCategories.forEach(category -> {
             shopMapper.deleteRelationMenuAndCategory(dto.getId(), category);
         });
@@ -708,5 +702,17 @@ public class ShopServiceImpl implements ShopService {
             put("message", String.format("%s 메뉴가 정상적으로 숨김처리 되었습니다.", menu.getName()));
             put("success", true);
         }};
+    }
+
+    @Override
+    @Transactional
+    public ResponseShopMenusForOwnerDTO getMenusForOwner(Integer shopId) throws Exception {
+        ResponseShopMenusForOwnerDTO responseDto = shopMapper.getResponseMenusForOwner(shopId);
+
+        if (responseDto == null) {
+            throw new NotFoundException(new ErrorMessage("없는 상점입니다.", 0));
+        }
+
+        return responseDto.discernSingleOrOption();
     }
 }

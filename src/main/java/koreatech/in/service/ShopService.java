@@ -3,11 +3,11 @@ package koreatech.in.service;
 import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuForOwnerDTO;
+import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -45,17 +45,17 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuCategoryForAdmin(Integer id) throws Exception;
 
-    List<String> getMenuCategoriesForOwner(Integer id) throws Exception;
-
     Map<String, Object> updateMenuCategoriesForOwner(UpdateShopMenuCategoryDTO dto);
 
     Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
 
-    ResponseShopMenuDTO getShopMenu(Integer menuId) throws Exception;
+    ResponseShopMenuForOwnerDTO getMenuForOwner(Integer menuId) throws Exception;
 
     Map<String, Object> updateMenuForOwner(UpdateShopMenuDTO dto) throws Exception;
 
     Map<String, Object> deleteMenuForOwner(Integer menuId) throws Exception;
 
     Map<String, Object> hideMenuForOwner(Integer menuId) throws Exception;
+
+    ResponseShopMenusForOwnerDTO getMenusForOwner(Integer shopId) throws Exception;
 }
