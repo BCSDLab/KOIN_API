@@ -13,6 +13,9 @@ public class UpdateShopMenuDTO {
     @ApiModelProperty(notes = "메뉴 고유 id", example = "1", hidden = true)
     private Integer id;
 
+    @ApiModelProperty(notes = "상점 고유 id", example = "1", hidden = true)
+    private Integer shop_id;
+
     @NotNull(message = "메뉴 이름은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "메뉴 이름", example = "탕수육")
     private String name;
@@ -36,9 +39,27 @@ public class UpdateShopMenuDTO {
     private String description;
     private List<MultipartFile> images;
 
-    public UpdateShopMenuDTO init(Integer id, List<MultipartFile> images) {
-        this.id = id;
+    public UpdateShopMenuDTO init(Integer shop_id, Integer menu_id, List<MultipartFile> images) {
+        this.shop_id = shop_id;
+        this.id = menu_id;
         this.images = images;
         return this;
+    }
+
+    public boolean existOfOptionDuplicate() {
+        if (this.option_prices == null
+                || this.option_prices.size() == 0 || this.option_prices.size() == 1) {
+            return false;
+        }
+
+        String firstOption = (String) this.option_prices.get(0).get("option");
+        for (int i = 1; i < this.option_prices.size(); i++) {
+            String option = (String) this.option_prices.get(i).get("option");
+            if (firstOption.equals(option)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,7 +1,10 @@
 package koreatech.in.domain.Shop;
 
+import lombok.Getter;
+
 import java.util.Date;
 
+@Getter
 public class ShopMenuDetail {
     private Integer id;
     private Integer shop_menu_id;
@@ -79,6 +82,20 @@ public class ShopMenuDetail {
         this.shop_menu_id = shop_menu_id;
         this.option = option;
         this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ShopMenuDetail)) {
+            return false;
+        }
+
+        return this.shop_menu_id.equals(((ShopMenuDetail) obj).getShop_menu_id())
+                && this.option.equals(((ShopMenuDetail) obj).getOption())
+                && this.price.equals(((ShopMenuDetail) obj).getPrice());
     }
 }
 

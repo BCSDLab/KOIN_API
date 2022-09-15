@@ -10,8 +10,7 @@ import java.util.Map;
 
 @Getter
 public class CreateShopMenuDTO {
-    @NotNull(message = "상점 고유 id는 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "상점 고유 id", example = "1")
+    @ApiModelProperty(notes = "상점 고유 id", example = "1", hidden = true)
     private Integer shop_id;
 
     @NotNull(message = "메뉴 이름은 비워둘 수 없습니다.")
@@ -39,8 +38,26 @@ public class CreateShopMenuDTO {
     @ApiModelProperty(notes = "메뉴 이미지 리스트", hidden = true)
     private List<MultipartFile> images;
 
-    public CreateShopMenuDTO init(List<MultipartFile> images) {
+    public CreateShopMenuDTO init(Integer shop_id, List<MultipartFile> images) {
+        this.shop_id = shop_id;
         this.images = images;
         return this;
+    }
+
+    public boolean existOfOptionDuplicate() {
+        if (this.option_prices == null
+                || this.option_prices.size() == 0 || this.option_prices.size() == 1) {
+            return false;
+        }
+
+        String firstOption = (String) this.option_prices.get(0).get("option");
+        for (int i = 1; i < this.option_prices.size(); i++) {
+            String option = (String) this.option_prices.get(i).get("option");
+            if (firstOption.equals(option)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

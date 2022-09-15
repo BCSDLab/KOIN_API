@@ -9,7 +9,7 @@
         <collection property="option_prices" column="id" javaType="java.util.List"
                     ofType="java.util.Map" select="getOptionPricesByMenuId"/>
         <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="java.lang.String" select="getMenuCategoriesOfMenuByMenuId"/>
+                    ofType="java.lang.String" select="getMenuCategoryNamesOfMenuByMenuId"/>
         <collection property="image_urls" column="id" javaType="java.util.List"
                     ofType="java.lang.String" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
@@ -17,7 +17,7 @@
     <resultMap id="ResponseMenusForOwner" type="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO">
         <result property="shop_name" column="name"/>
         <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="java.lang.String" select="getMenuCategoriesOfShopByShopId"/>
+                    ofType="java.lang.String" select="getMenuCategoryNamesOfShopByShopId"/>
         <collection property="menus" column="id" javaType="java.util.List"
                     ofType="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO$Menu"
                     select="getMenusForOwnerByShopId"/>
@@ -28,7 +28,7 @@
         <result property="name" column="name"/>
         <result property="is_hidden" column="is_hidden"/>
         <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="java.lang.String" select="getMenuCategoriesOfMenuByMenuId"/>
+                    ofType="java.lang.String" select="getMenuCategoryNamesOfMenuByMenuId"/>
         <collection property="option_prices" column="id" javaType="java.util.List"
                     ofType="java.util.Map" select="getOptionPricesByMenuId"/>
     </resultMap>
@@ -40,7 +40,7 @@
         WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenuCategoriesOfMenuByMenuId" resultType="java.lang.String">
+    <select id="getMenuCategoryNamesOfMenuByMenuId" resultType="java.lang.String">
         SELECT name
         FROM koin.shop_menu_categories
         WHERE id IN (
@@ -56,7 +56,7 @@
         WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenuCategoriesOfShopByShopId" resultType="java.lang.String">
+    <select id="getMenuCategoryNamesOfShopByShopId" resultType="java.lang.String">
         SELECT name
         FROM koin.shop_menu_categories
         WHERE id IN (

@@ -65,43 +65,7 @@ public class AdminShopController {
         return new ResponseEntity<Shop>(shopService.updateShopForAdmin(request.toEntity(), id), HttpStatus.CREATED);
     }
 
-    // ------------------------------- 여기부터 코인 리뉴얼 API -----------------------------------
-    /*@ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/category", method = RequestMethod.POST)
-    public @ResponseBody
-    ResponseEntity createMenuCategory(@ApiParam(required = true) @RequestBody @Valid CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<>(shopService.createMenuCategoryForAdmin(dto.getName()), HttpStatus.CREATED);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/categorys", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getAllMenuCategory() throws Exception {
-        return new ResponseEntity<>(shopService.getAllMenuCategoryForAdmin(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getMenuCategory(@ApiParam(required = true) @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(shopService.getMenuCategoryForAdmin(id), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.PUT)
-    public @ResponseBody
-    ResponseEntity updateMenuCategory(@ApiParam(required = true) @PathVariable Integer id, @ApiParam(required = true) @RequestBody @Valid CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<>(shopService.updateMenuCategoryForAdmin(id, dto.getName()), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menus/category/{id}", method = RequestMethod.DELETE)
-    public @ResponseBody
-    ResponseEntity deleteMenuCategory(@ApiParam(required = true) @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(id), HttpStatus.OK);
-    }*/
-
+    // ------------------------------- 여기부터 코인 리뉴얼 API ----------------------------------
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
@@ -112,43 +76,47 @@ public class AdminShopController {
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu", method = RequestMethod.POST)
+    @RequestMapping(value = "/{shopId}/menu", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity createMenu(
+            @PathVariable Integer shopId,
             @RequestPart("menu") @Valid CreateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
-        return new ResponseEntity<>(shopService.createMenuForOwner(dto.init(images)), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.createMenuForOwner(dto.init(shopId, images)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMenu(@PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.getMenuForOwner(menuId), HttpStatus.OK);
+    ResponseEntity getMenu(@PathVariable Integer shopId, @PathVariable Integer menuId) throws Exception {
+        return new ResponseEntity<>(shopService.getMenuForOwner(shopId, menuId), HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.POST)
     ResponseEntity updateMenu(
-            @PathVariable Integer menuId,
+            @PathVariable Integer shopId, @PathVariable Integer menuId,
             @RequestPart("menu") @Valid UpdateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
-        return new ResponseEntity<>(shopService.updateMenuForOwner(dto.init(menuId, images)), HttpStatus.OK);
+
+        return new ResponseEntity<>(shopService.updateMenuForOwner(dto.init(shopId, menuId, images)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu/{menuId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteMenu(@PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.deleteMenuForOwner(menuId), HttpStatus.OK);
+    ResponseEntity deleteMenu(@PathVariable Integer shopId, @PathVariable Integer menuId) throws Exception {
+        return new ResponseEntity<>(shopService.deleteMenuForOwner(shopId, menuId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/menu/{menuId}/hide", method = RequestMethod.PUT)
+    @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity hideMenu(@PathVariable Integer menuId) throws Exception {
-        return new ResponseEntity<>(shopService.hideMenuForOwner(menuId), HttpStatus.OK);
+    ResponseEntity hideMenu(
+            @PathVariable Integer shopId, @PathVariable Integer menuId,
+            @RequestParam("flag") Boolean flag) throws Exception {
+        return new ResponseEntity<>(shopService.hideMenuForOwner(shopId, menuId, flag), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

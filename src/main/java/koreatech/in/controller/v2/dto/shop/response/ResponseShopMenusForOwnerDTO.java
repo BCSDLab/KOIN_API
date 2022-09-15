@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Getter
 public class ResponseShopMenusForOwnerDTO {
+    private Integer shop_id;
     private String shop_name;
     private List<String> categories;
     private List<Menu> menus;
@@ -22,6 +23,8 @@ public class ResponseShopMenusForOwnerDTO {
         Boolean is_single;
         Integer single_price;
         List<Map<String, Object>> option_prices;
+        List<String> image_urls;
+        String description;
     }
 
     public ResponseShopMenusForOwnerDTO discernSingleOrOption() {

@@ -26,14 +26,34 @@ public class ShopMenu {
         this.is_hidden = false;
     }
 
-    public ShopMenu update(UpdateShopMenuDTO dto) {
+    public ShopMenu(UpdateShopMenuDTO dto) {
+        this.id = dto.getId();
+        this.shop_id = dto.getShop_id();
         this.name = dto.getName();
         this.description = dto.getDescription();
+    }
+
+    public ShopMenu reverseIsHidden() {
+        this.is_hidden = !this.is_hidden;
         return this;
     }
 
-    public ShopMenu hide() {
-        this.is_hidden = true;
-        return this;
+    public void setIs_hidden(Boolean is_hidden) {
+        this.is_hidden = is_hidden;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ShopMenu)) {
+            return false;
+        }
+
+        return this.id.equals(((ShopMenu) obj).getId())
+                && this.shop_id.equals(((ShopMenu) obj).getShop_id())
+                && this.name.equals(((ShopMenu) obj).getName())
+                && this.description.equals(((ShopMenu) obj).getDescription());
     }
 }

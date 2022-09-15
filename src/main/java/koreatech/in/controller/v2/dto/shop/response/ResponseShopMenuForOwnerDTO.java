@@ -8,6 +8,7 @@ import java.util.Map;
 @Getter
 public class ResponseShopMenuForOwnerDTO {
     private Integer id;
+    private Integer shop_id;
     private String name;
     private Boolean is_single;
     private Integer single_price;
@@ -16,7 +17,7 @@ public class ResponseShopMenuForOwnerDTO {
     private String description;
     private List<String> image_urls;
 
-    public ResponseShopMenuForOwnerDTO discernSingleOrOption() {
+    public ResponseShopMenuForOwnerDTO decideSingleOrOption() {
         // 단일메뉴 여부 판단 후 필드 세팅
         if ((this.option_prices.size() == 1) &&
                 ((this.option_prices.get(0).get("option")) == null)) {
