@@ -32,11 +32,12 @@ public class UpdateShopMenuDTO {
     private List<Map<String, Object>> option_prices;
 
     @NotNull(message = "메뉴 당 카테고리는 최소 1개 선택되어야 합니다.")
-    @ApiModelProperty(notes = "선택된 카테고리명 리스트")
-    private List<String> categories;
+    @ApiModelProperty(notes = "선택된 카테고리 고유 id 리스트", example = "[1, 2, 3]")
+    private List<Integer> category_ids;
 
     @ApiModelProperty(notes = "메뉴 구성 설명")
     private String description;
+
     private List<MultipartFile> images;
 
     public UpdateShopMenuDTO init(Integer shop_id, Integer menu_id, List<MultipartFile> images) {
@@ -52,11 +53,13 @@ public class UpdateShopMenuDTO {
             return false;
         }
 
-        String firstOption = (String) this.option_prices.get(0).get("option");
-        for (int i = 1; i < this.option_prices.size(); i++) {
-            String option = (String) this.option_prices.get(i).get("option");
-            if (firstOption.equals(option)) {
-                return true;
+        for (int i = 0; i < this.option_prices.size() - 1; i++) {
+            String prevOption = (String) this.option_prices.get(i).get("option");
+            for (int j = i + 1; j < this.option_prices.size(); j++) {
+                String nextOption = (String) this.option_prices.get(j).get("option");
+                if (prevOption.equals(nextOption)) {
+                    return true;
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 package koreatech.in.domain.Shop;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import java.util.Date;
@@ -7,10 +8,15 @@ import java.util.Date;
 @Getter
 public class ShopMenuCategory {
     private Integer id;
+    @JsonIgnore
     private Integer shop_id;
     private String name;
+
+    @JsonIgnore
     private Boolean is_deleted;
+    @JsonIgnore
     private Date created_at;
+    @JsonIgnore
     private Date updated_at;
 
     public ShopMenuCategory() {}
@@ -18,10 +24,6 @@ public class ShopMenuCategory {
     public ShopMenuCategory(Integer shop_id, String name) {
         this.shop_id = shop_id;
         this.name = name;
-    }
-
-    public void changeDeleteStatus() {
-        this.is_deleted = !(this.is_deleted);
     }
 
     @Override
@@ -33,7 +35,6 @@ public class ShopMenuCategory {
             return false;
         }
 
-        return this.shop_id.equals(((ShopMenuCategory) obj).getShop_id())
-                && this.name.equals(((ShopMenuCategory) obj).getName());
+        return this.id.equals(((ShopMenuCategory) obj).getId());
     }
 }

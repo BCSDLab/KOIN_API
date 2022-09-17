@@ -1,6 +1,7 @@
 package koreatech.in.controller.v2.dto.shop.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import koreatech.in.domain.Shop.ShopMenuCategory;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Map;
 public class ResponseShopMenusForOwnerDTO {
     private Integer shop_id;
     private String shop_name;
-    private List<String> categories;
+    private List<ShopMenuCategory> categories;
     private List<Menu> menus;
 
     @JsonIgnoreProperties
@@ -19,7 +20,7 @@ public class ResponseShopMenusForOwnerDTO {
         Integer id;
         String name;
         Boolean is_hidden;
-        List<String> categories;
+        List<ShopMenuCategory> categories;
         Boolean is_single;
         Integer single_price;
         List<Map<String, Object>> option_prices;
@@ -27,7 +28,7 @@ public class ResponseShopMenusForOwnerDTO {
         String description;
     }
 
-    public ResponseShopMenusForOwnerDTO discernSingleOrOption() {
+    public ResponseShopMenusForOwnerDTO decideSingleOrOption() {
         this.menus.forEach(menu -> {
             if ((menu.option_prices.size() == 1) &&
                     (menu.option_prices.get(0).get("option") == null)) {

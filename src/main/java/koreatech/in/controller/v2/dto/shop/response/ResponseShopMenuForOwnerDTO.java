@@ -1,5 +1,6 @@
 package koreatech.in.controller.v2.dto.shop.response;
 
+import koreatech.in.domain.Shop.ShopMenuCategory;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,10 +11,11 @@ public class ResponseShopMenuForOwnerDTO {
     private Integer id;
     private Integer shop_id;
     private String name;
+    private Boolean is_hidden;
     private Boolean is_single;
     private Integer single_price;
     private List<Map<String, Object>> option_prices;
-    private List<String> categories;
+    private List<ShopMenuCategory> categories;
     private String description;
     private List<String> image_urls;
 

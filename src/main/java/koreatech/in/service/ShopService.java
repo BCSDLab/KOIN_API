@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuCategoryDTO;
 import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
 import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
@@ -8,6 +9,7 @@ import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopMenuCategory;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,11 @@ public interface ShopService {
 
     Map<String, Object> deleteMenuForAdmin(int id) throws Exception;
 
-    Map<String, Object> updateMenuCategoriesForOwner(UpdateShopMenuCategoryDTO dto);
+    Map<String, Object> createMenuCategoryForOwner(CreateShopMenuCategoryDTO dto) throws Exception;
+
+    Map<String, Object> deleteMenuCategoryForOwner(Integer shopId, Integer categoryId) throws Exception;
+
+    List<ShopMenuCategory> getMenuCategoriesForOwner(Integer shopId) throws Exception;
 
     Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
 

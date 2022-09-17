@@ -4,10 +4,7 @@ import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.controller.v2.dto.shop.request.CreateShopDTO;
-import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
+import koreatech.in.controller.v2.dto.shop.request.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.service.ShopService;
@@ -66,12 +63,27 @@ public class AdminShopController {
     }
 
     // ------------------------------- 여기부터 코인 리뉴얼 API ----------------------------------
+
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
+    @RequestMapping(value = "{shopId}/menus/category", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity updateMenuCategories(@PathVariable Integer shopId, @RequestBody UpdateShopMenuCategoryDTO dto) throws Exception {
-        return new ResponseEntity<>(shopService.updateMenuCategoriesForOwner(dto.init(shopId)), HttpStatus.OK);
+    ResponseEntity createMenuCategory(@PathVariable Integer shopId, @RequestBody CreateShopMenuCategoryDTO dto) throws Exception {
+        return new ResponseEntity<>(shopService.createMenuCategoryForOwner(dto.init(shopId)), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getMenuCategories(@PathVariable Integer shopId) throws Exception {
+        return new ResponseEntity<>(shopService.getMenuCategoriesForOwner(shopId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
+    public @ResponseBody
+    ResponseEntity deleteMenuCategory(@PathVariable Integer shopId, @PathVariable Integer categoryId) throws Exception {
+        return new ResponseEntity<>(shopService.deleteMenuCategoryForOwner(shopId, categoryId), HttpStatus.OK);
     }
 
     @ParamValid

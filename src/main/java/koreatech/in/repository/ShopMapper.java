@@ -92,10 +92,6 @@ public interface ShopMapper {
     void increaseHit(@Param("id") int id);
 
     // -------------------- 아래부터 코인 리뉴얼시 개발된 메소드 ----------------------
-
-    @Select("SELECT * " +
-            "FROM koin.shop_menu_categories " +
-            "WHERE shop_id = #{shop_id} AND is_deleted = 0")
     List<ShopMenuCategory> getMenuCategoriesOfShopByShopId(@Param("shop_id") int shopId);
 
     @Insert("INSERT INTO koin.shop_menu_categories " +
@@ -127,7 +123,12 @@ public interface ShopMapper {
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
             "WHERE shop_id = #{shop_id} AND name = #{name} AND is_deleted = 0")
-    ShopMenuCategory getCategory(@Param("shop_id") int shopId, @Param("name") String name);
+    ShopMenuCategory getMenuCategory(@Param("shop_id") int shopId, @Param("name") String name);
+
+    @Select("SELECT * " +
+            "FROM koin.shop_menu_categories " +
+            "WHERE id = #{id} AND is_deleted = 0")
+    ShopMenuCategory getMenuCategoryById(@Param("id") int id);
 
     @Insert("INSERT INTO koin.shop_menu_category_map " +
             "(shop_menu_id, shop_menu_category_id) " +
@@ -136,22 +137,7 @@ public interface ShopMapper {
 
     ResponseShopMenuForOwnerDTO getResponseMenuForOwner(@Param("shop_id") int shopId, @Param("shop_menu_id") int shopMenuId);
 
-    @Update("UPDATE " +
-                "koin.shop_menus sm, " +
-                "koin.shop_menu_details smd, " +
-                "koin.shop_menu_images smi, " +
-                "koin.shop_menu_category_map smcm " +
-            "SET " +
-                "sm.is_deleted = 1, " +
-                "smd.is_deleted = 1, " +
-                "smi.is_deleted = 1, " +
-                "smcm.is_deleted = 1 " +
-            "WHERE " +
-                "sm.shop_id = #{shop_id} AND sm.id = #{shop_menu_id} " +
-                "AND smd.shop_menu_id = #{shop_menu_id} " +
-                "AND smi.shop_menu_id = #{shop_menu_id} " +
-                "AND smcm.shop_menu_id = #{shop_menu_id}")
-    void deleteAllForInvolvedWithMenu(@Param("shop_id") int shopId, @Param("shop_menu_id") int shopMenuId);
+    void deleteAllForInvolvedWithMenu(@Param("shop_menu_id") int shopMenuId);
 
     @Select("SELECT * " +
             "FROM koin.shop_menus " +
@@ -191,17 +177,19 @@ public interface ShopMapper {
             "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
     void deleteMenuImagesByMenuId(@Param("shop_menu_id") int shopMenuId);
 
-    @Select("SELECT * " +
-            "FROM koin.shop_menu_categories " +
-            "WHERE id IN (" +
-                "SELECT shop_menu_category_id " +
-                "FROM koin.shop_menu_category_map " +
-                "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0" +
-            ")")
     List<ShopMenuCategory> getMenuCategoriesOfMenuByMenuId(@Param("shop_menu_id") int shopMenuId);
 
     @Update("UPDATE koin.shop_menu_category_map " +
             "SET is_deleted = 1 " +
             "WHERE shop_menu_id = #{shop_menu_id} AND shop_menu_category_id = #{shop_menu_category_id} AND is_deleted = 0")
     void deleteMenuCategoryMap(@Param("shop_menu_id") int shopMenuId, @Param("shop_menu_category_id") int shopMenuCategoryId);
+
+    @Select("SELECT * " +
+            "FROM koin.shop_menus " +
+            "WHERE id IN (" +
+                "SELECT shop_menu_id " +
+                "FROM koin.shop_menu_category_map " +
+                "WHERE shop_menu_category_id = #{shop_menu_category_id} AND is_deleted = 0" +
+            ")")
+    List<ShopMenu> getMenusUsingCategory(@Param("shop_menu_category_id") int shopMenuCategoryId);
 }

@@ -51,9 +51,16 @@ public class ShopMenu {
             return false;
         }
 
+        boolean descriptionEquals;
+        if (this.description == null) {
+            descriptionEquals = (((ShopMenu) obj).getDescription() == null);
+        } else {
+            descriptionEquals = this.description.equals(((ShopMenu) obj).getDescription());
+        }
+
         return this.id.equals(((ShopMenu) obj).getId())
                 && this.shop_id.equals(((ShopMenu) obj).getShop_id())
                 && this.name.equals(((ShopMenu) obj).getName())
-                && this.description.equals(((ShopMenu) obj).getDescription());
+                && descriptionEquals;
     }
 }
