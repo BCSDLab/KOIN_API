@@ -1,18 +1,52 @@
 package koreatech.in.domain.Bus;
 
-import java.util.Comparator;
-import java.util.Map;
+import com.google.gson.Gson;
+import koreatech.in.util.StringRedisUtilObj;
+import koreatech.in.util.StringRedisUtilStr;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-public interface Bus {
-    class SortByArrtime implements Comparator<Map<String, Object>> {
-        @Override
-        public int compare(Map<String, Object> a, Map<String, Object> b) {
-            int aArrtime = Integer.parseInt(a.get("arrtime").toString());
-            int bArrtime = Integer.parseInt(b.get("arrtime").toString());
-            if (aArrtime == bArrtime) return 0;
-            return aArrtime < bArrtime ? -1 : 1;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+public abstract class Bus {
+
+    static final Gson gson = new Gson();
+
+    @Value("${OPEN_API_KEY}")
+    String OPEN_API_KEY;
+
+    @Autowired
+    StringRedisUtilObj stringRedisUtilObj;
+
+    @Autowired
+    StringRedisUtilStr stringRedisUtilStr;
+
+    String requestOpenAPI(String urlBuilder) throws IOException {
+        URL url = new URL(urlBuilder);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+
+        BufferedReader rd = new BufferedReader(new InputStreamReader(
+                conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300 ? conn.getInputStream() : conn.getErrorStream(),
+                StandardCharsets.UTF_8
+        ));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            response.append(line);
         }
+        rd.close();
+        conn.disconnect();
+
+        return response.toString();
     }
 
-    BusRemainTime getNowAndNextBusRemainTime(String target, String depart, String arrival);
+    public abstract BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival);
+
+    public abstract void cacheBusArrivalInfo() throws Exception;
 }

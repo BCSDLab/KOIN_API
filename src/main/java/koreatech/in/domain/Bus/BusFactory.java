@@ -7,7 +7,8 @@ public class BusFactory {
         Bus bus = null;
         switch (busType) {
             case "express":
-                bus = (ExpressBus) BeanUtil.getBean("expressBus");
+            case "intercity":
+                bus = (IntercityBus) BeanUtil.getBean("intercityBus");
                 break;
             case "school":
                 bus = (SchoolBus) BeanUtil.getBean("schoolBus");
