@@ -74,11 +74,11 @@ public class IntercityBus extends Bus {
             ZonedDateTime nextDepartureTime = LocalDateTime.parse(nextBusTime.getDepPlandTime(), dateTimeFormatter).atZone(tz);
 
             return new BusRemainTime.Builder()
-                    .NowRemainTime(
+                    .nowRemainTime(
                             new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.toEpochSecond() < nowZonedDateTime.toEpochSecond() ?
                                     nowDepartureTime.plusDays(1).toEpochSecond() - nowZonedDateTime.toEpochSecond() : nowDepartureTime.toEpochSecond() - nowZonedDateTime.toEpochSecond()))
                     )
-                    .NextRemainTime(
+                    .nextRemainTime(
                             new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.toEpochSecond() < nowZonedDateTime.toEpochSecond() ?
                                     nextDepartureTime.plusDays(1).toEpochSecond() - nowZonedDateTime.toEpochSecond() : nextDepartureTime.toEpochSecond() - nowZonedDateTime.toEpochSecond()))
                     )

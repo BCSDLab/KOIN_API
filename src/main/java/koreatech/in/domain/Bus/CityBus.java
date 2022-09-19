@@ -5,12 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.sun.istack.internal.NotNull;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.util.SlackNotiSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
@@ -51,12 +51,12 @@ public class CityBus extends Bus {
 
             if (arrivalInfos.size() == 1) {
                 return new BusRemainTime.Builder()
-                        .NowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
+                        .nowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
                         .build();
             } else if (arrivalInfos.size() > 1) {
                 return new BusRemainTime.Builder()
-                        .NowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
-                        .NextRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(1).getRouteno(), arrivalInfos.get(1).getArrtime()))
+                        .nowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
+                        .nextRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(1).getRouteno(), arrivalInfos.get(1).getArrtime()))
                         .build();
             }
         } catch (JsonSyntaxException | NullPointerException e) {

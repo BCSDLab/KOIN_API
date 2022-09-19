@@ -1,6 +1,7 @@
 package koreatech.in.domain.Bus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,26 +9,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class BusRemainTime {
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer busNumber;
 
-    private Integer remainTime;
+    @JsonProperty(value = "nowBus")
+    private RemainTime nowRemainTime;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer nextBusNumber;
-
-    private Integer nextRemainTime;
+    @JsonProperty(value = "nextBus")
+    private RemainTime nextRemainTime;
 
     private BusRemainTime(RemainTime now, RemainTime next) {
-        if (now != null) {
-            busNumber = now.busNumber;
-            remainTime = now.remainTime;
-        }
-
-        if (next != null) {
-            nextBusNumber = next.busNumber;
-            nextRemainTime = next.remainTime;
-        }
+        this.nowRemainTime = now;
+        this.nextRemainTime = next;
     }
 
     public static class Builder {
@@ -35,12 +26,12 @@ public class BusRemainTime {
 
         private RemainTime nextRemainTime;
 
-        public Builder NowRemainTime(RemainTime nowRemainTime) {
+        public Builder nowRemainTime(RemainTime nowRemainTime) {
             this.nowRemainTime = nowRemainTime;
             return this;
         }
 
-        public Builder NextRemainTime(RemainTime nextRemainTime) {
+        public Builder nextRemainTime(RemainTime nextRemainTime) {
             this.nextRemainTime = nextRemainTime;
             return this;
         }
@@ -51,7 +42,9 @@ public class BusRemainTime {
     }
 
     @AllArgsConstructor
+    @Getter
     public static class RemainTime {
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         private Integer busNumber;
 
         private Integer remainTime;

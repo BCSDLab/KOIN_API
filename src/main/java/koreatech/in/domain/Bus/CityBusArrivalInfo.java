@@ -1,10 +1,10 @@
 package koreatech.in.domain.Bus;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-@Setter
+@ToString
 public class CityBusArrivalInfo implements Comparable<CityBusArrivalInfo> {
     
     // 남은 정거장 개수

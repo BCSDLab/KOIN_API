@@ -29,6 +29,8 @@ public abstract class Bus {
     String requestOpenAPI(String urlBuilder) throws IOException {
         URL url = new URL(urlBuilder);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(1000 * 5);
+        conn.setReadTimeout(1000 * 5);
         conn.setRequestMethod("GET");
 
         BufferedReader rd = new BufferedReader(new InputStreamReader(
