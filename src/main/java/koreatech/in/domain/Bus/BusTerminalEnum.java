@@ -1,8 +1,11 @@
 package koreatech.in.domain.Bus;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BusTerminalEnum {
 
     KOREATECH("koreatech", "NAI3125301"),
@@ -13,14 +16,9 @@ public enum BusTerminalEnum {
 
     private final String terminalID;
 
-    BusTerminalEnum(String terminalName, String terminalID) {
-        this.terminalName = terminalName;
-        this.terminalID = terminalID;
-    }
-
     public static BusTerminalEnum findByTerminalName(String terminalName) {
         for (BusTerminalEnum busTerminalEnum : BusTerminalEnum.values()) {
-            if (busTerminalEnum.getTerminalName().equals(terminalName)) {
+            if (busTerminalEnum.getTerminalName().equalsIgnoreCase(terminalName)) {
                 return busTerminalEnum;
             }
         }
@@ -29,7 +27,7 @@ public enum BusTerminalEnum {
 
     public static BusTerminalEnum findByTerminalID(String terminalID) {
         for (BusTerminalEnum busTerminalEnum : BusTerminalEnum.values()) {
-            if (busTerminalEnum.getTerminalID().equals(terminalID)) {
+            if (busTerminalEnum.getTerminalID().equalsIgnoreCase(terminalID)) {
                 return busTerminalEnum;
             }
         }

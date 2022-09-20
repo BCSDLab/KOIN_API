@@ -1,7 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Bus.Bus;
-import koreatech.in.domain.Bus.BusFactory;
+import koreatech.in.domain.Bus.BusTypeEnum;
 import koreatech.in.domain.Bus.BusRemainTime;
 import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.domain.ErrorMessage;
@@ -36,12 +36,12 @@ public class BusServiceImpl implements BusService {
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
 
-        Bus bus = BusFactory.createBus(busType);
-        if (bus == null) {
+        try {
+            Bus bus = BusTypeEnum.createBus(busType);
+            return bus.getNowAndNextBusRemainTime(depart, arrival);
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
-
-        return bus.getNowAndNextBusRemainTime(depart, arrival);
     }
 
     @Override

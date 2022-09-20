@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component("intercityBus")
+@Component
 public class IntercityBus extends Bus {
 
     private static final String CACHE_KEY_BUS_ARRIVAL_INFO = "Tago@busArrivalInfo:intercityBus:%s:%s";

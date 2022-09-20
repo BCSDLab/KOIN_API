@@ -1,5 +1,7 @@
 package koreatech.in.domain.Bus;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BusNodeEnum {
 
     KOREATECH_TO_TERMINAL("koreatech", "terminal", "CAB285000405"),
@@ -34,15 +37,9 @@ public enum BusNodeEnum {
                 .collect(Collectors.toSet()));
     }
 
-    BusNodeEnum(String depart, String arrival, String cityBusNodeID) {
-        this.depart = depart;
-        this.arrival = arrival;
-        this.cityBusNodeID = cityBusNodeID;
-    }
-
     public static BusNodeEnum valueOf(String depart, String arrival) {
         for (BusNodeEnum busRouteEnum : BusNodeEnum.values()) {
-            if (busRouteEnum.depart.equals(depart) && busRouteEnum.arrival.equals(arrival)) {
+            if (busRouteEnum.depart.equalsIgnoreCase(depart) && busRouteEnum.arrival.equalsIgnoreCase(arrival)) {
                 return busRouteEnum;
             }
         }

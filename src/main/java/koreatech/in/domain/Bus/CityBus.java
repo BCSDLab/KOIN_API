@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Component("cityBus")
+@Component
 public class CityBus extends Bus {
 
     private static final String CHEONAN_CITY_CODE = "34010";

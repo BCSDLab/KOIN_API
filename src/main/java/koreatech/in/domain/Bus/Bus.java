@@ -50,5 +50,5 @@ public abstract class Bus {
 
     public abstract BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival);
 
-    public abstract void cacheBusArrivalInfo() throws Exception;
+    public abstract void cacheBusArrivalInfo();
 }

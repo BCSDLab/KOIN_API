@@ -20,6 +20,7 @@ import java.util.ArrayList;
 @Controller
 @RequestMapping(value = "/bus")
 public class BusController {
+
     private static final Logger logger = LoggerFactory.getLogger(BusController.class);
 
     @Autowired
@@ -31,6 +32,7 @@ public class BusController {
     ResponseEntity<BusRemainTime> getRemainTime(@ApiParam(value = "버스 종류(city, express, school)", required = true) @RequestParam(value = "bus_type") String busType,
                                                 @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart,
                                                 @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception {
+
         return new ResponseEntity<>(busService.getRemainTime(busType, depart, arrival), HttpStatus.OK);
     }
 
@@ -38,6 +40,7 @@ public class BusController {
     @RequestMapping(value = "/courses", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ArrayList<SchoolBusCourse>> getCourses() {
+
         return new ResponseEntity<>(busService.getCourses(), HttpStatus.OK);
     }
 
@@ -46,6 +49,7 @@ public class BusController {
     public @ResponseBody
     ResponseEntity<String> getTimetable(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
                                         @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
+
         return new ResponseEntity<>(busService.getTimetable(busType, region), HttpStatus.OK);
     }
 }

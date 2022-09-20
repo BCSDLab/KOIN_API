@@ -1,27 +1,29 @@
 package koreatech.in.domain.Bus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class BusRemainTime {
 
-    @JsonProperty(value = "nowBus")
-    private RemainTime nowRemainTime;
+    private RemainTime nowBus;
 
-    @JsonProperty(value = "nextBus")
-    private RemainTime nextRemainTime;
+    private RemainTime nextBus;
 
     private BusRemainTime(RemainTime now, RemainTime next) {
-        this.nowRemainTime = now;
-        this.nextRemainTime = next;
+        this.nowBus = now;
+        this.nextBus = next;
     }
 
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class Builder {
+
         private RemainTime nowRemainTime;
 
         private RemainTime nextRemainTime;
@@ -43,7 +45,9 @@ public class BusRemainTime {
 
     @AllArgsConstructor
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class RemainTime {
+
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private Integer busNumber;
 
