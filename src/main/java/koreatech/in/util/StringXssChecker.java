@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class StringXssChecker {
-    public static Object xssCheck(Object vo, Object clear) throws Exception {
+    public static <T> T xssCheck(T vo, T clear) throws Exception {
         LucyXssFilter filter = XssSaxFilter.getInstance("lucy-xss-sax.xml");
 
         Map<String, Object> result = new HashMap<String, Object>();

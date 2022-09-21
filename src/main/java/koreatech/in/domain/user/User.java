@@ -56,7 +56,7 @@ public abstract class User implements UserDetails {
     protected Date createdAt;
     protected Date updatedAt;
 
-    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender) {
+    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender, UserType userType) {
         this.account = account;
         this.password = password;
         this.nickname = nickname;
@@ -64,6 +64,7 @@ public abstract class User implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.gender = gender;
+        this.userType = userType;
     }
 
     @Override
@@ -102,6 +103,12 @@ public abstract class User implements UserDetails {
         if (user.gender != null) {
             this.gender = user.gender;
         }
+        if(user.phoneNumber != null) {
+            this.phoneNumber = user.phoneNumber;
+        }
+        if(user.email != null) {
+            this.email = user.email;
+        }
         if (user.isAuthed != null) {
             this.isAuthed = user.isAuthed;
         }
@@ -135,9 +142,14 @@ public abstract class User implements UserDetails {
     }
 
     public boolean isAwaitingEmailAuthenticate(){
-        return !isAuthed && !isAuthTokenExpired();
+        return !isUserAuthed() && !isAuthTokenExpired();
     }
+    public boolean isUserAuthed() { return isAuthed == null ? false : isAuthed; }
     public boolean isAuthTokenExpired(){
-        return authExpiredAt.getTime() - (new Date()).getTime() < 0;
+        return authExpiredAt == null ? false : authExpiredAt.getTime() - (new Date()).getTime() < 0;
+    }
+
+    public boolean equals(User user){
+        return user.id != null && this.id != null && this.id.equals(user.id);
     }
 }

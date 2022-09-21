@@ -107,7 +107,7 @@
         update koin.users
         set
             reset_token=#{resetToken},
-            reset_token_expired_at=#{resetTokenExpiredTime}
+            reset_expired_at=#{resetTokenExpiredTime}
         where id=#{id}
     </update>
 
@@ -120,7 +120,6 @@
             NICKNAME = #{nickname},
             GENDER = #{gender},
             USER_TYPE = #{userType},
-            IS_GRADUATED = #{isGraduated},
             PHONE_NUMBER = #{phoneNumber},
             AUTH_TOKEN = #{authToken},
             AUTH_EXPIRED_AT = #{authExpiredAt},
@@ -131,11 +130,17 @@
         WHERE ID = #{id}
     </update>
 
+    <update id="updateLastLoggedAt">
+        UPDATE koin.users
+        SET last_logged_at=#{currentDate}
+        WHERE id=#{id}
+    </update>
+
     <delete id="deleteUser">
         DELETE FROM koin.users WHERE ID = #{id};
     </delete>
 
-    <resultMap type="koreatech.in.domain.user.User" extends="userResultMap" id="userDiscriminator">
+    <resultMap type="koreatech.in.domain.user.student.Student" extends="userResultMap" id="userDiscriminator">
 
 <!--        <discriminator javaType="String" column="user_type">-->
 <!--            <case value="STUDENT" resultType="koreatech.in.domain.user.student.Student"/>-->
@@ -143,7 +148,7 @@
 <!--        </discriminator>-->
     </resultMap>
 
-    <resultMap id="userResultMap" type="koreatech.in.domain.user.User">
+    <resultMap id="userResultMap" type="koreatech.in.domain.user.student.Student">
         <id property="id" column="id"/>
         <result property="account" column="account"/>
         <result property="password" column="password"/>

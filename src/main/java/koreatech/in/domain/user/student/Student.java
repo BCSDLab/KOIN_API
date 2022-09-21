@@ -3,6 +3,7 @@ package koreatech.in.domain.user.student;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.UserCode;
+import koreatech.in.domain.user.UserType;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -76,12 +77,31 @@ public class Student extends User {
     }
 
     public void changeIdentity(Integer identity){
+        this.identity = identity;
+    }
 
+    public void update(Student student){
+        super.update(student);
+        if(student.anonymousNickname != null) {
+            this.anonymousNickname = student.getAnonymousNickname();
+        }
+        if(student.studentNumber != null) {
+            this.studentNumber = student.getStudentNumber();
+        }
+        if(student.major != null) {
+            this.major = student.major;
+        }
+        if(student.identity != null) {
+            this.identity = student.identity;
+        }
+        if(student.isGraduated != null) {
+            this.isGraduated = student.isGraduated;
+        }
     }
 
     @Builder
     public Student(String account, String password, String email, String name, String nickname, String anonymousNickname, Integer gender, Integer identity, Boolean isGraduated, String major, String studentNumber, String phoneNumber){
-        super(account, password, nickname, name, phoneNumber, email, gender);
+        super(account, password, nickname, name, phoneNumber, email, gender, UserType.STUDENT);
         this.identity = identity;
         this.isGraduated = isGraduated;
         this.major = major;

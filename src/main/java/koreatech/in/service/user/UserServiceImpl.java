@@ -1,6 +1,9 @@
 package koreatech.in.service.user;
 
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
+import koreatech.in.controller.user.dto.request.UpdateUserRequest;
+import koreatech.in.controller.user.dto.response.LoginResponse;
+import koreatech.in.controller.user.dto.response.StudentResponse;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.user.owner.Owner;
@@ -75,16 +78,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception {
-        Student student = request.toEntity();
-        // comment : 추후 로그인 기반 시스템 갖추어지면 변경할 것.
-        student.changeIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
-
+        Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
         checkInputDataDuplicationAndValidation(student);
 
+        String email = student.getAccount()+"@koreatech.ac.kr";
+        String anonymousNickname = "익명_" + (System.currentTimeMillis());
+        student.setEmail(email);
+        student.setAnonymousNickname(anonymousNickname);
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
         student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
-        student.changePassword(passwordEncoder.encode(student.getPassword()));
+        String encodedPassword = passwordEncoder.encode(student.getPassword());
+        student.changePassword(encodedPassword);
 
         try {
             insertStudentToDB(student);
@@ -105,33 +110,43 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
-        checkAccountAndNicknameDuplication(student);
-        checkStudentNumberAndMajorValidation(student);
+        checkAccountDuplication(student);
+        checkNicknameDuplicationWithoutSameUser(student);
+        checkStudentNumberValidation(student);
+        checkMajorValidation(student);
     }
 
-    private void checkAccountAndNicknameDuplication(Student student){
-        User selectUser = userMapper.getUserByAccount(student.getAccount());
-
-        if (selectUser != null) {
-            if (selectUser.getIsAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-            }
-        }
-
+    private void checkNicknameDuplicationWithoutSameUser(Student student) {
         if (student.getNickname() != null) {
-            if(isNicknameAlreadyUsed(student.getNickname())){
+            User selectUser = userMapper.getUserByNickName(student.getNickname());
+            if (selectUser != null && !student.equals(selectUser)) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
     }
 
-    private void checkStudentNumberAndMajorValidation(Student student){
-        if (!student.isStudentNumberValidated()) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+    private void checkAccountDuplication(Student student) {
+        User selectUser = userMapper.getUserByAccount(student.getAccount());
+        if (selectUser != null) {
+            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
+                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+            }
         }
+    }
 
-        if (!student.isMajorValidated()) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+    private void checkMajorValidation(Student student) {
+        if (student.getMajor() != null) {
+            if (!student.isMajorValidated()) {
+                throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
+            }
+        }
+    }
+
+    private void checkStudentNumberValidation(Student student) {
+        if (student.getStudentNumber() != null) {
+            if (!student.isStudentNumberValidated()) {
+                throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+            }
         }
     }
 
@@ -154,7 +169,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean authenticate(String authToken) {
         User user = userMapper.getUserByAuthToken(authToken);
 
-        if (user == null || user.getIsAuthed() || isTokenExpired(user.getAuthExpiredAt())) {
+        if (user == null || user.isUserAuthed() || user.isAuthTokenExpired()) {
             return false;
         }
 
@@ -170,7 +185,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Map<String, Object> changePasswordConfig(String account, String host) {
-        // TODO client 로부터 받을 때 validation 확인
         if (account == null) {
             throw new ValidationException(new ErrorMessage("account is required", 0));
         }
@@ -254,38 +268,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String, Object> updateStudentInformation(Student student) throws Exception {
+    public StudentResponse updateStudentInformation(UpdateUserRequest request) throws Exception {
+        Student student = request.toEntity();
+
         Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if(student_old == null){
+        if (student_old == null) {
             throw new ValidationException(new ErrorMessage("token not validate", 402));
         }
-
         student.changeIdentity(student_old.getIdentity());
 
-        // 인증받은 유저인지 체크
-        if (!student_old.getIsAuthed()) {
+        if (!student_old.isUserAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
-
-        // 닉네임 중복 체크
-        if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(student.getNickname());
-            if (selectUser != null && !student_old.getId().equals(selectUser.getId())) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+        checkNicknameDuplicationWithoutSameUser(student);
+        if (student.getStudentNumber() != null) {
+            checkStudentNumberValidation(student);
         }
-
-        // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
+        if (student.getMajor() != null) {
+            checkMajorValidation(student);
         }
-
-        // 학과 유효성 체크
-        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
-
-        // TODO: hashing passowrd
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
@@ -294,9 +295,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(student_old);
         studentMapper.updateStudent(student_old);
 
-        Map<String, Object> map = domainToMapWithExcept(student_old, UserResponseType.getArray(), false);
-
-        return map;
+        return new StudentResponse(student_old);
     }
 
     // TODO owner 정보 업데이트 
@@ -345,7 +344,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkNicknameValidAndNotUsed(String nickname){
-        // TODO 클라이언트에서 넘어올때 확인하도록 수정
         if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
 
@@ -359,36 +357,38 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Map<String, Object> login(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount());
-
+    public LoginResponse login(String account, String password) throws Exception {
+        final User selectUser = userMapper.getAuthedUserByAccount(account);
         if(selectUser == null){
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
         }
 
-        if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
+        if (!passwordEncoder.matches(password, selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
-        selectUser.setLastLoggedAt(new Date());
-        userMapper.updateUser(selectUser);
-        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
+        userMapper.updateLastLoggedAt(selectUser.getId(), new Date());
 
-        // ?? 레디스에서 이전 로그인 토큰이 있는지 확인 후, 없거나 expired 됐다면 재발급 후 반환
-        // regenerateTokenAndSetRedisIfTokenNotExistOrExpired();
-        String getToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + selectUser.getId());
-        if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
-            getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+        String loginToken = getLoginTokenFromRedis(selectUser);
+        if (isTokenNotExistOrExpired(loginToken)) {
+            loginToken = regenerateLoginTokenAndSetRedis(selectUser.getId());
         }
 
-        final String token = getToken;
+        return new LoginResponse(selectUser, 4320, loginToken);
+    }
 
-        return new HashMap<String, Object>() {{
-            put("user", map);
-            put("token", token);
-            put("ttl", 4320);
-        }};
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String getLoginTokenFromRedis(User user) throws Exception{
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private String regenerateLoginTokenAndSetRedis(Integer userId) {
+        String loginToken = jwtTokenGenerator.generate(userId);
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, loginToken, 72, TimeUnit.HOURS);
+        return loginToken;
     }
 
     @Override

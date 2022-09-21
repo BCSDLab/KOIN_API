@@ -8,6 +8,10 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.controller.user.dto.request.StudentRegisterRequest;
+import koreatech.in.controller.user.dto.request.UpdateUserRequest;
+import koreatech.in.controller.user.dto.request.UserLoginRequest;
+import koreatech.in.controller.user.dto.response.LoginResponse;
+import koreatech.in.controller.user.dto.response.StudentResponse;
 import koreatech.in.domain.user.owner.Owner;
 import koreatech.in.domain.user.User;
 import koreatech.in.domain.user.student.Student;
@@ -38,12 +42,9 @@ public class UserController {
     @Autowired
     StudentMapper studentMapper;
 
-    @Autowired
-    UserMapper userMapper;
-
     @AuthExcept
     @ParamValid
-    @ApiOperation(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
+    @ApiOperation(value = "(required: account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity studentRegister(
@@ -51,39 +52,30 @@ public class UserController {
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) throws Exception {
 
-        /*    // TODO: default로 셋팅할 수 있는 방법 알아보기
-        if (student.getIsGraduated() == null) {
-            student.setIsGraduated(false);
-        }
-
-        if (student.getIsAuthed() == null) {
-            student.setIsAuthed(false);
-        }*/
-
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
         StudentRegisterRequest clear = new StudentRegisterRequest();
 
-        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister(StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity me() throws Exception {
-        return new ResponseEntity<Object>(userService.getStudent(), HttpStatus.OK);
+    ResponseEntity getStudent() throws Exception {
+        Student student = userService.getStudent();
+        StudentResponse response = new StudentResponse(student);
+        return new ResponseEntity<Object>(response, HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) Student student, BindingResult bindingResult) throws Exception {
-
-        Student clear = new Student();
-
-        return new ResponseEntity<>(userService.updateStudentInformation((Student) StringXssChecker.xssCheck(student, clear)), HttpStatus.CREATED);
+    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
+        UpdateUserRequest clear = new UpdateUserRequest();
+        return new ResponseEntity<>(userService.updateStudentInformation(StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -95,7 +87,7 @@ public class UserController {
 
         Owner clear = new Owner();
 
-        return new ResponseEntity<>(userService.updateOwnerInformation((Owner) StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateOwnerInformation(StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -129,7 +121,7 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
+    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
@@ -183,8 +175,8 @@ public class UserController {
     @AuthExcept
     @ParamValid
     @RequestMapping(value = "/user/login", method = RequestMethod.POST)
-    public ResponseEntity login(@ApiParam(value = "(required: portal_account, password)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) User user, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(userService.login(user), HttpStatus.OK);
+    public ResponseEntity login(@ApiParam(value = "(required: account, password)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) UserLoginRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<LoginResponse>(userService.login(request.getAccount(), request.getPassword()), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

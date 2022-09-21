@@ -28,6 +28,18 @@
         );
     </insert>
 
+    <update id="updateStudent">
+        update koin.students
+        set
+            anonymous_nickname=#{anonymousNickname},
+            student_number=#{studentNumber},
+            major=#{major},
+            identity=#{identity},
+            is_graduated=#{isGraduated}
+        where
+            user_id=#{id}
+    </update>
+
     <delete id="deleteStudent">
         DELETE FROM koin.students WHERE user_id = #{id};
     </delete>
