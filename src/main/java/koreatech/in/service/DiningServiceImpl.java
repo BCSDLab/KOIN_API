@@ -7,21 +7,20 @@ import koreatech.in.repository.DiningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 
 @Service
 public class DiningServiceImpl implements DiningService {
-    @Inject
-    DiningMapper diningMapper;
+
+    @Autowired
+    private DiningMapper diningMapper;
 
     @Autowired
     private JsonConstructor con;
@@ -46,6 +45,6 @@ public class DiningServiceImpl implements DiningService {
             menus.add(convertMenu);
         }
 
-        return menus.stream().filter(dining -> DiningMenu.isValidatedPlaces(dining.get("place").toString())).collect(Collectors.toList());
+        return menus;
     }
 }
