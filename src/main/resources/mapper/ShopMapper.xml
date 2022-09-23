@@ -2,51 +2,95 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="koreatech.in.repository.ShopMapper">
-    <resultMap id="ResponseMenuForOwner" type="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuForOwnerDTO" >
+    <resultMap id="ResponseMenu" type="koreatech.in.dto.shop.response.ResponseShopMenuDTO" >
         <id property="id" column="id"/>
         <result property="shop_id" column="shop_id"/>
         <result property="name" column="name"/>
         <result property="is_hidden" column="is_hidden"/>
         <result property="description" column="description"/>
         <collection property="option_prices" column="id" javaType="java.util.List"
-                    ofType="java.util.Map" select="getOptionPricesByMenuId"/>
+                    ofType="map" select="getOptionPricesByMenuId"/>
         <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="koreatech.in.domain.Shop.ShopMenuCategory" select="getMenuCategoriesOfMenuByMenuId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
+                    select="getMenuCategoriesOfMenuByMenuId"/>
         <collection property="image_urls" column="id" javaType="java.util.List"
-                    ofType="java.lang.String" select="getMenuImageUrlsByMenuId"/>
+                    ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
 
-    <resultMap id="ResponseMenusForOwner" type="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO">
+    <resultMap id="ResponseMenus" type="koreatech.in.dto.shop.response.ResponseShopMenusDTO">
         <result property="shop_id" column="id"/>
         <result property="shop_name" column="name"/>
-        <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="koreatech.in.domain.Shop.ShopMenuCategory" select="getMenuCategoriesOfShopByShopId"/>
+        <collection property="menu_categories" column="id" javaType="java.util.List"
+                    ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
+                    select="getMenuCategoriesOfShopByShopId"/>
         <collection property="menus" column="id" javaType="java.util.List"
-                    ofType="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO$Menu"
-                    select="getMenusForOwnerByShopId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.ShopMenu"
+                    select="getShopMenusByShopId"/>
     </resultMap>
 
-    <resultMap id="ResponseInnerMenusForOwner" type="koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO$Menu">
-        <result property="id" column="id"/>
+    <resultMap id="ShopMenu" type="koreatech.in.dto.shop.response.inner.ShopMenu">
+        <id property="id" column="id"/>
+        <result property="shop_id" column="shop_id"/>
         <result property="name" column="name"/>
         <result property="is_hidden" column="is_hidden"/>
         <result property="description" column="description"/>
-        <collection property="categories" column="id" javaType="java.util.List"
-                    ofType="koreatech.in.domain.Shop.ShopMenuCategory" select="getMenuCategoriesOfMenuByMenuId"/>
         <collection property="option_prices" column="id" javaType="java.util.List"
-                    ofType="java.util.Map" select="getOptionPricesByMenuId"/>
+                    ofType="map" select="getOptionPricesByMenuId"/>
+        <collection property="categories" column="id" javaType="java.util.List"
+                    ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
+                    select="getMenuCategoriesOfMenuByMenuId"/>
         <collection property="image_urls" column="id" javaType="java.util.List"
-                    ofType="java.lang.String" select="getMenuImageUrlsByMenuId"/>
+                    ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
 
+    <resultMap id="ResponseShop" type="koreatech.in.dto.shop.response.ResponseShopDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="description" column="description"/>
+        <result property="delivery" column="delivery"/>
+        <result property="delivery_price" column="delivery_price"/>
+        <result property="pay_card" column="pay_card"/>
+        <result property="pay_bank" column="pay_bank"/>
+        <collection property="open" column="id" javaType="java.util.List"
+                    ofType="hashmap" select="getShopOpensByShopId"/>
+        <collection property="image_urls" column="id" javaType="java.util.List"
+                    ofType="string" select="getShopImageUrlsByShopId"/>
+        <collection property="categories" column="id" javaType="java.util.List"
+                    ofType="koreatech.in.dto.shop.response.inner.ShopCategory"
+                    select="getShopCategoriesByShopId"/>
+        <collection property="menus" column="id" javaType="java.util.List"
+                    ofType="koreatech.in.dto.shop.response.inner.ShopMenu"
+                    select="getShopMenusByShopId"/>
+    </resultMap>
 
-    <select id="getOptionPricesByMenuId" resultType="java.util.HashMap">
+    <select id="getResponseMenu" resultMap="ResponseMenu">
+        SELECT *
+        FROM koin.shop_menus
+        WHERE id = #{shop_menu_id} AND is_deleted = 0
+    </select>
+
+    <select id="getResponseMenus" resultMap="ResponseMenus">
+        SELECT *
+        FROM koin.shops
+        WHERE id = #{shop_id} AND is_deleted = 0
+    </select>
+
+    <select id="getResponseShop" resultMap="ResponseShop">
+        SELECT *
+        FROM koin.shops
+        WHERE id = #{shop_id} AND is_deleted = 0
+    </select>
+
+    <select id="getOptionPricesByMenuId" resultType="hashmap">
         SELECT `option`, price
         FROM koin.shop_menu_details
         WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenuCategoriesOfMenuByMenuId" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
+    <select id="getMenuCategoriesOfMenuByMenuId"
+            resultType="koreatech.in.dto.shop.response.inner.ShopMenuCategory">
         SELECT *
         FROM koin.shop_menu_categories
         WHERE id IN (
@@ -56,34 +100,46 @@
         ) AND is_deleted = 0
     </select>
 
-    <select id="getMenuImageUrlsByMenuId" resultType="java.lang.String">
+    <select id="getMenuImageUrlsByMenuId" resultType="string">
         SELECT image_url
         FROM koin.shop_menu_images
         WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenuCategoriesOfShopByShopId" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
+    <select id="getMenuCategoriesOfShopByShopId"
+            resultType="koreatech.in.dto.shop.response.inner.ShopMenuCategory">
         SELECT *
         FROM koin.shop_menu_categories
         WHERE shop_id = #{shop_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenusForOwnerByShopId" resultMap="ResponseInnerMenusForOwner">
-        SELECT id, `name`, is_hidden, description
+    <select id="getShopMenusByShopId" resultMap="ShopMenu">
+        SELECT *
         FROM koin.shop_menus
         WHERE shop_id = #{shop_id} AND is_deleted = 0
     </select>
 
-    <select id="getResponseMenuForOwner" resultMap="ResponseMenuForOwner">
-        SELECT id, shop_id, `name`, is_hidden, description
-        FROM koin.shop_menus
-        WHERE id = #{shop_menu_id} AND is_deleted = 0
+    <select id="getShopOpensByShopId" resultType="hashmap">
+        SELECT day_of_week, is_closed, open_time, close_time
+        FROM koin.shop_open
+        WHERE shop_id = #{shop_id} AND is_deleted = 0
     </select>
 
-    <select id="getResponseMenusForOwner" resultMap="ResponseMenusForOwner">
-        SELECT id, `name`
-        FROM koin.shops
-        WHERE id = #{shop_id} AND is_deleted = 0
+    <select id="getShopImageUrlsByShopId" resultType="string">
+        SELECT image_url
+        FROM koin.shop_images
+        WHERE shop_id = #{shop_id} AND is_deleted = 0
+    </select>
+
+    <select id="getShopCategoriesByShopId"
+            resultType="koreatech.in.dto.shop.response.inner.ShopCategory">
+        SELECT *
+        FROM koin.shop_categories
+        WHERE id IN (
+            SELECT shop_category_id
+            FROM koin.shop_category_map
+            WHERE shop_id = #{shop_id} AND is_deleted = 0
+        ) AND is_deleted = 0
     </select>
 
     <update id="deleteAllForInvolvedWithMenu">
@@ -106,5 +162,93 @@
             smcm.is_deleted = 1
         WHERE
             sm.id = #{shop_menu_id}
+    </update>
+
+    <update id="deleteAllForInvolvedWithShop">
+        UPDATE (
+            koin.shops s
+
+            LEFT JOIN koin.shop_open so
+            ON s.id = so.shop_id
+
+            LEFT JOIN koin.shop_images si
+            ON s.id = si.shop_id
+
+            LEFT JOIN koin.shop_category_map scm
+            ON s.id = scm.shop_id
+
+            LEFT JOIN koin.shop_menus sm
+            ON s.id = sm.shop_id
+
+            LEFT JOIN koin.shop_menu_categories smc
+            ON s.id = smc.shop_id
+            )
+        SET
+            s.is_deleted = 1,
+            so.is_deleted = 1,
+            si.is_deleted = 1,
+            scm.is_deleted = 1,
+            sm.is_deleted = 1,
+            smc.is_deleted = 1
+        WHERE
+            s.id = #{shop_id}
+    </update>
+
+
+    <insert id="createMenuImages" parameterType="list">
+        INSERT INTO koin.shop_menu_images
+        (shop_menu_id, image_url)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.image_url}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="createMenuDetails" parameterType="list">
+        INSERT INTO koin.shop_menu_details
+        (shop_menu_id, `option`, price)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.option},
+                #{item.price}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="createMenuCategoryMaps" parameterType="list">
+        INSERT INTO koin.shop_menu_category_map
+        (shop_menu_id, shop_menu_category_id)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.shop_menu_category_id}
+            )
+        </foreach>
+    </insert>
+
+    <update id="deleteMenuDetails" parameterType="list">
+        <foreach collection="list" item="item">
+            UPDATE koin.shop_menu_details
+            SET is_deleted = 1
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="deleteMenuCategoryMaps" parameterType="list">
+        <foreach collection="list" item="item">
+            UPDATE koin.shop_menu_category_map
+            SET
+                is_deleted = 1
+            WHERE
+                shop_menu_id = #{item.shop_menu_id}
+                AND shop_menu_category_id = #{item.shop_menu_category_id}
+                AND is_deleted = 0
+        </foreach>
     </update>
 </mapper>

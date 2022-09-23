@@ -1,57 +1,49 @@
 package koreatech.in.service;
 
-import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuCategoryDTO;
-import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuForOwnerDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO;
-import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.Shop.Menu;
-import koreatech.in.domain.Shop.Shop;
+import koreatech.in.dto.shop.request.*;
+import koreatech.in.dto.shop.response.ResponseShopDTO;
+import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
+import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
+import koreatech.in.domain.Shop.ShopCategory;
 import koreatech.in.domain.Shop.ShopMenuCategory;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ShopService {
-    Map<String, Object> getShops() throws Exception;
+    Map<String, Object> createShopCategoryForAdmin(CreateShopCategoryDTO dto) throws Exception;
 
-    Map<String, Object> getShop(String id) throws Exception;
+    Map<String, Object> updateShopCategoryForAdmin(UpdateShopCategoryDTO dto) throws Exception;
 
-    Shop createShopForAdmin(Shop article) throws Exception;
+    Map<String, Object> deleteShopCategoryForAdmin(Integer id) throws Exception;
 
-    Map<String, Object> getShopsForAdmin(Criteria criteria) throws Exception;
+    List<ShopCategory>  getShopCategoriesForAdmin() throws Exception;
 
-    Map<String, Object> getShopForAdmin(String id) throws Exception;
+    Map<String, Object> createShopForAdmin(CreateShopDTO dto) throws Exception;
 
-    Shop updateShopForAdmin(Shop item, int id) throws Exception;
+    ResponseShopDTO getShopForAdmin(Integer shopId) throws Exception;
 
-    Map<String, Object> deleteShopForAdmin(int id) throws Exception;
+    Map<String, Object> updateShopForAdmin(UpdateShopDTO init) throws Exception;
 
-    Menu createMenuForAdmin(Menu menu, int item_id) throws Exception;
+    Map<String, Object> deleteShopForAdmin(Integer id) throws Exception;
 
-    Map<String, Object> getMenuForAdmin(int shop_id, int menu_id) throws Exception;
+    Object getShopsForAdmin() throws Exception;
 
-    Menu updateMenuForAdmin(Menu menu, int shop_id, int id) throws Exception;
+    Map<String, Object> createMenuCategoryForAdmin(CreateShopMenuCategoryDTO dto) throws Exception;
 
-    Map<String, Object> deleteMenuForAdmin(int id) throws Exception;
+    Map<String, Object> deleteMenuCategoryForAdmin(Integer shopId, Integer categoryId) throws Exception;
 
-    Map<String, Object> createMenuCategoryForOwner(CreateShopMenuCategoryDTO dto) throws Exception;
+    List<ShopMenuCategory> getMenuCategoriesForAdmin(Integer shopId) throws Exception;
 
-    Map<String, Object> deleteMenuCategoryForOwner(Integer shopId, Integer categoryId) throws Exception;
+    Map<String, Object> createMenuForAdmin(CreateShopMenuDTO dto) throws Exception;
 
-    List<ShopMenuCategory> getMenuCategoriesForOwner(Integer shopId) throws Exception;
+    ResponseShopMenuDTO getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception;
+    Map<String, Object> updateMenuForAdmin(UpdateShopMenuDTO dto) throws Exception;
 
-    ResponseShopMenuForOwnerDTO getMenuForOwner(Integer shopId, Integer menuId) throws Exception;
+    Map<String, Object> deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    Map<String, Object> updateMenuForOwner(UpdateShopMenuDTO dto) throws Exception;
+    Map<String, Object> hideMenuForAdmin(Integer shopId, Integer menuId, Boolean flag) throws Exception;
 
-    Map<String, Object> deleteMenuForOwner(Integer shopId, Integer menuId) throws Exception;
-
-    Map<String, Object> hideMenuForOwner(Integer shopId, Integer menuId, Boolean flag) throws Exception;
-
-    ResponseShopMenusForOwnerDTO getMenusForOwner(Integer shopId) throws Exception;
+    ResponseShopMenusDTO getMenusForAdmin(Integer shopId) throws Exception;
 }

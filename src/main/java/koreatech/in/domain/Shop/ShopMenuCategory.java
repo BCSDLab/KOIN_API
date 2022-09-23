@@ -8,15 +8,11 @@ import java.util.Date;
 @Getter
 public class ShopMenuCategory {
     private Integer id;
-    @JsonIgnore
     private Integer shop_id;
     private String name;
 
-    @JsonIgnore
     private Boolean is_deleted;
-    @JsonIgnore
     private Date created_at;
-    @JsonIgnore
     private Date updated_at;
 
     public ShopMenuCategory() {}

@@ -1,18 +1,18 @@
-package koreatech.in.controller.v2.dto.shop.request;
+package koreatech.in.dto.shop.request;
 
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.domain.ErrorMessage;
+import koreatech.in.exception.PreconditionFailedException;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-public class UpdateShopMenuDTO {
-    @ApiModelProperty(notes = "메뉴 고유 id", example = "1", hidden = true)
-    private Integer id;
-
+@Getter @Setter
+public class CreateShopMenuDTO {
     @ApiModelProperty(notes = "상점 고유 id", example = "1", hidden = true)
     private Integer shop_id;
 
@@ -20,7 +20,7 @@ public class UpdateShopMenuDTO {
     @ApiModelProperty(notes = "메뉴 이름", example = "탕수육")
     private String name;
 
-    @NotNull(message = "단일 메뉴 여부는 비워둘 수 없습니다.")
+    @NotNull(message = "단일 메뉴 여부는 비워둘 수 없습니다")
     @ApiModelProperty(notes = "단일 메뉴 여부", example = "true")
     private Boolean is_single;
 
@@ -38,25 +38,38 @@ public class UpdateShopMenuDTO {
     @ApiModelProperty(notes = "메뉴 구성 설명")
     private String description;
 
+    @ApiModelProperty(notes = "메뉴 이미지 리스트", hidden = true)
     private List<MultipartFile> images;
 
-    public UpdateShopMenuDTO init(Integer shop_id, Integer menu_id, List<MultipartFile> images) {
+    public CreateShopMenuDTO init(Integer shop_id, List<MultipartFile> images) {
         this.shop_id = shop_id;
-        this.id = menu_id;
         this.images = images;
         return this;
     }
 
-    public boolean existOfOptionDuplicate() {
-        if (this.option_prices == null
-                || this.option_prices.size() == 0 || this.option_prices.size() == 1) {
+    public boolean existOfOptionDuplicate() throws Exception {
+        if (this.option_prices == null || this.option_prices.size() == 0 || this.option_prices.size() == 1) {
             return false;
         }
 
         for (int i = 0; i < this.option_prices.size() - 1; i++) {
             String prevOption = (String) this.option_prices.get(i).get("option");
+
+            if (prevOption == null) {
+                throw new PreconditionFailedException(new ErrorMessage(
+                        "단일 메뉴가 아니면 옵션을 비워둘 수 없습니다.", 2
+                ));
+            }
+
             for (int j = i + 1; j < this.option_prices.size(); j++) {
                 String nextOption = (String) this.option_prices.get(j).get("option");
+
+                if (nextOption == null) {
+                    throw new PreconditionFailedException(new ErrorMessage(
+                            "단일 메뉴가 아니면 옵션을 비워둘 수 없습니다.", 3
+                    ));
+                }
+
                 if (prevOption.equals(nextOption)) {
                     return true;
                 }

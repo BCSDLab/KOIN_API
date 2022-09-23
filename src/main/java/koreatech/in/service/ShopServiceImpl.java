@@ -1,31 +1,23 @@
 package koreatech.in.service;
 
-import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuCategoryDTO;
-import koreatech.in.controller.v2.dto.shop.request.CreateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuCategoryDTO;
-import koreatech.in.controller.v2.dto.shop.request.UpdateShopMenuDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenuForOwnerDTO;
-import koreatech.in.controller.v2.dto.shop.response.ResponseShopMenusForOwnerDTO;
-import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.dto.shop.request.*;
+import koreatech.in.dto.shop.response.ResponseShopDTO;
+import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
+import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.*;
-import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
-import koreatech.in.util.DateUtil;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import java.time.DayOfWeek;
 import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
@@ -45,7 +37,7 @@ public class ShopServiceImpl implements ShopService {
     @Inject
     private UploadFileUtils uploadFileUtils;
 
-    @Transactional
+    /*@Transactional
     @Override
     public Shop createShopForAdmin(Shop shop) throws Exception {
         if (shopMapper.getShopByNameForAdmin(shop.getName()) != null) {
@@ -158,38 +150,6 @@ public class ShopServiceImpl implements ShopService {
         //변환된 list로 값 교체
         map.replace("image_urls", con.parseJsonArrayWithOnlyString(map.get("image_urls").toString()));
         return map;
-    }
-
-    @Transactional
-    @Override
-    public Shop updateShopForAdmin(Shop shop, int id) throws Exception {
-        Shop shop_old = shopMapper.getShopForAdmin(id);
-        if (shop_old == null)
-            throw new NotFoundException(new ErrorMessage("There is no shop", 0));
-
-        Shop selectShop = shopMapper.getShopByNameForAdmin(shop.getName());
-        if (selectShop != null && !selectShop.getId().equals(id)) {
-            throw new ConflictException(new ErrorMessage("duplicate shop name", 0));
-        }
-
-        if (shop.getCategory() != null && !shop.contain(shop.getCategory())) {
-            throw new PreconditionFailedException(new ErrorMessage("No such Category", 2));
-        }
-
-        //image_urls 체크
-        if (shop.getImage_urls() != null && !con.isJsonArrayWithOnlyString(shop.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-
-        if (shop.getName() != null) {
-            shop.setInternal_name(shop.getName().replace(" ", "").toLowerCase());
-            shop.setChosung(shop.getName().substring(0, 1));
-        }
-
-        shop_old.update(shop);
-        shop_old.setWeekend_open_time(shop.getWeekend_open_time());
-        shop_old.setWeekend_close_time(shop.getWeekend_close_time());
-        shopMapper.updateShopForAdmin(shop_old);
-        return shop_old;
     }
 
     @Transactional
@@ -382,11 +342,237 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
         }
         return false;
+    }*/
+
+    @Override
+    @Transactional
+    public Map<String, Object> createShopCategoryForAdmin(CreateShopCategoryDTO dto) throws Exception {
+        ShopCategory existingCategory = shopMapper.getShopCategoryByName(dto.getName());
+        if (existingCategory != null) {
+            throw new ConflictException(new ErrorMessage("이미 존재하는 카테고리입니다.", 0));
+        }
+
+        String imageUrl = null;
+        if (dto.getImage() != null) {
+            String imgPath = uploadFileUtils.uploadFile(
+                    "upload/shop/categories",
+                    dto.getImage().getOriginalFilename(),
+                    dto.getImage().getBytes()
+            );
+            imageUrl = uploadFileUtils.getDomain() + "/upload/shop/categories" + imgPath;
+        }
+
+        ShopCategory newCategory = new ShopCategory(dto.getName(), imageUrl);
+        shopMapper.createShopCategory(newCategory);
+
+        return new HashMap<String, Object>() {{
+            put("id", newCategory.getId());
+            put("success", true);
+        }};
     }
 
     @Override
     @Transactional
-    public Map<String, Object> createMenuCategoryForOwner(CreateShopMenuCategoryDTO dto) throws Exception {
+    public Map<String, Object> updateShopCategoryForAdmin(UpdateShopCategoryDTO dto) throws Exception {
+        ShopCategory existingCategory = shopMapper.getShopCategoryById(dto.getId());
+        if (existingCategory == null) {
+            throw new NotFoundException(new ErrorMessage("없는 카테고리입니다.", 0));
+        }
+
+        String imageUrl = null;
+        if (dto.getImage() != null) {
+            String imgPath = uploadFileUtils.uploadFile(
+                    "upload/shop/categories",
+                    dto.getImage().getOriginalFilename(),
+                    dto.getImage().getBytes()
+            );
+            imageUrl = uploadFileUtils.getDomain() + "/upload/shop/categories" + imgPath;
+        }
+
+        shopMapper.updateShopCategory(existingCategory.update(dto.getName(), imageUrl));
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> deleteShopCategoryForAdmin(Integer id) throws Exception {
+        ShopCategory existingCategory = shopMapper.getShopCategoryById(id);
+        if (existingCategory == null) {
+            throw new NotFoundException(new ErrorMessage("없는 카테고리입니다.", 0));
+        }
+
+        List<Shop> shopsUsingCategory = shopMapper.getShopsUsingCategory(id);
+        if (shopsUsingCategory != null && shopsUsingCategory.size() >= 1) {
+            throw new PreconditionFailedException(new ErrorMessage(
+                    "카테고리를 사용하고 있는 상점들이 있어 삭제할 수 없습니다.", 1
+            ));
+        }
+
+        shopMapper.deleteShopCategoryById(id);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShopCategory> getShopCategoriesForAdmin() throws Exception {
+        return shopMapper.getAllShopCategories();
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createShopForAdmin(CreateShopDTO dto) throws Exception {
+        Shop existentShop = shopMapper.getShopByName(dto.getName());
+
+        if (existentShop != null) {
+            throw new NotFoundException(new ErrorMessage("이미 존재하는 상점입니다.", 0));
+        }
+
+        Shop shop = new Shop(dto);
+        shopMapper.createShop(shop);
+
+        for (int day = 1; day <= 7; day++) {
+            DayOfWeek dayOfWeek = DayOfWeek.of(day);
+            ShopOpen open = new ShopOpen(shop.getId(), dayOfWeek);
+            shopMapper.createShopOpen(open);
+        }
+
+        dto.getCategory_ids().forEach(categoryId -> {
+            ShopCategory existingCategory = shopMapper.getShopCategoryById(categoryId);
+            if (existingCategory == null) {
+                throw new NotFoundException(new ErrorMessage("없는 카테고리를 선택하셨습니다.", 1));
+            }
+
+            shopMapper.createShopCategoryMap(shop.getId(), categoryId);
+        });
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+            put("id", shop.getId());
+        }};
+    }
+
+    @Override
+    public ResponseShopDTO getShopForAdmin(Integer id) throws Exception {
+        ResponseShopDTO responseDto = shopMapper.getResponseShop(id);
+
+        if (responseDto == null) {
+            throw new NotFoundException(new ErrorMessage("없는 상점입니다.", 0));
+        }
+
+        return responseDto.decideOptionalOfMenus();
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> updateShopForAdmin(UpdateShopDTO dto) throws Exception {
+        /*
+             변경되어야할 것
+             - shops
+             - shop_open
+             - shop_category_map
+             - shop_images
+         */
+
+        Shop existingShop = shopMapper.getShopById(dto.getId());
+        if (existingShop == null) {
+            throw new NotFoundException(new ErrorMessage("상점 정보가 없습니다.", 0));
+        }
+
+        Shop duplicateNameShop = shopMapper.getShopByName(dto.getName());
+        if (duplicateNameShop != null && !dto.getId().equals(duplicateNameShop.getId())) {
+            throw new ConflictException(new ErrorMessage("상점명이 이미 존재합니다.", 1));
+        }
+
+        shopMapper.updateShopForAdmin(existingShop.update(dto));
+
+        /*dto.getOpen().forEach(open -> {
+            DayOfWeek dayOfWeek =
+        });*/
+
+
+
+
+
+        List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopId(dto.getId());
+
+        dto.getCategory_ids().forEach(categoryId -> {
+            ShopCategory updatedCategory = shopMapper.getShopCategoryById(categoryId);
+            if (updatedCategory == null) {
+                throw new NotFoundException(new ErrorMessage("선택하신 상점 카테고리가 존재하지 않습니다.", 2));
+            }
+
+            /*if (!existingCategories.contains(updatedCategory)) {
+                shopMapper.createShopCategoryMap()
+            }*/
+
+
+        });
+
+        shopMapper.deleteShopImagesByShopId(dto.getId());
+        for (MultipartFile image : dto.getImages()) {
+            String imgPath = uploadFileUtils.uploadFile(
+                    "upload/shops",
+                    image.getOriginalFilename(),
+                    image.getBytes()
+            );
+
+            String url = uploadFileUtils.getDomain() + "/upload/shops" + imgPath;
+            shopMapper.createShopImage(new ShopImage(dto.getId(), url));
+        }
+
+        //shopMapper.updateShop(shopInDatabase.update(dto));
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> deleteShopForAdmin(Integer id) throws Exception {
+        /*
+             soft delete 대상 테이블 (shop_categories 제외하고 싹다 적용)
+             <shop_id로 삭제>
+             - shops
+             - shop_open
+             - shop_images
+             - shop_category_map
+             - shop_menus
+             - shop_menu_categories
+
+
+             <shop_menu_id로 삭제>
+             - shop_menu_details
+             - shop_menu_images
+             - shop_menu_category_map
+         */
+
+        Shop existingShop = shopMapper.getShopById(id);
+        if (existingShop == null) {
+            throw new NotFoundException(new ErrorMessage("없는 상점입니다.", 0));
+        }
+
+        List<ShopMenu> existingMenus = shopMapper.getShopMenusByShopId(id);
+
+        shopMapper.deleteAllForInvolvedWithShop(id);
+
+        return null;
+    }
+
+    @Override
+    public Object getShopsForAdmin() throws Exception {
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createMenuCategoryForAdmin(CreateShopMenuCategoryDTO dto) throws Exception {
         ShopMenuCategory menuCategoryInDatabase = shopMapper.getMenuCategory(
                 dto.getShop_id(), dto.getName()
         );
@@ -408,7 +594,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public Map<String, Object> deleteMenuCategoryForOwner(Integer shopId, Integer categoryId) throws Exception {
+    public Map<String, Object> deleteMenuCategoryForAdmin(Integer shopId, Integer categoryId) throws Exception {
         ShopMenuCategory menuCategoryInDatabase = shopMapper.getMenuCategoryById(categoryId);
 
         if (menuCategoryInDatabase == null) {
@@ -437,13 +623,15 @@ public class ShopServiceImpl implements ShopService {
         }};
     }
 
-    public List<ShopMenuCategory> getMenuCategoriesForOwner(Integer shopId) throws Exception {
-        return shopMapper.getMenuCategoriesOfShopByShopId(shopId);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShopMenuCategory> getMenuCategoriesForAdmin(Integer shopId) throws Exception {
+        return shopMapper.getMenuCategoriesOfShop(shopId);
     }
 
     @Override
     @Transactional
-    public Map<String, Object> createMenuForOwner(CreateShopMenuDTO dto) throws Exception {
+    public Map<String, Object> createMenuForAdmin(CreateShopMenuDTO dto) throws Exception {
         ShopMenu menu = new ShopMenu(dto);
         shopMapper.createMenu(menu);
 
@@ -464,26 +652,39 @@ public class ShopServiceImpl implements ShopService {
             }
             if (dto.existOfOptionDuplicate()) {
                 throw new PreconditionFailedException(new ErrorMessage(
-                        "중복되는 옵션이 있습니다.", 2
+                        "중복되는 옵션이 있습니다.", 3
                 ));
             }
 
-            // 옵션에 따른 메뉴 가격 저장
+            List<ShopMenuDetail> shopMenuDetails = new LinkedList<>();
+
             dto.getOption_prices().forEach(optionPrice -> {
-                shopMapper.createMenuDetail(new ShopMenuDetail(
-                        menu.getId(),
-                        (String) optionPrice.get("option"),
-                        (Integer) optionPrice.get("price")
-                ));
+                String option = (String) optionPrice.get("option");
+                Integer price = (Integer) optionPrice.get("price");
+
+                if (price == null) {
+                    throw new PreconditionFailedException(new ErrorMessage(
+                            "가격은 비워둘 수 없습니다.", 4
+                    ));
+                }
+
+                shopMenuDetails.add(new ShopMenuDetail(menu.getId(), option, price));
             });
+
+            if (!shopMenuDetails.isEmpty()) {
+                shopMapper.createMenuDetails(shopMenuDetails);
+            }
         }
 
         // TODO: 기획 변경시 최대 업로드 개수 변경하기
         if (dto.getImages().size() > 5) {
             throw new PreconditionFailedException(new ErrorMessage(
-                    "메뉴 이미지는 최대 5개까지 등록할 수 있습니다.", 3
+                    "메뉴 이미지는 최대 5개까지 등록할 수 있습니다.", 5
             ));
         }
+
+        List<ShopMenuImage> shopMenuImages = new LinkedList<>();
+
         for (MultipartFile image : dto.getImages()) {
             String imgPath = uploadFileUtils.uploadFile(
                     "upload/shop_menus",
@@ -492,47 +693,57 @@ public class ShopServiceImpl implements ShopService {
             );
 
             String url = uploadFileUtils.getDomain() + "/upload/shop_menus" + imgPath;
-            shopMapper.createMenuImage(new ShopMenuImage(menu.getId(), url));
+            shopMenuImages.add(new ShopMenuImage(menu.getId(), url));
         }
 
-        dto.getCategory_ids().forEach(categoryId -> {
-            ShopMenuCategory menuCategoryInDatabase = shopMapper.getMenuCategoryById(categoryId);
+        if (!shopMenuImages.isEmpty()) {
+            shopMapper.createMenuImages(shopMenuImages);
+        }
 
-            if (menuCategoryInDatabase == null) {
+        List<ShopMenuCategoryMap> shopMenuCategoryMaps = new LinkedList<>();
+
+        dto.getCategory_ids().forEach(categoryId -> {
+            ShopMenuCategory existingMenuCategory = shopMapper.getMenuCategoryById(categoryId);
+
+            if (existingMenuCategory == null) {
                 throw new NotFoundException(new ErrorMessage(
-                        "선택한 카테고리중에 상점에서 설정하지 않은 카테고리가 있습니다.", 4
+                        "선택한 카테고리중에 상점에서 설정하지 않은 카테고리가 있습니다.", 6
                 ));
             }
 
-            if (!menuCategoryInDatabase.getShop_id().equals(dto.getShop_id())) {
-                throw new ForbiddenException(new ErrorMessage("잘못된 접근입니다.", 5));
+            if (!existingMenuCategory.getShop_id().equals(dto.getShop_id())) {
+                throw new ForbiddenException(new ErrorMessage("잘못된 접근입니다.", 7));
             }
 
-            shopMapper.createMenuCategoryMap(menu.getId(), categoryId);
+            shopMenuCategoryMaps.add(new ShopMenuCategoryMap(menu.getId(), categoryId));
         });
+
+        if (!shopMenuCategoryMaps.isEmpty()) {
+            shopMapper.createMenuCategoryMaps(shopMenuCategoryMaps);
+        }
 
         return new HashMap<String, Object>() {{
             put("success", true);
-            put("menu_id", menu.getId());
+            put("id", menu.getId());
         }};
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopMenuForOwnerDTO getMenuForOwner(Integer shopId, Integer menuId) throws Exception {
-        ResponseShopMenuForOwnerDTO responseDto = shopMapper.getResponseMenuForOwner(shopId, menuId);
+    public ResponseShopMenuDTO getMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
+        ResponseShopMenuDTO menu = shopMapper.getResponseMenu(menuId);
 
-        if (responseDto == null) {
+        if (menu == null) {
             throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
         }
 
-        return responseDto.decideSingleOrOption();
+        return menu.decideSingleOrOption();
     }
 
     @Override
     @Transactional
-    public Map<String, Object> updateMenuForOwner(UpdateShopMenuDTO dto) throws Exception {
-        ShopMenu existingMenu = shopMapper.getMenu(dto.getShop_id(), dto.getId());
+    public Map<String, Object> updateMenuForAdmin(UpdateShopMenuDTO dto) throws Exception {
+        ShopMenu existingMenu = shopMapper.getMenu(dto.getId());
         if (existingMenu == null) {
             throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
         }
@@ -560,9 +771,9 @@ public class ShopServiceImpl implements ShopService {
                 shopMapper.createMenuDetail(updatedMenuDetail);
             } else {
                 existingMenuDetails.remove(updatedMenuDetail);
-                existingMenuDetails.forEach(existingMenuDetail -> {
-                    shopMapper.deleteMenuDetailsByMenuId(existingMenuDetail.getId());
-                });
+                if (!existingMenuDetails.isEmpty()) {
+                    shopMapper.deleteMenuDetails(existingMenuDetails);
+                }
             }
         } else {
             if (dto.getOption_prices() == null || dto.getOption_prices().size() == 0) {
@@ -572,39 +783,52 @@ public class ShopServiceImpl implements ShopService {
             }
             if (dto.existOfOptionDuplicate()) {
                 throw new PreconditionFailedException(new ErrorMessage(
-                        "중복되는 옵션이 있습니다.", 3
+                        "중복되는 옵션이 있습니다.", 4
                 ));
             }
 
+            List<ShopMenuDetail> shopMenuDetailsToUpdate = new LinkedList<>();
+
             dto.getOption_prices().forEach(optionPrice -> {
+                String option = (String) optionPrice.get("option");
+                Integer price = (Integer) optionPrice.get("price");
+
+                if (price == null) {
+                    throw new PreconditionFailedException(new ErrorMessage(
+                            "가격은 비워둘 수 없습니다.", 5
+                    ));
+                }
+
                 ShopMenuDetail updatedMenuDetail = new ShopMenuDetail(
-                        dto.getId(),
-                        (String) optionPrice.get("option"),
-                        (Integer) optionPrice.get("price")
+                        dto.getId(), option, price
                 );
 
                 // 추가할 옵션&가격
                 if (!existingMenuDetails.contains(updatedMenuDetail)) {
-                    shopMapper.createMenuDetail(updatedMenuDetail);
+                    shopMenuDetailsToUpdate.add(updatedMenuDetail);
                 }
 
                 existingMenuDetails.remove(updatedMenuDetail);
             });
 
-            // 삭제할 옵션&가격
-            existingMenuDetails.forEach(menuDetailToDelete -> {
-                shopMapper.deleteMenuDetailById(menuDetailToDelete.getId());
-            });
+            if (!shopMenuDetailsToUpdate.isEmpty()) {
+                shopMapper.createMenuDetails(shopMenuDetailsToUpdate);
+            }
+            if (!existingMenuDetails.isEmpty()) {
+                shopMapper.deleteMenuDetails(existingMenuDetails);
+            }
         }
 
         // TODO: 기획 변경시 최대 업로드 개수 변경하기
         if (dto.getImages().size() > 5) {
             throw new PreconditionFailedException(new ErrorMessage(
-                    "메뉴 이미지는 최대 5개까지 등록할 수 있습니다.", 4
+                    "메뉴 이미지는 최대 5개까지 등록할 수 있습니다.", 6
             ));
         }
 
         shopMapper.deleteMenuImagesByMenuId(dto.getId());
+
+        List<ShopMenuImage> shopMenuImages = new LinkedList<>();
 
         for (MultipartFile image : dto.getImages()) {
             String imgPath = uploadFileUtils.uploadFile(
@@ -614,35 +838,51 @@ public class ShopServiceImpl implements ShopService {
             );
 
             String url = uploadFileUtils.getDomain() + "/upload/shop_menus" + imgPath;
-            shopMapper.createMenuImage(new ShopMenuImage(dto.getId(), url));
+            shopMenuImages.add(new ShopMenuImage(dto.getId(), url));
         }
 
-        List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenuByMenuId(dto.getId());
+        if (!shopMenuImages.isEmpty()) {
+            shopMapper.createMenuImages(shopMenuImages);
+        }
 
+        List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenu(dto.getId());
+        List<ShopMenuCategoryMap> updatedMenuCategoryMaps = new LinkedList<>();
         dto.getCategory_ids().forEach(categoryId -> {
             ShopMenuCategory updatedMenuCategory = shopMapper.getMenuCategoryById(categoryId);
 
             if (updatedMenuCategory == null) {
                 throw new NotFoundException(new ErrorMessage(
-                        "선택한 카테고리중에 상점에서 설정하지 않은 카테고리가 있습니다.", 5
+                        "선택하신 카테고리중에 상점에서 설정하지 않은 카테고리가 있습니다.", 7
                 ));
             }
             if (!updatedMenuCategory.getShop_id().equals(dto.getShop_id())) {
-                throw new ForbiddenException(new ErrorMessage("잘못된 접근입니다.", 6));
+                throw new ForbiddenException(new ErrorMessage("잘못된 접근입니다.", 8));
             }
 
             // 새로 선택된 카테고리
             if (!existingCategories.contains(updatedMenuCategory)) {
-                shopMapper.createMenuCategoryMap(dto.getId(), updatedMenuCategory.getId());
+                updatedMenuCategoryMaps.add(new ShopMenuCategoryMap(
+                        dto.getId(), updatedMenuCategory.getId()
+                ));
             }
 
             existingCategories.remove(updatedMenuCategory);
         });
 
-        // 원래 선택됐었지만 이번에 선택되지 않은 카테고리
+        if (!updatedMenuCategoryMaps.isEmpty()) {
+            shopMapper.createMenuCategoryMaps(updatedMenuCategoryMaps);
+        }
+
+        List<ShopMenuCategoryMap> menuCategoryMapsToDelete = new LinkedList<>();
         existingCategories.forEach(category -> {
-            shopMapper.deleteMenuCategoryMap(dto.getId(), category.getId());
+            menuCategoryMapsToDelete.add(new ShopMenuCategoryMap(
+                    dto.getId(), category.getId()
+            ));
         });
+
+        if (!menuCategoryMapsToDelete.isEmpty()) {
+            shopMapper.deleteMenuCategoryMaps(menuCategoryMapsToDelete);
+        }
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -651,10 +891,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public Map<String, Object> deleteMenuForOwner(Integer shopId, Integer menuId) throws Exception {
-        ShopMenu menuInDatabase = shopMapper.getMenu(shopId, menuId);
+    public Map<String, Object> deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
+        ShopMenu existingMenu = shopMapper.getMenu(menuId);
 
-        if (menuInDatabase == null) {
+        if (existingMenu == null) {
             throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
         }
 
@@ -667,8 +907,8 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public Map<String, Object> hideMenuForOwner(Integer shopId, Integer menuId, Boolean flag) throws Exception {
-        ShopMenu menu = shopMapper.getMenu(shopId, menuId);
+    public Map<String, Object> hideMenuForAdmin(Integer shopId, Integer menuId, Boolean flag) throws Exception {
+        ShopMenu menu = shopMapper.getMenu(menuId);
 
         if (menu == null) {
             throw new NotFoundException(new ErrorMessage("없는 메뉴입니다.", 0));
@@ -692,14 +932,14 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    @Transactional
-    public ResponseShopMenusForOwnerDTO getMenusForOwner(Integer shopId) throws Exception {
-        ResponseShopMenusForOwnerDTO responseDto = shopMapper.getResponseMenusForOwner(shopId);
+    @Transactional(readOnly = true)
+    public ResponseShopMenusDTO getMenusForAdmin(Integer shopId) throws Exception {
+        ResponseShopMenusDTO responseDto = shopMapper.getResponseMenus(shopId);
 
         if (responseDto == null) {
             throw new NotFoundException(new ErrorMessage("상점이 없습니다.", 0));
         }
 
-        return responseDto.decideSingleOrOption();
+        return responseDto.decideOptionalOfMenus();
     }
 }
