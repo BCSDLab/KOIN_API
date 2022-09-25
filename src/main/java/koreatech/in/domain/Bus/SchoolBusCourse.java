@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class SchoolBusCourse {
 
-    private int id;
+    private String bus_type;
+
+    private String direction;
 
     private String region;
-
-    private String bus_type;
 }

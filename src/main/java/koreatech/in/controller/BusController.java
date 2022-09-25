@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "/bus")
@@ -39,7 +39,7 @@ public class BusController {
     // 통학버스 노선
     @RequestMapping(value = "/courses", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ArrayList<SchoolBusCourse>> getCourses() {
+    ResponseEntity<List<SchoolBusCourse>> getCourses() {
 
         return new ResponseEntity<>(busService.getCourses(), HttpStatus.OK);
     }

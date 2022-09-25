@@ -1,13 +1,11 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Bus.Bus;
-import koreatech.in.domain.Bus.BusTypeEnum;
-import koreatech.in.domain.Bus.BusRemainTime;
-import koreatech.in.domain.Bus.SchoolBusCourse;
+import koreatech.in.domain.Bus.*;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.repository.BusMapper;
+import koreatech.in.mapstruct.SchoolBusCourseMapper;
+import koreatech.in.repository.BusRepository;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,17 +13,19 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BusServiceImpl implements BusService {
+
+    private static final String SCHOOL_BUS_TIMETABLE_CACHE_KEY = "Tago@busTimetable.%s.%s";
+
     @Autowired
-    private BusMapper busMapper;
+    private BusRepository busRepository;
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
-
-    private static final String SCHOOL_BUS_TIMETABLE_CACHE_KEY = "Tago@busTimetable.%s.%s";
 
     @Override
     public BusRemainTime getRemainTime(String busType, String depart, String arrival) {
@@ -45,8 +45,9 @@ public class BusServiceImpl implements BusService {
     }
 
     @Override
-    public ArrayList<SchoolBusCourse> getCourses() {
-        return busMapper.getCourses();
+    public List<SchoolBusCourse> getCourses() {
+
+        return SchoolBusCourseMapper.INSTANCE.toSchoolBusCourse(busRepository.findAllCourses());
     }
 
     @Override
