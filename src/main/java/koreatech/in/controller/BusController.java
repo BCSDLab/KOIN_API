@@ -2,10 +2,9 @@ package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Bus.BusRemainTime;
+import koreatech.in.domain.Bus.BusTimetable;
 import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.service.BusService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,22 +20,18 @@ import java.util.List;
 @RequestMapping(value = "/bus")
 public class BusController {
 
-    private static final Logger logger = LoggerFactory.getLogger(BusController.class);
-
     @Autowired
     private BusService busService;
 
-    // 시내버스
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<BusRemainTime> getRemainTime(@ApiParam(value = "버스 종류(city, express, school)", required = true) @RequestParam(value = "bus_type") String busType,
+    ResponseEntity<BusRemainTime> getRemainTime(@ApiParam(value = "버스 종류(city, express, shuttle, commuting)", required = true) @RequestParam(value = "bus_type") String busType,
                                                 @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart,
                                                 @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) throws Exception {
 
         return new ResponseEntity<>(busService.getRemainTime(busType, depart, arrival), HttpStatus.OK);
     }
 
-    // 통학버스 노선
     @RequestMapping(value = "/courses", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<List<SchoolBusCourse>> getCourses() {
@@ -44,12 +39,12 @@ public class BusController {
         return new ResponseEntity<>(busService.getCourses(), HttpStatus.OK);
     }
 
-    // 통학버스 시간표
-    @RequestMapping(value = "/timetable", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/timetable", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<String> getTimetable(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
-                                        @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
+    ResponseEntity<List<? extends BusTimetable>> getTimetable(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
+                                                              @ApiParam(value = "등/하교(to, from)", required = true) @RequestParam(value = "direction") String direction,
+                                                              @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
 
-        return new ResponseEntity<>(busService.getTimetable(busType, region), HttpStatus.OK);
+        return new ResponseEntity<>(busService.getTimetable(busType, direction, region), HttpStatus.OK);
     }
 }

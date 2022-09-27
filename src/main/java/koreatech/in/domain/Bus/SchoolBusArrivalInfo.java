@@ -6,12 +6,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.Map;
 
 @Document(collection = "bus_timetables")
 @Getter
 @ToString
 public class SchoolBusArrivalInfo {
+
     @Id
     private String id;
 
@@ -21,5 +21,5 @@ public class SchoolBusArrivalInfo {
 
     private String region;
 
-    private List<Map<String, Object>> courses;
+    private List<SchoolBusTimetable> routes;
 }

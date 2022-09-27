@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class IntercityBusArrivalInfo implements Comparable<IntercityBusArrivalInfo> {
+public class IntercityBusArrivalInfo {
 
     private String arrPlaceNm;
 
@@ -20,9 +20,4 @@ public class IntercityBusArrivalInfo implements Comparable<IntercityBusArrivalIn
     private String gradeNm;
 
     private String routeId;
-
-    @Override
-    public int compareTo(IntercityBusArrivalInfo o) {
-        return this.depPlandTime.compareTo(o.depPlandTime);
-    }
 }

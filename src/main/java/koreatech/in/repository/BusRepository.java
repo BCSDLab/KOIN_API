@@ -11,5 +11,8 @@ import java.util.List;
 public interface BusRepository extends MongoRepository<SchoolBusArrivalInfo, Long> {
 
     @Query(value = "{}", fields = "{ '_id': false, 'courses': false }")
-    List<SchoolBusArrivalInfo> findAllCourses();
+    List<SchoolBusArrivalInfo> findOnlyCourses();
+
+    @Query(value = "{ 'bus_type': ?0, 'direction': ?1, 'region': ?2}")
+    SchoolBusArrivalInfo findByCourse(String busType, String direction, String region);
 }

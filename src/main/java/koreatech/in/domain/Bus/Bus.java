@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public abstract class Bus {
 
@@ -49,6 +50,8 @@ public abstract class Bus {
     }
 
     public abstract BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival);
+
+    public abstract List<? extends BusTimetable> getTimetables(String busType, String direction, String region);
 
     public abstract void cacheBusArrivalInfo();
 }

@@ -1,15 +1,20 @@
 package koreatech.in.domain.Bus;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
+@ToString
 public class SchoolBusCourse {
 
-    private String bus_type;
+    private final String bus_type;
 
-    private String direction;
+    private final String direction;
 
-    private String region;
+    private final String region;
+
+    public SchoolBusCourse(String bus_type, String direction, String region) {
+        this.bus_type = bus_type;
+        this.direction = direction;
+        this.region = region;
+    }
 }

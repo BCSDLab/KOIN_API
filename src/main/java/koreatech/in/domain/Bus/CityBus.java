@@ -59,12 +59,17 @@ public class CityBus extends Bus {
                         .nextRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(1).getRouteno(), arrivalInfos.get(1).getArrtime()))
                         .build();
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
+        } catch (JsonSyntaxException e) {
             return response;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return response;
+    }
+
+    @Override
+    public List<? extends BusTimetable> getTimetables(String busType, String direction, String region) {
+        throw new UnsupportedOperationException();
     }
 
     private List<CityBusArrivalInfo> getArrivalTimes(@NotNull BusNodeEnum busNodeEnum) {

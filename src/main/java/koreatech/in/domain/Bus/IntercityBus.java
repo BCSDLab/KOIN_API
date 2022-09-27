@@ -5,19 +5,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import koreatech.in.domain.NotiSlack;
+import koreatech.in.mapstruct.IntercityBusTimetableMapper;
 import koreatech.in.util.SlackNotiSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,9 @@ public class IntercityBus extends Bus {
     private static final Type arrivalInfoType = new TypeToken<List<IntercityBusArrivalInfo>>() {
     }.getType();
 
+    private static final Type timetableType = new TypeToken<List<IntercityBusTimetable>>() {
+    }.getType();
+
     @Autowired
     private SlackNotiSender sender;
 
@@ -45,62 +47,80 @@ public class IntercityBus extends Bus {
             BusTerminalEnum departTerminal = Objects.requireNonNull(BusTerminalEnum.findByTerminalName(depart));
             BusTerminalEnum arrivalTerminal = Objects.requireNonNull(BusTerminalEnum.findByTerminalName(arrival));
 
-            List<IntercityBusArrivalInfo> arrivalInfos = getArrivalTimes(departTerminal, arrivalTerminal);
+            List<IntercityBusTimetable> arrivalInfos = getArrivalTimes(departTerminal, arrivalTerminal);
             if (arrivalInfos.isEmpty()) {
                 return response;
             }
 
+            final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             final ZoneId tz = ZoneId.of("Asia/Seoul");
-            final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-            ZonedDateTime nowZonedDateTime = ZonedDateTime.now(tz);
+            ZonedDateTime nowDateTime = ZonedDateTime.now();
+            LocalDate nowDate = LocalDate.now();
             int nowBusIndex = 0;
             for (int i = 0; i < arrivalInfos.size(); i++) {
-                IntercityBusArrivalInfo arrivalInfo = arrivalInfos.get(i);
-                ZonedDateTime departureTime = LocalDateTime.parse(arrivalInfo.getDepPlandTime(), dateTimeFormatter).atZone(tz);
-                ZonedDateTime arrivalTime = LocalDateTime.parse(arrivalInfo.getArrPlandTime(), dateTimeFormatter).atZone(tz);
+                IntercityBusTimetable timetable = arrivalInfos.get(i);
+                ZonedDateTime departureTime = LocalTime.parse(timetable.getDeparture(), timeFormatter).atDate(nowDate).atZone(tz);
+                ZonedDateTime arrivalTime = LocalTime.parse(timetable.getArrival(), timeFormatter).atDate(nowDate).atZone(tz);
 
-                if (nowZonedDateTime.isAfter(departureTime)) {
+                if (nowDateTime.isAfter(departureTime)) {
                     nowBusIndex = (i + 1) % arrivalInfos.size();
-                    if (nowZonedDateTime.isBefore(arrivalTime)) break;
+                    if (nowDateTime.isBefore(arrivalTime)) break;
                     continue;
                 }
                 break;
             }
 
-            IntercityBusArrivalInfo nowBusTime = arrivalInfos.get(nowBusIndex);
-            ZonedDateTime nowDepartureTime = LocalDateTime.parse(nowBusTime.getDepPlandTime(), dateTimeFormatter).atZone(tz);
+            IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
+            ZonedDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getDeparture(), timeFormatter).atDate(nowDate).atZone(tz);
 
-            IntercityBusArrivalInfo nextBusTime = arrivalInfos.get((nowBusIndex + 1) % arrivalInfos.size());
-            ZonedDateTime nextDepartureTime = LocalDateTime.parse(nextBusTime.getDepPlandTime(), dateTimeFormatter).atZone(tz);
+            IntercityBusTimetable nextBusTime = arrivalInfos.get((nowBusIndex + 1) % arrivalInfos.size());
+            ZonedDateTime nextDepartureTime = LocalTime.parse(nextBusTime.getDeparture(), timeFormatter).atDate(nowDate).atZone(tz);
 
             return new BusRemainTime.Builder()
                     .nowRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.toEpochSecond() < nowZonedDateTime.toEpochSecond() ?
-                                    nowDepartureTime.plusDays(1).toEpochSecond() - nowZonedDateTime.toEpochSecond() : nowDepartureTime.toEpochSecond() - nowZonedDateTime.toEpochSecond()))
+                            new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.isBefore(nowDateTime) ?
+                                    nowDepartureTime.plusDays(1).toEpochSecond() - nowDateTime.toEpochSecond() : nowDepartureTime.toEpochSecond() - nowDateTime.toEpochSecond()))
                     )
                     .nextRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.toEpochSecond() < nowZonedDateTime.toEpochSecond() ?
-                                    nextDepartureTime.plusDays(1).toEpochSecond() - nowZonedDateTime.toEpochSecond() : nextDepartureTime.toEpochSecond() - nowZonedDateTime.toEpochSecond()))
+                            new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.isBefore(nowDateTime) ?
+                                    nextDepartureTime.plusDays(1).toEpochSecond() - nowDateTime.toEpochSecond() : nextDepartureTime.toEpochSecond() - nowDateTime.toEpochSecond()))
                     )
                     .build();
-        } catch (JsonSyntaxException | NullPointerException e) {
+        } catch (NullPointerException e) {
             return response;
         }
     }
 
-    private List<IntercityBusArrivalInfo> getArrivalTimes(@NotNull BusTerminalEnum departTerminal,
-                                                          @NotNull BusTerminalEnum arrivalTerminal) {
+    @Override
+    public List<? extends BusTimetable> getTimetables(@Nullable String busType,
+                                                      @NotNull String direction,
+                                                      @Nullable String region) {
+        BusTerminalEnum koreatech = BusTerminalEnum.KOREATECH;
+        BusTerminalEnum terminal = BusTerminalEnum.TERMINAL;
+        switch (direction) {
+            case "from":
+                return getArrivalTimes(koreatech, terminal);
+            case "to":
+                return getArrivalTimes(terminal, koreatech);
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    private List<IntercityBusTimetable> getArrivalTimes(@NotNull BusTerminalEnum departTerminal,
+                                                        @NotNull BusTerminalEnum arrivalTerminal) {
         return Optional.ofNullable(getArrivalTimesFromCache(departTerminal, arrivalTerminal))
                 .orElseGet(() -> getArrivalTimesFromReal(departTerminal, arrivalTerminal));
     }
 
-    private List<IntercityBusArrivalInfo> getArrivalTimesFromCache(@NotNull BusTerminalEnum departTerminal,
-                                                                   @NotNull BusTerminalEnum arrivalTerminal) {
+    private List<IntercityBusTimetable> getArrivalTimesFromCache(@NotNull BusTerminalEnum departTerminal,
+                                                                 @NotNull BusTerminalEnum arrivalTerminal) {
         String cacheKey = getCacheKey(departTerminal.getTerminalName(), arrivalTerminal.getTerminalName());
         try {
             String cachedValue = stringRedisUtilStr.getDataAsString(cacheKey);
-            return gson.fromJson(cachedValue, arrivalInfoType);
-        } catch (NullPointerException | IOException e) {
+            return gson.fromJson(cachedValue, timetableType);
+        } catch (JsonSyntaxException | NullPointerException | IOException e) {
+            e.printStackTrace();
             return null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,17 +128,17 @@ public class IntercityBus extends Bus {
         return null;
     }
 
-    private List<IntercityBusArrivalInfo> getArrivalTimesFromReal(@NotNull BusTerminalEnum departTerminal,
-                                                                  @NotNull BusTerminalEnum arrivalTerminal) {
+    private List<IntercityBusTimetable> getArrivalTimesFromReal(@NotNull BusTerminalEnum departTerminal,
+                                                                @NotNull BusTerminalEnum arrivalTerminal) {
         try {
             String arrivalTimes = getBusResult(departTerminal.getTerminalID(), arrivalTerminal.getTerminalID());
-            List<IntercityBusArrivalInfo> arrivalInfos = extractBusArrivalInfo(arrivalTimes)
+            List<IntercityBusTimetable> timetables = IntercityBusTimetableMapper.INSTANCE.toIntercityBusTimetable(extractBusArrivalInfo(arrivalTimes))
                     .stream()
                     .sorted()
                     .collect(Collectors.toList());
-            cacheBusArrivalInfo(departTerminal, arrivalTerminal, arrivalInfos);
+            cacheBusArrivalInfo(departTerminal, arrivalTerminal, timetables);
 
-            return arrivalInfos;
+            return timetables;
         } catch (Exception e) {
             return null;
         }
@@ -163,17 +183,17 @@ public class IntercityBus extends Bus {
 
     @Override
     public void cacheBusArrivalInfo() {
-        BusTerminalEnum koreatechTerminal = BusTerminalEnum.KOREATECH;
-        BusTerminalEnum terminalTerminal = BusTerminalEnum.TERMINAL;
-        getArrivalTimesFromReal(koreatechTerminal, terminalTerminal);
-        getArrivalTimesFromReal(terminalTerminal, koreatechTerminal);
+        BusTerminalEnum koreatech = BusTerminalEnum.KOREATECH;
+        BusTerminalEnum terminal = BusTerminalEnum.TERMINAL;
+        getArrivalTimesFromReal(koreatech, terminal);
+        getArrivalTimesFromReal(terminal, koreatech);
     }
 
     private void cacheBusArrivalInfo(@NotNull BusTerminalEnum departTerminal,
                                      @NotNull BusTerminalEnum arrivalTerminal,
-                                     List<IntercityBusArrivalInfo> arrivalInfos) throws IOException {
+                                     List<IntercityBusTimetable> timetables) throws IOException {
         String cacheKey = getCacheKey(departTerminal.getTerminalName(), arrivalTerminal.getTerminalName());
-        stringRedisUtilObj.setDataAsString(cacheKey, arrivalInfos);
+        stringRedisUtilObj.setDataAsString(cacheKey, timetables);
     }
 
     private String getCacheKey(String depart, String arrival) {

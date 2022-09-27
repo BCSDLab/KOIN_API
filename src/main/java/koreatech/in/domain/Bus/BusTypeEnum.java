@@ -16,11 +16,13 @@ public enum BusTypeEnum {
     CITY(CityBus.class),
     EXPRESS(IntercityBus.class),
     SHUTTLE(ShuttleBus.class),
+    COMMUTING(CommutingBus.class),
     ;
 
     private final Class<? extends Bus> busClass;
 
     private static final Map<BusTypeEnum, Bus> busTypeEnumMap = new EnumMap<BusTypeEnum, Bus>(BusTypeEnum.class) {{
+
         Arrays.stream(BusTypeEnum.values())
                 .forEach(busTypeEnum -> {
                     put(busTypeEnum, BeanUtil.getBean(busTypeEnum.getBusClass()));
