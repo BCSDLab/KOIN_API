@@ -1,6 +1,7 @@
 package koreatech.in.domain.Bus;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @ToString

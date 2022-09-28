@@ -13,7 +13,7 @@ public class SchoolBusTimetable extends BusTimetable {
     private String route_name;
 
     @JsonIgnore
-    List<Integer> running_days;
+    List<String> running_days;
 
     List<ArrivalNode> arrival_info;
 

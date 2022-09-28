@@ -316,7 +316,8 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
-            <version>1.3.5.RELEASE</version>
+            <version>1.6.4.RELEASE</version>
+            <optional>false</optional>
         </dependency>
 
         <!-- mapstruct -->

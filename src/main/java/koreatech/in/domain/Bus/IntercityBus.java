@@ -44,8 +44,8 @@ public class IntercityBus extends Bus {
     public BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival) {
         BusRemainTime response = new BusRemainTime();
         try {
-            BusTerminalEnum departTerminal = Objects.requireNonNull(BusTerminalEnum.findByTerminalName(depart));
-            BusTerminalEnum arrivalTerminal = Objects.requireNonNull(BusTerminalEnum.findByTerminalName(arrival));
+            BusTerminalEnum departTerminal = BusTerminalEnum.findByTerminalName(depart);
+            BusTerminalEnum arrivalTerminal = BusTerminalEnum.findByTerminalName(arrival);
 
             List<IntercityBusTimetable> arrivalInfos = getArrivalTimes(departTerminal, arrivalTerminal);
             if (arrivalInfos.isEmpty()) {
@@ -86,7 +86,7 @@ public class IntercityBus extends Bus {
                                     nextDepartureTime.plusDays(1).toEpochSecond() - nowDateTime.toEpochSecond() : nextDepartureTime.toEpochSecond() - nowDateTime.toEpochSecond()))
                     )
                     .build();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             return response;
         }
     }
@@ -115,7 +115,7 @@ public class IntercityBus extends Bus {
 
     private List<IntercityBusTimetable> getArrivalTimesFromCache(@NotNull BusTerminalEnum departTerminal,
                                                                  @NotNull BusTerminalEnum arrivalTerminal) {
-        String cacheKey = getCacheKey(departTerminal.getTerminalName(), arrivalTerminal.getTerminalName());
+        String cacheKey = getCacheKey(departTerminal.getTerminal().getEngName(), arrivalTerminal.getTerminal().getEngName());
         try {
             String cachedValue = stringRedisUtilStr.getDataAsString(cacheKey);
             return gson.fromJson(cachedValue, timetableType);
@@ -192,7 +192,7 @@ public class IntercityBus extends Bus {
     private void cacheBusArrivalInfo(@NotNull BusTerminalEnum departTerminal,
                                      @NotNull BusTerminalEnum arrivalTerminal,
                                      List<IntercityBusTimetable> timetables) throws IOException {
-        String cacheKey = getCacheKey(departTerminal.getTerminalName(), arrivalTerminal.getTerminalName());
+        String cacheKey = getCacheKey(departTerminal.getTerminal().getEngName(), arrivalTerminal.getTerminal().getEngName());
         stringRedisUtilObj.setDataAsString(cacheKey, timetables);
     }
 

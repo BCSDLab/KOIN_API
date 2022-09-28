@@ -8,29 +8,29 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BusTerminalEnum {
 
-    KOREATECH("koreatech", "NAI3125301"),
-    TERMINAL("terminal", "NAI3112001"),
+    KOREATECH(MajorStationEnum.KOREATECH, "NAI3125301"),
+    TERMINAL(MajorStationEnum.TERMINAL, "NAI3112001"),
     ;
 
-    private final String terminalName;
+    private final MajorStationEnum terminal;
 
     private final String terminalID;
 
-    public static BusTerminalEnum findByTerminalName(String terminalName) {
+    public static BusTerminalEnum findByTerminalName(String terminalName) throws IllegalArgumentException {
         for (BusTerminalEnum busTerminalEnum : BusTerminalEnum.values()) {
-            if (busTerminalEnum.getTerminalName().equalsIgnoreCase(terminalName)) {
+            if (busTerminalEnum.getTerminal().getEngName().equalsIgnoreCase(terminalName)) {
                 return busTerminalEnum;
             }
         }
-        return null;
+        throw new IllegalArgumentException();
     }
 
-    public static BusTerminalEnum findByTerminalID(String terminalID) {
+    public static BusTerminalEnum findByTerminalID(String terminalID) throws IllegalArgumentException {
         for (BusTerminalEnum busTerminalEnum : BusTerminalEnum.values()) {
             if (busTerminalEnum.getTerminalID().equalsIgnoreCase(terminalID)) {
                 return busTerminalEnum;
             }
         }
-        return null;
+        throw new IllegalArgumentException();
     }
 }

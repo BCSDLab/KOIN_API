@@ -29,7 +29,7 @@ public enum BusTypeEnum {
                 });
     }};
 
-    private static BusTypeEnum findBy(String busType) {
+    private static BusTypeEnum findBy(String busType) throws IllegalArgumentException {
 
         return Arrays.stream(BusTypeEnum.values())
                 .filter(busTypeEnum -> busTypeEnum.name().equalsIgnoreCase(busType))

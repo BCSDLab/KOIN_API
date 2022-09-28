@@ -46,7 +46,7 @@ public class CityBus extends Bus {
     public BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival) {
         BusRemainTime response = new BusRemainTime();
         try {
-            BusNodeEnum busNodeEnum = Objects.requireNonNull(BusNodeEnum.valueOf(depart, arrival));
+            BusNodeEnum busNodeEnum = BusNodeEnum.valueOf(depart, arrival);
             List<CityBusArrivalInfo> arrivalInfos = Objects.requireNonNull(getArrivalTimes(busNodeEnum));
 
             if (arrivalInfos.size() == 1) {
@@ -59,7 +59,7 @@ public class CityBus extends Bus {
                         .nextRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(1).getRouteno(), arrivalInfos.get(1).getArrtime()))
                         .build();
             }
-        } catch (JsonSyntaxException e) {
+        } catch (JsonSyntaxException | IllegalArgumentException e) {
             return response;
         } catch (Exception e) {
             e.printStackTrace();
