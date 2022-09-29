@@ -1,23 +1,19 @@
-package koreatech.in.service;
+package koreatech.in.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static koreatech.in.domain.DomainToMap.isContain;
 
-@Component
-public class JsonConstructor {
-    private static Gson gson = new Gson();
-    private static JsonParser parser = new JsonParser();
-
-    public JsonConstructor() {
-    }
+public final class JsonConstructor {
+    private static final Gson gson = new Gson();
+    private static final JsonParser parser = new JsonParser();
 
     // 내부에 문자열만 존재하는 ["~~~"] 형태의 JSON을 객체로 binding, 실패 시 null 반환
-    public List<String> parseJsonArrayWithOnlyString(String jsonString) {
+    public static List<String> parseJsonArrayWithOnlyString(String jsonString) {
         if (jsonString == null) return null;
         List<String> list;
         try {
@@ -29,7 +25,7 @@ public class JsonConstructor {
     }
 
     // 내부에 문자열만 존재하는 ["~~~"] 형태인지 검사
-    public Boolean isJsonArrayWithOnlyString(String jsonString) {
+    public static Boolean isJsonArrayWithOnlyString(String jsonString) {
         if (jsonString == null) return false;
         JsonElement jsonElement;
         try {
@@ -49,7 +45,7 @@ public class JsonConstructor {
     }
 
     // [{"~~~": "~~~", "~~~": "~~~"}] 형태의 JSON을 객체로 binding, 실패 시 null 반환
-    public List<Map<String, Object>> parseJsonArrayWithObject(JsonArray jsonArray) {
+    public static List<Map<String, Object>> parseJsonArrayWithObject(JsonArray jsonArray) {
         if (jsonArray == null) return null;
         List<Map<String, Object>> list;
         try {
@@ -64,7 +60,7 @@ public class JsonConstructor {
     }
 
     // [{"~~~": "~~~", "~~~": "~~~"}] 형태의 JSON을 객체로 binding, 실패 시 null 반환
-    public List<Map<String, Object>> parseJsonArrayWithObject(String jsonString) {
+    public static List<Map<String, Object>> parseJsonArrayWithObject(String jsonString) {
         if (jsonString == null) return null;
         List<Map<String, Object>> list;
         try {
@@ -81,7 +77,7 @@ public class JsonConstructor {
     }
 
     // 내부에 JSON Object만 존재하는 [{"~~~": "~~~", "~~~": "~~~"}] 형태인지 검사
-    public Boolean isJsonArrayWithOnlyObject(String jsonString) {
+    public static Boolean isJsonArrayWithOnlyObject(String jsonString) {
         if (jsonString == null) return false;
         JsonElement jsonElement;
         try {
@@ -100,7 +96,7 @@ public class JsonConstructor {
         return true;
     }
 
-    private Map<String, Object> parseJsonObject(JsonObject jsonObject, String[] arrAllowKeys) throws JsonSyntaxException, JsonIOException {
+    private static Map<String, Object> parseJsonObject(JsonObject jsonObject, String[] arrAllowKeys) throws JsonSyntaxException, JsonIOException {
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             if (arrAllowKeys != null && !isContain(arrAllowKeys, entry.getKey())) continue;
             JsonElement value = entry.getValue();
@@ -121,7 +117,7 @@ public class JsonConstructor {
         return gson.fromJson(jsonObject, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
-    public Map<String, Object> parseJsonObject(JsonObject jsonObject) {
+    public static Map<String, Object> parseJsonObject(JsonObject jsonObject) {
         if (jsonObject == null) return null;
         Map<String, Object> map;
         try {
@@ -132,7 +128,7 @@ public class JsonConstructor {
         return map;
     }
 
-    public Map<String, Object> parseJsonObject(String jsonString, String[] arrAllowKeys) {
+    public static Map<String, Object> parseJsonObject(String jsonString, String[] arrAllowKeys) {
         if (jsonString == null) return null;
         Map<String, Object> map;
         try {
@@ -147,7 +143,7 @@ public class JsonConstructor {
         return map;
     }
 
-    public Map<String, Object> parseJsonObject(String jsonString) {
+    public static Map<String, Object> parseJsonObject(String jsonString) {
         if (jsonString == null) return null;
         Map<String, Object> map;
         try {
@@ -162,7 +158,7 @@ public class JsonConstructor {
         return map;
     }
 
-    public Boolean isJsonObject(String jsonString) {
+    public static boolean isJsonObject(String jsonString) {
         if (jsonString == null) return false;
         try {
             JsonElement jsonElement = parser.parse(jsonString);
@@ -170,5 +166,14 @@ public class JsonConstructor {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static boolean isValidJson(String json) {
+        try {
+            parser.parse(json);
+        } catch (JsonSyntaxException e) {
+            return false;
+        }
+        return true;
     }
 }
