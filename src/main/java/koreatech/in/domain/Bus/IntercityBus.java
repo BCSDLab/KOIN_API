@@ -5,11 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
+
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.mapstruct.IntercityBusTimetableMapper;
 import koreatech.in.util.SlackNotiSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
