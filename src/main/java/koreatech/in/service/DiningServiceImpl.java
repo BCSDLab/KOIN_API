@@ -5,6 +5,7 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.DiningMapper;
 import koreatech.in.util.JsonConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
