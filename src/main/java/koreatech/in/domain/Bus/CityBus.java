@@ -105,7 +105,9 @@ public class CityBus extends Bus {
                     .filter(info -> IntStream.of(AVAILABLE_CITY_BUS).anyMatch(busNumber -> busNumber == info.getRouteno()))
                     .sorted()
                     .collect(Collectors.toList());
-            cacheBusArrivalInfo(nodeID, arrivalInfos);
+            if (!arrivalInfos.isEmpty()) {
+                cacheBusArrivalInfo(nodeID, arrivalInfos);
+            }
 
             return arrivalInfos;
         } catch (Exception e) {

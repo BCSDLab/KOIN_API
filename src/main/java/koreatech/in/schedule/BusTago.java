@@ -22,7 +22,7 @@ public class BusTago {
 
     // 하루에 한 번으로 지정하려했지만, 공공 데이터 API 호출 결과 00시에 바로 업데이트 되지 않음을 확인
     // 이전보다 더 잦게 스케줄링하도록 변경
-    @Scheduled(cron = "0 */5 * * * *") //@Scheduled(cron = "0 0 0 1/1 * *")
+    @Scheduled(cron = "0 */3 * * * *")
     public void handleIntercityBus() {
         intercityBus.cacheBusArrivalInfo();
     }
