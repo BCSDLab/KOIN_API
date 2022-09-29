@@ -8,15 +8,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class BusRemainTime {
+
+    private final String busType;
 
     private RemainTime nowBus;
 
     private RemainTime nextBus;
 
-    private BusRemainTime(RemainTime now, RemainTime next) {
+    public BusRemainTime(String busType) {
+        this.busType = busType;
+    }
+
+    private BusRemainTime(String busType, RemainTime now, RemainTime next) {
+        this.busType = busType;
         this.nowBus = now;
         this.nextBus = next;
     }
@@ -24,9 +30,16 @@ public class BusRemainTime {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class Builder {
 
+        private String busType;
+
         private RemainTime nowRemainTime;
 
         private RemainTime nextRemainTime;
+
+        public Builder busType(String busType) {
+            this.busType = busType;
+            return this;
+        }
 
         public Builder nowRemainTime(RemainTime nowRemainTime) {
             this.nowRemainTime = nowRemainTime;
@@ -39,7 +52,7 @@ public class BusRemainTime {
         }
 
         public BusRemainTime build() {
-            return new BusRemainTime(nowRemainTime, nextRemainTime);
+            return new BusRemainTime(busType, nowRemainTime, nextRemainTime);
         }
     }
 

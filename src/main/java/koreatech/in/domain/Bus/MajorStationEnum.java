@@ -16,15 +16,19 @@ public enum MajorStationEnum {
 
     KOREATECH("koreatech", "한기대",
             new ArrayList<String>() {{
+                add("한기대");
                 add("학교");
                 add("코리아텍");
             }}),
     STATION("station", "천안역",
-            new ArrayList<String>() {
-            }),
+            new ArrayList<String>() {{
+                add("천안역");
+            }}),
     TERMINAL("terminal", "터미널",
             new ArrayList<String>() {{
+                add("터미널");
                 add("야우리");
+                add("신세계");
             }}),
     ;
 

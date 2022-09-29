@@ -11,16 +11,19 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.lang.reflect.Type;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public abstract class SchoolBus extends Bus {
 
     private final String[] daysStr = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
-
     private static final Type arrivalInfoType = new TypeToken<SchoolBusArrivalInfo>() {
     }.getType();
 
@@ -31,26 +34,99 @@ public abstract class SchoolBus extends Bus {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival) {
-        BusRemainTime response = new BusRemainTime();
+    public BusRemainTime getNowAndNextBusRemainTime(String busType, String depart, String arrival) {
+        BusRemainTime response = new BusRemainTime(busType);
         try {
             BusNodeEnum busNode = BusNodeEnum.valueOf(depart, arrival);
-            String direction = busNode.getDirection();
-            String todayName = getDayName(LocalDateTime.now());
-            String waypoint = "to".equals(direction) ? busNode.getDepart().getKorName() : busNode.getArrival().getKorName();
+            LocalDateTime nowDateTime = LocalDateTime.now();
+            String todayName = getDayName(nowDateTime);
 
-            List<SchoolBusArrivalInfo> arrivalInfos = findForRealtimeBus(todayName, RegionEnum.천안.name(), direction, waypoint);
+            List<SchoolBusTimetable.ArrivalNode> targetNodes = new ArrayList<>();
+            List<SchoolBusArrivalInfo> arrivalInfos = findForRealtimeBus(todayName, RegionEnum.천안.name(), busType);
             arrivalInfos.forEach(info -> {
+
                 List<SchoolBusTimetable> timetables = info.getRoutes();
-                timetables
-                        .forEach(System.out::println);
+                timetables.forEach(timetable -> {
+
+                    List<SchoolBusTimetable.ArrivalNode> arrivalNodes = timetable.getArrival_info();
+                    int departIndex = arrivalNodes.size();
+                    int arrivalIndex = 0;
+                    for (int i = 0; i < arrivalNodes.size(); i++) {
+                        SchoolBusTimetable.ArrivalNode node = arrivalNodes.get(i);
+                        if (isWaypoint(node.getNode_name(), busNode.getDepart())) {
+                            departIndex = Integer.min(departIndex, i);
+                        } else if (isWaypoint(node.getNode_name(), busNode.getArrival())) {
+                            arrivalIndex = Integer.max(arrivalIndex, i);
+                        }
+                    }
+
+                    if (departIndex < arrivalIndex) {
+                        targetNodes.add(arrivalNodes.get(departIndex));
+                    }
+                });
             });
 
-        } catch (NullPointerException | IllegalArgumentException e) {
+            if (targetNodes.isEmpty()) {
+                return response;
+            }
+
+            Collections.sort(targetNodes);
+
+            final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            final int nowBusIndex = findClosestBus(targetNodes, timeFormatter, nowDateTime);
+            final int nextBusIndex = (nowBusIndex + 1) % targetNodes.size();
+
+            SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
+            LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
+
+            SchoolBusTimetable.ArrivalNode nextBusTime = targetNodes.get(nextBusIndex);
+            LocalDateTime nextDepartureTime = LocalTime.parse(nextBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
+
+            return new BusRemainTime.Builder()
+                    .busType(busType)
+                    .nowRemainTime(
+                            new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.isBefore(nowDateTime) ?
+                                    ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime.plusDays(1)) : ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime)))
+                    )
+                    .nextRemainTime(
+                            new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.isBefore(nowDateTime) ?
+                                    ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime)))
+                    )
+                    .build();
+
+
+        } catch (NullPointerException | IllegalArgumentException | DateTimeParseException e) {
             return response;
         }
+    }
 
-        return response;
+    private int findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, DateTimeFormatter timeFormatter, LocalDateTime nowDateTime) {
+        LocalDate nowDate = nowDateTime.toLocalDate();
+        int nowBusIndex = 0;
+        for (int i = 0; i < arrivalInfos.size(); i++) {
+            SchoolBusTimetable.ArrivalNode timetable = arrivalInfos.get(i);
+            LocalDateTime departureTime;
+            LocalDateTime arrivalTime;
+            try {
+                departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
+                arrivalTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
+            } catch (DateTimeParseException e) {
+                continue;
+            }
+
+            if (nowDateTime.isAfter(departureTime)) {
+                nowBusIndex = (i + 1) % arrivalInfos.size();
+                if (nowDateTime.isBefore(arrivalTime)) break;
+                continue;
+            }
+            break;
+        }
+        return nowBusIndex;
+    }
+
+    private boolean isWaypoint(String nodeName, MajorStationEnum waypoint) {
+        final String waypointRegex = String.format("^(?:%s|%s).*$", waypoint.getKorName(), String.join("|", waypoint.getSynonyms()));
+        return Pattern.matches(waypointRegex, nodeName);
     }
 
     private String getDayName(LocalDateTime dateTime) {
@@ -58,7 +134,7 @@ public abstract class SchoolBus extends Bus {
         return daysStr[dayOfWeek.getValue() - 1];
     }
 
-    private List<SchoolBusArrivalInfo> findForRealtimeBus(String targetDay, String region, String direction, String waypoint) {
+    private List<SchoolBusArrivalInfo> findForRealtimeBus(String targetDay, String region, String busType) {
 
         DBObject filterExpression = BasicDBObjectBuilder.start()
                 .add("input", "$routes")
@@ -79,16 +155,16 @@ public abstract class SchoolBus extends Bus {
                 .get()
         );
 
-        DBObject match = new BasicDBObject("$match", Criteria.where("region").is(region)
-                .and("direction").is(direction)
+        DBObject match = new BasicDBObject("$match", Criteria
+                .where("region").is(region)
+                .and("bus_type").is(busType)
                 .and("routes").elemMatch(new Criteria().exists(true))
-                .and("routes.arrival_info.node_name").regex(String.format("^%s", waypoint))
                 .getCriteriaObject()
         );
 
         List<DBObject> pipeline = new ArrayList<DBObject>() {{
-            add(projection);
             add(match);
+            add(projection);
         }};
 
         AggregationOutput results = mongoTemplate.getCollection("bus_timetables").aggregate(pipeline);

@@ -43,18 +43,20 @@ public class CityBus extends Bus {
     private SlackNotiSender sender;
 
     @Override
-    public BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival) {
-        BusRemainTime response = new BusRemainTime();
+    public BusRemainTime getNowAndNextBusRemainTime(String busType, String depart, String arrival) {
+        BusRemainTime response = new BusRemainTime(busType);
         try {
             BusNodeEnum busNodeEnum = BusNodeEnum.valueOf(depart, arrival);
             List<CityBusArrivalInfo> arrivalInfos = Objects.requireNonNull(getArrivalTimes(busNodeEnum));
 
             if (arrivalInfos.size() == 1) {
                 return new BusRemainTime.Builder()
+                        .busType(busType)
                         .nowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
                         .build();
             } else if (arrivalInfos.size() > 1) {
                 return new BusRemainTime.Builder()
+                        .busType(busType)
                         .nowRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(0).getRouteno(), arrivalInfos.get(0).getArrtime()))
                         .nextRemainTime(new BusRemainTime.RemainTime(arrivalInfos.get(1).getRouteno(), arrivalInfos.get(1).getArrtime()))
                         .build();

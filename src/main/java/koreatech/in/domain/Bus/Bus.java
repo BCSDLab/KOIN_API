@@ -49,7 +49,7 @@ public abstract class Bus {
         return response.toString();
     }
 
-    public abstract BusRemainTime getNowAndNextBusRemainTime(String depart, String arrival);
+    public abstract BusRemainTime getNowAndNextBusRemainTime(String busType, String depart, String arrival);
 
     public abstract List<? extends BusTimetable> getTimetables(String busType, String direction, String region);
 

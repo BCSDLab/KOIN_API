@@ -13,16 +13,21 @@ public class SchoolBusTimetable extends BusTimetable {
     private String route_name;
 
     @JsonIgnore
-    List<String> running_days;
+    private List<String> running_days;
 
-    List<ArrivalNode> arrival_info;
+    private List<ArrivalNode> arrival_info;
 
     @Getter
     @ToString
-    public static class ArrivalNode {
+    public static class ArrivalNode implements Comparable<ArrivalNode> {
 
         private String node_name;
 
         private String arrival_time;
+
+        @Override
+        public int compareTo(ArrivalNode o) {
+            return arrival_time.compareTo(o.arrival_time);
+        }
     }
 }
