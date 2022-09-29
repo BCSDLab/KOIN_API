@@ -162,12 +162,7 @@ public abstract class SchoolBus extends Bus {
                 .getCriteriaObject()
         );
 
-        List<DBObject> pipeline = new ArrayList<DBObject>() {{
-            add(match);
-            add(projection);
-        }};
-
-        AggregationOutput results = mongoTemplate.getCollection("bus_timetables").aggregate(pipeline);
+        AggregationOutput results = mongoTemplate.getCollection("bus_timetables").aggregate(match, projection);
         List<SchoolBusArrivalInfo> arrivalInfos = new ArrayList<>();
         results.results().forEach(dbObject -> {
             arrivalInfos.add(gson.fromJson(dbObject.toString(), arrivalInfoType));
