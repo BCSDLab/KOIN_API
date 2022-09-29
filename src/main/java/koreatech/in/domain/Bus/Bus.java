@@ -28,10 +28,11 @@ public abstract class Bus {
     StringRedisUtilStr stringRedisUtilStr;
 
     String requestOpenAPI(String urlBuilder) throws IOException {
+        final int waitTime = 1000 * 3;
+
         URL url = new URL(urlBuilder);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setConnectTimeout(1000 * 5);
-        conn.setReadTimeout(1000 * 5);
+        conn.setConnectTimeout(waitTime);
         conn.setRequestMethod("GET");
 
         BufferedReader rd = new BufferedReader(new InputStreamReader(

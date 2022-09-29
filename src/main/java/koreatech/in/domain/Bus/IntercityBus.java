@@ -144,7 +144,9 @@ public class IntercityBus extends Bus {
                     .stream()
                     .sorted()
                     .collect(Collectors.toList());
-            cacheBusArrivalInfo(departTerminal, arrivalTerminal, timetables);
+            if (!timetables.isEmpty()) {
+                cacheBusArrivalInfo(departTerminal, arrivalTerminal, timetables);
+            }
 
             return timetables;
         } catch (Exception e) {
