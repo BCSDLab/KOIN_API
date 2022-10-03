@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.mapstruct.IntercityBusTimetableMapper;
 import koreatech.in.util.SlackNotiSender;
@@ -19,10 +18,10 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,14 +54,17 @@ public class IntercityBus extends Bus {
             }
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-            LocalDateTime nowDateTime = LocalDateTime.now();
+            final LocalDateTime nowDateTime = LocalDateTime.now();
             final int nowBusIndex = findClosestBus(arrivalInfos, timeFormatter, nowDateTime);
-            final int nextBusIndex = (nowBusIndex + 1) % arrivalInfos.size();
+            int nextBusIndex = (nowBusIndex + 1) % arrivalInfos.size();
 
-            IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
-            LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getDeparture(), timeFormatter).atDate(nowDateTime.toLocalDate());
-
+            final IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
             IntercityBusTimetable nextBusTime = arrivalInfos.get(nextBusIndex);
+            while (nowBusIndex != nextBusIndex && Objects.equals(nowBusTime.getDeparture(), nextBusTime.getDeparture())) {
+                nextBusTime = arrivalInfos.get(++nextBusIndex);
+            }
+
+            LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getDeparture(), timeFormatter).atDate(nowDateTime.toLocalDate());
             LocalDateTime nextDepartureTime = LocalTime.parse(nextBusTime.getDeparture(), timeFormatter).atDate(nowDateTime.toLocalDate());
 
             return new BusRemainTime.Builder()
@@ -76,13 +78,13 @@ public class IntercityBus extends Bus {
                                     ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime)))
                     )
                     .build();
-        } catch (NullPointerException | IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             return response;
         }
     }
 
     private int findClosestBus(List<IntercityBusTimetable> arrivalInfos, DateTimeFormatter timeFormatter, LocalDateTime nowDateTime) {
-        LocalDate nowDate = nowDateTime.toLocalDate();
+        final LocalDate nowDate = nowDateTime.toLocalDate();
         int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             IntercityBusTimetable timetable = arrivalInfos.get(i);
