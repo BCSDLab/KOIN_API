@@ -82,7 +82,8 @@ public abstract class SchoolBus extends Bus {
             final SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
             SchoolBusTimetable.ArrivalNode nextBusTime = targetNodes.get(nextBusIndex);
             while (nowBusIndex != nextBusIndex && Objects.equals(nowBusTime.getArrival_time(), nextBusTime.getArrival_time())) {
-                nextBusTime = targetNodes.get(++nextBusIndex);
+                nextBusIndex = (nextBusIndex + 1) % targetNodes.size();
+                nextBusTime = targetNodes.get(nextBusIndex);
             }
 
             LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());

@@ -61,7 +61,8 @@ public class IntercityBus extends Bus {
             final IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
             IntercityBusTimetable nextBusTime = arrivalInfos.get(nextBusIndex);
             while (nowBusIndex != nextBusIndex && Objects.equals(nowBusTime.getDeparture(), nextBusTime.getDeparture())) {
-                nextBusTime = arrivalInfos.get(++nextBusIndex);
+                nextBusIndex = (nextBusIndex + 1) % arrivalInfos.size();
+                nextBusTime = arrivalInfos.get(nextBusIndex);
             }
 
             LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getDeparture(), timeFormatter).atDate(nowDateTime.toLocalDate());
