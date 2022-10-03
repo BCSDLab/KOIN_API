@@ -76,7 +76,7 @@ public class IntercityBus extends Bus {
                                     ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime)))
                     )
                     .build();
-        } catch (NullPointerException | IllegalArgumentException | DateTimeParseException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             return response;
         }
     }
@@ -87,15 +87,13 @@ public class IntercityBus extends Bus {
         for (int i = 0; i < arrivalInfos.size(); i++) {
             IntercityBusTimetable timetable = arrivalInfos.get(i);
             LocalDateTime departureTime = LocalTime.parse(timetable.getDeparture(), timeFormatter).atDate(nowDate);
-            LocalDateTime arrivalTime = LocalTime.parse(timetable.getArrival(), timeFormatter).atDate(nowDate);
 
-            if (nowDateTime.isAfter(departureTime)) {
-                nowBusIndex = (i + 1) % arrivalInfos.size();
-                if (nowDateTime.isBefore(arrivalTime)) break;
-                continue;
+            if (nowDateTime.isBefore(departureTime)) {
+                nowBusIndex = i;
+                break;
             }
-            break;
         }
+
         return nowBusIndex;
     }
 

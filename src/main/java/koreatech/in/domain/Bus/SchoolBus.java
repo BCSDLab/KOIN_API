@@ -95,7 +95,7 @@ public abstract class SchoolBus extends Bus {
                     .build();
 
 
-        } catch (NullPointerException | IllegalArgumentException | DateTimeParseException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             return response;
         }
     }
@@ -105,22 +105,14 @@ public abstract class SchoolBus extends Bus {
         int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             SchoolBusTimetable.ArrivalNode timetable = arrivalInfos.get(i);
-            LocalDateTime departureTime;
-            LocalDateTime arrivalTime;
-            try {
-                departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
-                arrivalTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
-            } catch (DateTimeParseException e) {
-                continue;
-            }
+            LocalDateTime departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
 
-            if (nowDateTime.isAfter(departureTime)) {
-                nowBusIndex = (i + 1) % arrivalInfos.size();
-                if (nowDateTime.isBefore(arrivalTime)) break;
-                continue;
+            if (nowDateTime.isBefore(departureTime)) {
+                nowBusIndex = i;
+                break;
             }
-            break;
         }
+
         return nowBusIndex;
     }
 
