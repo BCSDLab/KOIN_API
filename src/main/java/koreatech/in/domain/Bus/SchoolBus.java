@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public abstract class SchoolBus extends Bus {
 
-    private final String[] daysStr = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+    private final String[] daysStr = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
     private static final Type arrivalInfoType = new TypeToken<SchoolBusArrivalInfo>() {
     }.getType();
 
@@ -97,7 +97,7 @@ public abstract class SchoolBus extends Bus {
                     )
                     .nextRemainTime(
                             new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.isBefore(nowDateTime) ?
-                                    ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime)))
+                                    ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 1 : 0))))
                     )
                     .build();
 
