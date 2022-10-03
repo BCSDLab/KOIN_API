@@ -11,13 +11,16 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.lang.reflect.Type;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -74,12 +77,16 @@ public abstract class SchoolBus extends Bus {
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             final int nowBusIndex = findClosestBus(targetNodes, timeFormatter, nowDateTime);
-            final int nextBusIndex = (nowBusIndex + 1) % targetNodes.size();
+            int nextBusIndex = (nowBusIndex + 1) % targetNodes.size();
 
-            SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
-            LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
-
+            final SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
             SchoolBusTimetable.ArrivalNode nextBusTime = targetNodes.get(nextBusIndex);
+            while (nowBusIndex != nextBusIndex && Objects.equals(nowBusTime.getArrival_time(), nextBusTime.getArrival_time())) {
+                nextBusIndex = (nextBusIndex + 1) % targetNodes.size();
+                nextBusTime = targetNodes.get(nextBusIndex);
+            }
+
+            LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
             LocalDateTime nextDepartureTime = LocalTime.parse(nextBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
 
             return new BusRemainTime.Builder()
@@ -95,32 +102,24 @@ public abstract class SchoolBus extends Bus {
                     .build();
 
 
-        } catch (NullPointerException | IllegalArgumentException | DateTimeParseException e) {
+        } catch (NullPointerException e) {
             return response;
         }
     }
 
     private int findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, DateTimeFormatter timeFormatter, LocalDateTime nowDateTime) {
-        LocalDate nowDate = nowDateTime.toLocalDate();
+        final LocalDate nowDate = nowDateTime.toLocalDate();
         int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             SchoolBusTimetable.ArrivalNode timetable = arrivalInfos.get(i);
-            LocalDateTime departureTime;
-            LocalDateTime arrivalTime;
-            try {
-                departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
-                arrivalTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
-            } catch (DateTimeParseException e) {
-                continue;
-            }
+            LocalDateTime departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
 
-            if (nowDateTime.isAfter(departureTime)) {
-                nowBusIndex = (i + 1) % arrivalInfos.size();
-                if (nowDateTime.isBefore(arrivalTime)) break;
-                continue;
+            if (nowDateTime.isBefore(departureTime)) {
+                nowBusIndex = i;
+                break;
             }
-            break;
         }
+
         return nowBusIndex;
     }
 
