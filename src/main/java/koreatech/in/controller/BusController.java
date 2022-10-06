@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Bus.BusRemainTime;
 import koreatech.in.domain.Bus.BusTimetable;
 import koreatech.in.domain.Bus.SchoolBusCourse;
+import koreatech.in.domain.Bus.SingleBusTime;
 import koreatech.in.service.BusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,5 +47,15 @@ public class BusController {
                                                               @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
 
         return new ResponseEntity<>(busService.getTimetable(busType, direction, region), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<List<SingleBusTime>> getTimetable(@ApiParam(value = "yyyy-MM-dd", required = true, example = "2022-10-06") @RequestParam(value = "date") String date,
+                                                     @ApiParam(value = "HH:mm", required = true, example = "14:10") @RequestParam(value = "time") String time,
+                                                     @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "depart") String depart,
+                                                     @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) {
+
+        return new ResponseEntity<>(busService.searchTimetable(date, time, depart, arrival), HttpStatus.OK);
     }
 }

@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,5 +57,32 @@ public class BusServiceImpl implements BusService {
         }
 
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<SingleBusTime> searchTimetable(String date, String time, String depart, String arrival) {
+
+        List<SingleBusTime> result = new ArrayList<>();
+        try {
+            LocalDate localDate = LocalDate.parse(date);
+            LocalTime localTime = LocalTime.parse(time);
+            for (BusTypeEnum busTypeEnum : BusTypeEnum.values()) {
+                Bus bus = busTypeEnum.getBus();
+                SingleBusTime busTime;
+                try {
+                    busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), depart, arrival, localDate, localTime);
+                    if (busTime == null) {
+                        continue;
+                    }
+                } catch (UnsupportedOperationException e) {
+                    continue;
+                }
+                result.add(busTime);
+            }
+        } catch (DateTimeParseException | IllegalArgumentException e) {
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
+        }
+
+        return result;
     }
 }

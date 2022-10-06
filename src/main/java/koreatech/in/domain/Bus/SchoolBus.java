@@ -17,11 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class SchoolBus extends Bus {
@@ -76,7 +72,7 @@ public abstract class SchoolBus extends Bus {
             Collections.sort(targetNodes);
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-            final int nowBusIndex = findClosestBus(targetNodes, timeFormatter, nowDateTime);
+            final int nowBusIndex = findClosestBus(targetNodes, nowDateTime);
             int nextBusIndex = (nowBusIndex + 1) % targetNodes.size();
 
             final SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
@@ -107,14 +103,14 @@ public abstract class SchoolBus extends Bus {
         }
     }
 
-    private int findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, DateTimeFormatter timeFormatter, LocalDateTime nowDateTime) {
-        final LocalDate nowDate = nowDateTime.toLocalDate();
+    private int findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, LocalDateTime at) {
+        final LocalTime nowTime = at.toLocalTime();
         int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             SchoolBusTimetable.ArrivalNode timetable = arrivalInfos.get(i);
-            LocalDateTime departureTime = LocalTime.parse(timetable.getArrival_time(), timeFormatter).atDate(nowDate);
+            LocalTime departureTime = LocalTime.parse(timetable.getArrival_time());
 
-            if (nowDateTime.isBefore(departureTime)) {
+            if (nowTime.isBefore(departureTime)) {
                 nowBusIndex = i;
                 break;
             }
@@ -177,6 +173,48 @@ public abstract class SchoolBus extends Bus {
         return Optional.ofNullable(arrivalInfo)
                 .map(SchoolBusArrivalInfo::getRoutes)
                 .orElseGet(ArrayList::new);
+    }
+
+    @Override
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
+        BusNodeEnum busNode = BusNodeEnum.valueOf(depart, arrival);
+        LocalDateTime targetDateTime = LocalDateTime.of(date, time);
+        String todayName = getDayName(targetDateTime);
+
+        List<SchoolBusTimetable.ArrivalNode> targetNodes = new ArrayList<>();
+        List<SchoolBusArrivalInfo> arrivalInfos = findForRealtimeBus(todayName, RegionEnum.천안.name(), busType);
+        arrivalInfos.forEach(info -> {
+
+            List<SchoolBusTimetable> timetables = info.getRoutes();
+            timetables.forEach(timetable -> {
+
+                List<SchoolBusTimetable.ArrivalNode> arrivalNodes = timetable.getArrival_info();
+                int departIndex = arrivalNodes.size();
+                int arrivalIndex = 0;
+                for (int i = 0; i < arrivalNodes.size(); i++) {
+                    SchoolBusTimetable.ArrivalNode node = arrivalNodes.get(i);
+                    if (isWaypoint(node.getNode_name(), busNode.getDepart())) {
+                        departIndex = Integer.min(departIndex, i);
+                    } else if (isWaypoint(node.getNode_name(), busNode.getArrival())) {
+                        arrivalIndex = Integer.max(arrivalIndex, i);
+                    }
+                }
+
+                if (departIndex < arrivalIndex) {
+                    targetNodes.add(arrivalNodes.get(departIndex));
+                }
+            });
+        });
+
+        if (targetNodes.isEmpty()) {
+            return null;
+        }
+
+        Collections.sort(targetNodes);
+
+        final int nowBusIndex = findClosestBus(targetNodes, targetDateTime);
+
+        return new SingleBusTime(busType, targetNodes.get(nowBusIndex).getArrival_time());
     }
 
     @Override

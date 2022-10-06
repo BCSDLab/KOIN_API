@@ -41,4 +41,9 @@ public enum BusTypeEnum {
 
         return busTypeEnumMap.get(findBy(busType));
     }
+
+    public Bus getBus() {
+
+        return busTypeEnumMap.get(this);
+    }
 }
