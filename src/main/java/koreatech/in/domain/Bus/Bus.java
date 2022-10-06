@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,14 +11,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public abstract class Bus {
 
     static final Gson gson = new Gson();
-
-    @Value("${OPEN_API_KEY}")
-    String OPEN_API_KEY;
 
     @Autowired
     StringRedisUtilObj stringRedisUtilObj;
@@ -55,4 +53,6 @@ public abstract class Bus {
     public abstract List<? extends BusTimetable> getTimetables(String busType, String direction, String region);
 
     public abstract void cacheBusArrivalInfo();
+
+    public abstract SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time);
 }

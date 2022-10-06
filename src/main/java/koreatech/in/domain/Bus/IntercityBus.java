@@ -11,6 +11,7 @@ import koreatech.in.util.SlackNotiSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -38,6 +39,9 @@ public class IntercityBus extends Bus {
     private static final Type timetableType = new TypeToken<List<IntercityBusTimetable>>() {
     }.getType();
 
+    @Value("${OPEN_API_KEY}")
+    private String OPEN_API_KEY;
+
     @Autowired
     private SlackNotiSender sender;
 
@@ -55,7 +59,7 @@ public class IntercityBus extends Bus {
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             final LocalDateTime nowDateTime = LocalDateTime.now();
-            final int nowBusIndex = findClosestBus(arrivalInfos, timeFormatter, nowDateTime);
+            final int nowBusIndex = findClosestBus(arrivalInfos, nowDateTime);
             int nextBusIndex = (nowBusIndex + 1) % arrivalInfos.size();
 
             final IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
@@ -84,14 +88,14 @@ public class IntercityBus extends Bus {
         }
     }
 
-    private int findClosestBus(List<IntercityBusTimetable> arrivalInfos, DateTimeFormatter timeFormatter, LocalDateTime nowDateTime) {
-        final LocalDate nowDate = nowDateTime.toLocalDate();
+    private int findClosestBus(List<IntercityBusTimetable> arrivalInfos, LocalDateTime at) {
+        final LocalTime nowTime = at.toLocalTime();
         int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             IntercityBusTimetable timetable = arrivalInfos.get(i);
-            LocalDateTime departureTime = LocalTime.parse(timetable.getDeparture(), timeFormatter).atDate(nowDate);
+            LocalTime departureTime = LocalTime.parse(timetable.getDeparture());
 
-            if (nowDateTime.isBefore(departureTime)) {
+            if (nowTime.isBefore(departureTime)) {
                 nowBusIndex = i;
                 break;
             }
@@ -198,6 +202,26 @@ public class IntercityBus extends Bus {
         BusTerminalEnum terminal = BusTerminalEnum.TERMINAL;
         getArrivalTimesFromReal(koreatech, terminal);
         getArrivalTimesFromReal(terminal, koreatech);
+    }
+
+    @Override
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
+        try {
+            BusTerminalEnum departTerminal = BusTerminalEnum.findByTerminalName(depart);
+            BusTerminalEnum arrivalTerminal = BusTerminalEnum.findByTerminalName(arrival);
+
+            List<IntercityBusTimetable> arrivalInfos = getArrivalTimes(departTerminal, arrivalTerminal);
+            if (arrivalInfos.isEmpty()) {
+                return null;
+            }
+
+            LocalDateTime targetDateTime = LocalDateTime.of(date, time);
+            final int nowBusIndex = findClosestBus(arrivalInfos, targetDateTime);
+
+            return new SingleBusTime(busType, arrivalInfos.get(nowBusIndex).getDeparture());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private void cacheBusArrivalInfo(@NotNull BusTerminalEnum departTerminal,

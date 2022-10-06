@@ -10,14 +10,13 @@ import koreatech.in.domain.NotiSlack;
 import koreatech.in.util.SlackNotiSender;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,9 @@ public class CityBus extends Bus {
 
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrivalInfo>>() {
     }.getType();
+
+    @Value("${OPEN_API_KEY}")
+    private String OPEN_API_KEY;
 
     @Autowired
     private SlackNotiSender sender;
@@ -154,6 +156,11 @@ public class CityBus extends Bus {
         for (String nodeID : BusNodeEnum.nodeIDs) {
             getArrivalTimesFromReal(nodeID);
         }
+    }
+
+    @Override
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
+        throw new UnsupportedOperationException();
     }
 
     private void cacheBusArrivalInfo(String nodeId, List<CityBusArrivalInfo> cityBusArrivalInfos) throws IOException {
