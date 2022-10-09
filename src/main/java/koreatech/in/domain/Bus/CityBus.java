@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.util.SlackNotiSender;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +15,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +161,7 @@ public class CityBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time) {
+    public SingleBusTime searchBusTime(String busType, String busName, BusNodeEnum busNode, LocalDateTime at) {
         return null;
     }
 

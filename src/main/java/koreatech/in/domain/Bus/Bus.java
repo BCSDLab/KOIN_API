@@ -11,8 +11,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class Bus {
@@ -54,5 +53,5 @@ public abstract class Bus {
 
     public abstract void cacheBusArrivalInfo();
 
-    public abstract SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time);
+    public abstract SingleBusTime searchBusTime(String busType, String busName, BusNodeEnum busNode, LocalDateTime at);
 }
