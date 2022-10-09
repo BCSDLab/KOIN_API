@@ -27,7 +27,7 @@ public interface IntercityBusTimetableMapper {
     List<IntercityBusTimetable> toIntercityBusTimetable(List<IntercityBusArrivalInfo> intercityBusArrivalInfo);
 
     @Named("convertDateTime")
-    static String convertDateTime(String datetime) {
+    default String convertDateTime(String datetime) {
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalDateTime.parse(datetime, dateTimeFormatter).format(timeFormatter);
