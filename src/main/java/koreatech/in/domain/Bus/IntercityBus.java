@@ -59,7 +59,10 @@ public class IntercityBus extends Bus {
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             final LocalDateTime nowDateTime = LocalDateTime.now();
-            final int nowBusIndex = findClosestBus(arrivalInfos, nowDateTime);
+            final Integer nowBusIndex = findClosestBus(arrivalInfos, nowDateTime);
+            if (nowBusIndex == null) {
+                return response;
+            }
             int nextBusIndex = (nowBusIndex + 1) % arrivalInfos.size();
 
             final IntercityBusTimetable nowBusTime = arrivalInfos.get(nowBusIndex);
@@ -75,12 +78,10 @@ public class IntercityBus extends Bus {
             return new BusRemainTime.Builder()
                     .busType(busType)
                     .nowRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.isBefore(nowDateTime) ?
-                                    ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime.plusDays(1)) : ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime)))
+                            new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime))
                     )
                     .nextRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.isBefore(nowDateTime) ?
-                                    ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 1 : 0))))
+                            new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime))
                     )
                     .build();
         } catch (NullPointerException e) {
@@ -88,20 +89,18 @@ public class IntercityBus extends Bus {
         }
     }
 
-    private int findClosestBus(List<IntercityBusTimetable> arrivalInfos, LocalDateTime at) {
+    private Integer findClosestBus(List<IntercityBusTimetable> arrivalInfos, LocalDateTime at) {
         final LocalTime nowTime = at.toLocalTime();
-        int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             IntercityBusTimetable timetable = arrivalInfos.get(i);
             LocalTime departureTime = LocalTime.parse(timetable.getDeparture());
 
             if (nowTime.isBefore(departureTime)) {
-                nowBusIndex = i;
-                break;
+                return i;
             }
         }
 
-        return nowBusIndex;
+        return null;
     }
 
     @Override
@@ -216,9 +215,10 @@ public class IntercityBus extends Bus {
             }
 
             LocalDateTime targetDateTime = LocalDateTime.of(date, time);
-            final int nowBusIndex = findClosestBus(arrivalInfos, targetDateTime);
+            final Integer nowBusIndex = findClosestBus(arrivalInfos, targetDateTime);
+            final String arrivalTime = nowBusIndex == null ? null : arrivalInfos.get(nowBusIndex).getDeparture();
 
-            return new SingleBusTime(busType, arrivalInfos.get(nowBusIndex).getDeparture());
+            return new SingleBusTime(busType, arrivalTime);
         } catch (IllegalArgumentException e) {
             return null;
         }
