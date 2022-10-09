@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -18,11 +17,11 @@ public class BusRemainTime {
     private RemainTime nextBus;
 
     public BusRemainTime(String busType) {
-        this.busType = busType;
+        this.busType = busType.toLowerCase();
     }
 
     private BusRemainTime(String busType, RemainTime now, RemainTime next) {
-        this.busType = busType;
+        this.busType = busType.toLowerCase();
         this.nowBus = now;
         this.nextBus = next;
     }
@@ -37,7 +36,7 @@ public class BusRemainTime {
         private RemainTime nextRemainTime;
 
         public Builder busType(String busType) {
-            this.busType = busType;
+            this.busType = busType.toLowerCase();
             return this;
         }
 

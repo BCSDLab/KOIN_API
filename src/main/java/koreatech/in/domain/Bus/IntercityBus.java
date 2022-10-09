@@ -204,7 +204,7 @@ public class IntercityBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
+    public SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time) {
         try {
             BusTerminalEnum departTerminal = BusTerminalEnum.findByTerminalName(depart);
             BusTerminalEnum arrivalTerminal = BusTerminalEnum.findByTerminalName(arrival);
@@ -218,7 +218,7 @@ public class IntercityBus extends Bus {
             final Integer nowBusIndex = findClosestBus(arrivalInfos, targetDateTime);
             final String arrivalTime = nowBusIndex == null ? null : arrivalInfos.get(nowBusIndex).getDeparture();
 
-            return new SingleBusTime(busType, arrivalTime);
+            return new SingleBusTime(busName, arrivalTime);
         } catch (IllegalArgumentException e) {
             return null;
         }

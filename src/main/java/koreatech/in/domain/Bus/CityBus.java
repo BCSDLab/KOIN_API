@@ -159,7 +159,7 @@ public class CityBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
+    public SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time) {
         return null;
     }
 

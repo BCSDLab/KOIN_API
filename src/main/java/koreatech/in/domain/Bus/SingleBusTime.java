@@ -12,7 +12,7 @@ import lombok.ToString;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class SingleBusTime {
 
-    private String busType;
+    private final String busName;
 
-    private String busTime;
+    private final String busTime;
 }
