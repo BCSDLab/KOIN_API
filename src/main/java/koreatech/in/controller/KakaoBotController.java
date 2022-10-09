@@ -42,7 +42,6 @@ public class KakaoBotController {
             errorMsg.addSimpleText("API 오류가 발생하였습니다.");
             result = errorMsg.getSkillPayload().toString();
         }
-        System.out.println(result);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
