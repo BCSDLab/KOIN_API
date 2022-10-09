@@ -79,16 +79,16 @@ public class KakaoBotServiceImpl implements KakaoBotService {
             if (nowRemainTime != null) {
                 nowBuses.append(String.format("%s, %d시간 %d분 %d초 남음\n",
                         busTypeEnum.getBusName(),
-                        nowRemainTime.getRemainTime() / 60 / 60,
-                        nowRemainTime.getRemainTime() / 60,
+                        nowRemainTime.getRemainTime() / 3600,
+                        nowRemainTime.getRemainTime() % 3600 / 60,
                         nowRemainTime.getRemainTime() % 60)
                 );
             }
             if (nextRemainTime != null) {
                 nextBuses.append(String.format("%s, %d시간 %d분 %d초 남음\n",
                         busTypeEnum.getBusName(),
-                        nextRemainTime.getRemainTime() / 60 / 60,
-                        nextRemainTime.getRemainTime() / 60,
+                        nextRemainTime.getRemainTime() / 3600,
+                        nextRemainTime.getRemainTime() % 3600 / 60,
                         nextRemainTime.getRemainTime() % 60)
                 );
             }
