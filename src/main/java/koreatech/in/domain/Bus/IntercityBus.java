@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.time.*;
@@ -148,9 +149,7 @@ public class IntercityBus extends Bus {
                     .stream()
                     .sorted()
                     .collect(Collectors.toList());
-            if (!timetables.isEmpty()) {
-                cacheBusArrivalInfo(departTerminal, arrivalTerminal, timetables);
-            }
+            cacheBusArrivalInfo(departTerminal, arrivalTerminal, timetables);
 
             return timetables;
         } catch (Exception e) {
@@ -158,7 +157,7 @@ public class IntercityBus extends Bus {
         }
     }
 
-    private String getBusResult(String depTerminalId, String arrTerminalId) throws IOException {
+    private String getBusResult(String depTerminalId, String arrTerminalId) throws UnsupportedEncodingException {
         String urlBuilder = "http://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
                 "&" + URLEncoder.encode("depTerminalId", "UTF-8") + "=" + URLEncoder.encode(depTerminalId, "UTF-8") + // 출발 터미널 ID
                 "&" + URLEncoder.encode("arrTerminalId", "UTF-8") + "=" + URLEncoder.encode(arrTerminalId, "UTF-8") + // 도착 터미널 ID
