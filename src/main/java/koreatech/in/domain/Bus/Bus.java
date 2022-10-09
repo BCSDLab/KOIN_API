@@ -54,5 +54,5 @@ public abstract class Bus {
 
     public abstract void cacheBusArrivalInfo();
 
-    public abstract SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time);
+    public abstract SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time);
 }
