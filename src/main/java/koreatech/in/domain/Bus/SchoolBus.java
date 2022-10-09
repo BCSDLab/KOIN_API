@@ -87,6 +87,14 @@ public abstract class SchoolBus extends Bus {
             LocalDateTime nowDepartureTime = LocalTime.parse(nowBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
             LocalDateTime nextDepartureTime = LocalTime.parse(nextBusTime.getArrival_time(), timeFormatter).atDate(nowDateTime.toLocalDate());
 
+            if (nowBusIndex == nextBusIndex) {
+                return new BusRemainTime.Builder()
+                        .busType(busType)
+                        .nowRemainTime(
+                                new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime))
+                        )
+                        .build();
+            }
             return new BusRemainTime.Builder()
                     .busType(busType)
                     .nowRemainTime(
