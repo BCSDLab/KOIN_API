@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import koreatech.in.service.KakaoBotService;
 import koreatech.in.skillresponse.KakaoBot;
 import koreatech.in.skillresponse.SkillResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,18 +15,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.inject.Inject;
-
 @ApiIgnore
 @RequestMapping(value = "/koinbot")
 @Controller
 public class KakaoBotController {
-    @Inject
+
+    @Autowired
     private KakaoBotService kakaoBotService;
 
     @RequestMapping(value = "/dinings", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public @ResponseBody
     ResponseEntity<String> requestDinings(@RequestBody String body) {
+
         String result;
         try {
             JsonParser jsonParser = new JsonParser();
@@ -49,6 +50,7 @@ public class KakaoBotController {
     @RequestMapping(value = "/buses/request", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public @ResponseBody
     ResponseEntity<String> requestBuses(@RequestBody String body) {
+
         SkillResponse busSkill = new SkillResponse();
         busSkill.addQujckReplies("한기대→터미널", KakaoBot.QuickRepliesActionType.MESSAGE.getTypeText(), "한기대→터미널");
         busSkill.addQujckReplies("한기대→천안역", KakaoBot.QuickRepliesActionType.MESSAGE.getTypeText(), "한기대→천안역");
@@ -67,6 +69,7 @@ public class KakaoBotController {
     @RequestMapping(value = "/buses", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public @ResponseBody
     ResponseEntity<String> returnBuses(@RequestBody String body) {
+
         String result;
         try {
             JsonParser jsonParser = new JsonParser();

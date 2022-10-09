@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.util.SlackNotiSender;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,9 +109,7 @@ public class CityBus extends Bus {
                     .filter(info -> IntStream.of(AVAILABLE_CITY_BUS).anyMatch(busNumber -> busNumber == info.getRouteno()))
                     .sorted()
                     .collect(Collectors.toList());
-            if (!arrivalInfos.isEmpty()) {
-                cacheBusArrivalInfo(nodeID, arrivalInfos);
-            }
+            cacheBusArrivalInfo(nodeID, arrivalInfos);
 
             return arrivalInfos;
         } catch (Exception e) {
@@ -116,7 +117,7 @@ public class CityBus extends Bus {
         }
     }
 
-    private String getBusResult(String cityCode, String nodeId) throws IOException {
+    private String getBusResult(String cityCode, String nodeId) throws UnsupportedEncodingException {
         String urlBuilder = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList" + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + OPEN_API_KEY + // API Key
                 "&" + URLEncoder.encode("cityCode", "UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8") + // 도시 코드
                 "&" + URLEncoder.encode("nodeId", "UTF-8") + "=" + URLEncoder.encode(nodeId, "UTF-8") + // 정거장 ID
@@ -159,7 +160,7 @@ public class CityBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time) {
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDateTime at) {
         return null;
     }
 

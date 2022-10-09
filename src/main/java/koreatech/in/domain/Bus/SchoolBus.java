@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.lang.reflect.Type;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -175,13 +174,12 @@ public abstract class SchoolBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time) {
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDateTime at) {
         BusNodeEnum busNode = BusNodeEnum.valueOf(depart, arrival);
-        LocalDateTime targetDateTime = LocalDateTime.of(date, time);
-        String todayName = getDayName(targetDateTime);
+        String todayName = getDayName(at);
 
         List<SchoolBusTimetable.ArrivalNode> targetNodes = new ArrayList<>();
-        List<SchoolBusArrivalInfo> arrivalInfos = findForRealtimeBus(todayName, RegionEnum.천안.name(), busName);
+        List<SchoolBusArrivalInfo> arrivalInfos = findForRealtimeBus(todayName, RegionEnum.천안.name(), busType);
         arrivalInfos.forEach(info -> {
 
             List<SchoolBusTimetable> timetables = info.getRoutes();
@@ -211,10 +209,10 @@ public abstract class SchoolBus extends Bus {
 
         Collections.sort(targetNodes);
 
-        final Integer nowBusIndex = findClosestBus(targetNodes, targetDateTime);
+        final Integer nowBusIndex = findClosestBus(targetNodes, at);
         final String arrivalTime = nowBusIndex == null ? null : targetNodes.get(nowBusIndex).getArrival_time();
 
-        return new SingleBusTime(busName, arrivalTime);
+        return new SingleBusTime(busType, arrivalTime);
     }
 
     @Override

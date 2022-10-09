@@ -11,8 +11,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class Bus {
@@ -25,27 +24,32 @@ public abstract class Bus {
     @Autowired
     StringRedisUtilStr stringRedisUtilStr;
 
-    String requestOpenAPI(String urlBuilder) throws IOException {
-        final int waitTime = 1000 * 3;
+    String requestOpenAPI(String urlBuilder) {
 
-        URL url = new URL(urlBuilder);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setConnectTimeout(waitTime);
-        conn.setRequestMethod("GET");
+        final int waitTime = 1000 * 2;
+        try {
+            URL url = new URL(urlBuilder);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(waitTime);
+            conn.setReadTimeout(waitTime);
+            conn.setRequestMethod("GET");
 
-        BufferedReader rd = new BufferedReader(new InputStreamReader(
-                conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300 ? conn.getInputStream() : conn.getErrorStream(),
-                StandardCharsets.UTF_8
-        ));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            response.append(line);
+            BufferedReader rd = new BufferedReader(new InputStreamReader(
+                    conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300 ? conn.getInputStream() : conn.getErrorStream(),
+                    StandardCharsets.UTF_8
+            ));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                response.append(line);
+            }
+            rd.close();
+            conn.disconnect();
+
+            return response.toString();
+        } catch (IOException e) {
+            return null;
         }
-        rd.close();
-        conn.disconnect();
-
-        return response.toString();
     }
 
     public abstract BusRemainTime getNowAndNextBusRemainTime(String busType, String depart, String arrival);
@@ -54,5 +58,5 @@ public abstract class Bus {
 
     public abstract void cacheBusArrivalInfo();
 
-    public abstract SingleBusTime searchBusTime(String busName, String depart, String arrival, LocalDate date, LocalTime time);
+    public abstract SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDateTime at);
 }
