@@ -174,7 +174,8 @@ public abstract class SchoolBus extends Bus {
     }
 
     @Override
-    public SingleBusTime searchBusTime(String busType, String busName, BusNodeEnum busNode, LocalDateTime at) {
+    public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDateTime at) {
+        BusNodeEnum busNode = BusNodeEnum.valueOf(depart, arrival);
         String todayName = getDayName(at);
 
         List<SchoolBusTimetable.ArrivalNode> targetNodes = new ArrayList<>();
@@ -211,7 +212,7 @@ public abstract class SchoolBus extends Bus {
         final Integer nowBusIndex = findClosestBus(targetNodes, at);
         final String arrivalTime = nowBusIndex == null ? null : targetNodes.get(nowBusIndex).getArrival_time();
 
-        return new SingleBusTime(busName, arrivalTime);
+        return new SingleBusTime(busType, arrivalTime);
     }
 
     @Override

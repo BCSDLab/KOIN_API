@@ -64,11 +64,10 @@ public class BusServiceImpl implements BusService {
 
         List<SingleBusTime> result = new ArrayList<>();
         try {
-            BusNodeEnum busNodeEnum = BusNodeEnum.valueOf(depart, arrival);
             LocalDateTime localDateTime = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
             for (BusTypeEnum busTypeEnum : BusTypeEnum.values()) {
                 Bus bus = busTypeEnum.getBus();
-                SingleBusTime busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), busTypeEnum.getBusName(), busNodeEnum, localDateTime);
+                SingleBusTime busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), depart, arrival, localDateTime);
                 if (busTime == null) {
                     continue;
                 }
