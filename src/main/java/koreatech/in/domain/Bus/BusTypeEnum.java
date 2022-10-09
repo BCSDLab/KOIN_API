@@ -13,13 +13,15 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BusTypeEnum {
 
-    CITY(CityBus.class),
-    EXPRESS(IntercityBus.class),
-    SHUTTLE(ShuttleBus.class),
-    COMMUTING(CommutingBus.class),
+    CITY(CityBus.class, "시내버스"),
+    EXPRESS(IntercityBus.class, "대성고속"),
+    SHUTTLE(ShuttleBus.class, "셔틀버스"),
+    COMMUTING(CommutingBus.class, "통학버스"),
     ;
 
     private final Class<? extends Bus> busClass;
+
+    private final String busName;
 
     private static final Map<BusTypeEnum, Bus> busTypeEnumMap = new EnumMap<BusTypeEnum, Bus>(BusTypeEnum.class) {{
 

@@ -1,15 +1,8 @@
 package koreatech.in.service;
 
-import com.google.gson.JsonElement;
-
 public interface KakaoBotService {
-    String checkJsonNull(JsonElement nullableJson);
 
-    JsonElement getNullableJsonElement(JsonElement nullableJsonElement);
+    String getDiningMenus(String mealtimeKorean) throws Exception;
 
-    StringBuilder getHttpResponse(String URL) throws Exception;
-
-    String crawlHaksik(String mealtimeKorean) throws Exception;
-
-    String calculateBus(String departKorean, String arrivalKorean) throws Exception;
+    String getBusRemainTime(String departKor, String arrivalKor) throws Exception;
 }
