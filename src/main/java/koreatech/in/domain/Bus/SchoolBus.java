@@ -72,7 +72,10 @@ public abstract class SchoolBus extends Bus {
             Collections.sort(targetNodes);
 
             final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-            final int nowBusIndex = findClosestBus(targetNodes, nowDateTime);
+            final Integer nowBusIndex = findClosestBus(targetNodes, nowDateTime);
+            if (nowBusIndex == null) {
+                return response;
+            }
             int nextBusIndex = (nowBusIndex + 1) % targetNodes.size();
 
             final SchoolBusTimetable.ArrivalNode nowBusTime = targetNodes.get(nowBusIndex);
@@ -88,12 +91,10 @@ public abstract class SchoolBus extends Bus {
             return new BusRemainTime.Builder()
                     .busType(busType)
                     .nowRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nowDepartureTime.isBefore(nowDateTime) ?
-                                    ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime.plusDays(1)) : ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime)))
+                            new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nowDepartureTime))
                     )
                     .nextRemainTime(
-                            new BusRemainTime.RemainTime(null, (int) (nextDepartureTime.isBefore(nowDateTime) ?
-                                    ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 2 : 1)) : ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime.plusDays(nowBusIndex == nextBusIndex ? 1 : 0))))
+                            new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime))
                     )
                     .build();
 
@@ -103,20 +104,18 @@ public abstract class SchoolBus extends Bus {
         }
     }
 
-    private int findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, LocalDateTime at) {
+    private Integer findClosestBus(List<SchoolBusTimetable.ArrivalNode> arrivalInfos, LocalDateTime at) {
         final LocalTime nowTime = at.toLocalTime();
-        int nowBusIndex = 0;
         for (int i = 0; i < arrivalInfos.size(); i++) {
             SchoolBusTimetable.ArrivalNode timetable = arrivalInfos.get(i);
             LocalTime departureTime = LocalTime.parse(timetable.getArrival_time());
 
             if (nowTime.isBefore(departureTime)) {
-                nowBusIndex = i;
-                break;
+                return i;
             }
         }
 
-        return nowBusIndex;
+        return null;
     }
 
     private boolean isWaypoint(String nodeName, MajorStationEnum waypoint) {
@@ -212,9 +211,10 @@ public abstract class SchoolBus extends Bus {
 
         Collections.sort(targetNodes);
 
-        final int nowBusIndex = findClosestBus(targetNodes, targetDateTime);
+        final Integer nowBusIndex = findClosestBus(targetNodes, targetDateTime);
+        final String arrivalTime = nowBusIndex == null ? null : targetNodes.get(nowBusIndex).getArrival_time();
 
-        return new SingleBusTime(busType, targetNodes.get(nowBusIndex).getArrival_time());
+        return new SingleBusTime(busType, arrivalTime);
     }
 
     @Override

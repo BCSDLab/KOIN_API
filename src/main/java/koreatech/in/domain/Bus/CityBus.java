@@ -160,7 +160,7 @@ public class CityBus extends Bus {
 
     @Override
     public SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDate date, LocalTime time) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     private void cacheBusArrivalInfo(String nodeId, List<CityBusArrivalInfo> cityBusArrivalInfos) throws IOException {

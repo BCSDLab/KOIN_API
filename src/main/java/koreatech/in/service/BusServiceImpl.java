@@ -68,13 +68,8 @@ public class BusServiceImpl implements BusService {
             LocalTime localTime = LocalTime.parse(time);
             for (BusTypeEnum busTypeEnum : BusTypeEnum.values()) {
                 Bus bus = busTypeEnum.getBus();
-                SingleBusTime busTime;
-                try {
-                    busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), depart, arrival, localDate, localTime);
-                    if (busTime == null) {
-                        continue;
-                    }
-                } catch (UnsupportedOperationException e) {
+                SingleBusTime busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), depart, arrival, localDate, localTime);
+                if (busTime == null) {
                     continue;
                 }
                 result.add(busTime);
