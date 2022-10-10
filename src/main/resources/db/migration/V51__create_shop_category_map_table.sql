@@ -10,3 +10,21 @@ CREATE TABLE `shop_category_map` (
 ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
+
+INSERT INTO `koin`.`shop_category_map` (`shop_id`, `shop_category_id`)
+SELECT `id`, (
+    CASE
+        WHEN `category` = 'S001' THEN 10
+        WHEN `category` = 'S002' THEN 4
+        WHEN `category` = 'S003' THEN 5
+        WHEN `category` = 'S004' THEN 6
+        WHEN `category` = 'S005' THEN 2
+        WHEN `category` = 'S006' THEN 3
+        WHEN `category` = 'S008' THEN 7
+        WHEN `category` = 'S009' THEN 9
+        WHEN `category` = 'S010' THEN 8
+        ELSE 10
+        END
+    )
+FROM `koin`.`shops`
+WHERE `is_deleted` = 0;

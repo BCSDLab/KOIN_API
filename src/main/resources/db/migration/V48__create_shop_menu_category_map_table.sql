@@ -10,3 +10,10 @@ CREATE TABLE `shop_menu_category_map` (
 ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
+
+INSERT INTO `koin`.`shop_menu_category_map` (`shop_menu_id`, `shop_menu_category_id`)
+SELECT sm.`id`, smc.`id`
+FROM `koin`.`shop_menus` sm
+    INNER JOIN `koin`.`shop_menu_categories` smc
+        ON sm.`shop_id` = smc.`shop_id` AND smc.`name` = '대표 메뉴'
+WHERE sm.`is_deleted` = 0 AND smc.`is_deleted` = 0;

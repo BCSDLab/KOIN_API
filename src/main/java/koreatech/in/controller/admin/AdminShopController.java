@@ -28,7 +28,7 @@ public class AdminShopController {
     @Inject
     private ShopService shopService;
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    /*@ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/shops", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getShops(@ModelAttribute("criteria") Criteria criteria) throws Exception {
@@ -103,5 +103,5 @@ public class AdminShopController {
     ResponseEntity deleteMenu(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
 
         return new ResponseEntity<Map<String, Object>>(shopService.deleteMenuForAdmin(id), HttpStatus.OK);
-    }
+    }*/
 }

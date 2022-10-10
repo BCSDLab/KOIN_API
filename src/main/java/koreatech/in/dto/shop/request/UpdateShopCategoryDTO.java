@@ -2,16 +2,18 @@ package koreatech.in.dto.shop.request;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-@Getter
+@Getter @Setter
 public class UpdateShopCategoryDTO {
     @ApiModelProperty(notes = "상점 카테고리 고유 id", hidden = true)
     private Integer id;
 
-    // TODO: 최대 길이 기획 나오면 적용하기
+    @Size(min = 1, max = 25, message = "상점 카테고리명은 1자 이상 25자 이하입니다.")
     @NotNull(message = "카테고리명은 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "카테고리명")
     private String name;

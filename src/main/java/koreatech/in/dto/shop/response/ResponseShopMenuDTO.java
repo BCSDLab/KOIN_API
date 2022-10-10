@@ -1,8 +1,10 @@
 package koreatech.in.dto.shop.response;
 
+import koreatech.in.domain.Shop.ShopMenuDetail;
 import koreatech.in.dto.shop.response.inner.ShopMenuCategory;
 import lombok.Getter;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 

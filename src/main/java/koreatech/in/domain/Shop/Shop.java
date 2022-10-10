@@ -30,17 +30,17 @@ public class Shop {
     private Integer hit;
 
     public Shop(CreateShopDTO dto) {
-        this.owner_id = dto.getOwner_id();
+        this.owner_id = 0; // TODO: 수정 필요
         this.name = dto.getName();
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
-        this.phone = null;
-        this.address = null;
-        this.description = null;
-        this.delivery = false;
-        this.pay_card = false;
-        this.pay_bank = false;
-        this.is_event = false;
+        this.phone = dto.getPhone();
+        this.address = dto.getAddress();
+        this.description = dto.getDescription();
+        this.delivery = dto.getDelivery();
+        this.pay_card = dto.getPay_card();
+        this.pay_bank = dto.getPay_bank();
+        this.is_event = null;
         this.remarks = null;
         this.hit = 0;
     }

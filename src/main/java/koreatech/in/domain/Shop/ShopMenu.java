@@ -2,6 +2,7 @@ package koreatech.in.domain.Shop;
 
 import koreatech.in.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.dto.shop.request.UpdateShopMenuDTO;
+import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
 import lombok.Getter;
 
 import java.util.Date;

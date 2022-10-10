@@ -2,6 +2,7 @@ package koreatech.in.dto.shop.response;
 
 import koreatech.in.dto.shop.response.inner.ShopCategory;
 import koreatech.in.dto.shop.response.inner.ShopMenu;
+import koreatech.in.dto.shop.response.inner.ShopMenuCategory;
 import lombok.Getter;
 
 import java.util.List;
@@ -20,7 +21,8 @@ public class ResponseShopDTO {
     private Boolean pay_bank;
     private List<Map<String, Object>> open;
     private List<String> image_urls;
-    private List<ShopCategory> categories;
+    private List<ShopCategory> shop_categories;
+    private List<ShopMenuCategory> menu_categories;
     private List<ShopMenu> menus;
 
     public ResponseShopDTO decideOptionalOfMenus() {

@@ -1,13 +1,8 @@
 package koreatech.in.service;
 
 import koreatech.in.dto.shop.request.*;
-import koreatech.in.dto.shop.response.ResponseShopDTO;
-import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
-import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
-import koreatech.in.domain.Shop.ShopCategory;
-import koreatech.in.domain.Shop.ShopMenuCategory;
+import koreatech.in.dto.shop.response.*;
 
-import java.util.List;
 import java.util.Map;
 
 public interface ShopService {
@@ -17,7 +12,7 @@ public interface ShopService {
 
     Map<String, Object> deleteShopCategoryForAdmin(Integer id) throws Exception;
 
-    List<ShopCategory>  getShopCategoriesForAdmin() throws Exception;
+    ResponseAllShopCategoriesDTO getShopCategoriesForAdmin() throws Exception;
 
     Map<String, Object> createShopForAdmin(CreateShopDTO dto) throws Exception;
 
@@ -27,13 +22,13 @@ public interface ShopService {
 
     Map<String, Object> deleteShopForAdmin(Integer id) throws Exception;
 
-    Object getShopsForAdmin() throws Exception;
+    ResponseShopsDTO getShopsForAdmin(Integer page, Integer limit) throws Exception;
 
     Map<String, Object> createMenuCategoryForAdmin(CreateShopMenuCategoryDTO dto) throws Exception;
 
-    Map<String, Object> deleteMenuCategoryForAdmin(Integer shopId, Integer categoryId) throws Exception;
+    ResponseShopMenuCategoriesDTO getMenuCategoriesForAdmin(Integer shopId) throws Exception;
 
-    List<ShopMenuCategory> getMenuCategoriesForAdmin(Integer shopId) throws Exception;
+    Map<String, Object> deleteMenuCategoryForAdmin(Integer shopId, Integer categoryId) throws Exception;
 
     Map<String, Object> createMenuForAdmin(CreateShopMenuDTO dto) throws Exception;
 
@@ -46,4 +41,10 @@ public interface ShopService {
     Map<String, Object> hideMenuForAdmin(Integer shopId, Integer menuId, Boolean flag) throws Exception;
 
     ResponseShopMenusDTO getMenusForAdmin(Integer shopId) throws Exception;
+
+    ResponseShopDTO getShop(Integer id) throws Exception;
+
+    ResponseAllShopsDTO getShops() throws Exception;
+
+    ResponseAllShopCategoriesDTO getShopCategories() throws Exception;
 }

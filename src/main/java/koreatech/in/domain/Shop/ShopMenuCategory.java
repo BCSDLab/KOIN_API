@@ -1,6 +1,5 @@
 package koreatech.in.domain.Shop;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import java.util.Date;

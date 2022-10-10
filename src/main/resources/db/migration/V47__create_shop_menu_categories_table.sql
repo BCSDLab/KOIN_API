@@ -11,14 +11,14 @@ ENGINE = InnoDB
 DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
 
-INSERT INTO `koin`.`shop_menu_categories` (shop_id, `name`)
-SELECT id, '대표 메뉴' FROM `koin`.`shops` WHERE is_deleted = 0;
+INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
+SELECT `id`, '이벤트 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
 
-INSERT INTO `koin`.`shop_menu_categories` (shop_id, `name`)
-SELECT id, '전체 메뉴' FROM `koin`.`shops` WHERE is_deleted = 0;
+INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
+SELECT `id`, '대표 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
 
-INSERT INTO `koin`.`shop_menu_categories` (shop_id, `name`)
-SELECT id, '세트 메뉴' FROM `koin`.`shops` WHERE is_deleted = 0;
+INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
+SELECT `id`, '사이드 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
 
-INSERT INTO `koin`.`shop_menu_categories` (shop_id, `name`)
-SELECT id, '사이드 메뉴' FROM `koin`.`shops` WHERE is_deleted = 0;
+INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
+SELECT `id`, '세트 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;

@@ -26,6 +26,7 @@ public class AdminShopController {
 
     // --------------------------------------- 상점 카테고리 -------------------------------------------
 
+    // TODO: admin 권한만 허용
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories", method = RequestMethod.POST)
@@ -39,6 +40,7 @@ public class AdminShopController {
                 (CreateShopCategoryDTO) StringXssChecker.xssCheck(dto.init(image), clear)), HttpStatus.CREATED);
     }
 
+    // TODO: admin 권한만 허용
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.POST)
@@ -53,6 +55,7 @@ public class AdminShopController {
                 (UpdateShopCategoryDTO) StringXssChecker.xssCheck(dto.init(id, image), clear)), HttpStatus.CREATED);
     }
 
+    // TODO: admin 권한만 허용
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -60,6 +63,8 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteShopCategoryForAdmin(id), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
+    // TODO: 슬라이드 방식으로 결정된다면 리팩토링
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
@@ -67,21 +72,24 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getShopCategoriesForAdmin(), HttpStatus.OK);
     }
 
-    // ----------------------------------------------------------------------------------------------
-
     // ------------------------------------------- 상점 ----------------------------------------------
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
+    // TODO: 상점 등록 UI 확인 후 리팩토링
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createShop(@RequestBody @Valid CreateShopDTO dto, BindingResult bindingResult) throws Exception {
+    ResponseEntity createShop(
+            @RequestPart("shop") @Valid CreateShopDTO dto, BindingResult bindingResult,
+            @RequestPart("images") List<MultipartFile> images) throws Exception {
 
         CreateShopDTO clear = new CreateShopDTO();
         return new ResponseEntity<>(shopService.createShopForAdmin(
                 (CreateShopDTO) StringXssChecker.xssCheck(dto, clear)), HttpStatus.CREATED);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -89,20 +97,22 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getShopForAdmin(id), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity updateShop(
             @PathVariable Integer id,
-            @RequestPart("shop") UpdateShopDTO dto, BindingResult bindingResult,
-            @RequestPart(value = "image", required = false) List<MultipartFile> images) throws Exception {
+            @RequestPart("shop") @Valid UpdateShopDTO dto, BindingResult bindingResult,
+            @RequestPart("images") List<MultipartFile> images) throws Exception {
 
         UpdateShopDTO clear = new UpdateShopDTO();
         return new ResponseEntity<>(shopService.updateShopForAdmin(
                 (UpdateShopDTO) StringXssChecker.xssCheck(dto.init(id, images), clear)), HttpStatus.OK);
     }
 
+    // TODO: admin 권한만 허용
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -110,27 +120,31 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteShopForAdmin(id), HttpStatus.OK);
     }
 
+    // TODO: admin 권한만 허용
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getShops() throws Exception {
-        return new ResponseEntity<>(shopService.getShopsForAdmin(), HttpStatus.OK);
+    ResponseEntity getShops(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit) throws Exception {
+        return new ResponseEntity<>(shopService.getShopsForAdmin(page, limit), HttpStatus.OK);
     }
 
-    // ------------------------------------------------------------------------------------------------
-
     // ----------------------------------------- 메뉴 카테고리 --------------------------------------------
+
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createMenuCategory(@PathVariable Integer id, @RequestBody CreateShopMenuCategoryDTO dto) throws Exception {
+    ResponseEntity createMenuCategory(
+            @PathVariable Integer id,
+            @RequestBody CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
 
         CreateShopMenuCategoryDTO clear = new CreateShopMenuCategoryDTO();
         return new ResponseEntity<>(shopService.createMenuCategoryForAdmin(
                 (CreateShopMenuCategoryDTO) StringXssChecker.xssCheck(dto.init(id), clear)), HttpStatus.CREATED);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
@@ -139,6 +153,7 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getMenuCategoriesForAdmin(id), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -147,9 +162,9 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(shopId, categoryId), HttpStatus.OK);
     }
 
-    // ----------------------------------------------------------------------------------------------------
-
     // ------------------------------------------- 메뉴 ----------------------------------------------------
+
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.POST)
@@ -164,6 +179,7 @@ public class AdminShopController {
                 (CreateShopMenuDTO) StringXssChecker.xssCheck(dto.init(id, images), clear)), HttpStatus.CREATED);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
@@ -172,6 +188,7 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getMenuForAdmin(shopId, menuId), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.POST)
@@ -185,6 +202,7 @@ public class AdminShopController {
                 (UpdateShopMenuDTO) StringXssChecker.xssCheck(dto.init(shopId, menuId, images), clear)), HttpStatus.CREATED);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -193,16 +211,16 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.deleteMenuForAdmin(shopId, menuId), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity hideMenu(
-            @PathVariable Integer shopId, @PathVariable Integer menuId,
-            @RequestParam("flag") Boolean flag) throws Exception {
+    ResponseEntity hideMenu(@PathVariable Integer shopId, @PathVariable Integer menuId, @RequestParam("flag") Boolean flag) throws Exception {
 
         return new ResponseEntity<>(shopService.hideMenuForAdmin(shopId, menuId, flag), HttpStatus.OK);
     }
 
+    // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
@@ -210,6 +228,4 @@ public class AdminShopController {
 
         return new ResponseEntity<>(shopService.getMenusForAdmin(id), HttpStatus.OK);
     }
-
-    // -------------------------------------------------------------------------------------------------
 }

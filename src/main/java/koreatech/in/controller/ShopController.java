@@ -1,10 +1,5 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiParam;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,28 +7,28 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import java.util.Map;
 
 @Controller
 public class ShopController {
     @Inject
     private ShopService shopService;
 
+    @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getShop(@PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(shopService.getShop(id), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/shops", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getShops() throws Exception {
-        Map<String, Object> map = shopService.getShops();
-
-        return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+        return new ResponseEntity<>(shopService.getShops(), HttpStatus.OK);
     }
 
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "id", required = true, paramType = "path", dataType = "int")
-    )
-    @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
+    // TODO: 슬라이드 방식으로 결정된다면 리팩토링
+    @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getShop(@ApiParam(required = true) @PathVariable(value = "id") String id) throws Exception {
-
-        return new ResponseEntity<Map<String, Object>>(shopService.getShop(id), HttpStatus.OK);
+    ResponseEntity getShopCategories() throws Exception {
+        return new ResponseEntity<>(shopService.getShopCategories(), HttpStatus.OK);
     }
 }

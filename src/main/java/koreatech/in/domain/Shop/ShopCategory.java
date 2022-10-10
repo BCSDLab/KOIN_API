@@ -1,6 +1,5 @@
 package koreatech.in.domain.Shop;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,12 +11,8 @@ public class ShopCategory {
     private Integer id;
     private String name;
     private String image_url;
-
-    @JsonIgnore
     private Boolean is_deleted;
-    @JsonIgnore
     private Date created_at;
-    @JsonIgnore
     private Date updated_at;
 
     public ShopCategory(String name, String image_url) {

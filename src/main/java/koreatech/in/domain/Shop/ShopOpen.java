@@ -12,7 +12,7 @@ public class ShopOpen {
     private Integer id;
     private Integer shop_id;
     private DayOfWeek day_of_week;
-    private Boolean is_closed;
+    private Boolean closed;
     private String open_time;
     private String close_time;
     private Boolean is_deleted;
@@ -22,8 +22,16 @@ public class ShopOpen {
     public ShopOpen(Integer shop_id, DayOfWeek day_of_week) {
         this.shop_id = shop_id;
         this.day_of_week = day_of_week;
-        this.is_closed = false;
+        this.closed = false;
         this.open_time = null;
         this.close_time = null;
+    }
+
+    public ShopOpen(Integer shop_id, DayOfWeek day_of_week, Boolean closed, String open_time, String close_time) {
+        this.shop_id = shop_id;
+        this.day_of_week = day_of_week;
+        this.closed = closed;
+        this.open_time = open_time;
+        this.close_time = close_time;
     }
 }
