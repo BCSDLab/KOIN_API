@@ -46,6 +46,7 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shops " +
             "SET " +
+                "`owner_id` = #{owner_id}, " +
                 "`name` = #{name}, " +
                 "internal_name = #{internal_name}, " +
                 "chosung = #{chosung}, " +

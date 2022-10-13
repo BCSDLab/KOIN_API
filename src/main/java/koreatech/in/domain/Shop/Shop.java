@@ -58,4 +58,9 @@ public class Shop {
 
         return this;
     }
+
+    public Shop matchOwnerId(Integer owner_id) {
+        this.owner_id = owner_id;
+        return this;
+    }
 }

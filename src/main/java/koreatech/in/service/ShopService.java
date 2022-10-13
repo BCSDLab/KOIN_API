@@ -14,6 +14,8 @@ public interface ShopService {
 
     ResponseAllShopCategoriesDTO getShopCategoriesForAdmin() throws Exception;
 
+    Map<String, Object> matchShopWithOwner(MatchShopWithOwnerDTO dto) throws Exception;
+
     Map<String, Object> createShopForAdmin(CreateShopDTO dto) throws Exception;
 
     ResponseShopDTO getShopForAdmin(Integer shopId) throws Exception;

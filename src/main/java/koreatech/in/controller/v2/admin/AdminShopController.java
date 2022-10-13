@@ -74,6 +74,21 @@ public class AdminShopController {
 
     // ------------------------------------------- 상점 ----------------------------------------------
 
+    // TODO: admin 권한만 허용
+    // TODO: 사장님이 존재하는지 확인하는 코드 작성 필요
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "{id}/owners/match", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity matchShopWithOwner(
+            @PathVariable("id") Integer shopId,
+            @RequestBody @Valid MatchShopWithOwnerDTO dto, BindingResult bindingResult) throws Exception {
+
+        MatchShopWithOwnerDTO clear = new MatchShopWithOwnerDTO();
+        return new ResponseEntity<>(shopService.matchShopWithOwner(
+                (MatchShopWithOwnerDTO) StringXssChecker.xssCheck(dto.init(shopId), clear)), HttpStatus.OK);
+    }
+
     // TODO: 사장님 권한으로 요청시 자신의 상점이 아니면 block
     // TODO: 상점 등록 UI 확인 후 리팩토링
     @ParamValid

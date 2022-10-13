@@ -116,6 +116,23 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
+    public Map<String, Object> matchShopWithOwner(MatchShopWithOwnerDTO dto) throws Exception {
+        Shop shop = shopMapper.getShopById(dto.getShop_id());
+        if (shop == null) {
+            throw new NotFoundException(new ErrorMessage("상점이 존재하지 않습니다.", 1));
+        }
+
+        // TODO: 사장님이 존재하는지 확인하는 코드 작성 필요
+
+        shopMapper.updateShop(shop.matchOwnerId(dto.getOwner_id()));
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    @Transactional
     public Map<String, Object> createShopForAdmin(CreateShopDTO dto) throws Exception {
         /*
              대상 테이블
