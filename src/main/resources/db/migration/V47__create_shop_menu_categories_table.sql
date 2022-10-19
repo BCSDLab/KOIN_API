@@ -1,4 +1,4 @@
-CREATE TABLE `shop_menu_categories` (
+CREATE TABLE `koin`.`shop_menu_categories` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_categories 고유 id',
   `shop_id` int unsigned NOT NULL COMMENT 'shops 고유 id',
   `name` varchar(255) NOT NULL COMMENT '카테고리 이름',
@@ -12,13 +12,13 @@ DEFAULT CHARSET = utf8
 COLLATE = utf8_bin;
 
 INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
-SELECT `id`, '이벤트 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
+SELECT `id`, '이벤트 메뉴' FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
-SELECT `id`, '대표 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
+SELECT `id`, '대표 메뉴' FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
-SELECT `id`, '사이드 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
+SELECT `id`, '사이드 메뉴' FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_menu_categories` (`shop_id`, `name`)
-SELECT `id`, '세트 메뉴' FROM `koin`.`shops` WHERE `is_deleted` = 0;
+SELECT `id`, '세트 메뉴' FROM `koin`.`shops`;

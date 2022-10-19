@@ -19,7 +19,7 @@ public class Shop {
     private String address;
     private String description;
     private Boolean delivery;
-    private Integer delivery_price = 0;
+    private Integer delivery_price;
     private Boolean pay_card;
     private Boolean pay_bank;
     private Boolean is_deleted;
@@ -29,8 +29,8 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public Shop(CreateShopDTO dto) {
-        this.owner_id = 0; // TODO: 수정 필요
+    public Shop(CreateShopDTO dto, Integer owner_id) {
+        this.owner_id = owner_id;
         this.name = dto.getName();
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
@@ -38,6 +38,7 @@ public class Shop {
         this.address = dto.getAddress();
         this.description = dto.getDescription();
         this.delivery = dto.getDelivery();
+        this.delivery_price = dto.getDelivery_price();
         this.pay_card = dto.getPay_card();
         this.pay_bank = dto.getPay_bank();
         this.is_event = null;

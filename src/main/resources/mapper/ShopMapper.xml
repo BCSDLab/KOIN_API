@@ -9,10 +9,9 @@
         <result property="is_hidden" column="is_hidden"/>
         <result property="description" column="description"/>
         <collection property="option_prices" column="id" javaType="list"
-                    ofType="map" select="getOptionPricesByMenuId"/>
-        <collection property="categories" column="id" javaType="list"
-                    ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
-                    select="getMenuCategoriesOfMenuByMenuId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.OptionPrice" select="getOptionPricesByMenuId"/>
+        <collection property="category_ids" column="id" javaType="list"
+                    ofType="integer" select="getMenuCategoryIdsOfMenuByMenuId"/>
         <collection property="image_urls" column="id" javaType="list"
                     ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
@@ -35,10 +34,10 @@
         <result property="is_hidden" column="is_hidden"/>
         <result property="description" column="description"/>
         <collection property="option_prices" column="id" javaType="list"
-                    ofType="map" select="getOptionPricesByMenuId"/>
-        <collection property="categories" column="id" javaType="list"
-                    ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
-                    select="getMenuCategoriesOfMenuByMenuId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.OptionPrice"
+                    select="getOptionPricesByMenuId"/>
+        <collection property="category_ids" column="id" javaType="list"
+                    ofType="integer" select="getMenuCategoryIdsOfMenuByMenuId"/>
         <collection property="image_urls" column="id" javaType="list"
                     ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
@@ -53,13 +52,13 @@
         <result property="delivery_price" column="delivery_price"/>
         <result property="pay_card" column="pay_card"/>
         <result property="pay_bank" column="pay_bank"/>
+        <result property="is_deleted" column="is_deleted"/>
         <collection property="open" column="id" javaType="list"
-                    ofType="hashmap" select="getShopOpensByShopId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.Open" select="getShopOpensByShopId"/>
         <collection property="image_urls" column="id" javaType="list"
                     ofType="string" select="getShopImageUrlsByShopId"/>
-        <collection property="shop_categories" column="id" javaType="list"
-                    ofType="koreatech.in.dto.shop.response.inner.ShopCategory"
-                    select="getShopCategoriesByShopId"/>
+        <collection property="shop_category_ids" column="id" javaType="list"
+                    ofType="integer" select="getShopCategoryIdsByShopId"/>
         <collection property="menu_categories" column="id" javaType="list"
                     ofType="koreatech.in.dto.shop.response.inner.ShopMenuCategory"
                     select="getMenuCategoriesOfShopByShopId"/>
@@ -76,10 +75,17 @@
         <result property="pay_card" column="pay_card"/>
         <result property="pay_bank" column="pay_bank"/>
         <collection property="open" column="id" javaType="list"
-                    ofType="hashmap" select="getShopOpensByShopId"/>
-        <collection property="categories" column="id" javaType="list"
-                    ofType="koreatech.in.dto.shop.response.inner.ShopCategory"
-                    select="getShopCategoriesByShopId"/>
+                    ofType="koreatech.in.dto.shop.response.inner.Open" select="getShopOpensByShopId"/>
+        <collection property="category_ids" column="id" javaType="list"
+                    ofType="integer" select="getShopCategoryIdsByShopId"/>
+    </resultMap>
+
+    <resultMap id="MinimizedShop" type="koreatech.in.dto.shop.response.inner.MinimizedShop">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <collection property="category_names" column="id" javaType="list"
+                    ofType="string" select="getShopCategoryNamesOfShopByShopId" />
     </resultMap>
 
     <select id="getResponseMenu" resultMap="ResponseMenu">
@@ -91,13 +97,19 @@
     <select id="getResponseMenus" resultMap="ResponseMenus">
         SELECT *
         FROM koin.shops
-        WHERE id = #{shop_id} AND is_deleted = 0
+        WHERE id = #{shop_id}
     </select>
 
     <select id="getResponseShop" resultMap="ResponseShop">
         SELECT *
         FROM koin.shops
         WHERE id = #{shop_id} AND is_deleted = 0
+    </select>
+    
+    <select id="getResponseShopByIgnoreDeletion" resultMap="ResponseShop">
+        SELECT *
+        FROM koin.shops
+        WHERE id = #{shop_id}
     </select>
 
     <select id="getShops" resultMap="shop">
@@ -108,27 +120,29 @@
         LIMIT #{begin}, #{limit}
     </select>
 
+    <select id="getShopsByIgnoreDeletionStatus" resultMap="MinimizedShop">
+        SELECT *
+        FROM koin.shops
+        LIMIT #{begin}, #{limit}
+    </select>
+
     <select id="getAllShops" resultMap="shop">
         SELECT *
         FROM koin.shops
         WHERE is_deleted = 0
     </select>
 
-    <select id="getOptionPricesByMenuId" resultType="hashmap">
+    <select id="getOptionPricesByMenuId" resultType="koreatech.in.dto.shop.response.inner.OptionPrice">
         SELECT `option`, price
         FROM koin.shop_menu_details
         WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
     </select>
 
-    <select id="getMenuCategoriesOfMenuByMenuId"
-            resultType="koreatech.in.dto.shop.response.inner.ShopMenuCategory">
-        SELECT *
-        FROM koin.shop_menu_categories
-        WHERE id IN (
-            SELECT shop_menu_category_id
-            FROM koin.shop_menu_category_map
-            WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
-        ) AND is_deleted = 0
+    <select id="getMenuCategoryIdsOfMenuByMenuId" resultType="integer">
+        SELECT shop_menu_category_id
+        FROM koin.shop_menu_category_map
+        WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0
+        ORDER BY shop_menu_category_id
     </select>
 
     <select id="getMenuImageUrlsByMenuId" resultType="string">
@@ -150,7 +164,7 @@
         WHERE shop_id = #{shop_id} AND is_deleted = 0
     </select>
 
-    <select id="getShopOpensByShopId" resultType="hashmap">
+    <select id="getShopOpensByShopId" resultType="koreatech.in.dto.shop.response.inner.Open">
         SELECT day_of_week, closed, open_time, close_time
         FROM koin.shop_opens
         WHERE shop_id = #{shop_id} AND is_deleted = 0
@@ -162,9 +176,15 @@
         WHERE shop_id = #{shop_id} AND is_deleted = 0
     </select>
 
-    <select id="getShopCategoriesByShopId"
-            resultType="koreatech.in.dto.shop.response.inner.ShopCategory">
-        SELECT *
+    <select id="getShopCategoryIdsByShopId" resultType="integer">
+        SELECT shop_category_id
+        FROM koin.shop_category_map
+        WHERE shop_id = #{shop_id} AND is_deleted = 0
+        ORDER BY shop_category_id
+    </select>
+
+    <select id="getShopCategoryNamesOfShopByShopId" resultType="string">
+        SELECT `name`
         FROM koin.shop_categories
         WHERE id IN (
             SELECT shop_category_id

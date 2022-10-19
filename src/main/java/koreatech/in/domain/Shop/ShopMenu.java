@@ -4,6 +4,7 @@ import koreatech.in.dto.shop.request.CreateShopMenuDTO;
 import koreatech.in.dto.shop.request.UpdateShopMenuDTO;
 import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -13,7 +14,7 @@ public class ShopMenu {
     private Integer shop_id;
     private String name;
     private String description;
-    private Boolean is_hidden;
+    @Setter private Boolean is_hidden;
     private Boolean is_deleted;
     private Date created_at;
     private Date updated_at;
@@ -39,10 +40,6 @@ public class ShopMenu {
         return this;
     }
 
-    public void setIs_hidden(Boolean is_hidden) {
-        this.is_hidden = is_hidden;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -52,12 +49,9 @@ public class ShopMenu {
             return false;
         }
 
-        boolean descriptionEquals;
-        if (this.description == null) {
-            descriptionEquals = (((ShopMenu) obj).getDescription() == null);
-        } else {
-            descriptionEquals = this.description.equals(((ShopMenu) obj).getDescription());
-        }
+        // description은 nullable이므로 NullPointerException 방지
+        boolean descriptionEquals = (this.description == null) ?
+                (((ShopMenu) obj).getDescription() == null) : (this.description.equals(((ShopMenu) obj).getDescription()));
 
         return this.id.equals(((ShopMenu) obj).getId())
                 && this.shop_id.equals(((ShopMenu) obj).getShop_id())

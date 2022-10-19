@@ -3,7 +3,6 @@ package koreatech.in.dto.shop.response.inner;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class Shop {
@@ -13,6 +12,6 @@ public class Shop {
     private Boolean delivery;
     private Boolean pay_card;
     private Boolean pay_bank;
-    private List<Map<String, Object>> open;
-    private List<ShopCategory> categories;
+    private List<Open> open;
+    private List<Integer> category_ids;
 }

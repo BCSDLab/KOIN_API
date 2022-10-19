@@ -1,4 +1,4 @@
-CREATE TABLE `shop_menu_category_map` (
+CREATE TABLE `koin`.`shop_menu_category_map` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_category_map 고유 id',
   `shop_menu_id` int unsigned NOT NULL COMMENT 'shop_menus 고유 id',
   `shop_menu_category_id` int unsigned NOT NULL COMMENT 'shop_menu_categories 고유 id',

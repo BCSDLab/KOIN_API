@@ -1,4 +1,4 @@
-CREATE TABLE `shop_menu_images` (
+CREATE TABLE `koin`.`shop_menu_images` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_images 고유 id',
   `shop_menu_id` int unsigned NOT NULL COMMENT 'shop_menus 고유 id',
   `image_url` varchar(255) NOT NULL COMMENT '이미지 URL',

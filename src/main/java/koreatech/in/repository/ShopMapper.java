@@ -4,6 +4,7 @@ import koreatech.in.dto.shop.response.ResponseShopDTO;
 import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
 import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
 import koreatech.in.domain.Shop.*;
+import koreatech.in.dto.shop.response.inner.MinimizedShop;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +28,12 @@ public interface ShopMapper {
 
     @Select("SELECT * " +
             "FROM koin.shops " +
-            "WHERE name = #{name} AND is_deleted = 0")
+            "WHERE id = #{id}")
+    Shop getShopByIgnoreDeletionStatus(@Param("id") int id);
+
+    @Select("SELECT * " +
+            "FROM koin.shops " +
+            "WHERE `name` = #{name} AND is_deleted = 0")
     Shop getShopByName(@Param("name") String name);
 
     @Select("SELECT * " +
@@ -40,9 +46,8 @@ public interface ShopMapper {
     List<Shop> getShopsUsingCategory(@Param("shop_category_id") int shopCategoryId);
 
     @Select("SELECT COUNT(*) " +
-            "FROM koin.shops " +
-            "WHERE is_deleted = 0")
-    int getTotalCountOfShops();
+            "FROM koin.shops")
+    int getTotalCountOfShopsByIgnoreDeletion();
 
     @Update("UPDATE koin.shops " +
             "SET " +
@@ -67,10 +72,15 @@ public interface ShopMapper {
     @Update("UPDATE koin.shops " +
             "SET is_deleted = 1 " +
             "WHERE id = #{id}")
-    void deleteShopById(@Param("id") Integer id);
+    void deleteShopById(@Param("id") int id);
+
+    @Update("UPDATE koin.shops " +
+            "SET is_deleted = 0 " +
+            "WHERE id = #{id}")
+    void undeleteShopById(@Param("id") int id);
 
     @Insert("INSERT INTO koin.shop_categories " +
-            "(name, image_url) " +
+            "(`name`, image_url) " +
             "VALUES (#{name}, #{image_url})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void createShopCategory(ShopCategory shopCategory);
@@ -82,7 +92,7 @@ public interface ShopMapper {
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
-            "WHERE name = #{name} AND is_deleted = 0")
+            "WHERE `name` = #{name} AND is_deleted = 0")
     ShopCategory getShopCategoryByName(String name);
 
     @Select("SELECT * " +
@@ -106,8 +116,8 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shop_categories " +
             "SET " +
-            "name = #{name}, " +
-            "image_url = #{image_url} " +
+                "`name` = #{name}, " +
+                "image_url = #{image_url} " +
             "WHERE id = #{id}")
     void updateShopCategory(ShopCategory updatedCategory);
 
@@ -129,7 +139,7 @@ public interface ShopMapper {
     void deleteShopImagesByShopId(@Param("shop_id") int shopId);
 
     @Insert("INSERT INTO koin.shop_menus " +
-            "(shop_id, name, description, is_hidden) " +
+            "(shop_id, `name`, `description`, is_hidden) " +
             "VALUES (#{shop_id}, #{name}, #{description}, #{is_hidden})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void createMenu(ShopMenu shopMenu);
@@ -137,7 +147,7 @@ public interface ShopMapper {
     @Select("SELECT * " +
             "FROM koin.shop_menus " +
             "WHERE id = #{shop_menu_id} AND is_deleted = 0")
-    ShopMenu getMenu(@Param("shop_menu_id") int shopMenuId);
+    ShopMenu getMenuById(@Param("shop_menu_id") int shopMenuId);
 
     @Select("SELECT * " +
             "FROM koin.shop_menus " +
@@ -150,8 +160,8 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shop_menus " +
             "SET " +
-                "name = #{name}, " +
-                "description = #{description}, " +
+                "`name` = #{name}, " +
+                "`description` = #{description}, " +
                 "is_hidden = #{is_hidden} " +
             "WHERE id = #{id}")
     void updateMenu(ShopMenu shopMenu);
@@ -169,15 +179,15 @@ public interface ShopMapper {
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
-            "WHERE shop_id = #{shop_id} AND name = #{name} AND is_deleted = 0")
+            "WHERE shop_id = #{shop_id} AND `name` = #{name} AND is_deleted = 0")
     ShopMenuCategory getMenuCategory(@Param("shop_id") int shopId, @Param("name") String name);
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
             "WHERE id IN (" +
-            "SELECT shop_menu_category_id " +
-            "FROM koin.shop_menu_category_map " +
-            "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0" +
+                "SELECT shop_menu_category_id " +
+                "FROM koin.shop_menu_category_map " +
+                "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0" +
             ") AND is_deleted = 0")
     List<ShopMenuCategory> getMenuCategoriesOfMenu(@Param("shop_menu_id") int shopMenuId);
 
@@ -209,14 +219,12 @@ public interface ShopMapper {
     List<ShopMenuDetail> getMenuDetailsByMenuId(@Param("shop_menu_id") int shopMenuId);
 
     @Update("UPDATE koin.shop_menu_details " +
-            "SET " +
-            "is_deleted = 1 " +
+            "SET is_deleted = 1 " +
             "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
     void deleteMenuDetailsByMenuId(@Param("shop_menu_id") int shopMenuId);
 
     @Update("UPDATE koin.shop_menu_images " +
-            "SET " +
-            "is_deleted = 1 " +
+            "SET is_deleted = 1 " +
             "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
     void deleteMenuImagesByMenuId(@Param("shop_menu_id") int shopMenuId);
 
@@ -240,7 +248,11 @@ public interface ShopMapper {
 
     ResponseShopDTO getResponseShop(@Param("shop_id") int shopId);
 
+    ResponseShopDTO getResponseShopByIgnoreDeletion(@Param("shop_id") int shopId);
+
     List<koreatech.in.dto.shop.response.inner.Shop> getShops(@Param("begin") int begin, @Param("limit") int limit);
+
+    List<MinimizedShop> getShopsByIgnoreDeletionStatus(@Param("begin") int begin, @Param("limit") int limit);
 
     List<koreatech.in.dto.shop.response.inner.Shop> getAllShops();
 

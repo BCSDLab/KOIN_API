@@ -1,5 +1,8 @@
 package koreatech.in.controller;
 
+import koreatech.in.dto.shop.response.ResponseAllShopCategoriesDTO;
+import koreatech.in.dto.shop.response.ResponseAllShopsDTO;
+import koreatech.in.dto.shop.response.ResponseShopDTO;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,20 +18,23 @@ public class ShopController {
 
     @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getShop(@PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(shopService.getShop(id), HttpStatus.OK);
+    ResponseEntity<ResponseShopDTO> getShop(@PathVariable("id") Integer shopId) throws Exception {
+        return new ResponseEntity<>(shopService.getShop(shopId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shops", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getShops() throws Exception {
+    ResponseEntity<ResponseAllShopsDTO> getShops() throws Exception {
         return new ResponseEntity<>(shopService.getShops(), HttpStatus.OK);
     }
 
-    // TODO: 슬라이드 방식으로 결정된다면 리팩토링
+    /*
+         TODO: 카테고리 순서 확정 후 마이그레이션 SQL 변경,
+               페이지 방식으로 결정된다면 리팩토링
+     */
     @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getShopCategories() throws Exception {
+    ResponseEntity<ResponseAllShopCategoriesDTO> getShopCategories() throws Exception {
         return new ResponseEntity<>(shopService.getShopCategories(), HttpStatus.OK);
     }
 }

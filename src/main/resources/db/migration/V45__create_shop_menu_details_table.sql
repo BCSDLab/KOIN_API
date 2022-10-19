@@ -1,4 +1,4 @@
-CREATE TABLE `shop_menu_details` (
+CREATE TABLE `koin`.`shop_menu_details` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_menu_details 고유 id',
   `shop_menu_id` int unsigned NOT NULL COMMENT 'shop_menus 고유 id',
   `option` varchar(255) DEFAULT NULL COMMENT '옵션 이름',

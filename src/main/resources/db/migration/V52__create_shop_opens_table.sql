@@ -1,4 +1,4 @@
-CREATE TABLE `shop_opens` (
+CREATE TABLE `koin`.`shop_opens` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'shop_open 고유 id',
   `shop_id` int unsigned NOT NULL COMMENT 'shops 고유 id',
   `day_of_week` varchar(10) NOT NULL COMMENT '요일',
@@ -16,35 +16,28 @@ COLLATE = utf8_bin;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'MONDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'TUESDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'WEDNESDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'THURSDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'FRIDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'SATURDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;
 
 INSERT INTO `koin`.`shop_opens` (`shop_id`, `day_of_week`, `closed`, `open_time`, `close_time`)
 SELECT `id`, 'SUNDAY', false, `open_time`, `close_time`
-FROM `koin`.`shops`
-WHERE `is_deleted` = 0;
+FROM `koin`.`shops`;

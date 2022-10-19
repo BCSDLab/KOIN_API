@@ -37,13 +37,9 @@ public class ShopMenuDetail {
             return false;
         }
 
-        // option은 null일 수 있으므로 NullPointerException 방지
-        boolean optionEquals;
-        if (this.option == null) {
-            optionEquals = (((ShopMenuDetail) obj).getOption() == null);
-        } else {
-            optionEquals = this.option.equals(((ShopMenuDetail) obj).getOption());
-        }
+        // option은 nullable이므로 NullPointerException 방지
+        boolean optionEquals = (this.option == null) ?
+                (((ShopMenuDetail) obj).getOption() == null) : (this.option.equals(((ShopMenuDetail) obj).getOption()));
 
         return this.shop_menu_id.equals(((ShopMenuDetail) obj).getShop_menu_id())
                 && optionEquals

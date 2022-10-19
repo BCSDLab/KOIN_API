@@ -11,8 +11,8 @@ public class MatchShopWithOwnerDTO {
     @ApiModelProperty(notes = "상점 고유 id", hidden = true)
     private Integer shop_id;
 
-    @NotNull(message = "상점 고유 id는 필수입니다.")
-    @ApiModelProperty(notes = "사장님 고유 id")
+    @NotNull(message = "owner_id는 필수입니다.")
+    @ApiModelProperty(notes = "사장님 고유 id", example = "7")
     private Integer owner_id;
 
     public MatchShopWithOwnerDTO init(Integer shop_id) {
