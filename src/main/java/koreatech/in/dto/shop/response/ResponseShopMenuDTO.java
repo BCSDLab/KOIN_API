@@ -18,7 +18,7 @@ public class ResponseShopMenuDTO {
     private String description;
     private List<String> image_urls;
 
-    public ResponseShopMenuDTO decideSingleOrOption() {
+    public ResponseShopMenuDTO decideSingleOrNot() {
         if (this.option_prices.size() == 1 && this.option_prices.get(0).getOption() == null) {
             this.is_single = true;
             this.single_price = this.option_prices.get(0).getPrice();

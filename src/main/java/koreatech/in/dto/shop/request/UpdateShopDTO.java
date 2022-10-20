@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
-import java.util.Map;
 
 @Getter @Setter
 public class UpdateShopDTO {
@@ -22,9 +22,10 @@ public class UpdateShopDTO {
 
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "phone 형식이 올바르지 않습니다.")
     @NotNull(message = "phone은 필수입니다.")
-    @ApiModelProperty(notes = "전화번호")
+    @ApiModelProperty(notes = "전화번호", example = "041-123-4567")
     private String phone;
 
+    @Valid
     @NotNull(message = "open은 필수입니다.")
     @ApiModelProperty(notes = "요일별 장사 시간과 휴무 여부")
     private List<Open> open;
@@ -34,8 +35,8 @@ public class UpdateShopDTO {
     @ApiModelProperty(notes = "주소", example = "충청남도 천안시 동남구 병천면 충절로 1600")
     private String address;
 
+    @PositiveOrZero(message = "delivery_price는 0 이상 2147483647 이하입니다.")
     @Max(value = Integer.MAX_VALUE, message = "delivery_price는 0 이상 2147483647 이하입니다.")
-    @Min(value = 0, message = "delivery_price는 0 이상 2147483647 이하입니다.")
     @ApiModelProperty(notes = "배달 금액", example = "3000")
     private Integer delivery_price = 0;
 

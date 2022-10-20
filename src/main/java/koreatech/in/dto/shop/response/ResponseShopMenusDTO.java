@@ -14,7 +14,7 @@ public class ResponseShopMenusDTO {
     private List<ShopMenu> menus;
 
     public ResponseShopMenusDTO decideOptionalOfMenus() {
-        this.menus.forEach(ShopMenu::decideSingleOrOption);
+        this.menus.forEach(ShopMenu::decideSingleOrNot);
         return this;
     }
 }

@@ -19,7 +19,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service("shopService")
@@ -421,7 +420,7 @@ public class ShopServiceImpl implements ShopService {
             }
             shopMapper.createMenuDetail(new ShopMenuDetail(menu.getId(), dto.getSingle_price()));
         } else {
-            if (dto.getOption_prices() == null || dto.getOption_prices().isEmpty()) {
+            if (dto.getOption_prices() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 false이면 option_prices는 필수입니다.", 0));
             }
             if (dto.existOfOptionDuplicate()) {
@@ -492,7 +491,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ForbiddenException(new ErrorMessage("잘못된 접근입니다.", 0));
         }
 
-        return menu.decideSingleOrOption();
+        return menu.decideSingleOrNot();
     }
 
     @Override
@@ -541,7 +540,7 @@ public class ShopServiceImpl implements ShopService {
                 shopMapper.createMenuDetail(updatedMenuDetail);
             }
         } else {
-            if (dto.getOption_prices() == null || dto.getOption_prices().isEmpty()) {
+            if (dto.getOption_prices() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 false이면 option_prices를 비워둘 수 없습니다.", 0));
             }
             if (dto.existOfOptionDuplicate()) {
@@ -765,41 +764,35 @@ public class ShopServiceImpl implements ShopService {
         return menuCategories;
     }
 
-    // TODO: @Valid로 List<T>의 T 타입에 대해 제약조건을 검사할 수 없을지 알아보기
     private List<ShopOpen> generateShopOpens(Integer shopId, List<Open> opens) throws Exception {
         if (opens.size() != 7) {
-            throw new PreconditionFailedException(new ErrorMessage("opens의 길이는 7이어야 합니다.", 0));
+            throw new PreconditionFailedException(new ErrorMessage("open의 길이는 7이어야 합니다.", 0));
         }
 
         List<DayOfWeek> expected = Arrays.asList(
                 DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
                 DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
+
         List<DayOfWeek> actual = new ArrayList<>();
         List<ShopOpen> shopOpens = new LinkedList<>();
 
-        for (Open open : opens) {
+        opens.forEach(open -> {
             DayOfWeek dayOfWeek = open.getDay_of_week();
             Boolean closed = open.getClosed();
             String openTime = open.getOpen_time();
             String closeTime = open.getClose_time();
 
-            String timeRegex = "^([01][0-9]|2[0-3]):([0-5][0-9])$";
-
-            if (dayOfWeek == null || closed == null) {
-                throw new ValidationException(new ErrorMessage("open에 올바르지 않은 값이 들어있습니다.", 0));
-            }
             if (!closed) {
                 if (openTime == null || closeTime == null) {
-                    throw new ValidationException(new ErrorMessage("open에 올바르지 않은 값이 들어있습니다.", 0));
-                }
-                if (!Pattern.matches(timeRegex, openTime) || !Pattern.matches(timeRegex, closeTime)) {
-                    throw new ValidationException(new ErrorMessage("open에 올바르지 않은 값이 들어있습니다.", 0));
+                    throw new ValidationException(new ErrorMessage(
+                            "open의 closed가 false이면 open_time과 close_time은 필수입니다.", 0
+                    ));
                 }
             }
 
             actual.add(dayOfWeek);
             shopOpens.add(new ShopOpen(shopId, dayOfWeek, closed, openTime, closeTime));
-        }
+        });
 
         Collections.sort(actual);
 

@@ -1,7 +1,6 @@
 package koreatech.in.dto.shop.response;
 
 import koreatech.in.dto.shop.response.inner.Open;
-import koreatech.in.dto.shop.response.inner.ShopCategory;
 import koreatech.in.dto.shop.response.inner.ShopMenu;
 import koreatech.in.dto.shop.response.inner.ShopMenuCategory;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class ResponseShopDTO {
     private Boolean is_deleted;
 
     public ResponseShopDTO decideOptionalOfMenus() {
-        this.menus.forEach(ShopMenu::decideSingleOrOption);
+        this.menus.forEach(ShopMenu::decideSingleOrNot);
         return this;
     }
 }
