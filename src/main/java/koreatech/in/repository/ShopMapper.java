@@ -1,5 +1,6 @@
 package koreatech.in.repository;
 
+import koreatech.in.dto.shop.request.ShopsConditionDTO;
 import koreatech.in.dto.shop.response.ResponseShopDTO;
 import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
 import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
@@ -45,9 +46,7 @@ public interface ShopMapper {
             ") AND is_deleted = 0")
     List<Shop> getShopsUsingCategory(@Param("shop_category_id") int shopCategoryId);
 
-    @Select("SELECT COUNT(*) " +
-            "FROM koin.shops")
-    int getTotalCountOfShopsByIgnoreDeletion();
+    int getTotalCountOfShopsByCondition(@Param("condition") ShopsConditionDTO dto);
 
     @Update("UPDATE koin.shops " +
             "SET " +
@@ -252,7 +251,7 @@ public interface ShopMapper {
 
     List<koreatech.in.dto.shop.response.inner.Shop> getShops(@Param("begin") int begin, @Param("limit") int limit);
 
-    List<MinimizedShop> getShopsByIgnoreDeletionStatus(@Param("begin") int begin, @Param("limit") int limit);
+    List<MinimizedShop> getShopsByCondition(@Param("begin") int begin, @Param("condition") ShopsConditionDTO dto);
 
     List<koreatech.in.dto.shop.response.inner.Shop> getAllShops();
 

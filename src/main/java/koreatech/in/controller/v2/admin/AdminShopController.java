@@ -165,12 +165,15 @@ public class AdminShopController {
     }
 
     // TODO: 로그인 코드와 merge되면 개발 재개
+    @ParamValid
     @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopsDTO> getShops(
-            @RequestParam("page") Integer page, @RequestParam("limit") Integer limit) throws Exception {
-        return new ResponseEntity<>(shopService.getShopsForAdmin(page, limit), HttpStatus.OK);
+    ResponseEntity<ResponseShopsDTO> getShops(@RequestBody @Valid ShopsConditionDTO dto, BindingResult bindingResult) throws Exception {
+
+        ShopsConditionDTO clear = new ShopsConditionDTO();
+        return new ResponseEntity<>(shopService.getShopsForAdmin(
+                (ShopsConditionDTO) StringXssChecker.xssCheck(dto, clear)), HttpStatus.OK);
     }
 
     // ----------------------------------------- 메뉴 카테고리 --------------------------------------------

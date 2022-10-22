@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.dto.shop.request.*;
+import koreatech.in.dto.shop.request.inner.Filter;
 import koreatech.in.dto.shop.request.inner.Open;
 import koreatech.in.dto.shop.response.*;
 import koreatech.in.domain.ErrorMessage;
@@ -187,6 +188,7 @@ public class ShopServiceImpl implements ShopService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseShopDTO getShopForAdmin(Integer shopId) throws Exception {
         /*
              TODO: 사장님 권한으로 요청시 - getResponseShop() 호출
@@ -309,25 +311,33 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    @Transactional
-    public ResponseShopsDTO getShopsForAdmin(Integer page, Integer limit) throws Exception {
-        // TODO: 필터, 정렬, 검색
+    @Transactional(readOnly = true)
+    public ResponseShopsDTO getShopsForAdmin(ShopsConditionDTO dto) throws Exception {
+        Filter filter = dto.getFilter();
+        Integer page = dto.getPage();
+        Integer limit = dto.getLimit();
 
-        int totalCount = shopMapper.getTotalCountOfShopsByIgnoreDeletion();
-        Integer totalPage;
+        if (filter != null) {
+            if ((filter.getTrues() == null || filter.getTrues().isEmpty()) && filter.getCategory_id() == null) {
+                throw new ValidationException(new ErrorMessage("filter가 올바르지 않습니다.", 0));
+            }
+        }
+
+        dto.removeBlankOfSearchName();
+
+        int totalCount = shopMapper.getTotalCountOfShopsByCondition(dto);
 
         /*
              (전체 상점 개수 / limit)를 올림한 자연수가 totalPage가 된다.
              만약 전체 상점 개수가 0일 경우라도 페이지는 존재해야 하므로, 그때는 totalPage를 1로 한다.
          */
-        totalPage = (totalCount == 0) ? 1 : (int) Math.ceil(((double)totalCount) / limit);
+        Integer totalPage = (totalCount == 0) ? 1 : (int) Math.ceil(((double)totalCount) / limit);
 
         if (page > totalPage || page < 1) {
-            throw new ValidationException(new ErrorMessage("page가 올바르지 않습니다.", 0));
+            throw new ValidationException(new ErrorMessage("page가 유효하지 않습니다.", 0));
         }
 
-        List<MinimizedShop> shops =
-                shopMapper.getShopsByIgnoreDeletionStatus(limit * page - limit, limit);
+        List<MinimizedShop> shops = shopMapper.getShopsByCondition(limit * page - limit, dto);
 
         return ResponseShopsDTO.builder()
                 .total_page(totalPage)
@@ -699,8 +709,6 @@ public class ShopServiceImpl implements ShopService {
                 .shops(shops)
                 .build();
     }
-
-
 
     @Override
     @Transactional(readOnly = true)

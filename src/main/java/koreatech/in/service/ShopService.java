@@ -24,7 +24,7 @@ public interface ShopService {
 
     ResponseSuccessfulDTO undeleteOfShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseShopsDTO getShopsForAdmin(Integer page, Integer limit) throws Exception;
+    ResponseShopsDTO getShopsForAdmin(ShopsConditionDTO dto) throws Exception;
 
     ResponseSuccessCreateDTO createMenuCategoryForAdmin(CreateShopMenuCategoryDTO dto) throws Exception;
 

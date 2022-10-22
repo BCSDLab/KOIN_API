@@ -120,10 +120,167 @@
         LIMIT #{begin}, #{limit}
     </select>
 
-    <select id="getShopsByIgnoreDeletionStatus" resultMap="MinimizedShop">
+    <select id="getTotalCountOfShopsByCondition" parameterType="koreatech.in.dto.shop.request.ShopsConditionDTO" resultType="int">
+        SELECT COUNT(*)
+        FROM koin.shops
+
+        <!-- 이름 검색이 필요하다면 WHERE절에 추가 -->
+        <if test="condition.search_name != null">
+            WHERE internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
+        </if>
+
+        <!-- 필터링이 필요하다면 -->
+        <if test="(condition.filter != null) and (condition.filter.trues != null or condition.filter.category_id != null)">
+            <!-- 이름 검색에 대한 WHERE절이 선행되었다면 AND, 아니면 WHERE를 붙인다. -->
+            <choose>
+                <when test="condition.search_name != null">
+                    AND
+                </when>
+                <otherwise>
+                    WHERE
+                </otherwise>
+            </choose>
+
+            <!-- trues 필터링이 필요하다면 WHERE절에 추가 -->
+            <if test="condition.filter.trues != null">
+                <foreach collection="condition.filter.trues" item="item" separator=" AND ">
+                    <choose>
+                        <when test="item.value == 1">
+                            is_deleted = 1
+                        </when>
+                        <when test="item.value == 2">
+                            delivery = 1
+                        </when>
+                        <when test="item.value == 3">
+                            pay_card = 1
+                        </when>
+                        <when test="item.value == 4">
+                            pay_bank = 1
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+            <!-- category_id 필터링이 필요하다면 WHERE절에 추가 -->
+            <if test="condition.filter.category_id != null">
+                <!-- trues 필터링에 대한 WHERE절이 선행되었다면 끝에 AND가 붙어있지 않으므로 붙인다. -->
+                <if test="condition.filter.trues != null">
+                    AND
+                </if>
+
+                id IN (
+                    SELECT shop_id
+                    FROM koin.shop_category_map
+                    WHERE shop_category_id = #{condition.filter.category_id} AND is_deleted = 0
+                )
+            </if>
+        </if>
+
+        <!-- 정렬이 필요하다면 ORDER BY절에 추가-->
+        <if test="condition.sort != null">
+            ORDER BY
+
+            <choose>
+                <when test="condition.sort.criterion.value == 1">
+                    `name`
+                </when>
+                <when test="condition.sort.criterion.value == 2">
+                    created_at
+                </when>
+            </choose>
+
+            <choose>
+                <when test="condition.sort.ascending">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="getShopsByCondition"
+            parameterType="koreatech.in.dto.shop.request.ShopsConditionDTO" resultMap="MinimizedShop">
         SELECT *
         FROM koin.shops
-        LIMIT #{begin}, #{limit}
+
+        <!-- 이름 검색이 필요하다면 WHERE절에 추가 -->
+        <if test="condition.search_name != null">
+            WHERE internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
+        </if>
+
+        <!-- 필터링이 필요하다면 -->
+        <if test="(condition.filter != null) and (condition.filter.trues != null or condition.filter.category_id != null)">
+            <!-- 이름 검색에 대한 WHERE절이 선행되었다면 AND, 아니면 WHERE를 붙인다. -->
+            <choose>
+                <when test="condition.search_name != null">
+                    AND
+                </when>
+                <otherwise>
+                    WHERE
+                </otherwise>
+            </choose>
+
+            <!-- trues 필터링이 필요하다면 WHERE절에 추가 -->
+            <if test="condition.filter.trues != null">
+                <foreach collection="condition.filter.trues" item="item" separator=" AND ">
+                    <choose>
+                        <when test="item.value == 1">
+                            is_deleted = 1
+                        </when>
+                        <when test="item.value == 2">
+                            delivery = 1
+                        </when>
+                        <when test="item.value == 3">
+                            pay_card = 1
+                        </when>
+                        <when test="item.value == 4">
+                            pay_bank = 1
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+            <!-- category_id 필터링이 필요하다면 WHERE절에 추가 -->
+            <if test="condition.filter.category_id != null">
+                <!-- trues 필터링에 대한 WHERE절이 선행되었다면 끝에 AND가 붙어있지 않으므로 붙인다. -->
+                <if test="condition.filter.trues != null">
+                    AND
+                </if>
+
+                id IN (
+                    SELECT shop_id
+                    FROM koin.shop_category_map
+                    WHERE shop_category_id = #{condition.filter.category_id} AND is_deleted = 0
+                )
+            </if>
+        </if>
+
+        <!-- 정렬이 필요하다면 ORDER BY절에 추가-->
+        <if test="condition.sort != null">
+            ORDER BY
+
+            <choose>
+                <when test="condition.sort.criterion.value == 1">
+                    `name`
+                </when>
+                <when test="condition.sort.criterion.value == 2">
+                    created_at
+                </when>
+            </choose>
+
+            <choose>
+                <when test="condition.sort.ascending">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+
+        LIMIT #{begin}, #{condition.limit}
     </select>
 
     <select id="getAllShops" resultMap="shop">
