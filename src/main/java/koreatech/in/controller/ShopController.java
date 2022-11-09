@@ -24,8 +24,8 @@ public class ShopController {
 
     @RequestMapping(value = "/shops", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseAllShopsDTO> getShops() throws Exception {
-        return new ResponseEntity<>(shopService.getShops(), HttpStatus.OK);
+    ResponseEntity<ResponseAllShopsDTO> getAllShops() throws Exception {
+        return new ResponseEntity<>(shopService.getAllShops(), HttpStatus.OK);
     }
 
     /*
@@ -34,7 +34,7 @@ public class ShopController {
      */
     @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseAllShopCategoriesDTO> getShopCategories() throws Exception {
-        return new ResponseEntity<>(shopService.getShopCategories(), HttpStatus.OK);
+    ResponseEntity<ResponseAllShopCategoriesDTO> getAllShopCategories() throws Exception {
+        return new ResponseEntity<>(shopService.getAllShopCategories(), HttpStatus.OK);
     }
 }

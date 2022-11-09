@@ -2,12 +2,13 @@ package koreatech.in.dto.shop.request.inner;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.DayOfWeek;
 
-@Getter
+@Getter @Setter
 public class Open {
     @NotNull(message = "open의 day_of_week는 필수입니다.")
     @ApiModelProperty(notes = "요일", example = "MONDAY")

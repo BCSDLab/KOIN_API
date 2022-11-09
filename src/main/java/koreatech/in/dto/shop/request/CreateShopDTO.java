@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.dto.shop.request.inner.Open;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -12,9 +11,7 @@ import java.util.List;
 
 @Getter @Setter
 public class CreateShopDTO {
-    /*@NotNull(message = "사장님 id는 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "사장님 id", example = "1")
-    private Integer owner_id;*/
+    //private Integer owner_id;
 
     @Size(min = 1, max = 15, message = "name은 1자 이상 15자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
@@ -61,12 +58,4 @@ public class CreateShopDTO {
     @NotNull(message = "category_ids는 필수입니다.")
     @ApiModelProperty(notes = "상점 카테고리 고유 id 리스트", example = "[1, 4]")
     private List<Integer> category_ids;
-
-    @ApiModelProperty(notes = "상점 이미지 리스트", hidden = true)
-    private List<MultipartFile> images;
-    
-    public CreateShopDTO init(List<MultipartFile> images) {
-        this.images = images;
-        return this;
-    }
 }

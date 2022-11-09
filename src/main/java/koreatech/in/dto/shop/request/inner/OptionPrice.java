@@ -2,10 +2,11 @@ package koreatech.in.dto.shop.request.inner;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.*;
 
-@Getter
+@Getter @Setter
 public class OptionPrice {
     @Size(min = 1, max = 12, message = "option_prices의 option은 1자 이상 12자 이하입니다.")
     @NotNull(message = "option_prices의 option은 필수입니다.")

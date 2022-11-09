@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.dto.shop.request.inner.OptionPrice;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -12,12 +11,6 @@ import java.util.List;
 
 @Getter @Setter
 public class UpdateShopMenuDTO {
-    @ApiModelProperty(notes = "메뉴 고유 id", example = "1", hidden = true)
-    private Integer id;
-
-    @ApiModelProperty(notes = "상점 고유 id", example = "1", hidden = true)
-    private Integer shop_id;
-
     @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "메뉴명", example = "짜장면")
@@ -45,16 +38,6 @@ public class UpdateShopMenuDTO {
     @Size(max = 80, message = "description의 길이는 80 이하입니다.")
     @ApiModelProperty(notes = "메뉴 구성 설명", example = "저희 가게의 대표 메뉴 짜장면입니다.")
     private String description;
-
-    @ApiModelProperty(notes = "메뉴 이미지 리스트", hidden = true)
-    private List<MultipartFile> images;
-
-    public UpdateShopMenuDTO init(Integer shop_id, Integer menu_id, List<MultipartFile> images) {
-        this.shop_id = shop_id;
-        this.id = menu_id;
-        this.images = images;
-        return this;
-    }
 
     public boolean existOfOptionDuplicate() {
         if (this.option_prices == null || this.option_prices.isEmpty() || this.option_prices.size() == 1) {
