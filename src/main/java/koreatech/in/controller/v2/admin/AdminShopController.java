@@ -165,9 +165,8 @@ public class AdminShopController {
     @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopsDTO> getShops(@RequestBody @Valid ShopsConditionDTO dto, BindingResult bindingResult) throws Exception {
-
-        return new ResponseEntity<>(shopService.getShopsForAdmin((ShopsConditionDTO) xssPrevent(dto)), HttpStatus.OK);
+    ResponseEntity<ResponseShopsDTO> getShops(@Valid ShopsConditionDTO dto, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(shopService.getShopsForAdmin(dto), HttpStatus.OK);
     }
 
     // ----------------------------------------- 메뉴 카테고리 --------------------------------------------

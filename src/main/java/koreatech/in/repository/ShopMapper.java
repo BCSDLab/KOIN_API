@@ -46,7 +46,7 @@ public interface ShopMapper {
             ") AND is_deleted = 0")
     List<Shop> getShopsUsingCategory(@Param("shop_category_id") int shopCategoryId);
 
-    int getTotalCountOfShopsByCondition(@Param("condition") ShopsConditionDTO dto);
+    Integer getTotalCountOfShopsByCondition(@Param("condition") ShopsConditionDTO dto);
 
     @Update("UPDATE koin.shops " +
             "SET " +
@@ -251,7 +251,7 @@ public interface ShopMapper {
 
     List<koreatech.in.dto.shop.response.inner.Shop> getShops(@Param("begin") int begin, @Param("limit") int limit);
 
-    List<MinimizedShop> getShopsByCondition(@Param("begin") int begin, @Param("condition") ShopsConditionDTO dto);
+    List<MinimizedShop> getShopsByCondition(@Param("begin") Integer begin, @Param("condition") ShopsConditionDTO dto);
 
     List<koreatech.in.dto.shop.response.inner.Shop> getAllShops();
 
