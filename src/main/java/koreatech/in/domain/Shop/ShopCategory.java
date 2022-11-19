@@ -2,11 +2,13 @@ package koreatech.in.domain.Shop;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
+import java.util.Objects;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class ShopCategory {
     private Integer id;
     private String name;
@@ -26,15 +28,29 @@ public class ShopCategory {
         return this;
     }
 
+    public boolean equalsIdTo(Integer id) {
+        return Objects.equals(this.id, id);
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
             return true;
         }
         if (!(obj instanceof ShopCategory)) {
             return false;
         }
 
-        return this.id.equals(((ShopCategory) obj).getId());
+        return Objects.equals(this.id, ((ShopCategory) obj).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(this.id)
+                .toHashCode();
     }
 }
