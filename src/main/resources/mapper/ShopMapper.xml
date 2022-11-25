@@ -124,120 +124,86 @@
         SELECT COUNT(*)
         FROM koin.shops
 
-        <!-- 이름 검색이 필요하다면 WHERE절에 추가 -->
-        <if test="condition.search_name != null">
-            WHERE internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
-        </if>
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 이름 검색 -->
+            <if test="condition.search_name != null">
+                AND internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
+            </if>
 
-        <!-- 필터링이 필요하다면 WHERE절에 추가 -->
-        <if test="!condition.filter.isEmpty()">
-              <!-- 이름 검색이 선행되었을 경우 AND, 아니면 WHERE를 붙인다. -->
-              <choose>
-                  <when test="condition.search_name != null">
-                      AND
-                  </when>
-                  <otherwise>
-                      WHERE
-                  </otherwise>
-              </choose>
+            <!-- 필터링 (soft delete 여부, 배달 여부, 카드 여부, 계좌 이체 여부) -->
+            <if test="!condition.filter.isEmpty()">
+                AND
+                <foreach collection="condition.filter" item="item" separator="AND">
+                    <if test="item.value == 1">
+                        is_deleted = 1
+                    </if>
+                    <if test="item.value == 2">
+                        delivery = 1
+                    </if>
+                    <if test="item.value == 3">
+                        pay_card = 1
+                    </if>
+                    <if test="item.value == 4">
+                        pay_bank = 1
+                    </if>
+                </foreach>
+            </if>
 
-              <foreach collection="condition.filter" item="item" separator="AND">
-                  <if test="item.value == 1">
-                      is_deleted = 1
-                  </if>
-                  <if test="item.value == 2">
-                      delivery = 1
-                  </if>
-                  <if test="item.value == 3">
-                      pay_card = 1
-                  </if>
-                  <if test="item.value == 4">
-                      pay_bank = 1
-                  </if>
-              </foreach>
-        </if>
-
-        <!-- 카테고리 조건이 필요하다면 WHERE절에 추가 -->
-        <if test="condition.category_id != null">
-            <!-- 이름 검색 or 필터링이 선행되었다면 AND, 아니면 WHERE를 붙인다. -->
-            <choose>
-                <when test="condition.search_name != null or !condition.filter.isEmpty()">
-                    AND
-                </when>
-                <otherwise>
+            <!-- 카테고리 -->
+            <if test="condition.category_id != null">
+                AND id IN (
+                    SELECT shop_id
+                    FROM koin.shop_category_map
                     WHERE
-                </otherwise>
-            </choose>
-
-            id IN (
-                SELECT shop_id
-                FROM koin.shop_category_map
-                WHERE
-                    shop_category_id = #{condition.category_id}
-                    AND is_deleted = 0
-            )
-        </if>
+                        shop_category_id = #{condition.category_id}
+                        AND is_deleted = 0
+                )
+            </if>
+        </trim>
     </select>
 
     <select id="getShopsByCondition" resultMap="MinimizedShop">
         SELECT *
         FROM koin.shops
 
-        <!-- 이름 검색이 필요하다면 WHERE절에 추가 -->
-        <if test="condition.search_name != null">
-            WHERE internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
-        </if>
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 이름 검색 -->
+            <if test="condition.search_name != null">
+                AND internal_name LIKE CONCAT('%', #{condition.search_name}, '%')
+            </if>
 
-        <!-- 필터링이 필요하다면 WHERE절에 추가 -->
-        <if test="!condition.filter.isEmpty()">
-            <!-- 이름 검색이 선행되었을 경우 AND, 아니면 WHERE를 붙인다. -->
-            <choose>
-                <when test="condition.search_name != null">
-                    AND
-                </when>
-                <otherwise>
+            <!-- 필터링 (soft delete 여부, 배달 여부, 카드 여부, 계좌 이체 여부) -->
+            <if test="!condition.filter.isEmpty()">
+                AND
+                <foreach collection="condition.filter" item="item" separator="AND">
+                    <if test="item.value == 1">
+                        is_deleted = 1
+                    </if>
+                    <if test="item.value == 2">
+                        delivery = 1
+                    </if>
+                    <if test="item.value == 3">
+                        pay_card = 1
+                    </if>
+                    <if test="item.value == 4">
+                        pay_bank = 1
+                    </if>
+                </foreach>
+            </if>
+
+            <!-- 카테고리 -->
+            <if test="condition.category_id != null">
+                AND id IN (
+                    SELECT shop_id
+                    FROM koin.shop_category_map
                     WHERE
-                </otherwise>
-            </choose>
+                        shop_category_id = #{condition.category_id}
+                        AND is_deleted = 0
+                )
+            </if>
+        </trim>
 
-            <foreach collection="condition.filter" item="item" separator="AND">
-                <if test="item.value == 1">
-                    is_deleted = 1
-                </if>
-                <if test="item.value == 2">
-                    delivery = 1
-                </if>
-                <if test="item.value == 3">
-                    pay_card = 1
-                </if>
-                <if test="item.value == 4">
-                    pay_bank = 1
-                </if>
-            </foreach>
-        </if>
-
-        <!-- 카테고리 조건이 필요하다면 WHERE절에 추가 -->
-        <if test="condition.category_id != null">
-            <!-- 이름 검색 or 필터링이 선행되었다면 AND, 아니면 WHERE를 붙인다. -->
-            <choose>
-                <when test="condition.search_name != null or !condition.filter.isEmpty()">
-                    AND
-                </when>
-                <otherwise>
-                    WHERE
-                </otherwise>
-            </choose>
-
-            id IN (
-                SELECT shop_id
-                FROM koin.shop_category_map
-                WHERE
-                    shop_category_id = #{condition.category_id}
-                    AND is_deleted = 0
-            )
-        </if>
-
-        <!-- 정렬이 필요하다면 ORDER BY절에 추가 -->
+        <!-- 정렬 -->
         <if test="condition.sort != null">
             ORDER BY
 
@@ -249,6 +215,7 @@
             </if>
         </if>
 
+        <!-- 페이지네이션 -->
         LIMIT #{begin}, #{condition.limit}
     </select>
 
@@ -403,13 +370,26 @@
         (shop_id, day_of_week, closed, open_time, close_time)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (
-                #{item.shop_id},
-                #{item.day_of_week},
-                #{item.closed},
-                #{item.open_time},
-                #{item.close_time}
-            )
+            <choose>
+                <when test="item.closed">
+                    (
+                        #{item.shop_id},
+                        #{item.day_of_week},
+                        #{item.closed},
+                        null,
+                        null
+                    )
+                </when>
+                <otherwise>
+                    (
+                        #{item.shop_id},
+                        #{item.day_of_week},
+                        #{item.closed},
+                        #{item.open_time},
+                        #{item.close_time}
+                    )
+                </otherwise>
+            </choose>
         </foreach>
     </insert>
 
