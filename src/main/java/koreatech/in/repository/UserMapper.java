@@ -2,8 +2,11 @@ package koreatech.in.repository;
 
 //import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import koreatech.in.domain.Authority;
+import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UsersCondition;
+import koreatech.in.dto.user.admin.UsersResponse;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -59,6 +62,10 @@ public interface UserMapper{
 
     @Select("SELECT * FROM koin.users WHERE RESET_TOKEN = #{resetToken}")
     User getUserByResetToken(String resetToken);
+
+    Integer getTotalCountByConditionForAdmin(@Param("condition") UsersCondition condition);
+
+    List<UsersResponse.User> getUsersByConditionForAdmin(@Param("cursor") Integer cursor, @Param("condition") UsersCondition condition);
 
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
 //    @Select("SELECT * FROM koin.users u INNER JOIN koin.admins a ON u.id = a.user_id WHERE u.id = #{id}")

@@ -3,8 +3,11 @@ package koreatech.in.domain.Criteria;
 import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.constraints.Positive;
+
 @ApiIgnore
 public class Criteria {
+    @Positive
     @ApiParam(required = false, defaultValue = "1")
     private Integer page = 1;
     @ApiParam(required = false, defaultValue = "10")
@@ -28,6 +31,10 @@ public class Criteria {
 
     public Integer getCursor() {
         return (page - 1) * limit;
+    }
+
+    public Integer extractTotalPage(Integer totalCount) {
+        return totalCount.equals(0) ? 1 : (int) Math.ceil((double) totalCount / this.limit);
     }
 
     @Override
