@@ -17,14 +17,14 @@ public class ShopCategory {
     private Date created_at;
     private Date updated_at;
 
-    public ShopCategory(String name, String image_url) {
+    public ShopCategory(String name, String imageUrl) {
         this.name = name;
-        this.image_url = image_url;
+        this.image_url = imageUrl;
     }
 
-    public ShopCategory update(String name, String image_url) {
+    public ShopCategory update(String name, String imageUrl) {
         this.name = name;
-        this.image_url = image_url;
+        this.image_url = imageUrl;
         return this;
     }
 

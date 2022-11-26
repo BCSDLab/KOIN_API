@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.*;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class Shop {
     private Integer id;
     private Integer owner_id;
@@ -29,8 +29,8 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public Shop(CreateShopDTO dto, Integer owner_id) {
-        this.owner_id = owner_id;
+    public Shop(CreateShopDTO dto, Integer ownerId) {
+        this.owner_id = ownerId;
         this.name = dto.getName();
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
@@ -41,10 +41,11 @@ public class Shop {
         this.delivery_price = dto.getDelivery_price();
         this.pay_card = dto.getPay_card();
         this.pay_bank = dto.getPay_bank();
-        this.is_event = null;
+        this.is_event = false;
         this.remarks = null;
         this.hit = 0;
     }
+
     public Shop update(UpdateShopDTO dto) {
         this.name = dto.getName();
         this.phone = dto.getPhone();
@@ -60,8 +61,12 @@ public class Shop {
         return this;
     }
 
-    public Shop matchOwnerId(Integer owner_id) {
-        this.owner_id = owner_id;
+    public boolean equalsIdTo(Integer id) {
+        return Objects.equals(this.id, id);
+    }
+
+    public Shop matchOwnerId(Integer ownerId) {
+        this.owner_id = ownerId;
         return this;
     }
 }

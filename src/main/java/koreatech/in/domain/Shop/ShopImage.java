@@ -15,8 +15,8 @@ public class ShopImage {
     private Date created_at;
     private Date updated_at;
 
-    public ShopImage(Integer shop_id, String image_url) {
-        this.shop_id = shop_id;
-        this.image_url = image_url;
+    public ShopImage(Integer shopId, String imageUrl) {
+        this.shop_id = shopId;
+        this.image_url = imageUrl;
     }
 }

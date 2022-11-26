@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class ShopCategoryMap {
     private Integer id;
     private Integer shop_id;
@@ -15,8 +15,8 @@ public class ShopCategoryMap {
     private Date created_at;
     private Date updated_at;
 
-    public ShopCategoryMap(Integer shop_id, Integer shop_category_id) {
-        this.shop_id = shop_id;
-        this.shop_category_id = shop_category_id;
+    public ShopCategoryMap(Integer shopId, Integer shopCategoryId) {
+        this.shop_id = shopId;
+        this.shop_category_id = shopCategoryId;
     }
 }

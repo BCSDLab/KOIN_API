@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import java.time.DayOfWeek;
 import java.util.Date;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class ShopOpen {
     private Integer id;
     private Integer shop_id;
@@ -19,19 +19,19 @@ public class ShopOpen {
     private Date created_at;
     private Date updated_at;
 
-    public ShopOpen(Integer shop_id, DayOfWeek day_of_week) {
-        this.shop_id = shop_id;
-        this.day_of_week = day_of_week;
+    public ShopOpen(Integer shopId, DayOfWeek dayOfWeek) {
+        this.shop_id = shopId;
+        this.day_of_week = dayOfWeek;
         this.closed = false;
         this.open_time = null;
         this.close_time = null;
     }
 
-    public ShopOpen(Integer shop_id, DayOfWeek day_of_week, Boolean closed, String open_time, String close_time) {
-        this.shop_id = shop_id;
-        this.day_of_week = day_of_week;
+    public ShopOpen(Integer shopId, DayOfWeek dayOfWeek, Boolean closed, String openTime, String closeTime) {
+        this.shop_id = shopId;
+        this.day_of_week = dayOfWeek;
         this.closed = closed;
-        this.open_time = open_time;
-        this.close_time = close_time;
+        this.open_time = openTime;
+        this.close_time = closeTime;
     }
 }
