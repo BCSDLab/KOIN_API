@@ -7,7 +7,9 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.service.LandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
@@ -40,6 +43,15 @@ public class AdminLandController {
     ResponseEntity<LandResponse> getLand(@PathVariable("id") Integer landId) throws Exception {
 
         return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
+    }
+
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<LandsResponse> getLands(@ModelAttribute @Valid LandsCondition condition) throws Exception {
+
+        return new ResponseEntity<>(landService.getLandsForAdmin(condition), HttpStatus.OK);
     }
 
     @ParamValid

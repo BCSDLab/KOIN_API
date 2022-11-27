@@ -5,7 +5,9 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
@@ -15,6 +17,7 @@ import koreatech.in.util.JsonConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -96,6 +99,32 @@ public class LandServiceImpl implements LandService {
                 .opt_veranda(land.getOpt_veranda())
                 .opt_elevator(land.getOpt_elevator())
                 .image_urls(JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()))
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 1));
+        }
+
+        Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage || currentPage < 1) {
+            throw new PreconditionFailedException(new ErrorMessage("유효하지 않은 페이지입니다.", 2));
+        }
+
+        List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
+
+        return LandsResponse.builder()
+                .totalCount(totalCount)
+                .totalPage(totalPage)
+                .currentCount(lands.size())
+                .currentPage(currentPage)
+                .lands(lands)
                 .build();
     }
 

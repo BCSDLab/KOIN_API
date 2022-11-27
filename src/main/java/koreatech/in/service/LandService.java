@@ -2,7 +2,9 @@ package koreatech.in.service;
 
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
+import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 
 import java.util.Map;
 
@@ -20,6 +22,8 @@ public interface LandService {
     Land createLandForAdmin(Land land) throws Exception;
 
     LandResponse getLandForAdmin(Integer landId) throws Exception;
+
+    LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception;
 
     Land updateLandForAdmin(Land land, int id) throws Exception;
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.LandMapper">
+
+    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.domain.User.UsersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`lands`
+        <if test="condition.query != null">
+            WHERE
+            <!-- 이름 검색 -->
+            <if test="condition.searchType.value == 1">
+                `internal_name` LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </if>
+    </select>
+
+    <select id="getLandsByConditionForAdmin" resultType="koreatech.in.dto.land.admin.response.LandsResponse$Land">
+        SELECT *
+        FROM `koin`.`lands`
+        <if test="condition.query != null">
+            WHERE
+            <!-- 이름 검색 -->
+            <if test="condition.searchType.value == 1">
+                `internal_name` LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </if>
+        LIMIT #{cursor}, #{condition.limit}
+    </select>
+</mapper>
