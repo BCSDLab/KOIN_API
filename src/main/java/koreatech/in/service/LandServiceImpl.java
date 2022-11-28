@@ -153,10 +153,15 @@ public class LandServiceImpl implements LandService {
     public Map<String, Object> deleteLandForAdmin(int id) throws Exception {
         Land land = landMapper.getLandForAdmin(id);
 
-        if (land == null)
+        if (land == null) {
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
+        }
 
-        landMapper.deleteLandForAdmin(id);
+        if (land.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 1));
+        }
+
+        landMapper.softDeleteLandForAdmin(id);
 
         return new HashMap<String, Object>() {{
             put("success", true);
