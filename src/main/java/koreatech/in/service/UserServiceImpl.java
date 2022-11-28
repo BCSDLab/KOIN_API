@@ -171,6 +171,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
+        // 학번으로부터 전공 추출
+        user.setMajor(UserCode.extractMajorFromStudentNumber(user.getStudent_number()));
+
         // 학과 유효성 체크
         if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));

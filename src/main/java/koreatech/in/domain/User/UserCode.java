@@ -50,6 +50,11 @@ public class UserCode {
         return deptMap.containsValue(dept);
     }
 
+    public static String extractMajorFromStudentNumber(String studentNumber) {
+        String deptCode = studentNumber.substring(5, 7);
+        return UserCode.deptMap.get(deptCode);
+    }
+
     public enum UserIdentity {
         STUDENT(0), // 재학생
         POSTGRADUATE(1), // 대학원생
