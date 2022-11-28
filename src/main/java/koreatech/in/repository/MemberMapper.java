@@ -46,4 +46,7 @@ public interface MemberMapper {
 
     @Delete("DELETE FROM koin.members WHERE ID = #{id}")
     void deleteMemberForAdmin(@Param("id") int id);
+
+    @Update("UPDATE koin.members SET is_deleted = 1 WHERE id = #{id}")
+    void softDeleteMemberForAdmin(@Param("id") int id);
 }

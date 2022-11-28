@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
+import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
@@ -112,11 +113,16 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public Map<String, Object> deleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
-        if(selectMember == null) {
+
+        if (selectMember == null) {
             throw new NotFoundException(new ErrorMessage("Member not found.", 0));
         }
 
-        memberMapper.deleteMemberForAdmin(id);
+        if (selectMember.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 1));
+        }
+
+        memberMapper.softDeleteMemberForAdmin(id);
 
         return new HashMap<String, Object>() {{
             put("success", true);
