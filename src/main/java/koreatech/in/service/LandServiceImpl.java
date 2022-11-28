@@ -168,6 +168,26 @@ public class LandServiceImpl implements LandService {
         }};
     }
 
+    @Transactional
+    @Override
+    public Map<String, Object> undeleteLandForAdmin(int id) throws Exception {
+        Land land = landMapper.getLandForAdmin(id);
+
+        if (land == null) {
+            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+        }
+
+        if (!land.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("It is not soft deleted.", 1));
+        }
+
+        landMapper.undeleteLandForAdmin(id);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
     @Override
     public Map<String, Object> getLands() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();

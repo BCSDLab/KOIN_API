@@ -57,6 +57,9 @@ public interface LandMapper {
     @Update("UPDATE koin.lands SET is_deleted = 1 WHERE id = #{id}")
     void softDeleteLandForAdmin(@Param("id") int id);
 
+    @Update("UPDATE koin.lands SET is_deleted = 0 WHERE id = #{id}")
+    void undeleteLandForAdmin(@Param("id") int id);
+
     Integer getTotalCountByConditionForAdmin(@Param("condition") LandsCondition condition);
 
     List<LandsResponse.Land> getLandsByConditionForAdmin(@Param("cursor") Integer cursor, @Param("condition") LandsCondition condition);

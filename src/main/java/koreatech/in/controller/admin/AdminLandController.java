@@ -70,4 +70,12 @@ public class AdminLandController {
 
         return new ResponseEntity<Map<String, Object>>(landService.deleteLandForAdmin(id), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.PATCH)
+    public @ResponseBody
+    ResponseEntity undeleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+
+        return new ResponseEntity<Map<String, Object>>(landService.undeleteLandForAdmin(id), HttpStatus.OK);
+    }
 }

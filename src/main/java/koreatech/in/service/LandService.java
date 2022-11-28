@@ -29,4 +29,5 @@ public interface LandService {
 
     Map<String, Object> deleteLandForAdmin(int id) throws Exception;
 
+    Map<String, Object> undeleteLandForAdmin(int id) throws Exception;
 }
