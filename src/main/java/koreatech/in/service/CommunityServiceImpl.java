@@ -6,19 +6,17 @@ import koreatech.in.domain.Community.*;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.Criteria.SearchCriteria;
-import koreatech.in.domain.Search.SearchArticles;
-import koreatech.in.domain.Search.SearchEnum;
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.*;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CommunityMapper;
-import koreatech.in.repository.SearchMapper;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.util.DateUtil;
 import koreatech.in.util.SearchUtil;
 import koreatech.in.util.SlackNotiSender;
+import koreatech.in.util.StringRedisUtilObj;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -29,20 +27,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 @Service("communityService")
 public class CommunityServiceImpl implements CommunityService {
 
-    private static Map<Integer,String> board_url = new HashMap<Integer, String>() {{
+    private static Map<Integer, String> board_url = new HashMap<Integer, String>() {{
         put(1, "free");
         put(2, "job");
         put(3, "anonymous");
         put(10, "question");
     }};
 
-    @Resource(name="communityMapper")
+    @Resource(name = "communityMapper")
     private CommunityMapper communityMapper;
 
     @Autowired
@@ -54,8 +51,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Autowired
     SlackNotiSender slackNotiSender;
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String, Object>>> valueOps;
+    @Autowired
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Override
     public Board createBoardForAdmin(Board board) throws Exception {
@@ -85,8 +82,8 @@ public class CommunityServiceImpl implements CommunityService {
     public Map<String, Object> getBoardsForAdmin(Criteria criteria) {
         double totalCount = communityMapper.totalBoardCountForAdmin();
         double countByLimit = totalCount / criteria.getLimit();
-        double totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        double totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Board> boards = communityMapper.getBoardListForAdmin(criteria.getCursor(), criteria.getLimit());
@@ -107,7 +104,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public Board updateBoardForAdmin(Board board, int id) throws Exception {
-        Board board_old =  communityMapper.getBoardForAdmin(id);
+        Board board_old = communityMapper.getBoardForAdmin(id);
 
         if (board.getTag() != null) {
             Board selectBoard = communityMapper.getBoardByTagForAdmin(board.getTag());
@@ -191,17 +188,16 @@ public class CommunityServiceImpl implements CommunityService {
         if (board.getIs_notice() && board.getTag().equals("NA000")) {
             double totalCount = communityMapper.totalNoticeArticleCountForAdmin();
             double countByLimit = totalCount / criteria.getLimit();
-            totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-            if (totalPage<0)
+            totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+            if (totalPage < 0)
                 throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
             articles = communityMapper.getNoticeArticlesForAdmin(criteria.getCursor(), criteria.getLimit());
-        }
-        else {
+        } else {
             double totalCount = communityMapper.totalArticleCountForAdmin(boardId);
             double countByLimit = totalCount / criteria.getLimit();
-            totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-            if (totalPage<0)
+            totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+            if (totalPage < 0)
                 throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
             articles = communityMapper.getArticleListForAdmin(boardId, criteria.getCursor(), criteria.getLimit());
@@ -222,13 +218,14 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<Comment> comments = communityMapper.getCommentListForAdmin(id);
 
-        for (Comment comment:comments) {
+        for (Comment comment : comments) {
             comment.setGrantEdit(true);
             comment.setGrantDelete(true);
         }
 
         Gson gson = new Gson();
-        Type type = new TypeToken<Map<String,Object>>(){}.getType();
+        Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
         //블랙 리스트 or null 컬럼 없애기
         //TODO: example 방법, 모든 response type을 도메인으로 정의하고 map으로 변환시 나머지 제거
         Map<String, Object> map = domainToMapWithExcept(article, ArticleResponseType.getAdminArray());
@@ -236,9 +233,9 @@ public class CommunityServiceImpl implements CommunityService {
             try {
                 //meta 컬럼을 json_decode 해서 공지사항 올라온 날짜로 created_at 입력
                 Map<String, Object> json = gson.fromJson(article.getMeta(), type);
-                map.replace("created_at",json.get("registered_at"));
+                map.replace("created_at", json.get("registered_at"));
                 map.put("permalink", json.get("permalink"));
-            } catch (Exception e){
+            } catch (Exception e) {
             }
         }
 
@@ -371,7 +368,7 @@ public class CommunityServiceImpl implements CommunityService {
     public List<Board> getBoards() {
         List<Board> parentBoards = communityMapper.getParentBoardList();
 
-        for (Board board: parentBoards) {
+        for (Board board : parentBoards) {
             board.setChildren(communityMapper.getChildrenBoardList(board.getId()));
         }
 
@@ -402,16 +399,15 @@ public class CommunityServiceImpl implements CommunityService {
             double totalCount = communityMapper.totalNoticeArticleCount();
             double countByLimit = totalCount / criteria.getLimit();
             totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-            if (totalPage<0)
+            if (totalPage < 0)
                 throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
             articles = communityMapper.getNoticeArticles(criteria.getCursor(), criteria.getLimit());
-        }
-        else {
+        } else {
             double totalCount = communityMapper.totalArticleCount(boardId);
             double countByLimit = totalCount / criteria.getLimit();
             totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-            if (totalPage<0)
+            if (totalPage < 0)
                 throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
             articles = communityMapper.getArticleList(boardId, criteria.getCursor(), criteria.getLimit());
@@ -445,10 +441,11 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<Map<String, Object>> getCachedHotArticle() throws Exception {
-
         String cacheKey = Article.getHotArticlesCacheKey();
 
-        return valueOps.get(cacheKey);
+        List<Map<String, Object>> ret = new ArrayList<>();
+        ret = (List<Map<String, Object>>) stringRedisUtilObj.getDataAsString(cacheKey, ret.getClass());
+        return ret;
     }
 
     @Transactional
@@ -482,15 +479,13 @@ public class CommunityServiceImpl implements CommunityService {
         board.setArticle_count(board.getArticle_count() + 1);
         communityMapper.updateBoard(board);
 
-        NotiSlack slack_message = new NotiSlack();
-        String name = user.getNickname();
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(board.getName()+" : "+ name + "님이 작성");
-        slack_message.setTitle(article.getTitle());
-        slack_message.setTitle_link("https://koreatech.in" + "/board/" + board_url.get(board.getId()) + "/" + article.getId().toString());
-        slack_message.setText(article.getContentSummary());
-
-        slackNotiSender.noticePost(slack_message);
+        slackNotiSender.noticePost(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(board.getName() + " : " + user.getNickname() + "님이 작성")
+                .title(article.getTitle())
+                .title_link("https://koreatech.in" + "/board/" + board_url.get(board.getId()) + "/" + article.getId().toString())
+                .text(article.getContentSummary())
+                .build());
 
         return article;
     }
@@ -516,19 +511,19 @@ public class CommunityServiceImpl implements CommunityService {
         }
         List<Comment> comments = communityMapper.getCommentList(id);
 
-        for (Comment comment:comments) {
+        for (Comment comment : comments) {
             if (user != null && (user.getId().equals(comment.getUser_id()) || (user.getAuthority() != null && user.getAuthority().getGrant_community()))) {
                 comment.setGrantEdit(true);
                 comment.setGrantDelete(true);
-            }
-            else {
+            } else {
                 comment.setGrantEdit(false);
                 comment.setGrantDelete(false);
             }
         }
 
         Gson gson = new Gson();
-        Type type = new TypeToken<Map<String,Object>>(){}.getType();
+        Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
         //블랙 리스트 or null 컬럼 없애기
         //TODO: example 방법, 모든 response type을 도메인으로 정의하고 map으로 변환시 나머지 제거
         Map<String, Object> map = domainToMapWithExcept(article, ArticleResponseType.getArray());
@@ -536,9 +531,9 @@ public class CommunityServiceImpl implements CommunityService {
             try {
                 //meta 컬럼을 json_decode 해서 공지사항 올라온 날짜로 created_at 입력
                 Map<String, Object> json = gson.fromJson(article.getMeta(), type);
-                map.replace("created_at",json.get("registered_at"));
+                map.replace("created_at", json.get("registered_at"));
                 map.put("permalink", json.get("permalink"));
-            } catch (Exception e){
+            } catch (Exception e) {
             }
         }
 
@@ -559,7 +554,7 @@ public class CommunityServiceImpl implements CommunityService {
         if (article_old == null)
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
-        if(!article_old.hasGrantUpdate(user))
+        if (!article_old.hasGrantUpdate(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -581,7 +576,7 @@ public class CommunityServiceImpl implements CommunityService {
         if (article == null)
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
-        if(!article.hasGrantDelete(user))
+        if (!article.hasGrantDelete(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         article.setIs_deleted(true);
@@ -618,16 +613,13 @@ public class CommunityServiceImpl implements CommunityService {
         article.setComment_count(article.getComment_count() + 1);
         communityMapper.updateArticle(article);
 
-        NotiSlack slack_message = new NotiSlack();
-        String name = user.getNickname();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(board.getName()+" : "+ name + "님이 작성");
-        slack_message.setTitle(article.getTitle());
-        slack_message.setTitle_link("https://koreatech.in" + "/board/" + board_url.get(board.getId()) + "/" + article.getId().toString());
-        slack_message.setText(comment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+        slackNotiSender.noticeComment(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(board.getName() + " : " + user.getNickname() + "님이 작성")
+                .title(article.getTitle())
+                .title_link("https://koreatech.in" + "/board/" + board_url.get(board.getId()) + "/" + article.getId().toString())
+                .text(comment.getContent() + "...")
+                .build());
 
         return comment;
     }
@@ -731,8 +723,7 @@ public class CommunityServiceImpl implements CommunityService {
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 communityMapper.createViewLog(viewLog);
-            }
-            else {
+            } else {
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 communityMapper.updateViewLog(viewLog);

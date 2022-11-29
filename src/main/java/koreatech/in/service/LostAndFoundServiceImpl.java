@@ -7,16 +7,14 @@ import koreatech.in.domain.LostAndFound.LostItemComment;
 import koreatech.in.domain.LostAndFound.LostItemViewLog;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.*;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.LostAndFoundMapper;
-import koreatech.in.util.DateUtil;
-import koreatech.in.util.SearchUtil;
-import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.UploadFileUtils;
+import koreatech.in.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,9 +44,6 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
     @Autowired
     private SearchUtil searchUtil;
 
-    @Autowired
-    private JsonConstructor con;
-
     @Transactional
     @Override
     public LostItem createLostItemForAdmin(LostItem lostItem) throws Exception {
@@ -75,7 +70,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (lostItem.getIs_deleted() == null) {
@@ -105,14 +100,14 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         double countByLimit = totalCount / criteria.getLimit();
         int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Map<String, Object>> convert_items = new ArrayList<>();
 
         for (LostItem lostItem : lostItems) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 
@@ -145,7 +140,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, Object> map = domainToMap(lostItem);
         Map<String, String> profile = new HashMap<String, String>();
 
-        map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+        map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
         map.put("comments", comments);
@@ -173,7 +168,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -307,20 +302,18 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         lostAndFoundMapper.createLostItem(lostItem);
         searchUtil.createArticle(lostItem);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(lostItem.getNickname() + "님이 작성");
-        slack_message.setTitle(lostItem.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString());
-
-        slackNotiSender.noticeLostItem(slack_message);
+        slackNotiSender.noticeLostItem(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(lostItem.getNickname() + "님이 작성")
+                .title(lostItem.getTitle())
+                .title_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString())
+                .build());
 
         return lostItem;
     }
@@ -341,15 +334,15 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         }
 
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<Map<String, Object>> convert_items = new ArrayList<>();
 
         for (LostItem lostItem : lostItems) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 
@@ -398,7 +391,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, Object> map = domainToMap(lostItem);
         Map<String, String> profile = new HashMap<String, String>();
 
-        map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+        map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
         map.put("comments", comments);
@@ -429,7 +422,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -501,7 +494,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         //TODO: paging을 위한 중복코드, 반복코드 개선방법 찾기
         double countByLimit = totalCount / criteria.getLimit();
         int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         List<LostItem> items = lostAndFoundMapper.getMyLostItemList(criteria.getCursor(), criteria.getLimit(), type, user.getId());
@@ -509,7 +502,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         for (LostItem lostItem : items) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 
@@ -543,15 +536,13 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setComment_count(lostItem.getComment_count() + 1);
         lostAndFoundMapper.updateLostItem(lostItem);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(lostItemComment.getNickname() + "님이 작성");
-        slack_message.setTitle(lostItem.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString());
-        slack_message.setText(lostItemComment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+        slackNotiSender.noticeComment(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(lostItemComment.getNickname() + "님이 작성")
+                .title(lostItem.getTitle())
+                .title_link("https://koreatech.in/lost/" + "detail/" + lostItem.getId().toString())
+                .text(lostItemComment.getContent() + "...")
+                .build());
 
         return lostItemComment;
     }
@@ -671,7 +662,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         String originalFileName = image.getOriginalFilename();
         int index = originalFileName.lastIndexOf(".");
         String fileName = originalFileName.substring(0, index);
-        String fileExt = originalFileName.substring(index+1);
+        String fileExt = originalFileName.substring(index + 1);
 
         File file = new File(fileName);
         image.transferTo(file);
@@ -684,7 +675,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         // TODO: 스케줄 처리할 것
         uploadFileUtils.removeThumbnail(file.getAbsolutePath(), originalFileName, fileExt);
 
-        return new HashMap<String, Object>(){{
+        return new HashMap<String, Object>() {{
             put("url", url);
         }};
     }
@@ -697,15 +688,14 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
             Date expiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
 
             //TODO: update Or insert 구현시 개선
-            if(viewLog == null) {
+            if (viewLog == null) {
                 viewLog = new LostItemViewLog();
                 viewLog.setArticle_id(lostItem.getId());
                 viewLog.setUser_id(user.getId());
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 lostAndFoundMapper.createViewLog(viewLog);
-            }
-            else {
+            } else {
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 lostAndFoundMapper.updateViewLog(viewLog);

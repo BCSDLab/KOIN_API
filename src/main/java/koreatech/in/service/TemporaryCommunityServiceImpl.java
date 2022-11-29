@@ -32,7 +32,7 @@ import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 @Service("tempCommunityService")
 public class TemporaryCommunityServiceImpl implements TemporaryCommunityService {
-    @Resource(name="temporaryCommunityMapper")
+    @Resource(name = "temporaryCommunityMapper")
     private TemporaryCommunityMapper temporaryCommunityMapper;
 
     @Autowired
@@ -50,12 +50,12 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
 
         double totalCount = temporaryCommunityMapper.totalArticleCount();
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
-        map.put("articles",temporaryCommunityMapper.getArticleList(criteria.getCursor(), criteria.getLimit()));
-        map.put("totalPage",totalPage);
+        map.put("articles", temporaryCommunityMapper.getArticleList(criteria.getCursor(), criteria.getLimit()));
+        map.put("totalPage", totalPage);
 
         return map;
 
@@ -70,15 +70,13 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
 
         searchUtil.createArticle(article);
 
-        NotiSlack slack_message = new NotiSlack();
-        String name = article.getNickname();
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name("익명게시판 : "+ name + "님이 작성");
-        slack_message.setTitle(article.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/board/anonymous/" + article.getId().toString());
-        slack_message.setText(article.getContentSummary());
-
-        slackNotiSender.noticePost(slack_message);
+        slackNotiSender.noticePost(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name("익명게시판 : " + article.getNickname() + "님이 작성")
+                .title(article.getTitle())
+                .title_link("https://koreatech.in/board/anonymous/" + article.getId().toString())
+                .text(article.getContentSummary())
+                .build());
 
         return article;
 
@@ -95,7 +93,8 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         List<TempComment> comments = temporaryCommunityMapper.getCommentList(id);
 
         Gson gson = new Gson();
-        Type type = new TypeToken<Map<String,Object>>(){}.getType();
+        Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
         //블랙 리스트 or null 컬럼 없애기
         //TODO: example 방법, 모든 response type을 도메인으로 정의하고 map으로 변환시 나머지 제거
         Map<String, Object> map = domainToMapWithExcept(article, TempArticleResponseType.getArray());
@@ -112,7 +111,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         if (article_old == null)
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
-        if(!article_old.hasGrantUpdate(article.getPassword()))
+        if (!article_old.hasGrantUpdate(article.getPassword()))
             throw new ForbiddenException(new ErrorMessage("Password incorrect", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -131,7 +130,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         if (article == null)
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
-        if(!article.hasGrantDelete(password))
+        if (!article.hasGrantDelete(password))
             throw new ForbiddenException(new ErrorMessage("Password incorrect", 0));
 
         article.setIs_deleted(true);
@@ -158,16 +157,13 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         article.setComment_count(article.getComment_count() + 1);
         temporaryCommunityMapper.updateArticle(article);
 
-        NotiSlack slack_message = new NotiSlack();
-        String name = comment.getNickname();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name("익명게시판 : " + name + "님이 작성");
-        slack_message.setTitle(article.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/board/anonymous/" + article.getId().toString());
-        slack_message.setText(comment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+        slackNotiSender.noticeComment(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name("익명게시판 : " + comment.getNickname() + "님이 작성")
+                .title(article.getTitle())
+                .title_link("https://koreatech.in/board/anonymous/" + article.getId().toString())
+                .text(comment.getContent() + "...")
+                .build());
 
         return comment;
     }
@@ -201,7 +197,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         if (comment_old == null)
             throw new NotFoundException(new ErrorMessage("There is no comment", 0));
 
-        if(!comment_old.hasGrantUpdate(comment.getPassword()))
+        if (!comment_old.hasGrantUpdate(comment.getPassword()))
             throw new ForbiddenException(new ErrorMessage("Password incorrect", 0));
 
         comment_old.update(comment);
@@ -221,7 +217,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         if (comment == null)
             throw new NotFoundException(new ErrorMessage("There is no comment", 0));
 
-        if(!comment.hasGrantDelete(password))
+        if (!comment.hasGrantDelete(password))
             throw new ForbiddenException(new ErrorMessage("Password incorrect", 0));
 
         comment.setIs_deleted(true);
@@ -280,7 +276,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
             urls.add(url);
         }
 
-        return new HashMap<String, Object>(){{
+        return new HashMap<String, Object>() {{
             put("url", urls);
         }};
     }
@@ -292,7 +288,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         String originalFileName = image.getOriginalFilename();
         int index = originalFileName.lastIndexOf(".");
         String fileName = originalFileName.substring(0, index);
-        String fileExt = originalFileName.substring(index+1);
+        String fileExt = originalFileName.substring(index + 1);
 
         File file = new File(fileName);
         image.transferTo(file);
@@ -306,7 +302,7 @@ public class TemporaryCommunityServiceImpl implements TemporaryCommunityService 
         // TODO: 스케줄 처리할 것
         uploadFileUtils.removeThumbnail(file.getAbsolutePath(), originalFileName, fileExt);
 
-        return new HashMap<String, Object>(){{
+        return new HashMap<String, Object>() {{
             put("url", url);
         }};
     }

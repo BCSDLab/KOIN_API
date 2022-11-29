@@ -14,8 +14,6 @@ import koreatech.in.repository.UserMapper;
 import koreatech.in.util.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -60,18 +58,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Inject
     private PasswordEncoder passwordEncoder;
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, String> valueOps;
-
-    @Resource(name = "redisTemplate")
-    private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private StringRedisUtilStr stringRedisUtilStr;
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception {
         double totalCount = userMapper.totalCount();
         double countByLimit = totalCount / criteria.getLimit();
         int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
 
-        if (totalPage<0)
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         Map<String, Object> map = new HashMap<>();
@@ -86,7 +81,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User getUserForAdmin(int id) throws Exception {
         User selectUser = userMapper.getUser(id);
 
-        if(selectUser == null) {
+        if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
         }
 
@@ -185,8 +180,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             owner.update(user);
             userMapper.updateUser(owner);
             userMapper.updateOwner(owner);
-        }
-        else {
+        } else {
             selectUser.update(user);
             userMapper.updateUser(selectUser);
         }
@@ -288,12 +282,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         selectUser.setLast_logged_at(new Date().toString());
         userMapper.updateUser(selectUser);
-        Map<String,Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
+        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        String getToken = valueOps.get("user@"+selectUser.getId().toString());
+        String getToken = stringRedisUtilStr.getDataAsString("user@" + selectUser.getId().toString());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            valueOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+            stringRedisUtilStr.valOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -308,7 +302,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> logoutForAdmin() {
         // TODO: jwt 이력 삭제
         User user = jwtValidator.validate();
-        redisTemplate.delete("user@" + user.getId().toString());
+        stringRedisUtilStr.deleteData("user@" + user.getId().toString());
 
         return new HashMap<String, Object>() {{
             put("success", "logout");
@@ -319,16 +313,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
 
-        limit = (limit>50) ? 50 : limit;
-        page = (page<1) ? 1 : page;
+        limit = Math.min(limit, 50);
+        page = Math.max(page, 1);
 
         double totalCount = authorityMapper.totalAuthorityCount();
-        double countByLimit = totalCount/limit;
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount/limit);
-        if (totalPage<0)
+        double countByLimit = totalCount / limit;
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / limit);
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
-        int cursor = (page-1)*limit;
+        int cursor = (page - 1) * limit;
 
         List<Authority> admins = authorityMapper.getAuthorityList(cursor, limit);
         List<Map<String, Object>> listedAdmin = new ArrayList<>();
@@ -338,8 +332,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User user = userMapper.getUser(admin.getUser_id());
             if (user == null) {
                 adminToMap.put("users", null);
-            }
-            else {
+            } else {
                 Map<String, Object> userToMap = new HashMap<String, Object>() {{
                     put("portal_account", user.getPortal_account());
                 }};
@@ -441,12 +434,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         sesMailSender.sendMail("no-reply@bcsdlab.com", toAccount, "코인 이메일 회원가입 인증", text);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.");
-
-        slackNotiSender.noticeRegister(slack_message);
+        slackNotiSender.noticeRegister(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 이메일 인증을 요청하였습니다.")
+                .build());
 
         return new HashMap<String, Object>() {{
             put("success", "send mail for user authentication to entered email address");
@@ -465,12 +456,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userMapper.updateUser(user);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 가입하셨습니다.");
-
-        slackNotiSender.noticeRegister(slack_message);
+        slackNotiSender.noticeRegister(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 가입하셨습니다.")
+                .build());
 
         return true;
     }
@@ -500,8 +489,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             toAccount = userMapper.getOwnerEmail(selectUser.getId());
             if (toAccount == null)
                 throw new NotFoundException(new ErrorMessage("이메일이 등록되어 있지 않습니다.", 0));
-        }
-        else {
+        } else {
             toAccount = user.getPortal_account() + "@koreatech.ac.kr";
         }
 
@@ -571,14 +559,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> withdraw() throws Exception {
         User user = jwtValidator.validate();
         userMapper.deleteUser(user.getId());
-        redisTemplate.delete("user@" + user.getId().toString());
+        stringRedisUtilStr.deleteData("user@" + user.getId().toString());
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("good");
-        slack_message.setText(user.getPortal_account() + "님이 탈퇴하셨습니다.");
-
-        slackNotiSender.noticeWithdraw(slack_message);
+        slackNotiSender.noticeWithdraw(NotiSlack.builder()
+                .color("good")
+                .text(user.getPortal_account() + "님이 탈퇴하셨습니다.")
+                .build());
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -594,7 +580,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String,Object> updateUserInformation(User user) throws Exception {
+    public Map<String, Object> updateUserInformation(User user) throws Exception {
         User user_old = jwtValidator.validate();
 
         user.setIdentity(user_old.getIdentity());
@@ -630,19 +616,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user_old.update(user);
         userMapper.updateUser(user_old);
 
-        Map<String,Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
+        Map<String, Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
 
         return map;
     }
 
     @Override
     @Transactional
-    public Map<String,Object> updateOwnerInformation(Owner owner) throws Exception {
+    public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
         try {
             user_old = (Owner) jwtValidator.validate();
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new ForbiddenException(new ErrorMessage("점주가 아닙니다.", 0));
         }
 
@@ -678,7 +663,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(user_old);
         userMapper.updateOwner(user_old);
 
-        Map<String,Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
+        Map<String, Object> map = domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
 
         return map;
     }
@@ -712,12 +697,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         selectUser.setLast_logged_at(new Date().toString());
         userMapper.updateUser(selectUser);
-        Map<String,Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
+        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        String getToken = valueOps.get("user@" + selectUser.getId().toString());
+        String getToken = stringRedisUtilStr.getDataAsString("user@" + selectUser.getId().toString());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            valueOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+            stringRedisUtilStr.valOps.set("user@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -742,7 +727,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String portal_account) throws UsernameNotFoundException {
         User user = userMapper.getUserByPortalAccount(portal_account);
 
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 

@@ -36,12 +36,12 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 
 @Service("marketPlaceService")
 public class MarketPlaceServiceImpl implements MarketPlaceService {
-    private static Map<Integer,String> market_url = new HashMap<Integer, String>() {{
+    private static Map<Integer, String> market_url = new HashMap<Integer, String>() {{
         put(0, "sell");
         put(1, "buy");
     }};
 
-    @Resource(name="marketPlaceMapper")
+    @Resource(name = "marketPlaceMapper")
     private MarketPlaceMapper marketPlaceMapper;
 
     @Autowired
@@ -97,20 +97,19 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (type == 0 || type == 1) {
             totalCount = marketPlaceMapper.totalItemCountByTypeForAdmin(type);
             items = marketPlaceMapper.getItemListByTypeForAdmin(type, criteria.getCursor(), criteria.getLimit());
-        }
-        else {
+        } else {
             totalCount = marketPlaceMapper.totalItemCountForAdmin();
             items = marketPlaceMapper.getItemListForAdmin(criteria.getCursor(), criteria.getLimit());
         }
 
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         map.put("items", items);
-        map.put("totalPage",totalPage);
-        map.put("totalItemCount",(int)totalCount);
+        map.put("totalPage", totalPage);
+        map.put("totalItemCount", (int) totalCount);
 
         return map;
     }
@@ -125,7 +124,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         List<ItemComment> itemComments = marketPlaceMapper.getItemCommentListForAdmin(id);
 
-        for (ItemComment itemComment:itemComments) {
+        for (ItemComment itemComment : itemComments) {
             itemComment.setGrantEdit(true);
             itemComment.setGrantDelete(true);
         }
@@ -272,20 +271,19 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (type == 0 || type == 1) {
             totalCount = marketPlaceMapper.totalItemCountByType(type);
             items = marketPlaceMapper.getItemListByType(type, criteria.getCursor(), criteria.getLimit());
-        }
-        else {
+        } else {
             totalCount = marketPlaceMapper.totalItemCount();
             items = marketPlaceMapper.getItemList(criteria.getCursor(), criteria.getLimit());
         }
 
         double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int)Math.ceil(totalCount / criteria.getLimit());
-        if (totalPage<0)
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+        if (totalPage < 0)
             throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
 
         map.put("items", items);
-        map.put("totalPage",totalPage);
-        map.put("totalItemCount",(int)totalCount);
+        map.put("totalPage", totalPage);
+        map.put("totalItemCount", (int) totalCount);
 
         return map;
     }
@@ -312,12 +310,11 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
             }
         }
 
-        for (ItemComment itemComment:itemComments) {
+        for (ItemComment itemComment : itemComments) {
             if (user != null && (user.getId().equals(itemComment.getUser_id()) || (user.getAuthority() != null && user.getAuthority().getGrant_market()))) {
                 itemComment.setGrantEdit(true);
                 itemComment.setGrantDelete(true);
-            }
-            else {
+            } else {
                 itemComment.setGrantEdit(false);
                 itemComment.setGrantDelete(false);
             }
@@ -362,14 +359,12 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         marketPlaceMapper.createItem(item);
         searchUtil.createArticle(item);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(item.getNickname() + "님이 작성");
-        slack_message.setTitle(item.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/market/" + market_url.get(item.getType()) + '/' + item.getId());
-
-        slackNotiSender.noticeItem(slack_message);
+        slackNotiSender.noticeItem(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(item.getNickname() + "님이 작성")
+                .title(item.getTitle())
+                .title_link("https://koreatech.in/market/" + market_url.get(item.getType()) + '/' + item.getId())
+                .build());
 
         return item;
     }
@@ -386,7 +381,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (item_old == null)
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
 
-        if(!item_old.hasGrantUpdate(user))
+        if (!item_old.hasGrantUpdate(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -411,7 +406,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (item == null)
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
 
-        if(!item.hasGrantDelete(user))
+        if (!item.hasGrantDelete(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         item.setIs_deleted(true);
@@ -432,7 +427,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (item == null)
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
 
-        if(!item.hasGrantDelete(user))
+        if (!item.hasGrantDelete(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         item.setState(state);
@@ -448,19 +443,19 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         Map<String, Object> map = new HashMap<String, Object>();
 
-        if (type>1 | type <0) {
+        if (type > 1 | type < 0) {
             throw new PreconditionFailedException(new ErrorMessage("invalid type", 0));
         }
 
         double totalCount = marketPlaceMapper.totalMyItemCountByType(type, user.getId());
         //TODO: paging을 위한 중복코드, 반복코드 개선방법 찾기
-        int totalPage = (int)Math.ceil(totalCount / criteria.getLimit());
+        int totalPage = (int) Math.ceil(totalCount / criteria.getLimit());
 
         List<Item> items = marketPlaceMapper.getMyItemList(criteria.getCursor(), criteria.getLimit(), type, user.getId());
 
         map.put("items", items);
         map.put("totalPage", totalPage);
-        map.put("totalItemCount", (int)totalCount);
+        map.put("totalItemCount", (int) totalCount);
 
         return map;
     }
@@ -485,15 +480,13 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         marketPlaceMapper.createItemComment(itemComment);
 
-        NotiSlack slack_message = new NotiSlack();
-
-        slack_message.setColor("#36a64f");
-        slack_message.setAuthor_name(user.getNickname() + "님이 작성");
-        slack_message.setTitle(item.getTitle());
-        slack_message.setTitle_link("https://koreatech.in/market/" + item.getType().toString() + '/' + item_id);
-        slack_message.setText(itemComment.getContent() + "...");
-
-        slackNotiSender.noticeComment(slack_message);
+        slackNotiSender.noticeComment(NotiSlack.builder()
+                .color("#36a64f")
+                .author_name(user.getNickname() + "님이 작성")
+                .title(item.getTitle())
+                .title_link("https://koreatech.in/market/" + item.getType().toString() + '/' + item_id)
+                .text(itemComment.getContent() + "...")
+                .build());
 
         return itemComment;
     }
@@ -517,7 +510,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         if (itemComment_old == null)
             throw new NotFoundException(new ErrorMessage("There is no article", 0));
 
-        if(!itemComment_old.hasGrantUpdate(user))
+        if (!itemComment_old.hasGrantUpdate(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         itemComment.setNickname(user.getNickname());
@@ -551,7 +544,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         User user = jwtValidator.validate();
 
-        if(!itemComment.hasGrantDelete(user))
+        if (!itemComment.hasGrantDelete(user))
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
 
         itemComment.setIs_deleted(true);
@@ -575,8 +568,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         if (user.getId().equals(item.getUser_id()) || (user.getAuthority() != null && user.getAuthority().getGrant_market())) {
             map.put("grantEdit", true);
-        }
-        else {
+        } else {
             map.put("grantEdit", false);
         }
         return map;
@@ -595,8 +587,8 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
             urls.add(url);
         }
 
-        return new HashMap<String, Object>(){{
-           put("url", urls);
+        return new HashMap<String, Object>() {{
+            put("url", urls);
         }};
     }
 
@@ -607,7 +599,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         String originalFileName = image.getOriginalFilename();
         int index = originalFileName.lastIndexOf(".");
         String fileName = originalFileName.substring(0, index);
-        String fileExt = originalFileName.substring(index+1);
+        String fileExt = originalFileName.substring(index + 1);
 
         File file = new File(fileName);
         image.transferTo(file);
@@ -621,7 +613,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
         // TODO: 스케줄 처리할 것
         uploadFileUtils.removeThumbnail(file.getAbsolutePath(), originalFileName, fileExt);
 
-        return new HashMap<String, Object>(){{
+        return new HashMap<String, Object>() {{
             put("url", url);
         }};
     }
@@ -634,15 +626,14 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
             Date expiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
 
             //TODO: update Or insert 구현시 개선
-            if(viewLog == null) {
+            if (viewLog == null) {
                 viewLog = new ItemViewLog();
                 viewLog.setItem_id(item.getId());
                 viewLog.setUser_id(user.getId());
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 marketPlaceMapper.createViewLog(viewLog);
-            }
-            else {
+            } else {
                 viewLog.setExpired_at(expiredAt);
                 viewLog.setIp(ip);
                 marketPlaceMapper.updateViewLog(viewLog);

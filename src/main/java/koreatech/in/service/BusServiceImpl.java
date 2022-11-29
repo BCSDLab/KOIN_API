@@ -1,84 +1,82 @@
 package koreatech.in.service;
 
+import koreatech.in.domain.Bus.*;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.schedule.BusTago;
-import org.springframework.data.redis.core.ValueOperations;
+import koreatech.in.mapstruct.SchoolBusCourseMapper;
+import koreatech.in.repository.BusRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.IntStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BusServiceImpl implements BusService {
 
-    @Resource(name = "redisTemplate")
-    private ValueOperations<String, List<Map<String,Object>>> valueOps;
-
-    private BusTago tago = new BusTago();
+    @Autowired
+    private BusRepository busRepository;
 
     @Override
-    public Map<String, Object> getBus (String depart, String arrival) throws Exception {
-        String target;
-        List<Map<String, Object>> result;
-        Map<String, Object> response = new HashMap<String, Object>();
+    public BusRemainTime getRemainTime(String busType, String depart, String arrival) {
 
-        if (depart.equals("koreatech") && (arrival.equals("station") || arrival.equals("terminal"))) {
-            target=depart;
+        try {
+            Bus bus = BusTypeEnum.createBus(busType);
+            return bus.getNowAndNextBusRemainTime(busType, depart, arrival);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
-        else if(depart.equals("terminal") && (arrival.equals("station") || arrival.equals("koreatech"))) {
-            target=depart;
-        }
-        else if(depart.equals("station") && arrival.equals("terminal")) {
-            target=depart +'-'+arrival;
-        }
-        else if(depart.equals("station") && arrival.equals("koreatech")) {
-            target=depart +'-'+arrival;
-        }
-        else {
-            throw new PreconditionFailedException(new ErrorMessage("invalid depart or arrival", 1));
-        }
-        for (List<String> param: BusTago.nodeIds) {
-            if (!param.get(1).equals(target)) continue;
-            result = tago.getBusArrivalInfo(param.get(0));
-
-            //버스 정보가 없을 경우
-            if (result.isEmpty()) return new HashMap<String, Object>();
-
-            List<Map<String, Object>> tempResult = new ArrayList<Map<String, Object>>();
-            for (Map<String, Object> info: result) {
-                if (IntStream.of(tago.avaliableBus).anyMatch(x -> x == Integer.parseInt(info.get("routeno").toString()))) {
-                    tempResult.add(info);
-                }
-            }
-            result = tempResult;
-            result.sort(new sortByArrtime());
-
-            if (result.size() == 1) {
-                response.put("bus_number", Integer.parseInt(result.get(0).get("routeno").toString()));
-                response.put("remain_time", Integer.parseInt(result.get(0).get("arrtime").toString()));
-                response.put("next_bus_number", null);
-                response.put("next_remain_time", null);
-            }
-            if (result.size() > 1) {
-                response.put("bus_number", Integer.parseInt(result.get(0).get("routeno").toString()));
-                response.put("remain_time", Integer.parseInt(result.get(0).get("arrtime").toString()));
-                response.put("next_bus_number", Integer.parseInt(result.get(1).get("routeno").toString()));
-                response.put("next_remain_time", Integer.parseInt(result.get(1).get("arrtime").toString()));
-            }
-            break;
-        }
-        return response;
     }
 
-    public class sortByArrtime implements Comparator<Map<String, Object>> {
-        @Override
-        public int compare(Map<String, Object> a, Map<String, Object> b) {
-            int aArrtime = Integer.parseInt(a.get("arrtime").toString());
-            int bArrtime = Integer.parseInt(b.get("arrtime").toString());
-            if (aArrtime == bArrtime) return 0;
-            return aArrtime < bArrtime ? -1 : 1;
+    @Override
+    public List<SchoolBusCourse> getCourses() {
+
+        return SchoolBusCourseMapper.INSTANCE.toSchoolBusCourse(busRepository.findOnlyCourses());
+    }
+
+    @Override
+    public List<? extends BusTimetable> getTimetable(String busType, String direction, String region) {
+
+        if (!StringUtils.hasText(busType) || (!BusTypeEnum.EXPRESS.name().equalsIgnoreCase(busType) && !StringUtils.hasText(region))) {
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }
+
+        try {
+            Bus bus = BusTypeEnum.createBus(busType);
+            return Objects.requireNonNull(bus.getTimetables(busType, direction, region));
+        } catch (IllegalArgumentException e) {
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<SingleBusTime> searchTimetable(String date, String time, String depart, String arrival) {
+
+        List<SingleBusTime> result = new ArrayList<>();
+        try {
+            LocalDateTime localDateTime = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
+            for (BusTypeEnum busTypeEnum : BusTypeEnum.values()) {
+                Bus bus = busTypeEnum.getBus();
+                SingleBusTime busTime = bus.searchBusTime(busTypeEnum.name().toLowerCase(), depart, arrival, localDateTime);
+                if (busTime == null) {
+                    continue;
+                }
+                result.add(busTime);
+            }
+        } catch (DateTimeParseException | IllegalArgumentException e) {
+            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
+        }
+
+        return result;
     }
 }

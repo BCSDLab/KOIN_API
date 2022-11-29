@@ -5,12 +5,15 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.*;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.LandMapper;
+import koreatech.in.util.JsonConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -30,9 +33,6 @@ public class LandServiceImpl implements LandService {
     @Autowired
     JwtValidator jwtValidator;
 
-    @Autowired
-    private JsonConstructor con;
-
     @Transactional
     @Override
     public Land createLandForAdmin(Land land) throws Exception {
@@ -45,7 +45,7 @@ public class LandServiceImpl implements LandService {
         land.setInternal_name(land.getName().replace(" ","").toLowerCase());
 
         //image_urls 체크
-        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
+        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         landMapper.createLandForAdmin(land);
@@ -65,7 +65,7 @@ public class LandServiceImpl implements LandService {
         }
 
         //image_urls 체크
-        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
+        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         land_old.update(land);
@@ -128,7 +128,7 @@ public class LandServiceImpl implements LandService {
         }
         Map<String, Object> convertLand = domainToMap(land);
 
-        convertLand.replace("image_urls", con.parseJsonArrayWithOnlyString(land.getImage_urls()));
+        convertLand.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()));
         convertLand.put("permalink", URLEncoder.encode(land.getInternal_name(), "UTF-8"));
         convertLand.put("comments", landComments);
 
