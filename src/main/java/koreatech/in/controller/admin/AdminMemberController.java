@@ -64,6 +64,13 @@ public class AdminMemberController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.PATCH)
+    public @ResponseBody
+    ResponseEntity undeleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.undeleteMemberForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/profile", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {

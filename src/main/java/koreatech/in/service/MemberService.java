@@ -22,5 +22,7 @@ public interface MemberService {
 
     Map<String, Object> deleteMemberForAdmin(int id) throws Exception;
 
+    Map<String, Object> undeleteMemberForAdmin(int id) throws Exception;
+
     String uploadImage(MultipartFile multipartFile, Integer flag) throws Exception;
 }

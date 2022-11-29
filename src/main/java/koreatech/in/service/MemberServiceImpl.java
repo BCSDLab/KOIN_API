@@ -9,6 +9,7 @@ import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,6 +124,25 @@ public class MemberServiceImpl implements MemberService{
         }
 
         memberMapper.softDeleteMemberForAdmin(id);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Override
+    public Map<String, Object> undeleteMemberForAdmin(int id) throws Exception {
+        Member selectMember = memberMapper.getMemberForAdmin(id);
+
+        if (selectMember == null) {
+            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+        }
+
+        if (!selectMember.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("it is not soft deleted.", 1));
+        }
+
+        memberMapper.undeleteMemberForAdmin(id);
 
         return new HashMap<String, Object>() {{
             put("success", true);
