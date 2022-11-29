@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface MemberService {
     // ===== ADMIN APIs =====
     List<Member> getMembersForAdmin() throws Exception;
 
-    Member getMemberForAdmin(int id) throws Exception;
+    MemberResponse getMemberForAdmin(int id) throws Exception;
 
     Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception;
 

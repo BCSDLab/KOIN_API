@@ -3,8 +3,8 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
-import koreatech.in.domain.User.UserCode;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.repository.MemberMapper;
@@ -66,14 +66,23 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member getMemberForAdmin(int id) throws Exception {
+    public MemberResponse getMemberForAdmin(int id) throws Exception {
         Member member = memberMapper.getMemberForAdmin(id);
 
-        if(member == null) {
+        if (member == null) {
             throw new NotFoundException(new ErrorMessage("Member not found.", 0));
         }
 
-        return member;
+        return MemberResponse.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .student_number(member.getStudent_number())
+                .track(member.getTrack())
+                .position(member.getPosition())
+                .email(member.getEmail())
+                .image_url(member.getImage_url())
+                .is_deleted(member.getIs_deleted())
+                .build();
     }
 
     @Override

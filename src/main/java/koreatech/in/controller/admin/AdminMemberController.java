@@ -8,6 +8,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +41,8 @@ public class AdminMemberController {
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.getMemberForAdmin(id), HttpStatus.OK);
+    ResponseEntity<MemberResponse> getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<>(memberService.getMemberForAdmin(id), HttpStatus.OK);
     }
 
     @ParamValid
