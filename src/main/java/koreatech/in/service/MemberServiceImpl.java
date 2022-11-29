@@ -3,14 +3,13 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
+import koreatech.in.domain.User.UserCode;
+import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,18 +77,20 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member createMemberForAdmin(Member member) throws Exception {
-        Track selectTrack = trackMapper.getTrackByNameForAdmin(member.getTrack());
-        if(selectTrack == null) {
+    public Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception {
+        Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
+
+        if (track == null) {
             throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
         }
 
-        if(member.getIs_deleted() == null)
-            member.setIs_deleted(false);
-
+        Member member = new Member(request);
         memberMapper.createMemberForAdmin(member);
 
-        return member;
+        return new HashMap<String, Object>() {{
+            put("success", true);
+            put("id", member.getId());
+        }};
     }
 
     @Override

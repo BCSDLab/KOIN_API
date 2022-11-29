@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
+import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface MemberService {
 
     Member getMemberForAdmin(int id) throws Exception;
 
-    Member createMemberForAdmin(Member member) throws Exception;
+    Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception;
 
     Member updateMemberForAdmin(Member member, int id) throws Exception;
 

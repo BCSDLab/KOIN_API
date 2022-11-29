@@ -34,8 +34,8 @@ public interface MemberMapper {
             " FROM koin.members AS t1, koin.tracks AS t2 WHERE t1.id = #{id} AND t2.id = t1.track_id")
     Member getMemberForAdmin(@Param(value = "id") int id);
 
-    @Insert("INSERT INTO koin.members (name, student_number, track_id, position, email, image_url, is_deleted)" +
-            " SELECT #{name}, #{student_number}, t2.id, #{position}, #{email}, #{image_url}, #{is_deleted}" +
+    @Insert("INSERT INTO koin.members (name, student_number, track_id, position, email, image_url)" +
+            " SELECT #{name}, #{student_number}, t2.id, #{position}, #{email}, #{image_url}" +
             " FROM koin.tracks AS t2 WHERE t2.name = #{track}")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void createMemberForAdmin(Member member);
