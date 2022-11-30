@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -55,5 +56,26 @@ public class DiningMenuDTO {
         this.menu = menu;
         this.created_at = created_at;
         this.updated_at = updated_at;
+    }
+
+    public Integer getPrice_card() {
+        if (StringUtils.isEmpty(this.price_card)) {
+            return 0;
+        }
+        return price_card;
+    }
+
+    public Integer getPrice_cash() {
+        if (StringUtils.isEmpty(this.price_cash)) {
+            return 0;
+        }
+        return price_cash;
+    }
+
+    public Integer getKcal() {
+        if (StringUtils.isEmpty(this.kcal)) {
+            return 0;
+        }
+        return kcal;
     }
 }
