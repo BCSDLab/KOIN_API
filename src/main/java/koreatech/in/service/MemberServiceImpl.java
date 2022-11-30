@@ -4,13 +4,17 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -55,14 +59,28 @@ public class MemberServiceImpl implements MemberService{
 
     // ===== ADMIN APIs =====
     @Override
-    public List<Member> getMembersForAdmin() throws Exception {
-        List<Member> members = memberMapper.getMembersForAdmin();
-
-        if(members == null) {
-            throw new NotFoundException(new ErrorMessage("Members not found.", 0));
+    public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
         }
 
-        return members;
+        Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage) {
+            throw new NotFoundException(new ErrorMessage("Invalid page.", 1));
+        }
+
+        List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
+
+        return MembersResponse.builder()
+                .total_count(totalCount)
+                .total_page(totalPage)
+                .current_count(members.size())
+                .current_page(currentPage)
+                .members(members)
+                .build();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.Homepage.Member;
+import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -65,4 +67,8 @@ public interface MemberMapper {
 
     @Update("UPDATE koin.members SET is_deleted = 0 WHERE id = #{id}")
     void undeleteMemberForAdmin(@Param("id") int id);
+
+    Integer getTotalCountByConditionForAdmin(@Param("condition") MembersCondition condition);
+
+    List<MembersResponse.Member> getMembersByConditionForAdmin(@Param("cursor") Integer cursor, @Param("condition") MembersCondition condition);
 }

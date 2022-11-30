@@ -8,7 +8,9 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
-
 
 // TODO: 응답 타입 전부 커스텀 DTO 클래스로 변경하기
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
@@ -34,8 +34,8 @@ public class AdminMemberController {
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMembers() throws Exception {
-        return new ResponseEntity<List<Member>>(memberService.getMembersForAdmin(), HttpStatus.OK);
+    ResponseEntity<MembersResponse> getMembers(MembersCondition condition) throws Exception {
+        return new ResponseEntity<>(memberService.getMembersForAdmin(condition), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

@@ -2,7 +2,9 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,7 +16,7 @@ public interface MemberService {
     Member getMemberById(Integer memberId) throws Exception;
 
     // ===== ADMIN APIs =====
-    List<Member> getMembersForAdmin() throws Exception;
+    MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception;
 
     MemberResponse getMemberForAdmin(int id) throws Exception;
 

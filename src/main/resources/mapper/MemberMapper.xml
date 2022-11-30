@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.MemberMapper">
+
+    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.dto.member.admin.request.MembersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`members` `m`
+            LEFT JOIN `koin`.`tracks` `t`
+            ON `m`.`track_id` = `t`.`id`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+               <trim prefix="AND">
+                   <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`m`.`name`, ' ', '')
+                   </if>
+                   LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+               </trim>
+            </if>
+
+            <!-- 필터링 -->
+            <if test="!condition.filter.isEmpty()">
+                <trim prefix="AND">
+                    <foreach collection="condition.filter" item="item" separator="AND">
+                        <if test='"item.name().equals("IS_DELETED")'>`m`.`is_deleted` = 1</if>
+                    </foreach>
+                </trim>
+            </if>
+
+            <!-- 필터링 (트랙) -->
+            <if test="condition.track != null">
+                <trim prefix="AND `t`.`name` = ">
+                    <if test='condition.track.name().equals("ANDROID")'> 'Android' </if>
+                    <if test='condition.track.name().equals("BACKEND")'>'BackEnd'</if>
+                    <if test='condition.track.name().equals("FRONTEND")'>'FrontEnd'</if>
+                    <if test='condition.track.name().equals("GAME")'>'Game'</if>
+                    <if test='condition.track.name().equals("HR")'>'HR'</if>
+                    <if test='condition.track.name().equals("UI_UX")'>'UI/UX'</if>
+                </trim>
+            </if>
+
+            <!-- 필터링 (직책) -->
+            <if test="condition.position != null">
+                <trim prefix="AND `m`.`position` = ">
+                    <if test='condition.position.name().equals("MENTOR")'>'Mentor'</if>
+                    <if test='condition.position.name().equals("REGULAR")'>'Regular'</if>
+                </trim>
+            </if>
+        </trim>
+    </select>
+
+    <select id="getMembersByConditionForAdmin" parameterType="koreatech.in.dto.member.admin.request.MembersCondition" resultType="koreatech.in.dto.member.admin.response.MembersResponse$Member">
+        SELECT
+            `m`.`id` AS `id`,
+            `m`.`name` AS `name`,
+            `m`.`student_number` AS `student_number`,
+            `t`.`name` AS `track`,
+            `m`.`position` AS `position`,
+            `m`.`email` AS `email`
+
+        FROM `koin`.`members` `m`
+            LEFT JOIN `koin`.`tracks` `t`
+            ON `m`.`track_id` = `t`.`id`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+                <trim prefix="AND">
+                    <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`m`.`name`, ' ', '')
+                    </if>
+                    LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                </trim>
+            </if>
+
+            <!-- 필터링 -->
+            <if test="!condition.filter.isEmpty()">
+                <trim prefix="AND">
+                    <foreach collection="condition.filter" item="item" separator="AND">
+                        <if test='"item.name().equals("IS_DELETED")'>`m`.`is_deleted` = 1</if>
+                    </foreach>
+                </trim>
+            </if>
+
+            <!-- 필터링 (트랙) -->
+            <if test="condition.track != null">
+                <trim prefix="AND `t`.`name` = ">
+                    <if test='condition.track.name().equals("ANDROID")'> 'Android' </if>
+                    <if test='condition.track.name().equals("BACKEND")'>'BackEnd'</if>
+                    <if test='condition.track.name().equals("FRONTEND")'>'FrontEnd'</if>
+                    <if test='condition.track.name().equals("GAME")'>'Game'</if>
+                    <if test='condition.track.name().equals("HR")'>'HR'</if>
+                    <if test='condition.track.name().equals("UI_UX")'>'UI/UX'</if>
+                </trim>
+            </if>
+
+            <!-- 필터링 (직책) -->
+            <if test="condition.position != null">
+                <trim prefix="AND `m`.`position` = ">
+                    <if test='condition.position.name().equals("MENTOR")'>'Mentor'</if>
+                    <if test='condition.position.name().equals("REGULAR")'>'Regular'</if>
+                </trim>
+            </if>
+        </trim>
+
+        <!-- 정렬 -->
+        <if test="condition.sort != null">
+            <trim prefix="ORDER BY">
+                <if test='condition.sort.name().equals("NAME_ASC")'>`m`.`name` ASC</if>
+                <if test='condition.sort.name().equals("NAME_DESC")'>`m`.`name` DESC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`m`.`created_at` ASC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`m`.`created_at` DESC</if>
+            </trim>
+        </if>
+
+        <!-- 페이지네이션 -->
+        LIMIT #{cursor}, #{condition.limit}
+    </select>
+</mapper>
