@@ -45,11 +45,10 @@ public class AdminLandController {
         return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
     }
 
-    @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<LandsResponse> getLands(@ModelAttribute @Valid LandsCondition condition) throws Exception {
+    ResponseEntity<LandsResponse> getLands(LandsCondition condition) throws Exception {
 
         return new ResponseEntity<>(landService.getLandsForAdmin(condition), HttpStatus.OK);
     }

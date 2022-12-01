@@ -106,15 +106,15 @@ public class LandServiceImpl implements LandService {
     @Override
     public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 1));
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
         }
 
         Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
         Integer totalPage = condition.extractTotalPage(totalCount);
         Integer currentPage = condition.getPage();
 
-        if (currentPage > totalPage || currentPage < 1) {
-            throw new PreconditionFailedException(new ErrorMessage("유효하지 않은 페이지입니다.", 2));
+        if (currentPage > totalPage) {
+            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
         }
 
         List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
