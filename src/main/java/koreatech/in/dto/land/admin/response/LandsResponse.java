@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter @Builder
 public class LandsResponse {
-    private Integer totalCount;
-    private Integer currentCount;
-    private Integer totalPage;
-    private Integer currentPage;
+    private Integer total_count;
+    private Integer current_count;
+    private Integer total_page;
+    private Integer current_page;
     private List<Land> lands;
 
     @Getter
