@@ -5,10 +5,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.service.MemberService;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,8 +55,8 @@ public class AdminMemberController {
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateMember(@ApiParam(value = "", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Member member, BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.updateMemberForAdmin(member, id), HttpStatus.OK);
+    ResponseEntity updateMember(@ApiParam(required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.updateMemberForAdmin(id, request), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

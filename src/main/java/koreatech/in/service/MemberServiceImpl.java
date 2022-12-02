@@ -5,6 +5,7 @@ import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.exception.ConflictException;
@@ -121,22 +122,24 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member updateMemberForAdmin(Member member, int id) throws Exception {
-        Member member_old = memberMapper.getMemberForAdmin(id);
-        if(member_old == null) {
+    public Map<String, Object> updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
+        Member existingMember = memberMapper.getMemberForAdmin(id);
+
+        if (existingMember == null) {
             throw new NotFoundException(new ErrorMessage("Member not found.", 0));
         }
 
-        if(member.getTrack() != null) {
-            Track selectTrack = trackMapper.getTrackByNameForAdmin(member.getTrack());
-            if(selectTrack == null) {
-                throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
-            }
+        Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
+        if (track == null) {
+            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
         }
 
-        member_old.update(member);
-        memberMapper.updateMemberForAdmin(member_old);
-        return member_old;
+        existingMember.update(request);
+        memberMapper.updateMemberForAdmin(existingMember);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
     }
 
     @Override

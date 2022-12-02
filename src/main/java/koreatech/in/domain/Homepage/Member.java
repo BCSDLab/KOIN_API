@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,28 +49,13 @@ public class Member {
         this.image_url = request.getImage_url();
     }
 
-    public void update(Member member) {
-        if(member.name != null) {
-            this.name = member.name;
-        }
-        if(member.email != null) {
-            this.email = member.email;
-        }
-        if(member.student_number != null) {
-            this.student_number = member.student_number;
-        }
-        if(member.track != null) {
-            this.track = member.track;
-        }
-        if(member.position != null) {
-            this.position = member.position;
-        }
-        if(member.image_url != null) {
-            this.image_url = member.image_url;
-        }
-        if(member.is_deleted != null) {
-            this.is_deleted = member.is_deleted;
-        }
+    public void update(UpdateMemberRequest request) {
+        this.name = request.getName();
+        this.student_number = request.getStudent_number();
+        this.track = request.getTrack();
+        this.position = request.getPosition();
+        this.email = request.getEmail();
+        this.image_url = request.getImage_url();
     }
 
     @Override

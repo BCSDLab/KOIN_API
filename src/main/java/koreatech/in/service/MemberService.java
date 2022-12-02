@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,7 @@ public interface MemberService {
 
     Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception;
 
-    Member updateMemberForAdmin(Member member, int id) throws Exception;
+    Map<String, Object> updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
 
     Map<String, Object> deleteMemberForAdmin(int id) throws Exception;
 
