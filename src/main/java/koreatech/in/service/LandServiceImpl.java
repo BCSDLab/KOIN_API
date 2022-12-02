@@ -326,7 +326,7 @@ public class LandServiceImpl implements LandService {
     public Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception {
         // 무분별한 업로드 방지
         if (images.size() > 10) {
-            throw new PreconditionFailedException(new ErrorMessage("한번에 이미지를 10개 이상 업로드할 수 없습니다.", 0));
+            throw new PreconditionFailedException(new ErrorMessage("한번에 최대 10개까지 업로드 가능합니다.", 0));
         }
 
         String directory = "lands";
