@@ -49,7 +49,7 @@ public class AdminMemberController {
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity createMember(@RequestBody @Valid CreateMemberRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.createMemberForAdmin(request), HttpStatus.OK);
+        return new ResponseEntity<Map<String, Object>>(memberService.createMemberForAdmin(request), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -57,7 +57,7 @@ public class AdminMemberController {
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateMember(@ApiParam(required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.updateMemberForAdmin(id, request), HttpStatus.OK);
+        return new ResponseEntity<Map<String, Object>>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})

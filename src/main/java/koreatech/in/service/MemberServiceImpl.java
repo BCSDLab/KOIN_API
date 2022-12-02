@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service(value = "memberService")
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
 
     @Resource(name = "memberMapper")
     private MemberMapper memberMapper;
@@ -151,7 +151,7 @@ public class MemberServiceImpl implements MemberService{
         }
 
         if (selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 1));
+            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
         }
 
         memberMapper.softDeleteMemberForAdmin(id);
@@ -170,7 +170,7 @@ public class MemberServiceImpl implements MemberService{
         }
 
         if (!selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("it is not soft deleted.", 1));
+            throw new ConflictException(new ErrorMessage("it is not soft deleted.", 0));
         }
 
         memberMapper.undeleteMemberForAdmin(id);
