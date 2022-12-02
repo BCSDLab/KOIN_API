@@ -5,7 +5,9 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface LandService {
@@ -30,4 +32,6 @@ public interface LandService {
     Map<String, Object> deleteLandForAdmin(int id) throws Exception;
 
     Map<String, Object> undeleteLandForAdmin(int id) throws Exception;
+
+    Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception;
 }

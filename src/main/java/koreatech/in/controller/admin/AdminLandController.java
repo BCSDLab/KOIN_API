@@ -17,9 +17,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
@@ -76,5 +77,13 @@ public class AdminLandController {
     ResponseEntity undeleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
 
         return new ResponseEntity<Map<String, Object>>(landService.undeleteLandForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands/images", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity uploadImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
+
+        return new ResponseEntity<Map<String, Object>>(landService.uploadImages(images), HttpStatus.CREATED);
     }
 }

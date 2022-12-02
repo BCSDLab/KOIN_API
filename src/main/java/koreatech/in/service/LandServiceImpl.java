@@ -14,17 +14,16 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.LandMapper;
 import koreatech.in.util.JsonConstructor;
+import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
@@ -36,6 +35,9 @@ public class LandServiceImpl implements LandService {
 
     @Autowired
     JwtValidator jwtValidator;
+
+    @Autowired
+    UploadFileUtils uploadFileUtils;
 
     @Transactional
     @Override
@@ -317,6 +319,27 @@ public class LandServiceImpl implements LandService {
 
         return new HashMap<String, Object>() {{
             put("success", true);
+        }};
+    }
+
+    @Override
+    public Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception {
+        // 무분별한 업로드 방지
+        if (images.size() > 10) {
+            throw new PreconditionFailedException(new ErrorMessage("한번에 이미지를 10개 이상 업로드할 수 없습니다.", 0));
+        }
+
+        String directory = "lands";
+        List<String> imageUrls = new LinkedList<>();
+
+        for (MultipartFile image : images) {
+            String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
+            imageUrls.add("https://" + uploadFileUtils.getDomain() + "/" + directory + url);
+        }
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+            put("image_urls", imageUrls);
         }};
     }
 }
