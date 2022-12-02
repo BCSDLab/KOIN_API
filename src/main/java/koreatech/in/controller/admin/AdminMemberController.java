@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 // TODO: 응답 타입 전부 커스텀 DTO 클래스로 변경하기
@@ -74,9 +75,9 @@ public class AdminMemberController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/members/image", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {
-        return new ResponseEntity( memberService.uploadImage(multipartFile, flag), HttpStatus.OK);
+    ResponseEntity uploadProfileImage(@RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.uploadImage(image), HttpStatus.CREATED);
     }
 }

@@ -70,7 +70,7 @@ public class MemberServiceImpl implements MemberService{
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage("Invalid page.", 1));
+            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
         }
 
         List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
@@ -181,44 +181,19 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public String uploadImage(MultipartFile multipartFile, Integer flag) throws Exception{
-        if ( multipartFile == null){
-            throw new Exception();
+    public Map<String, Object> uploadImage(MultipartFile image) throws Exception {
+        if (image == null) {
+            throw new PreconditionFailedException(new ErrorMessage("업로드할 파일이 없습니다.", 0));
         }
 
-        if ( flag == null){
-            throw new Exception();
-        }
-        String directory = "bcsdlab_page_assets/" + "img/" + "people/";
-        switch (flag){
-            case 1:
-                directory += "android";
-                break;
-            case 2:
-                directory +="backend";
-                break;
-            case 3:
-                directory +="frontend";
-                break;
-            case 4:
-                directory += "game";
-                break;
-            case 5:
-                directory += "HR";
-                break;
-            case 6:
-                directory += "P&M";
-                break;
-            case 7:
-                directory += "uiux";
-                break;
-            default:
-                throw new Exception();
-        }
-        String url = uploadFileUtils.uploadFile(directory,multipartFile.getOriginalFilename(), multipartFile.getBytes(), multipartFile);
+        String directory = "bcsdlab_page_assets/img/people";
 
+        String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
+        String imageUrl = "https://" + uploadFileUtils.getDomain() + "/" + directory + url;
 
-        return "https://static.koreatech.in/" + directory + url;
+        return new HashMap<String, Object>() {{
+            put("success", true);
+            put("image_url", imageUrl);
+        }};
     }
-
 }

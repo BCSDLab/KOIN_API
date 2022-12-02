@@ -122,10 +122,10 @@ public class LandServiceImpl implements LandService {
         List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
 
         return LandsResponse.builder()
-                .totalCount(totalCount)
-                .totalPage(totalPage)
-                .currentCount(lands.size())
-                .currentPage(currentPage)
+                .total_count(totalCount)
+                .total_page(totalPage)
+                .current_count(lands.size())
+                .current_page(currentPage)
                 .lands(lands)
                 .build();
     }
@@ -160,7 +160,7 @@ public class LandServiceImpl implements LandService {
         }
 
         if (land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 1));
+            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
         }
 
         landMapper.softDeleteLandForAdmin(id);
@@ -180,7 +180,7 @@ public class LandServiceImpl implements LandService {
         }
 
         if (!land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It is not soft deleted.", 1));
+            throw new ConflictException(new ErrorMessage("It is not soft deleted.", 0));
         }
 
         landMapper.undeleteLandForAdmin(id);
