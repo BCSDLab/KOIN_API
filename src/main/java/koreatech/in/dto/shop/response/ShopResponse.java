@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class ResponseShopDTO {
+public class ShopResponse {
     private Integer id;
     private String name;
     private String phone;
@@ -25,7 +25,7 @@ public class ResponseShopDTO {
     private List<ShopMenu> menus;
     private Boolean is_deleted;
 
-    public ResponseShopDTO decideOptionalOfMenus() {
+    public ShopResponse decideOptionalOfMenus() {
         this.menus.forEach(ShopMenu::decideSingleOrNot);
         return this;
     }

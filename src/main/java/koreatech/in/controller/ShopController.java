@@ -1,8 +1,8 @@
 package koreatech.in.controller;
 
-import koreatech.in.dto.shop.response.ResponseAllShopCategoriesDTO;
-import koreatech.in.dto.shop.response.ResponseAllShopsDTO;
-import koreatech.in.dto.shop.response.ResponseShopDTO;
+import koreatech.in.dto.shop.response.AllShopCategoriesResponse;
+import koreatech.in.dto.shop.response.AllShopsResponse;
+import koreatech.in.dto.shop.response.ShopResponse;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +18,13 @@ public class ShopController {
 
     @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopDTO> getShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) throws Exception {
         return new ResponseEntity<>(shopService.getShop(shopId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shops", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseAllShopsDTO> getAllShops() throws Exception {
+    ResponseEntity<AllShopsResponse> getAllShops() throws Exception {
         return new ResponseEntity<>(shopService.getAllShops(), HttpStatus.OK);
     }
 
@@ -34,7 +34,7 @@ public class ShopController {
      */
     @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseAllShopCategoriesDTO> getAllShopCategories() throws Exception {
+    ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() throws Exception {
         return new ResponseEntity<>(shopService.getAllShopCategories(), HttpStatus.OK);
     }
 }

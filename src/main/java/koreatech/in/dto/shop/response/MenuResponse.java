@@ -4,9 +4,10 @@ import koreatech.in.dto.shop.response.inner.OptionPrice;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Getter
-public class ResponseShopMenuDTO {
+public class MenuResponse {
     private Integer id;
     private Integer shop_id;
     private String name;
@@ -18,7 +19,11 @@ public class ResponseShopMenuDTO {
     private String description;
     private List<String> image_urls;
 
-    public ResponseShopMenuDTO decideSingleOrNot() {
+    public boolean equalsShopIdTo(Integer shopId) {
+        return Objects.equals(this.shop_id, shopId);
+    }
+
+    public MenuResponse decideSingleOrNot() {
         if (this.option_prices.size() == 1 && this.option_prices.get(0).getOption() == null) {
             this.is_single = true;
             this.single_price = this.option_prices.get(0).getPrice();

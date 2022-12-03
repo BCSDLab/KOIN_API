@@ -1,5 +1,7 @@
 package koreatech.in.service;
 
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.request.inner.Open;
 import koreatech.in.dto.shop.response.*;
@@ -35,7 +37,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessCreateDTO createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception {
+    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception {
         if (shopMapper.getShopCategoryByName(dto.getName()) != null) {
             throw new ConflictException(new ErrorMessage("이름이 중복되는 카테고리가 이미 존재합니다.", 1));
         }
@@ -49,14 +51,14 @@ public class ShopServiceImpl implements ShopService {
         ShopCategory newCategory = new ShopCategory(dto.getName(), imageUrl);
         shopMapper.createShopCategory(newCategory);
 
-        return ResponseSuccessCreateDTO.builder()
+        return SuccessCreateResponse.builder()
                 .id(newCategory.getId())
                 .build();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception {
+    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception {
         ShopCategory category = this.verifyShopCategoryExists(shopCategoryId, 1);
 
         ShopCategory sameNameCategory = shopMapper.getShopCategoryByName(dto.getName());
@@ -72,12 +74,12 @@ public class ShopServiceImpl implements ShopService {
         String imageUrl = this.uploadImage(image, "upload/shop_categories", 0);
         shopMapper.updateShopCategory(category.update(dto.getName(), imageUrl));
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception {
+    public SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception {
         this.verifyShopCategoryExists(shopCategoryId, 1);
 
         if (!shopMapper.getShopsUsingCategory(shopCategoryId).isEmpty()) {
@@ -86,15 +88,15 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.deleteShopCategoryById(shopCategoryId);
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseAllShopCategoriesDTO getAllShopCategoriesForAdmin() throws Exception {
+    public AllShopCategoriesResponse getAllShopCategoriesForAdmin() throws Exception {
         List<koreatech.in.dto.shop.response.inner.ShopCategory> categories = shopMapper.getAllShopCategories();
 
-        return ResponseAllShopCategoriesDTO.builder()
+        return AllShopCategoriesResponse.builder()
                 .total_count(categories.size())
                 .shop_categories(categories)
                 .build();
@@ -102,19 +104,19 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception {
+    public SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception {
         Shop shop = this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         // TODO: 사장님의 존재 여부 확인 + 회원가입 후 권한이 주어졌는지 확인
 
         shopMapper.updateShop(shop.matchOwnerId(dto.getOwner_id()));
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessCreateDTO createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shops
@@ -179,7 +181,7 @@ public class ShopServiceImpl implements ShopService {
             shopMapper.createShopImages(this.generateShopImages(images, shop.getId()));
         }
 
-        return ResponseSuccessCreateDTO.builder()
+        return SuccessCreateResponse.builder()
                 .id(shop.getId())
                 .build();
     }
@@ -188,13 +190,13 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopDTO getShopForAdmin(Integer shopId) throws Exception {
+    public ShopResponse getShopForAdmin(Integer shopId) throws Exception {
         /*
              TODO: 사장님 권한으로 요청시 - getResponseShop() 호출
                    어드민 권한으로 요청시 - getResponseShopByIgnoreDeletionStatus() 호출
          */
 
-        ResponseShopDTO shop = shopMapper.getResponseShopByIgnoreDeletion(shopId);
+        ShopResponse shop = shopMapper.getResponseShopByIgnoreDeletion(shopId);
 
         if (shop == null) {
             throw new NotFoundException(new ErrorMessage("상점이 존재하지 않습니다.", 1));
@@ -205,7 +207,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shops
@@ -273,12 +275,12 @@ public class ShopServiceImpl implements ShopService {
             shopMapper.createShopImages(this.generateShopImages(images, shopId));
         }
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO deleteShopForAdmin(Integer shopId) throws Exception {
+    public SuccessResponse deleteShopForAdmin(Integer shopId) throws Exception {
         Shop shop = this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         if (shop.getIs_deleted()) {
@@ -292,12 +294,12 @@ public class ShopServiceImpl implements ShopService {
          */
         shopMapper.deleteShopById(shopId);
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO undeleteOfShopForAdmin(Integer shopId) throws Exception {
+    public SuccessResponse undeleteOfShopForAdmin(Integer shopId) throws Exception {
         Shop shop = this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         if (!shop.getIs_deleted()) {
@@ -306,14 +308,14 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.undeleteShopById(shopId);
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopsDTO getShopsForAdmin(ShopsConditionDTO dto) throws Exception {
+    public ShopsResponse getShopsForAdmin(ShopsConditionDTO dto) throws Exception {
         dto.removeBlankOfSearchName();
-        dto.setFilter();
+        //dto.setFilter();
 
         Integer totalCount = shopMapper.getTotalCountOfShopsByCondition(dto);
         Integer totalPage = dto.extractTotalPage(totalCount);
@@ -325,7 +327,7 @@ public class ShopServiceImpl implements ShopService {
 
         List<MinimizedShop> shops = shopMapper.getShopsByCondition(dto.extractBegin(), dto);
 
-        return ResponseShopsDTO.builder()
+        return ShopsResponse.builder()
                 .total_page(totalPage)
                 .current_page(currentPage)
                 .shops(shops)
@@ -334,7 +336,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessCreateDTO createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception {
+    public SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         if (shopMapper.getMenuCategory(shopId, dto.getName()) != null) {
@@ -348,19 +350,19 @@ public class ShopServiceImpl implements ShopService {
         ShopMenuCategory newMenuCategory = new ShopMenuCategory(shopId, dto.getName());
         shopMapper.createMenuCategory(newMenuCategory);
 
-        return ResponseSuccessCreateDTO.builder()
+        return SuccessCreateResponse.builder()
                 .id(newMenuCategory.getId())
                 .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopMenuCategoriesDTO getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception {
+    public AllMenuCategoriesResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         List<koreatech.in.dto.shop.response.inner.ShopMenuCategory> menuCategories = shopMapper.getMenuCategoriesOfShop(shopId);
 
-        return ResponseShopMenuCategoriesDTO.builder()
+        return AllMenuCategoriesResponse.builder()
                 .shop_id(shopId)
                 .count(menuCategories.size())
                 .menu_categories(menuCategories)
@@ -369,7 +371,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception {
+    public SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         ShopMenuCategory category = shopMapper.getMenuCategoryById(menuCategoryId);
@@ -389,12 +391,12 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.deleteMenuCategoryById(menuCategoryId);
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessCreateDTO createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -462,17 +464,17 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.createMenuCategoryMaps(shopMenuCategoryMaps);
 
-        return ResponseSuccessCreateDTO.builder()
+        return SuccessCreateResponse.builder()
                 .id(menu.getId())
                 .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopMenuDTO getMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
+    public MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
-        ResponseShopMenuDTO menu = shopMapper.getResponseMenu(menuId);
+        MenuResponse menu = shopMapper.getResponseMenu(menuId);
         if (menu == null) {
             throw new NotFoundException(new ErrorMessage("존재하지 않는 메뉴입니다.", 2));
         }
@@ -485,7 +487,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -609,12 +611,12 @@ public class ShopServiceImpl implements ShopService {
                     .collect(Collectors.toCollection(LinkedList::new)));
         }
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
+    public SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         ShopMenu menu = this.verifyMenuExists(menuId, 2);
@@ -625,12 +627,12 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.deleteAllForInvolvedWithMenu(menuId);
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public ResponseSuccessfulDTO hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hide) throws Exception {
+    public SuccessResponse hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hide) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         ShopMenu menu = this.verifyMenuExists(menuId, 2);
@@ -651,13 +653,13 @@ public class ShopServiceImpl implements ShopService {
 
         shopMapper.updateMenu(menu.reverseIsHidden());
 
-        return new ResponseSuccessfulDTO();
+        return new SuccessResponse();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopMenusDTO getAllMenusOfShopForAdmin(Integer shopId) throws Exception {
-        ResponseShopMenusDTO menus = shopMapper.getResponseMenus(shopId);
+    public MenusResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception {
+        MenusResponse menus = shopMapper.getResponseMenus(shopId);
 
         if (menus == null) {
             throw new NotFoundException(new ErrorMessage("상점이 존재하지 않습니다.", 1));
@@ -668,8 +670,8 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseShopDTO getShop(Integer shopId) throws Exception {
-        ResponseShopDTO shop = shopMapper.getResponseShop(shopId);
+    public ShopResponse getShop(Integer shopId) throws Exception {
+        ShopResponse shop = shopMapper.getResponseShop(shopId);
 
         if (shop == null) {
             throw new NotFoundException(new ErrorMessage("상점이 존재하지 않습니다.", 1));
@@ -680,10 +682,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseAllShopsDTO getAllShops() throws Exception {
+    public AllShopsResponse getAllShops() throws Exception {
         List<koreatech.in.dto.shop.response.inner.Shop> shops = shopMapper.getAllShops();
 
-        return ResponseAllShopsDTO.builder()
+        return AllShopsResponse.builder()
                 .total_count(shops.size())
                 .shops(shops)
                 .build();
@@ -691,10 +693,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseAllShopCategoriesDTO getAllShopCategories() throws Exception {
+    public AllShopCategoriesResponse getAllShopCategories() throws Exception {
         List<koreatech.in.dto.shop.response.inner.ShopCategory> categories = shopMapper.getAllShopCategories();
 
-        return ResponseAllShopCategoriesDTO.builder()
+        return AllShopCategoriesResponse.builder()
                 .total_count(categories.size())
                 .shop_categories(categories)
                 .build();

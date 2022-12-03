@@ -1,9 +1,9 @@
 package koreatech.in.repository;
 
 import koreatech.in.dto.shop.request.ShopsConditionDTO;
-import koreatech.in.dto.shop.response.ResponseShopDTO;
-import koreatech.in.dto.shop.response.ResponseShopMenuDTO;
-import koreatech.in.dto.shop.response.ResponseShopMenusDTO;
+import koreatech.in.dto.shop.response.ShopResponse;
+import koreatech.in.dto.shop.response.MenuResponse;
+import koreatech.in.dto.shop.response.MenusResponse;
 import koreatech.in.domain.Shop.*;
 import koreatech.in.dto.shop.response.inner.MinimizedShop;
 import org.apache.ibatis.annotations.*;
@@ -241,13 +241,13 @@ public interface ShopMapper {
 
     void createMenuCategoryMaps(List<ShopMenuCategoryMap> shopMenuCategoryMaps);
 
-    ResponseShopMenuDTO getResponseMenu(@Param("shop_menu_id") int shopMenuId);
+    MenuResponse getResponseMenu(@Param("shop_menu_id") int shopMenuId);
 
-    ResponseShopMenusDTO getResponseMenus(@Param("shop_id") int shopId);
+    MenusResponse getResponseMenus(@Param("shop_id") int shopId);
 
-    ResponseShopDTO getResponseShop(@Param("shop_id") int shopId);
+    ShopResponse getResponseShop(@Param("shop_id") int shopId);
 
-    ResponseShopDTO getResponseShopByIgnoreDeletion(@Param("shop_id") int shopId);
+    ShopResponse getResponseShopByIgnoreDeletion(@Param("shop_id") int shopId);
 
     List<koreatech.in.dto.shop.response.inner.Shop> getShops(@Param("begin") int begin, @Param("limit") int limit);
 

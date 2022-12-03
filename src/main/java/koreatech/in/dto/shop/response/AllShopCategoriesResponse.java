@@ -1,13 +1,13 @@
 package koreatech.in.dto.shop.response;
 
-import koreatech.in.dto.shop.response.inner.Shop;
+import koreatech.in.dto.shop.response.inner.ShopCategory;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter @Builder
-public class ResponseAllShopsDTO {
+public class AllShopCategoriesResponse {
     private Integer total_count;
-    private List<Shop> shops;
+    private List<ShopCategory> shop_categories;
 }

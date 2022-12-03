@@ -1,5 +1,7 @@
 package koreatech.in.service;
 
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.response.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -7,49 +9,49 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ShopService {
-    ResponseSuccessCreateDTO createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception;
+    SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception;
 
-    ResponseSuccessfulDTO updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception;
+    SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception;
 
-    ResponseSuccessfulDTO deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
+    SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
 
-    ResponseAllShopCategoriesDTO getAllShopCategoriesForAdmin() throws Exception;
+    AllShopCategoriesResponse getAllShopCategoriesForAdmin() throws Exception;
 
-    ResponseSuccessfulDTO matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception;
+    SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception;
 
-    ResponseSuccessCreateDTO createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception;
 
-    ResponseShopDTO getShopForAdmin(Integer shopId) throws Exception;
+    ShopResponse getShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseSuccessfulDTO updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception;
 
-    ResponseSuccessfulDTO deleteShopForAdmin(Integer shopId) throws Exception;
+    SuccessResponse deleteShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseSuccessfulDTO undeleteOfShopForAdmin(Integer shopId) throws Exception;
+    SuccessResponse undeleteOfShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseShopsDTO getShopsForAdmin(ShopsConditionDTO dto) throws Exception;
+    ShopsResponse getShopsForAdmin(ShopsConditionDTO dto) throws Exception;
 
-    ResponseSuccessCreateDTO createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception;
+    SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception;
 
-    ResponseShopMenuCategoriesDTO getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception;
+    AllMenuCategoriesResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseSuccessfulDTO deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception;
+    SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception;
 
-    ResponseSuccessCreateDTO createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
 
-    ResponseShopMenuDTO getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
+    MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    ResponseSuccessfulDTO updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
 
-    ResponseSuccessfulDTO deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
+    SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    ResponseSuccessfulDTO hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hide) throws Exception;
+    SuccessResponse hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hide) throws Exception;
 
-    ResponseShopMenusDTO getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
+    MenusResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
 
-    ResponseShopDTO getShop(Integer shopId) throws Exception;
+    ShopResponse getShop(Integer shopId) throws Exception;
 
-    ResponseAllShopsDTO getAllShops() throws Exception;
+    AllShopsResponse getAllShops() throws Exception;
 
-    ResponseAllShopCategoriesDTO getAllShopCategories() throws Exception;
+    AllShopCategoriesResponse getAllShopCategories() throws Exception;
 }

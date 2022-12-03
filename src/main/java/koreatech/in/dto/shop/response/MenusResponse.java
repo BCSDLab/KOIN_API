@@ -7,13 +7,13 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class ResponseShopMenusDTO {
+public class MenusResponse {
     private Integer shop_id;
     private String shop_name;
     private List<ShopMenuCategory> menu_categories;
     private List<ShopMenu> menus;
 
-    public ResponseShopMenusDTO decideOptionalOfMenus() {
+    public MenusResponse decideOptionalOfMenus() {
         this.menus.forEach(ShopMenu::decideSingleOrNot);
         return this;
     }

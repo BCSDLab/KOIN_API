@@ -3,6 +3,8 @@ package koreatech.in.controller.v2.admin;
 import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.response.*;
 import koreatech.in.service.ShopService;
@@ -54,7 +56,7 @@ public class AdminShopController {
     @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessCreateDTO> createShopCategory(
+    ResponseEntity<SuccessCreateResponse> createShopCategory(
             @RequestPart("category") @Valid CreateShopCategoryDTO dto, BindingResult bindingResult,
             @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
 
@@ -66,7 +68,7 @@ public class AdminShopController {
     @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> updateShopCategory(
+    ResponseEntity<SuccessResponse> updateShopCategory(
             @PathVariable("id") Integer shopCategoryId,
             @RequestPart("category") @Valid UpdateShopCategoryDTO dto, BindingResult bindingResult,
             @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
@@ -78,7 +80,8 @@ public class AdminShopController {
     @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> deleteShopCategory(@PathVariable("id") Integer shopCategoryId) throws Exception {
+    ResponseEntity<SuccessResponse> deleteShopCategory(@PathVariable("id") Integer shopCategoryId) throws Exception {
+
         return new ResponseEntity<>(shopService.deleteShopCategoryForAdmin(shopCategoryId), HttpStatus.OK);
     }
 
@@ -86,7 +89,8 @@ public class AdminShopController {
     @ApiOperation(value = "모든 상점 카테고리 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseAllShopCategoriesDTO> getAllShopCategories() throws Exception {
+    ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() throws Exception {
+
         return new ResponseEntity<>(shopService.getAllShopCategoriesForAdmin(), HttpStatus.OK);
     }
 
@@ -97,7 +101,7 @@ public class AdminShopController {
     @ApiOperation(value = "상점과 특정 사장님 매칭", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/owners/match", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> matchShopWithOwner(
+    ResponseEntity<SuccessResponse> matchShopWithOwner(
             @PathVariable("id") Integer shopId,
             @RequestBody @Valid MatchShopWithOwnerDTO dto, BindingResult bindingResult) throws Exception {
 
@@ -113,7 +117,7 @@ public class AdminShopController {
     @ApiOperation(value = "상점 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessCreateDTO> createShop(
+    ResponseEntity<SuccessCreateResponse> createShop(
             @RequestPart("shop") @Valid CreateShopDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
 
@@ -128,7 +132,8 @@ public class AdminShopController {
     @ApiOperation(value = "상점 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopDTO> getShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) throws Exception {
+
         return new ResponseEntity<>(shopService.getShopForAdmin(shopId), HttpStatus.OK);
     }
 
@@ -137,7 +142,7 @@ public class AdminShopController {
     @ApiOperation(value = "상점 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> updateShop(
+    ResponseEntity<SuccessResponse> updateShop(
             @PathVariable("id") Integer shopId,
             @RequestPart("shop") @Valid UpdateShopDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
@@ -149,14 +154,16 @@ public class AdminShopController {
     @ApiOperation(value = "상점 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> deleteShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<SuccessResponse> deleteShop(@PathVariable("id") Integer shopId) throws Exception {
+
         return new ResponseEntity<>(shopService.deleteShopForAdmin(shopId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "상점 삭제 해제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> undeleteShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<SuccessResponse> undeleteShop(@PathVariable("id") Integer shopId) throws Exception {
+
         return new ResponseEntity<>(shopService.undeleteOfShopForAdmin(shopId), HttpStatus.OK);
     }
 
@@ -165,7 +172,8 @@ public class AdminShopController {
     @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopsDTO> getShops(@Valid ShopsConditionDTO dto, BindingResult bindingResult) throws Exception {
+    ResponseEntity<ShopsResponse> getShops(@Valid ShopsConditionDTO dto, BindingResult bindingResult) throws Exception {
+
         return new ResponseEntity<>(shopService.getShopsForAdmin(dto), HttpStatus.OK);
     }
 
@@ -176,9 +184,9 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessCreateDTO> createMenuCategory(
+    ResponseEntity<SuccessCreateResponse> createMenuCategory(
             @PathVariable("id") Integer shopId,
-            @RequestBody CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
+            @RequestBody @Valid CreateShopMenuCategoryDTO dto, BindingResult bindingResult) throws Exception {
 
         return new ResponseEntity<>(shopService.createMenuCategoryForAdmin(
                 shopId, (CreateShopMenuCategoryDTO) xssPrevent(dto)), HttpStatus.CREATED);
@@ -188,7 +196,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopMenuCategoriesDTO> getAllMenuCategoriesOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<AllMenuCategoriesResponse> getAllMenuCategoriesOfShop(@PathVariable("id") Integer shopId) throws Exception {
 
         return new ResponseEntity<>(shopService.getAllMenuCategoriesOfShopForAdmin(shopId), HttpStatus.OK);
     }
@@ -197,7 +205,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> deleteMenuCategory(
+    ResponseEntity<SuccessResponse> deleteMenuCategory(
             @PathVariable("shopId") Integer shopId, @PathVariable("categoryId") Integer menuCategoryId) throws Exception {
 
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(shopId, menuCategoryId), HttpStatus.OK);
@@ -210,7 +218,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessCreateDTO> createMenu(
+    ResponseEntity<SuccessCreateResponse> createMenu(
             @PathVariable("id") Integer shopId,
             @RequestPart("menu") @Valid CreateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
@@ -223,7 +231,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopMenuDTO> getMenu(
+    ResponseEntity<MenuResponse> getMenu(
             @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
 
         return new ResponseEntity<>(shopService.getMenuForAdmin(shopId, menuId), HttpStatus.OK);
@@ -233,7 +241,7 @@ public class AdminShopController {
     @ParamValid
     @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.POST)
-    ResponseEntity<ResponseSuccessfulDTO> updateMenu(
+    ResponseEntity<SuccessResponse> updateMenu(
             @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId,
             @RequestPart("menu") @Valid UpdateShopMenuDTO dto, BindingResult bindingResult,
             @RequestPart("images") List<MultipartFile> images) throws Exception {
@@ -246,7 +254,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> deleteMenu(
+    ResponseEntity<SuccessResponse> deleteMenu(
             @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
 
         return new ResponseEntity<>(shopService.deleteMenuForAdmin(shopId, menuId), HttpStatus.OK);
@@ -256,7 +264,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 숨김 또는 숨김 해제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<ResponseSuccessfulDTO> hideMenu(
+    ResponseEntity<SuccessResponse> hideMenu(
             @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId,
             @RequestParam("hide") Boolean hide) throws Exception {
 
@@ -267,7 +275,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ResponseShopMenusDTO> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<MenusResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
 
         return new ResponseEntity<>(shopService.getAllMenusOfShopForAdmin(shopId), HttpStatus.OK);
     }

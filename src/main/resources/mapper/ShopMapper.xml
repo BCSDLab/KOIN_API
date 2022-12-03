@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="koreatech.in.repository.ShopMapper">
-    <resultMap id="ResponseMenu" type="koreatech.in.dto.shop.response.ResponseShopMenuDTO" >
+    <resultMap id="ResponseMenu" type="koreatech.in.dto.shop.response.MenuResponse" >
         <id property="id" column="id"/>
         <result property="shop_id" column="shop_id"/>
         <result property="name" column="name"/>
@@ -16,7 +16,7 @@
                     ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
 
-    <resultMap id="ResponseMenus" type="koreatech.in.dto.shop.response.ResponseShopMenusDTO">
+    <resultMap id="ResponseMenus" type="koreatech.in.dto.shop.response.MenusResponse">
         <result property="shop_id" column="id"/>
         <result property="shop_name" column="name"/>
         <collection property="menu_categories" column="id" javaType="list"
@@ -42,7 +42,7 @@
                     ofType="string" select="getMenuImageUrlsByMenuId"/>
     </resultMap>
 
-    <resultMap id="ResponseShop" type="koreatech.in.dto.shop.response.ResponseShopDTO">
+    <resultMap id="ResponseShop" type="koreatech.in.dto.shop.response.ShopResponse">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
