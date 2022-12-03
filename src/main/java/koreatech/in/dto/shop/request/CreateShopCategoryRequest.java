@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter @Setter
-public class CreateShopCategoryDTO {
+public class CreateShopCategoryRequest {
     @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "카테고리명", example = "햄버거")

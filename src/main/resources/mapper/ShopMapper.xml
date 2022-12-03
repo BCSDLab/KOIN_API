@@ -120,7 +120,7 @@
         LIMIT #{begin}, #{limit}
     </select>
 
-    <select id="getTotalCountOfShopsByCondition" parameterType="koreatech.in.dto.shop.request.ShopsConditionDTO" resultType="integer">
+    <select id="getTotalCountOfShopsByCondition" parameterType="koreatech.in.dto.shop.request.ShopsCondition" resultType="integer">
         SELECT COUNT(*)
         FROM koin.shops
 

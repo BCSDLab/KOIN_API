@@ -37,8 +37,8 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception {
-        if (shopMapper.getShopCategoryByName(dto.getName()) != null) {
+    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request, MultipartFile image) throws Exception {
+        if (shopMapper.getShopCategoryByName(request.getName()) != null) {
             throw new ConflictException(new ErrorMessage("이름이 중복되는 카테고리가 이미 존재합니다.", 1));
         }
 
@@ -48,7 +48,7 @@ public class ShopServiceImpl implements ShopService {
 
         String imageUrl = this.uploadImage(image, "upload/shop_categories", 0);
 
-        ShopCategory newCategory = new ShopCategory(dto.getName(), imageUrl);
+        ShopCategory newCategory = new ShopCategory(request.getName(), imageUrl);
         shopMapper.createShopCategory(newCategory);
 
         return SuccessCreateResponse.builder()
@@ -58,10 +58,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception {
+    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request, MultipartFile image) throws Exception {
         ShopCategory category = this.verifyShopCategoryExists(shopCategoryId, 1);
 
-        ShopCategory sameNameCategory = shopMapper.getShopCategoryByName(dto.getName());
+        ShopCategory sameNameCategory = shopMapper.getShopCategoryByName(request.getName());
 
         if (sameNameCategory != null && !shopCategoryId.equals(sameNameCategory.getId())) {
             throw new ConflictException(new ErrorMessage("이름이 중복되는 카테고리가 이미 존재합니다.", 2));
@@ -72,7 +72,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         String imageUrl = this.uploadImage(image, "upload/shop_categories", 0);
-        shopMapper.updateShopCategory(category.update(dto.getName(), imageUrl));
+        shopMapper.updateShopCategory(category.update(request.getName(), imageUrl));
 
         return new SuccessResponse();
     }
@@ -104,19 +104,19 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception {
+    public SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception {
         Shop shop = this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         // TODO: 사장님의 존재 여부 확인 + 회원가입 후 권한이 주어졌는지 확인
 
-        shopMapper.updateShop(shop.matchOwnerId(dto.getOwner_id()));
+        shopMapper.updateShop(shop.matchOwnerId(request.getOwner_id()));
 
         return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createShopForAdmin(CreateShopRequest request, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shops
@@ -133,23 +133,23 @@ public class ShopServiceImpl implements ShopService {
                               이미 자신의 상점이 1개 이상 존재하면 403??
          */
 
-        if (shopMapper.getShopByName(dto.getName()) != null) {
+        if (shopMapper.getShopByName(request.getName()) != null) {
             throw new ConflictException(new ErrorMessage("중복되는 이름의 상점이 이미 존재합니다.", 1));
         }
 
         Integer ownerId = null; // TODO: 수정 필요
 
         // --- shops 테이블 ---
-        Shop shop = new Shop(dto, ownerId);
+        Shop shop = new Shop(request, ownerId);
         shopMapper.createShop(shop);
 
         // --- shop_opens 테이블 ---
-        shopMapper.createShopOpens(this.generateShopOpens(shop.getId(), dto.getOpen()));
+        shopMapper.createShopOpens(this.generateShopOpens(shop.getId(), request.getOpen()));
 
         // --- shop_category_map 테이블 ---
         List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
-        dto.getCategory_ids()
+        request.getCategory_ids()
                 .forEach(categoryId -> {
                     ShopCategory category = shopMapper.getShopCategoryById(categoryId);
 
@@ -207,7 +207,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shops
@@ -218,22 +218,22 @@ public class ShopServiceImpl implements ShopService {
 
         Shop existingShop = this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
-        Shop sameNameShop = shopMapper.getShopByName(dto.getName());
+        Shop sameNameShop = shopMapper.getShopByName(request.getName());
         if (sameNameShop != null && !shopId.equals(sameNameShop.getId())) {
             throw new ConflictException(new ErrorMessage("중복되는 이름의 상점이 이미 존재합니다.", 2));
         }
 
         // --- shops 테이블 ---
-        shopMapper.updateShop(existingShop.update(dto));
+        shopMapper.updateShop(existingShop.update(request));
 
         // --- shop_opens 테이블 ---
-        shopMapper.updateShopOpens(this.generateShopOpens(shopId, dto.getOpen()));
+        shopMapper.updateShopOpens(this.generateShopOpens(shopId, request.getOpen()));
 
         // --- shop_category_map 테이블 ---
         List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopId(shopId); // 상점이 속해있는 상점 카테고리 목록
         List<ShopCategoryMap> newShopCategoryMaps = new LinkedList<>();
 
-        dto.getCategory_ids()
+        request.getCategory_ids()
                 .forEach(categoryId -> {
                     ShopCategory updatedCategory = shopMapper.getShopCategoryById(categoryId);
 
@@ -313,19 +313,19 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public ShopsResponse getShopsForAdmin(ShopsConditionDTO dto) throws Exception {
-        dto.removeBlankOfSearchName();
-        //dto.setFilter();
+    public ShopsResponse getShopsForAdmin(ShopsCondition condition) throws Exception {
+        condition.removeBlankOfSearchName();
+        //request.setFilter();
 
-        Integer totalCount = shopMapper.getTotalCountOfShopsByCondition(dto);
-        Integer totalPage = dto.extractTotalPage(totalCount);
-        Integer currentPage = dto.getPage();
+        Integer totalCount = shopMapper.getTotalCountOfShopsByCondition(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
             throw new ValidationException(new ErrorMessage("page가 유효하지 않습니다.", 0));
         }
 
-        List<MinimizedShop> shops = shopMapper.getShopsByCondition(dto.extractBegin(), dto);
+        List<MinimizedShop> shops = shopMapper.getShopsByCondition(condition.extractBegin(), condition);
 
         return ShopsResponse.builder()
                 .total_page(totalPage)
@@ -336,10 +336,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception {
+    public SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
-        if (shopMapper.getMenuCategory(shopId, dto.getName()) != null) {
+        if (shopMapper.getMenuCategory(shopId, request.getName()) != null) {
             throw new ConflictException(new ErrorMessage("중복되는 이름의 카테고리가 이미 존재합니다.", 2));
         }
 
@@ -347,7 +347,7 @@ public class ShopServiceImpl implements ShopService {
             throw new PreconditionFailedException(new ErrorMessage("메뉴 카테고리는 최대 20개까지 설정 가능합니다.", 3));
         }
 
-        ShopMenuCategory newMenuCategory = new ShopMenuCategory(shopId, dto.getName());
+        ShopMenuCategory newMenuCategory = new ShopMenuCategory(shopId, request.getName());
         shopMapper.createMenuCategory(newMenuCategory);
 
         return SuccessCreateResponse.builder()
@@ -396,7 +396,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -408,26 +408,26 @@ public class ShopServiceImpl implements ShopService {
         this.verifyShopExistsByIgnoreDeletion(shopId, 1);
 
         // --- shop_menus 테이블 ---
-        ShopMenu menu = new ShopMenu(shopId, dto);
+        ShopMenu menu = new ShopMenu(shopId, request);
         shopMapper.createMenu(menu);
 
         // --- shop_menu_details 테이블 ---
-        if (dto.getIs_single()) {
-            if (dto.getSingle_price() == null) {
+        if (request.getIs_single()) {
+            if (request.getSingle_price() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 true이면 single_price는 필수입니다.", 0));
             }
-            shopMapper.createMenuDetail(new ShopMenuDetail(menu.getId(), dto.getSingle_price()));
+            shopMapper.createMenuDetail(new ShopMenuDetail(menu.getId(), request.getSingle_price()));
         } else {
-            if (dto.getOption_prices() == null) {
+            if (request.getOption_prices() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 false이면 option_prices는 필수입니다.", 0));
             }
-            if (dto.existOfOptionDuplicate()) {
+            if (request.existOfOptionDuplicate()) {
                 throw new ValidationException(new ErrorMessage("option_prices에서 중복되는 option이 있습니다.", 0));
             }
 
             List<ShopMenuDetail> menuDetails = new LinkedList<>();
 
-            dto.getOption_prices()
+            request.getOption_prices()
                     .forEach(optionPrice -> {
                         String option = optionPrice.getOption();
                         Integer price = optionPrice.getPrice();
@@ -450,7 +450,7 @@ public class ShopServiceImpl implements ShopService {
         // --- shop_menu_category_map 테이블 ---
         List<ShopMenuCategoryMap> shopMenuCategoryMaps = new LinkedList<>();
 
-        dto.getCategory_ids()
+        request.getCategory_ids()
                 .forEach(categoryId -> {
                     ShopMenuCategory category = shopMapper.getMenuCategoryById(categoryId);
 
@@ -487,7 +487,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request, List<MultipartFile> images) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -505,7 +505,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         // --- shop_menus 테이블 ---
-        ShopMenu updatedMenu = new ShopMenu(shopId, menuId, dto);
+        ShopMenu updatedMenu = new ShopMenu(shopId, menuId, request);
         if (!updatedMenu.equals(existingMenu)) {
             updatedMenu.setIs_hidden(existingMenu.getIs_hidden());
             shopMapper.updateMenu(updatedMenu);
@@ -514,12 +514,12 @@ public class ShopServiceImpl implements ShopService {
         // --- shop_menu_details 테이블 ---
         List<ShopMenuDetail> existingMenuDetails = shopMapper.getMenuDetailsByMenuId(menuId);
 
-        if (dto.getIs_single()) {
-            if (dto.getSingle_price() == null) {
+        if (request.getIs_single()) {
+            if (request.getSingle_price() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 true이면 single_price는 필수입니다.", 0));
             }
 
-            ShopMenuDetail updatedMenuDetail = new ShopMenuDetail(menuId, dto.getSingle_price());
+            ShopMenuDetail updatedMenuDetail = new ShopMenuDetail(menuId, request.getSingle_price());
 
             if (existingMenuDetails.contains(updatedMenuDetail)) {
                 existingMenuDetails.remove(updatedMenuDetail);
@@ -531,16 +531,16 @@ public class ShopServiceImpl implements ShopService {
                 shopMapper.createMenuDetail(updatedMenuDetail);
             }
         } else {
-            if (dto.getOption_prices() == null) {
+            if (request.getOption_prices() == null) {
                 throw new ValidationException(new ErrorMessage("is_single이 false이면 option_prices를 비워둘 수 없습니다.", 0));
             }
-            if (dto.existOfOptionDuplicate()) {
+            if (request.existOfOptionDuplicate()) {
                 throw new ValidationException(new ErrorMessage("option_prices에서 중복되는 option이 있습니다.", 0));
             }
 
             List<ShopMenuDetail> newMenuDetails = new LinkedList<>();
 
-            dto.getOption_prices()
+            request.getOption_prices()
                     .forEach(optionPrice -> {
                         String option = optionPrice.getOption();
                         Integer price = optionPrice.getPrice();
@@ -585,7 +585,7 @@ public class ShopServiceImpl implements ShopService {
         List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenu(menuId);
         List<ShopMenuCategoryMap> newMenuCategoryMaps = new LinkedList<>();
 
-        dto.getCategory_ids()
+        request.getCategory_ids()
                 .forEach(categoryId -> {
                     ShopMenuCategory updatedMenuCategory = shopMapper.getMenuCategoryById(categoryId);
 

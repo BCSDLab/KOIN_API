@@ -9,39 +9,39 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ShopService {
-    SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryDTO dto, MultipartFile image) throws Exception;
+    SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request, MultipartFile image) throws Exception;
 
-    SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryDTO dto, MultipartFile image) throws Exception;
+    SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request, MultipartFile image) throws Exception;
 
     SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
 
     AllShopCategoriesResponse getAllShopCategoriesForAdmin() throws Exception;
 
-    SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerDTO dto) throws Exception;
+    SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception;
 
-    SuccessCreateResponse createShopForAdmin(CreateShopDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createShopForAdmin(CreateShopRequest request, List<MultipartFile> images) throws Exception;
 
     ShopResponse getShopForAdmin(Integer shopId) throws Exception;
 
-    SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request, List<MultipartFile> images) throws Exception;
 
     SuccessResponse deleteShopForAdmin(Integer shopId) throws Exception;
 
     SuccessResponse undeleteOfShopForAdmin(Integer shopId) throws Exception;
 
-    ShopsResponse getShopsForAdmin(ShopsConditionDTO dto) throws Exception;
+    ShopsResponse getShopsForAdmin(ShopsCondition condition) throws Exception;
 
-    SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryDTO dto) throws Exception;
+    SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception;
 
     AllMenuCategoriesResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception;
 
     SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception;
 
-    SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request, List<MultipartFile> images) throws Exception;
 
     MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuDTO dto, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request, List<MultipartFile> images) throws Exception;
 
     SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 

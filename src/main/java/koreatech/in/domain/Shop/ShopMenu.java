@@ -1,7 +1,7 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.request.CreateShopMenuDTO;
-import koreatech.in.dto.shop.request.UpdateShopMenuDTO;
+import koreatech.in.dto.shop.request.CreateShopMenuRequest;
+import koreatech.in.dto.shop.request.UpdateShopMenuRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,18 +21,18 @@ public class ShopMenu {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenu(Integer shopId, CreateShopMenuDTO dto) {
+    public ShopMenu(Integer shopId, CreateShopMenuRequest request) {
         this.shop_id = shopId;
-        this.name = dto.getName();
-        this.description = dto.getDescription();
+        this.name = request.getName();
+        this.description = request.getDescription();
         this.is_hidden = false;
     }
 
-    public ShopMenu(Integer shopId, Integer menuId, UpdateShopMenuDTO dto) {
+    public ShopMenu(Integer shopId, Integer menuId, UpdateShopMenuRequest request) {
         this.id = menuId;
         this.shop_id = shopId;
-        this.name = dto.getName();
-        this.description = dto.getDescription();
+        this.name = request.getName();
+        this.description = request.getDescription();
     }
 
     public boolean equalsShopIdTo(Integer shopId) {

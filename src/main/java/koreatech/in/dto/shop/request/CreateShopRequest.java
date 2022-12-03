@@ -10,7 +10,9 @@ import javax.validation.constraints.*;
 import java.util.List;
 
 @Getter @Setter
-public class UpdateShopDTO {
+public class CreateShopRequest {
+    //private Integer owner_id;
+
     @Size(min = 1, max = 15, message = "name은 1자 이상 15자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "상점명", example = "써니 숯불 도시락")

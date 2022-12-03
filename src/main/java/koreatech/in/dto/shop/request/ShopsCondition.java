@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
-public class ShopsConditionDTO {
+public class ShopsConditionRequest {
     @Positive(message = "page는 1 이상 2147483647 이하입니다.")
     @NotNull(message = "page는 필수입니다.")
     private Integer page;
@@ -61,7 +61,7 @@ public class ShopsConditionDTO {
     }
 
     // 검색을 위해서 공백은 전부 제거해놓는 메소드
-    public ShopsConditionDTO removeBlankOfSearchName() {
+    public ShopsConditionRequest removeBlankOfSearchName() {
         if (this.search_name != null) {
             this.search_name = this.search_name.replace(" ", "").toLowerCase();
         }

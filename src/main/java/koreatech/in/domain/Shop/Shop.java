@@ -1,7 +1,7 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.request.CreateShopDTO;
-import koreatech.in.dto.shop.request.UpdateShopDTO;
+import koreatech.in.dto.shop.request.CreateShopRequest;
+import koreatech.in.dto.shop.request.UpdateShopRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,32 +29,32 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public Shop(CreateShopDTO dto, Integer ownerId) {
+    public Shop(CreateShopRequest request, Integer ownerId) {
         this.owner_id = ownerId;
-        this.name = dto.getName();
+        this.name = request.getName();
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
-        this.phone = dto.getPhone();
-        this.address = dto.getAddress();
-        this.description = dto.getDescription();
-        this.delivery = dto.getDelivery();
-        this.delivery_price = dto.getDelivery_price();
-        this.pay_card = dto.getPay_card();
-        this.pay_bank = dto.getPay_bank();
+        this.phone = request.getPhone();
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.delivery = request.getDelivery();
+        this.delivery_price = request.getDelivery_price();
+        this.pay_card = request.getPay_card();
+        this.pay_bank = request.getPay_bank();
         this.is_event = false;
         this.remarks = null;
         this.hit = 0;
     }
 
-    public Shop update(UpdateShopDTO dto) {
-        this.name = dto.getName();
-        this.phone = dto.getPhone();
-        this.address = dto.getAddress();
-        this.description = dto.getDescription();
-        this.delivery = dto.getDelivery();
-        this.delivery_price = dto.getDelivery_price();
-        this.pay_card = dto.getPay_card();
-        this.pay_bank = dto.getPay_bank();
+    public Shop update(UpdateShopRequest request) {
+        this.name = request.getName();
+        this.phone = request.getPhone();
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.delivery = request.getDelivery();
+        this.delivery_price = request.getDelivery_price();
+        this.pay_card = request.getPay_card();
+        this.pay_bank = request.getPay_bank();
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
 

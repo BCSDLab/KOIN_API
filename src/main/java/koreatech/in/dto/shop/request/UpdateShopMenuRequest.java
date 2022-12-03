@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 
 @Getter @Setter
-public class UpdateShopMenuDTO {
+public class UpdateShopMenuRequest {
     @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "메뉴명", example = "짜장면")
