@@ -40,18 +40,14 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request, MultipartFile image) throws Exception {
-        if (shopMapper.getShopCategoryByName(request.getName()) != null) {
+    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request) throws Exception {
+        boolean duplicateOfName = (shopMapper.getShopCategoryByName(request.getName()) != null);
+
+        if (duplicateOfName) {
             throw new ConflictException(new ErrorMessage("이름이 중복되는 카테고리가 이미 존재합니다.", 1));
         }
 
-        if (image == null) {
-            throw new ValidationException(new ErrorMessage("image 업로드가 필요합니다.", 0));
-        }
-
-        String imageUrl = uploadImage(image, S3Bucket.SHOP_CATEGORY);
-
-        ShopCategory newCategory = new ShopCategory(request.getName(), imageUrl);
+        ShopCategory newCategory = new ShopCategory(request);
         shopMapper.createShopCategory(newCategory);
 
         return SuccessCreateResponse.builder()
@@ -61,21 +57,19 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request, MultipartFile image) throws Exception {
-        ShopCategory category = this.verifyShopCategoryExists(shopCategoryId, 1);
+    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request) throws Exception {
+        ShopCategory existingCategory = this.verifyShopCategoryExists(shopCategoryId, 1);
 
         ShopCategory sameNameCategory = shopMapper.getShopCategoryByName(request.getName());
-
-        if (sameNameCategory != null && !shopCategoryId.equals(sameNameCategory.getId())) {
+        boolean duplicateOfName = sameNameCategory != null && !shopCategoryId.equals(sameNameCategory.getId());
+        if (duplicateOfName) {
             throw new ConflictException(new ErrorMessage("이름이 중복되는 카테고리가 이미 존재합니다.", 2));
         }
 
-        if (image == null) {
-            throw new ValidationException(new ErrorMessage("image 업로드가 필요합니다.", 0));
+        if (existingCategory.needToUpdate(request)) {
+            existingCategory.update(request);
+            shopMapper.updateShopCategory(existingCategory);
         }
-
-        String imageUrl = uploadImage(image, S3Bucket.SHOP_CATEGORY);
-        shopMapper.updateShopCategory(category.update(request.getName(), imageUrl));
 
         return new SuccessResponse();
     }
@@ -119,7 +113,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopForAdmin(CreateShopRequest request, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createShopForAdmin(CreateShopRequest request) throws Exception {
         /*
              대상 테이블
              - shops
@@ -175,14 +169,13 @@ public class ShopServiceImpl implements ShopService {
                 this.generateMenuCategories(shop.getId(), new String[]{"이벤트 메뉴", "대표 메뉴", "사이드 메뉴", "세트 메뉴"})
         );
 
-        // --- shop_images 테이블 ---
-        if (!images.isEmpty()) {
-            if (images.size() > 10) {
-                throw new ValidationException(new ErrorMessage("image는 10개 이하만 업로드 가능합니다.", 0));
-            }
 
-            shopMapper.createShopImages(this.generateShopImages(images, shop.getId()));
+        // ======= shop_images 테이블 =======
+        if (!request.getImage_urls().isEmpty()) {
+            List<ShopImage> shopImages = generateShopImages(request.getImage_urls(), shop.getId());
+            shopMapper.createShopImages(shopImages);
         }
+
 
         return SuccessCreateResponse.builder()
                 .id(shop.getId())
@@ -210,7 +203,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request) throws Exception {
         /*
              대상 테이블
              - shops
@@ -257,7 +250,6 @@ public class ShopServiceImpl implements ShopService {
             shopMapper.createShopCategoryMaps(newShopCategoryMaps);
         }
 
-        // 남아있는 existingCategories에 남아있는 카테고리는 삭제 대상
         if (!existingCategories.isEmpty()) {
             List<ShopCategoryMap> shopCategoryMapsToDelete = new LinkedList<>();
             existingCategories
@@ -267,16 +259,30 @@ public class ShopServiceImpl implements ShopService {
             shopMapper.deleteShopCategoryMaps(shopCategoryMapsToDelete);
         }
 
-        // --- shop_images 테이블 ---
-        shopMapper.deleteShopImagesByShopId(shopId);
 
-        if (!images.isEmpty()) {
-            if (images.size() > 10) {
-                throw new ValidationException(new ErrorMessage("image는 10개 이하만 업로드 가능합니다.", 0));
+        // ======= shop_images 테이블 =======
+        List<String> existingImageUrls = shopMapper.getShopImageUrlsByShopId(shopId);
+
+        List<ShopImage> shopImagesToCreate = new LinkedList<>();
+        List<ShopImage> shopImagesToDelete;
+
+        request.getImage_urls().forEach(imageUrl -> {
+            if (!existingImageUrls.contains(imageUrl)) {
+                shopImagesToCreate.add(new ShopImage(shopId, imageUrl));
             }
 
-            shopMapper.createShopImages(this.generateShopImages(images, shopId));
-        }
+            existingImageUrls.remove(imageUrl);
+        });
+
+        shopMapper.createShopImages(shopImagesToCreate);
+
+        // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
+        shopImagesToDelete = existingImageUrls.stream()
+                .map(imageUrl -> new ShopImage(shopId, imageUrl))
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        shopMapper.deleteShopImages(shopImagesToDelete);
+
 
         return new SuccessResponse();
     }
@@ -399,7 +405,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request, List<MultipartFile> images) throws Exception {
+    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -441,14 +447,12 @@ public class ShopServiceImpl implements ShopService {
             shopMapper.createMenuDetails(menuDetails);
         }
 
-        // --- shop_menu_images 테이블 ---
-        if (!images.isEmpty()) {
-            if (images.size() > 3) {
-                throw new ValidationException(new ErrorMessage("image는 3개 이하만 업로드 가능합니다.", 0));
-            }
-
-            shopMapper.createMenuImages(this.generateMenuImages(images, menu.getId()));
+        // ======= shop_menu_images 테이블 =======
+        if (!request.getImage_urls().isEmpty()) {
+            List<ShopMenuImage> menuImages = generateMenuImages(request.getImage_urls(), menu.getId());
+            shopMapper.createMenuImages(menuImages);
         }
+
 
         // --- shop_menu_category_map 테이블 ---
         List<ShopMenuCategoryMap> shopMenuCategoryMaps = new LinkedList<>();
@@ -490,7 +494,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request, List<MultipartFile> images) throws Exception {
+    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request) throws Exception {
         /*
              대상 테이블
              - shop_menus
@@ -573,16 +577,30 @@ public class ShopServiceImpl implements ShopService {
             }
         }
 
-        // --- shop_menu_images 테이블 ---
-        shopMapper.deleteMenuImagesByMenuId(menuId);
 
-        if (!images.isEmpty()) {
-            if (images.size() > 3) {
-                throw new ValidationException(new ErrorMessage("image는 3개 이하만 업로드 가능합니다.", 0));
+        // ======= shop_menu_images 테이블 =======
+        List<String> existingImageUrls = shopMapper.getMenuImageUrlsByMenuId(menuId);
+
+        List<ShopMenuImage> menuImagesToCreate = new LinkedList<>();
+        List<ShopMenuImage> menuImagesToDelete;
+
+        request.getImage_urls().forEach(imageUrl -> {
+            if (!existingImageUrls.contains(imageUrl)) {
+                menuImagesToCreate.add(new ShopMenuImage(menuId, imageUrl));
             }
 
-            shopMapper.createMenuImages(this.generateMenuImages(images, menuId));
-        }
+            existingImageUrls.remove(imageUrl);
+        });
+
+        shopMapper.createMenuImages(menuImagesToCreate);
+
+        // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
+        menuImagesToDelete = existingImageUrls.stream()
+                .map(imageUrl -> new ShopMenuImage(menuId, imageUrl))
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        shopMapper.deleteMenuImages(menuImagesToDelete);
+
 
         // --- shop_menu_category_map 테이블 ---
         List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenu(menuId);
@@ -822,22 +840,22 @@ public class ShopServiceImpl implements ShopService {
         return shopOpens;
     }
 
-    private List<ShopImage> generateShopImages(List<MultipartFile> images, Integer shopId) throws Exception {
+    private List<ShopImage> generateShopImages(List<String> imageUrls, Integer shopId) throws Exception {
         List<ShopImage> shopImages = new LinkedList<>();
 
-        for (MultipartFile image : images) {
-            shopImages.add(new ShopImage(shopId, uploadImage(image, S3Bucket.SHOP)));
-        }
+        imageUrls.forEach(imageUrl -> {
+            shopImages.add(new ShopImage(shopId, imageUrl));
+        });
 
         return shopImages;
     }
 
-    private List<ShopMenuImage> generateMenuImages(List<MultipartFile> images, Integer menuId) throws Exception {
+    private List<ShopMenuImage> generateMenuImages(List<String> imageUrls, Integer menuId) throws Exception {
         List<ShopMenuImage> menuImages = new LinkedList<>();
 
-        for (MultipartFile image : images) {
-            menuImages.add(new ShopMenuImage(menuId, uploadImage(image, S3Bucket.SHOP_MENU)));
-        }
+        imageUrls.forEach(imageUrl -> {
+            menuImages.add(new ShopMenuImage(menuId, imageUrl));
+        });
 
         return menuImages;
     }

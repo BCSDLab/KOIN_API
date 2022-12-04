@@ -1,5 +1,7 @@
 package koreatech.in.domain.Shop;
 
+import koreatech.in.dto.shop.request.CreateShopCategoryRequest;
+import koreatech.in.dto.shop.request.UpdateShopCategoryRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -17,15 +19,20 @@ public class ShopCategory {
     private Date created_at;
     private Date updated_at;
 
-    public ShopCategory(String name, String imageUrl) {
-        this.name = name;
-        this.image_url = imageUrl;
+    public ShopCategory(CreateShopCategoryRequest request) {
+        this.name = request.getName();
+        this.image_url = request.getImage_url();
     }
 
-    public ShopCategory update(String name, String imageUrl) {
-        this.name = name;
-        this.image_url = imageUrl;
-        return this;
+    public boolean needToUpdate(UpdateShopCategoryRequest request) {
+        // name과 image_url중 하나라도 다를 경우 update 필요
+        return !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.image_url, request.getImage_url());
+    }
+
+    public void update(UpdateShopCategoryRequest request) {
+        this.name = request.getName();
+        this.image_url = request.getImage_url();
     }
 
     public boolean equalsIdTo(Integer id) {

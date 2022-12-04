@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.util.LinkedList;
 import java.util.List;
 
 @Getter @Setter
@@ -38,6 +39,10 @@ public class CreateShopMenuRequest {
     @Size(max = 80, message = "description의 길이는 80 이하입니다.")
     @ApiModelProperty(notes = "메뉴 구성 설명", example = "저희 가게의 대표 메뉴 짜장면입니다.")
     private String description;
+
+    @Size(max = 3, message = "image_urls의 size는 최대 3입니다.")
+    @ApiModelProperty(notes = "이미지 URL 리스트")
+    private List<String> image_urls = new LinkedList<>();
 
     public boolean existOfOptionDuplicate() throws Exception {
         if (this.option_prices == null || this.option_prices.isEmpty() || this.option_prices.size() == 1) {

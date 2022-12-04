@@ -461,4 +461,20 @@
             )
         </foreach>
     </insert>
+
+    <update id="deleteShopImages" parameterType="list">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE koin.shop_images
+            SET is_deleted = 1
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="deleteMenuImages" parameterType="list">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE koin.shop_menu_images
+            SET is_deleted = 1
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
 </mapper>

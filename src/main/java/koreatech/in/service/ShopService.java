@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ShopService {
-    SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request, MultipartFile image) throws Exception;
+    SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request) throws Exception;
 
-    SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request, MultipartFile image) throws Exception;
+    SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request) throws Exception;
 
     SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
 
@@ -21,11 +21,11 @@ public interface ShopService {
 
     SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception;
 
-    SuccessCreateResponse createShopForAdmin(CreateShopRequest request, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createShopForAdmin(CreateShopRequest request) throws Exception;
 
     ShopResponse getShopForAdmin(Integer shopId) throws Exception;
 
-    SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request) throws Exception;
 
     SuccessResponse deleteShopForAdmin(Integer shopId) throws Exception;
 
@@ -39,11 +39,11 @@ public interface ShopService {
 
     SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception;
 
-    SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request, List<MultipartFile> images) throws Exception;
+    SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request) throws Exception;
 
     MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request, List<MultipartFile> images) throws Exception;
+    SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request) throws Exception;
 
     SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 

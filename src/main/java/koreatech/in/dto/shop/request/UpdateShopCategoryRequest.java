@@ -13,4 +13,9 @@ public class UpdateShopCategoryRequest {
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "카테고리명", example = "치킨")
     private String name;
+
+    @Size(max = 255, message = "image_url은 최대 255자입니다.")
+    @NotNull(message = "image_url은 필수입니다.")
+    @ApiModelProperty(notes = "이미지 URL", example = "https://static.koreatech.in/test.png")
+    private String image_url;
 }

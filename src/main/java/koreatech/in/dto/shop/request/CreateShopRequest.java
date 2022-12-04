@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.util.LinkedList;
 import java.util.List;
 
 @Getter @Setter
@@ -58,4 +59,8 @@ public class CreateShopRequest {
     @NotNull(message = "category_ids는 필수입니다.")
     @ApiModelProperty(notes = "상점 카테고리 고유 id 리스트", example = "[1, 4]")
     private List<Integer> category_ids;
+
+    @Size(max = 10, message = "image_urls의 size는 최대 10입니다.")
+    @ApiModelProperty(notes = "이미지 URL 리스트")
+    private List<String> image_urls = new LinkedList<>();
 }

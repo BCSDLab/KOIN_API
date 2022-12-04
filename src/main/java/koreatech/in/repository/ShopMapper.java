@@ -241,6 +241,8 @@ public interface ShopMapper {
 
     void createMenuCategoryMaps(List<ShopMenuCategoryMap> shopMenuCategoryMaps);
 
+    List<String> getMenuImageUrlsByMenuId(@Param("shop_menu_id") int shopMenuId);
+
     MenuResponse getResponseMenu(@Param("shop_menu_id") int shopMenuId);
 
     MenusResponse getResponseMenus(@Param("shop_id") int shopId);
@@ -255,6 +257,8 @@ public interface ShopMapper {
 
     List<koreatech.in.dto.shop.response.inner.Shop> getAllShops();
 
+    List<String> getShopImageUrlsByShopId(@Param("shop_id") Integer shopId);
+
     void updateShopOpens(List<ShopOpen> updatedShopOpens);
 
     void deleteShopCategoryMaps(List<ShopCategoryMap> shopCategoryMapsToDelete);
@@ -264,4 +268,8 @@ public interface ShopMapper {
     void deleteMenuCategoryMaps(List<ShopMenuCategoryMap> menuCategoryMapsToDelete);
 
     void deleteAllForInvolvedWithMenu(@Param("shop_menu_id") int shopMenuId);
+
+    void deleteShopImages(List<ShopImage> shopImagesToDelete);
+
+    void deleteMenuImages(List<ShopMenuImage> menuImagesToDelete);
 }
