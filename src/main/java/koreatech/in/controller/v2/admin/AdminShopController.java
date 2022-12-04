@@ -5,6 +5,8 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.response.*;
 import koreatech.in.service.ShopService;
@@ -172,9 +174,9 @@ public class AdminShopController {
     @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopsResponse> getShops(@Valid ShopsConditionRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<ShopsResponse> getShops(@Valid ShopsCondition condition, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.getShopsForAdmin(request), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.getShopsForAdmin(condition), HttpStatus.OK);
     }
 
     // ----------------------------------------- 메뉴 카테고리 --------------------------------------------
@@ -278,5 +280,29 @@ public class AdminShopController {
     ResponseEntity<MenusResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
 
         return new ResponseEntity<>(shopService.getAllMenusOfShopForAdmin(shopId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상점 카테고리 이미지 업로드", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/categories/image", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<UploadImageResponse> uploadShopCategoryImage(@RequestPart("image") MultipartFile image) throws Exception {
+
+        return new ResponseEntity<>(shopService.uploadShopCategoryImage(image), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "상점 메뉴 이미지 다중 업로드", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/menus/images", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<UploadImagesResponse> uploadShopMenuImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
+
+        return new ResponseEntity<>(shopService.uploadShopMenuImages(images), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "상점 이미지 다중 업로드", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/images", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<UploadImagesResponse> uploadShopImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
+
+        return new ResponseEntity<>(shopService.uploadShopMenuImages(images), HttpStatus.CREATED);
     }
 }

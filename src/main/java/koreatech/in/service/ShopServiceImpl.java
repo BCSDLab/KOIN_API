@@ -2,6 +2,8 @@ package koreatech.in.service;
 
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.request.inner.Open;
 import koreatech.in.dto.shop.response.*;
@@ -10,6 +12,7 @@ import koreatech.in.domain.Shop.*;
 import koreatech.in.dto.shop.response.inner.MinimizedShop;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
+import koreatech.in.util.S3Bucket;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +49,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ValidationException(new ErrorMessage("image 업로드가 필요합니다.", 0));
         }
 
-        String imageUrl = this.uploadImage(image, "upload/shop_categories", 0);
+        String imageUrl = uploadImage(image, S3Bucket.SHOP_CATEGORY);
 
         ShopCategory newCategory = new ShopCategory(request.getName(), imageUrl);
         shopMapper.createShopCategory(newCategory);
@@ -71,7 +74,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ValidationException(new ErrorMessage("image 업로드가 필요합니다.", 0));
         }
 
-        String imageUrl = this.uploadImage(image, "upload/shop_categories", 0);
+        String imageUrl = uploadImage(image, S3Bucket.SHOP_CATEGORY);
         shopMapper.updateShopCategory(category.update(request.getName(), imageUrl));
 
         return new SuccessResponse();
@@ -702,6 +705,33 @@ public class ShopServiceImpl implements ShopService {
                 .build();
     }
 
+    @Override
+    public UploadImageResponse uploadShopCategoryImage(MultipartFile image) throws Exception {
+        String imageUrl = uploadImage(image, S3Bucket.SHOP_CATEGORY);
+
+        return UploadImageResponse.builder()
+                .image_url(imageUrl)
+                .build();
+    }
+
+    @Override
+    public UploadImagesResponse uploadShopMenuImages(List<MultipartFile> images) throws Exception {
+        List<String> imageUrls = uploadImages(images, S3Bucket.SHOP_MENU);
+
+        return UploadImagesResponse.builder()
+                .image_urls(imageUrls)
+                .build();
+    }
+
+    @Override
+    public UploadImagesResponse uploadShopImages(List<MultipartFile> images) throws Exception {
+        List<String> imageUrls = uploadImages(images, S3Bucket.SHOP);
+
+        return UploadImagesResponse.builder()
+                .image_urls(imageUrls)
+                .build();
+    }
+
     private ShopCategory verifyShopCategoryExists(Integer shopCategoryId, Integer errorCode) {
         ShopCategory category = shopMapper.getShopCategoryById(shopCategoryId);
 
@@ -796,7 +826,7 @@ public class ShopServiceImpl implements ShopService {
         List<ShopImage> shopImages = new LinkedList<>();
 
         for (MultipartFile image : images) {
-            shopImages.add(new ShopImage(shopId, this.uploadImage(image, "upload/shops", 0)));
+            shopImages.add(new ShopImage(shopId, uploadImage(image, S3Bucket.SHOP)));
         }
 
         return shopImages;
@@ -806,26 +836,43 @@ public class ShopServiceImpl implements ShopService {
         List<ShopMenuImage> menuImages = new LinkedList<>();
 
         for (MultipartFile image : images) {
-            menuImages.add(new ShopMenuImage(menuId, this.uploadImage(image, "upload/shop_menus", 0)));
+            menuImages.add(new ShopMenuImage(menuId, uploadImage(image, S3Bucket.SHOP_MENU)));
         }
 
         return menuImages;
     }
 
-    /**
-     *
-     * @param file
-     * @param bucketPath 업로드할 경로 (ex. upload/shop_menus)
-     * @param errorCode (이미지 형식이 아닐때 Exception throw 에서의 error code)
-     * @return AWS S3 버킷에 업로드된 이미지 URL
-     * @throws Exception
-     */
-    private String uploadImage(MultipartFile file, String bucketPath, Integer errorCode) throws Exception {
-        if (!file.getContentType().startsWith("image/")) {
-            throw new PreconditionFailedException(new ErrorMessage("이미지 형식 파일만 업로드 가능합니다.", errorCode));
+    // 이미지 단건 업로드
+    private String uploadImage(MultipartFile image, S3Bucket bucket) throws Exception {
+        String uploadedImageName = uploadFileUtils.uploadFile(bucket.getPath(), image.getOriginalFilename(), image.getBytes(), image);
+
+        StringBuilder stringBuilder = new StringBuilder()
+                .append("https://")
+                .append(uploadFileUtils.getDomain())
+                .append("/")
+                .append(bucket.getPath())
+                .append(uploadedImageName);
+
+        return stringBuilder.toString();
+    }
+
+    // 다중 이미지 업로드
+    private List<String> uploadImages(List<MultipartFile> images, S3Bucket bucket) throws Exception {
+        List<String> imageUrls = new LinkedList<>();
+
+        for (MultipartFile image : images) {
+            String uploadedImageName = uploadFileUtils.uploadFile(bucket.getPath(), image.getOriginalFilename(), image.getBytes(), image);
+
+            StringBuilder stringBuilder = new StringBuilder()
+                    .append("https://")
+                    .append(uploadFileUtils.getDomain())
+                    .append("/")
+                    .append(bucket.getPath())
+                    .append(uploadedImageName);
+
+            imageUrls.add(stringBuilder.toString());
         }
 
-        String imagePath = uploadFileUtils.uploadFile(bucketPath, file.getOriginalFilename(), file.getBytes());
-        return uploadFileUtils.getDomain() + "/" + bucketPath + imagePath;
+        return imageUrls;
     }
 }

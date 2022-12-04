@@ -2,6 +2,8 @@ package koreatech.in.service;
 
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.request.*;
 import koreatech.in.dto.shop.response.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,4 +56,10 @@ public interface ShopService {
     AllShopsResponse getAllShops() throws Exception;
 
     AllShopCategoriesResponse getAllShopCategories() throws Exception;
+
+    UploadImageResponse uploadShopCategoryImage(MultipartFile image) throws Exception;
+
+    UploadImagesResponse uploadShopMenuImages(List<MultipartFile> images) throws Exception;
+
+    UploadImagesResponse uploadShopImages(List<MultipartFile> images) throws Exception;
 }
