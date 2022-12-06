@@ -5,22 +5,25 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.LandMapper;
 import koreatech.in.util.JsonConstructor;
+import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
@@ -32,6 +35,9 @@ public class LandServiceImpl implements LandService {
 
     @Autowired
     JwtValidator jwtValidator;
+
+    @Autowired
+    UploadFileUtils uploadFileUtils;
 
     @Transactional
     @Override
@@ -51,6 +57,77 @@ public class LandServiceImpl implements LandService {
         landMapper.createLandForAdmin(land);
 
         return land;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public LandResponse getLandForAdmin(Integer landId) throws Exception {
+        Land land = landMapper.getLandForAdmin(landId);
+
+        if (land == null) {
+            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+        }
+
+        return LandResponse.builder()
+                .id(land.getId())
+                .name(land.getName())
+                .is_deleted(land.getIs_deleted())
+                .room_type(land.getRoom_type())
+                .management_fee(land.getManagement_fee())
+                .size(land.getSize())
+                .monthly_fee(land.getMonthly_fee())
+                .charter_fee(land.getCharter_fee())
+                .latitude(land.getLatitude())
+                .longitude(land.getLongitude())
+                .deposit(land.getDeposit())
+                .floor(land.getFloor())
+                .phone(land.getPhone())
+                .address(land.getAddress())
+                .description(land.getDescription())
+                .opt_refrigerator(land.getOpt_refrigerator())
+                .opt_closet(land.getOpt_closet())
+                .opt_tv(land.getOpt_tv())
+                .opt_microwave(land.getOpt_microwave())
+                .opt_gas_range(land.getOpt_gas_range())
+                .opt_induction(land.getOpt_induction())
+                .opt_water_purifier(land.getOpt_water_purifier())
+                .opt_air_conditioner(land.getOpt_air_conditioner())
+                .opt_washer(land.getOpt_washer())
+                .opt_bed(land.getOpt_bed())
+                .opt_desk(land.getOpt_desk())
+                .opt_shoe_closet(land.getOpt_shoe_closet())
+                .opt_electronic_door_locks(land.getOpt_electronic_door_locks())
+                .opt_bidet(land.getOpt_bidet())
+                .opt_veranda(land.getOpt_veranda())
+                .opt_elevator(land.getOpt_elevator())
+                .image_urls(JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()))
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
+        }
+
+        Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage) {
+            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
+        }
+
+        List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
+
+        return LandsResponse.builder()
+                .total_count(totalCount)
+                .total_page(totalPage)
+                .current_count(lands.size())
+                .current_page(currentPage)
+                .lands(lands)
+                .build();
     }
 
     @Transactional
@@ -78,10 +155,35 @@ public class LandServiceImpl implements LandService {
     public Map<String, Object> deleteLandForAdmin(int id) throws Exception {
         Land land = landMapper.getLandForAdmin(id);
 
-        if (land == null)
+        if (land == null) {
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
+        }
 
-        landMapper.deleteLandForAdmin(id);
+        if (land.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
+        }
+
+        landMapper.softDeleteLandForAdmin(id);
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+        }};
+    }
+
+    @Transactional
+    @Override
+    public Map<String, Object> undeleteLandForAdmin(int id) throws Exception {
+        Land land = landMapper.getLandForAdmin(id);
+
+        if (land == null) {
+            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+        }
+
+        if (!land.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage("It is not soft deleted.", 0));
+        }
+
+        landMapper.undeleteLandForAdmin(id);
 
         return new HashMap<String, Object>() {{
             put("success", true);
@@ -217,6 +319,27 @@ public class LandServiceImpl implements LandService {
 
         return new HashMap<String, Object>() {{
             put("success", true);
+        }};
+    }
+
+    @Override
+    public Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception {
+        // 무분별한 업로드 방지
+        if (images.size() > 10) {
+            throw new PreconditionFailedException(new ErrorMessage("한번에 최대 10개까지 업로드 가능합니다.", 0));
+        }
+
+        String directory = "lands";
+        List<String> imageUrls = new LinkedList<>();
+
+        for (MultipartFile image : images) {
+            String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
+            imageUrls.add("https://" + uploadFileUtils.getDomain() + "/" + directory + url);
+        }
+
+        return new HashMap<String, Object>() {{
+            put("success", true);
+            put("image_urls", imageUrls);
         }};
     }
 }

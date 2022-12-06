@@ -5,21 +5,25 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.Homepage.Member;
+import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
+// TODO: 응답 타입 전부 커스텀 DTO 클래스로 변경하기
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminMemberController {
@@ -29,31 +33,31 @@ public class AdminMemberController {
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMembers() throws Exception {
-        return new ResponseEntity<List<Member>>(memberService.getMembersForAdmin(), HttpStatus.OK);
+    ResponseEntity<MembersResponse> getMembers(MembersCondition condition) throws Exception {
+        return new ResponseEntity<>(memberService.getMembersForAdmin(condition), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.getMemberForAdmin(id), HttpStatus.OK);
+    ResponseEntity<MemberResponse> getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<>(memberService.getMemberForAdmin(id), HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createMember(@ApiParam(value = "(required:name, track, position), TrackName Example: BackEnd, FrontEnd, Android, UI/UX, ...", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Member member, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Member>(memberService.createMemberForAdmin(member), HttpStatus.OK);
+    ResponseEntity createMember(@RequestBody @Valid CreateMemberRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.createMemberForAdmin(request), HttpStatus.CREATED);
     }
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateMember(@ApiParam(value = "", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Member member, BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.updateMemberForAdmin(member, id), HttpStatus.OK);
+    ResponseEntity updateMember(@ApiParam(required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
@@ -64,9 +68,16 @@ public class AdminMemberController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {
-        return new ResponseEntity( memberService.uploadImage(multipartFile, flag), HttpStatus.OK);
+    ResponseEntity undeleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.undeleteMemberForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @RequestMapping(value = "/admin/members/image", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity uploadProfileImage(@RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(memberService.uploadImage(image), HttpStatus.CREATED);
     }
 }

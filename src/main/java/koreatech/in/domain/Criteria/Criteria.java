@@ -30,6 +30,10 @@ public class Criteria {
         return (page - 1) * limit;
     }
 
+    public Integer extractTotalPage(Integer totalCount) {
+        return totalCount.equals(0) ? 1 : (int) Math.ceil((double) totalCount / this.limit);
+    }
+
     @Override
     public String toString() {
         return "Criteria{" +

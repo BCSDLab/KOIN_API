@@ -1,14 +1,15 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UsersCondition;
+import koreatech.in.dto.user.admin.UsersResponse;
 
 import java.util.Map;
 
 public interface UserService {
-    Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
+    UsersResponse getUserListForAdmin(UsersCondition condition) throws Exception;
 
     User getUserForAdmin(int id) throws Exception;
 

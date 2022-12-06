@@ -7,6 +7,9 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.service.LandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +17,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
@@ -34,6 +38,22 @@ public class AdminLandController {
         return new ResponseEntity<Land>(landService.createLandForAdmin(land), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<LandResponse> getLand(@PathVariable("id") Integer landId) throws Exception {
+
+        return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<LandsResponse> getLands(LandsCondition condition) throws Exception {
+
+        return new ResponseEntity<>(landService.getLandsForAdmin(condition), HttpStatus.OK);
+    }
+
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.PUT)
@@ -49,5 +69,21 @@ public class AdminLandController {
     ResponseEntity deleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
 
         return new ResponseEntity<Map<String, Object>>(landService.deleteLandForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.PATCH)
+    public @ResponseBody
+    ResponseEntity undeleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+
+        return new ResponseEntity<Map<String, Object>>(landService.undeleteLandForAdmin(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/lands/images", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity uploadImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
+
+        return new ResponseEntity<Map<String, Object>>(landService.uploadImages(images), HttpStatus.CREATED);
     }
 }

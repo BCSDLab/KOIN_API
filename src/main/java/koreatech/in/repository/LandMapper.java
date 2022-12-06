@@ -2,6 +2,8 @@ package koreatech.in.repository;
 
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
+import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.response.LandsResponse;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -52,4 +54,13 @@ public interface LandMapper {
     @Delete("DELETE FROM koin.lands WHERE ID = #{id}")
     void deleteLandForAdmin(@Param("id") int id);
 
+    @Update("UPDATE koin.lands SET is_deleted = 1 WHERE id = #{id}")
+    void softDeleteLandForAdmin(@Param("id") int id);
+
+    @Update("UPDATE koin.lands SET is_deleted = 0 WHERE id = #{id}")
+    void undeleteLandForAdmin(@Param("id") int id);
+
+    Integer getTotalCountByConditionForAdmin(@Param("condition") LandsCondition condition);
+
+    List<LandsResponse.Land> getLandsByConditionForAdmin(@Param("cursor") Integer cursor, @Param("condition") LandsCondition condition);
 }
