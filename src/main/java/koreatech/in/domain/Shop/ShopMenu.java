@@ -1,10 +1,9 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.request.CreateShopMenuRequest;
-import koreatech.in.dto.shop.request.UpdateShopMenuRequest;
+import koreatech.in.dto.shop.admin.request.CreateShopMenuRequest;
+import koreatech.in.dto.shop.admin.request.UpdateShopMenuRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Date;
 import java.util.Objects;
@@ -16,7 +15,7 @@ public class ShopMenu {
     private Integer shop_id;
     private String name;
     private String description;
-    @Setter private Boolean is_hidden;
+    private Boolean is_hidden;
     private Boolean is_deleted;
     private Date created_at;
     private Date updated_at;
@@ -28,15 +27,17 @@ public class ShopMenu {
         this.is_hidden = false;
     }
 
-    public ShopMenu(Integer shopId, Integer menuId, UpdateShopMenuRequest request) {
-        this.id = menuId;
-        this.shop_id = shopId;
-        this.name = request.getName();
-        this.description = request.getDescription();
+    public void update(UpdateShopMenuRequest request) {
+        this.name = name;
+        this.description = description;
     }
 
-    public boolean equalsShopIdTo(Integer shopId) {
-        return Objects.equals(this.shop_id, shopId);
+    public boolean hasSameShopId(Integer shopId) {
+        if (this.shop_id == null || shopId == null) {
+            return false;
+        }
+
+        return this.shop_id.equals(shopId);
     }
 
     public ShopMenu reverseIsHidden() {
@@ -44,8 +45,8 @@ public class ShopMenu {
         return this;
     }
 
-    public boolean needToUpdate(ShopMenu menu) {
-        return !Objects.equals(this.name, menu.getName())
-                || !Objects.equals(this.description, menu.getDescription());
+    public boolean needToUpdate(UpdateShopMenuRequest request) {
+        return !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.description, request.getDescription());
     }
 }

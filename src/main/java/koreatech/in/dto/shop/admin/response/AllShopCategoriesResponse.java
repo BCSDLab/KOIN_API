@@ -1,6 +1,6 @@
-package koreatech.in.dto.shop.response;
+package koreatech.in.dto.shop.admin.response;
 
-import koreatech.in.dto.shop.response.inner.ShopCategory;
+import koreatech.in.dto.shop.admin.response.inner.ShopCategory;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -7,8 +7,8 @@ import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.UploadImagesResponse;
-import koreatech.in.dto.shop.request.*;
-import koreatech.in.dto.shop.response.*;
+import koreatech.in.dto.shop.admin.request.*;
+import koreatech.in.dto.shop.admin.response.*;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +52,7 @@ public class AdminShopController {
     @Inject
     private ShopService shopService;
 
-    // --------------------------------------- 상점 카테고리 -------------------------------------------
+    // ======================================= 상점 카테고리 ============================================
 
     @ParamValid
     @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
@@ -65,7 +65,7 @@ public class AdminShopController {
 
     @ParamValid
     @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/categories/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<SuccessResponse> updateShopCategory(@PathVariable("id") Integer shopCategoryId, @RequestBody @Valid UpdateShopCategoryRequest request, BindingResult bindingResult) throws Exception {
 
@@ -89,7 +89,7 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getAllShopCategoriesForAdmin(), HttpStatus.OK);
     }
 
-    // ------------------------------------------- 상점 ----------------------------------------------
+    // ============================================ 상점 ================================================
 
     // TODO: 로그인 코드와 merge되면 개발 재개
     @ParamValid
@@ -98,8 +98,7 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity<SuccessResponse> matchShopWithOwner(@PathVariable("id") Integer shopId, @RequestBody @Valid MatchShopWithOwnerRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.matchShopWithOwner(
-                shopId, (MatchShopWithOwnerRequest) xssPrevent(request)), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.matchShopWithOwner(shopId, (MatchShopWithOwnerRequest) xssPrevent(request)), HttpStatus.OK);
     }
 
     /*
@@ -130,7 +129,7 @@ public class AdminShopController {
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ParamValid
     @ApiOperation(value = "상점 수정", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<SuccessResponse> updateShop(@PathVariable("id") Integer shopId, @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) throws Exception {
 
@@ -163,26 +162,23 @@ public class AdminShopController {
         return new ResponseEntity<>(shopService.getShopsForAdmin(condition), HttpStatus.OK);
     }
 
-    // ----------------------------------------- 메뉴 카테고리 --------------------------------------------
+    // ============================================= 메뉴 카테고리 =============================================
 
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ParamValid
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<SuccessCreateResponse> createMenuCategory(
-            @PathVariable("id") Integer shopId,
-            @RequestBody @Valid CreateShopMenuCategoryRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<SuccessCreateResponse> createMenuCategory(@PathVariable("id") Integer shopId, @RequestBody @Valid CreateShopMenuCategoryRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.createMenuCategoryForAdmin(
-                shopId, (CreateShopMenuCategoryRequest) xssPrevent(request)), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.createMenuCategoryForAdmin(shopId, (CreateShopMenuCategoryRequest) xssPrevent(request)), HttpStatus.CREATED);
     }
 
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenuCategoriesResponse> getAllMenuCategoriesOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@PathVariable("id") Integer shopId) throws Exception {
 
         return new ResponseEntity<>(shopService.getAllMenuCategoriesOfShopForAdmin(shopId), HttpStatus.OK);
     }
@@ -191,13 +187,12 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> deleteMenuCategory(
-            @PathVariable("shopId") Integer shopId, @PathVariable("categoryId") Integer menuCategoryId) throws Exception {
+    ResponseEntity<SuccessResponse> deleteMenuCategory(@PathVariable("shopId") Integer shopId, @PathVariable("categoryId") Integer menuCategoryId) throws Exception {
 
         return new ResponseEntity<>(shopService.deleteMenuCategoryForAdmin(shopId, menuCategoryId), HttpStatus.OK);
     }
 
-    // ------------------------------------------- 메뉴 ----------------------------------------------------
+    // =============================================== 메뉴 =================================================
 
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ParamValid
@@ -213,8 +208,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MenuResponse> getMenu(
-            @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
+    ResponseEntity<MenuResponse> getMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
 
         return new ResponseEntity<>(shopService.getMenuForAdmin(shopId, menuId), HttpStatus.OK);
     }
@@ -232,8 +226,7 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> deleteMenu(
-            @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
+    ResponseEntity<SuccessResponse> deleteMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
 
         return new ResponseEntity<>(shopService.deleteMenuForAdmin(shopId, menuId), HttpStatus.OK);
     }
@@ -242,18 +235,16 @@ public class AdminShopController {
     @ApiOperation(value = "특정 상점의 메뉴 숨김 또는 숨김 해제", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> hideMenu(
-            @PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId,
-            @RequestParam("hide") Boolean hide) throws Exception {
+    ResponseEntity<SuccessResponse> hideMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId, @RequestParam("hidden") Boolean hidden) throws Exception {
 
-        return new ResponseEntity<>(shopService.hideMenuForAdmin(shopId, menuId, hide), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.hideMenuForAdmin(shopId, menuId, hidden), HttpStatus.OK);
     }
 
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MenusResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
 
         return new ResponseEntity<>(shopService.getAllMenusOfShopForAdmin(shopId), HttpStatus.OK);
     }
@@ -279,6 +270,6 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity<UploadImagesResponse> uploadShopImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
 
-        return new ResponseEntity<>(shopService.uploadShopMenuImages(images), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.uploadShopImages(images), HttpStatus.CREATED);
     }
 }

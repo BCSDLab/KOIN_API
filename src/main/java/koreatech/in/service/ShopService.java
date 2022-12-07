@@ -4,8 +4,8 @@ import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.UploadImagesResponse;
-import koreatech.in.dto.shop.request.*;
-import koreatech.in.dto.shop.response.*;
+import koreatech.in.dto.shop.admin.request.*;
+import koreatech.in.dto.shop.admin.response.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface ShopService {
 
     SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception;
 
-    AllMenuCategoriesResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception;
+    AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception;
 
     SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception;
 
@@ -47,9 +47,9 @@ public interface ShopService {
 
     SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
-    SuccessResponse hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hide) throws Exception;
+    SuccessResponse hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hidden) throws Exception;
 
-    MenusResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
+    AllMenusOfShopResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
 
     ShopResponse getShop(Integer shopId) throws Exception;
 

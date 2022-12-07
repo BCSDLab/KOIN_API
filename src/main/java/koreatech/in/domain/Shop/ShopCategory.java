@@ -1,7 +1,7 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.request.CreateShopCategoryRequest;
-import koreatech.in.dto.shop.request.UpdateShopCategoryRequest;
+import koreatech.in.dto.shop.admin.request.CreateShopCategoryRequest;
+import koreatech.in.dto.shop.admin.request.UpdateShopCategoryRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -35,8 +35,12 @@ public class ShopCategory {
         this.image_url = request.getImage_url();
     }
 
-    public boolean equalsIdTo(Integer id) {
-        return Objects.equals(this.id, id);
+    public boolean hasSameId(Integer id) {
+        if (this.id == null || id == null) {
+            return false;
+        }
+
+        return this.id.equals(id);
     }
 
     @Override

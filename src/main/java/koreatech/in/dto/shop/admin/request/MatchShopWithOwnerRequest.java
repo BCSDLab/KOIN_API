@@ -1,4 +1,4 @@
-package koreatech.in.dto.shop.request;
+package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

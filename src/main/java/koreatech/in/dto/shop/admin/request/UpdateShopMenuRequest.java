@@ -1,7 +1,7 @@
-package koreatech.in.dto.shop.request;
+package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.dto.shop.request.inner.OptionPrice;
+import koreatech.in.dto.shop.admin.request.inner.OptionPrice;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Getter @Setter
-public class CreateShopMenuRequest {
+public class UpdateShopMenuRequest {
     @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "메뉴명", example = "짜장면")
@@ -44,7 +44,7 @@ public class CreateShopMenuRequest {
     @ApiModelProperty(notes = "이미지 URL 리스트")
     private List<String> image_urls = new LinkedList<>();
 
-    public boolean existOfOptionDuplicate() throws Exception {
+    public boolean hasDuplicatedOption() {
         if (this.option_prices == null || this.option_prices.isEmpty() || this.option_prices.size() == 1) {
             return false;
         }

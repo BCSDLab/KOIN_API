@@ -1,4 +1,4 @@
-package koreatech.in.dto.shop.response.inner;
+package koreatech.in.dto.shop.admin.response.inner;
 
 import lombok.Getter;
 

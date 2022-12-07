@@ -23,8 +23,12 @@ public class ShopMenuCategory {
         this.name = name;
     }
 
-    public boolean equalsShopIdTo(Integer shopId) {
-        return Objects.equals(this.shop_id, shopId);
+    public boolean hasSameShopId(Integer shopId) {
+        if (this.shop_id == null || shopId == null) {
+            return false;
+        }
+
+        return this.shop_id.equals(shopId);
     }
 
     @Override
