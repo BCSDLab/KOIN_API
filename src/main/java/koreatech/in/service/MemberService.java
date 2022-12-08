@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -29,7 +30,7 @@ public interface MemberService {
 
     SuccessResponse deleteMemberForAdmin(int id) throws Exception;
 
-    Map<String, Object> undeleteMemberForAdmin(int id) throws Exception;
+    SuccessResponse undeleteMemberForAdmin(int id) throws Exception;
 
-    Map<String, Object> uploadImage(MultipartFile image) throws Exception;
+    UploadImageResponse uploadImage(MultipartFile image) throws Exception;
 }

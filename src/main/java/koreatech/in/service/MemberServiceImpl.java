@@ -5,11 +5,13 @@ import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
+import koreatech.in.exception.BadRequestException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
@@ -163,7 +165,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Map<String, Object> undeleteMemberForAdmin(int id) throws Exception {
+    public SuccessResponse undeleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
@@ -176,15 +178,13 @@ public class MemberServiceImpl implements MemberService {
 
         memberMapper.undeleteMemberForAdmin(id);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override
-    public Map<String, Object> uploadImage(MultipartFile image) throws Exception {
+    public UploadImageResponse uploadImage(MultipartFile image) throws Exception {
         if (image == null) {
-            throw new PreconditionFailedException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
+            throw new BadRequestException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
         }
 
         String directory = "bcsdlab_page_assets/img/people";
@@ -192,9 +192,8 @@ public class MemberServiceImpl implements MemberService {
         String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
         String imageUrl = "https://" + uploadFileUtils.getDomain() + "/" + directory + url;
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("image_url", imageUrl);
-        }};
+        return UploadImageResponse.builder()
+                .image_url(imageUrl)
+                .build();
     }
 }

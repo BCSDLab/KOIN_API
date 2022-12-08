@@ -5,6 +5,7 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -86,17 +87,25 @@ public class AdminMemberController {
         return new ResponseEntity<>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 삭제 해제", notes = "BCSDLab 회원의 soft delete 상태를 해제합니다.", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)"),
+            @ApiResponse(code = 409, message = "회원이 삭제되어 있는 상태가 아닐 때 (code: 203)")
+    })
     @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity undeleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.undeleteMemberForAdmin(id), HttpStatus.OK);
+    ResponseEntity<SuccessResponse> undeleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<>(memberService.undeleteMemberForAdmin(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 프로필 이미지 업로드", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "요청에 업로드할 이미지가 없을 때 (code: 3)")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/image", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity uploadProfileImage(@RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.uploadImage(image), HttpStatus.CREATED);
+    ResponseEntity<UploadImageResponse> uploadProfileImage(@ApiParam(value = "이미지 파일", required = true) @RequestPart("image") MultipartFile image) throws Exception {
+        return new ResponseEntity<>(memberService.uploadImage(image), HttpStatus.CREATED);
     }
 }
