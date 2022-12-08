@@ -4,6 +4,7 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
 import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -126,7 +127,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Map<String, Object> updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
+    public SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
         Member existingMember = memberMapper.getMemberForAdmin(id);
 
         if (existingMember == null) {
@@ -141,9 +142,7 @@ public class MemberServiceImpl implements MemberService {
         existingMember.update(request);
         memberMapper.updateMemberForAdmin(existingMember);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override

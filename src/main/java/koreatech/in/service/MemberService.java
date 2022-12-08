@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -24,7 +25,7 @@ public interface MemberService {
 
     SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception;
 
-    Map<String, Object> updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
+    SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
 
     Map<String, Object> deleteMemberForAdmin(int id) throws Exception;
 

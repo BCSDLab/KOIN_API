@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -39,7 +40,7 @@ public class AdminMemberController {
         return new ResponseEntity<>(memberService.getMembersForAdmin(condition), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 단건 조회", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)")
     })
@@ -50,7 +51,7 @@ public class AdminMemberController {
     }
 
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 생성", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (code: 201)")
     })
@@ -62,11 +63,16 @@ public class AdminMemberController {
     }
 
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 수정", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200) \n\n" +
+                                               "요청한 트랙이 조회되지 않을 때 (code: 201)"),
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateMember(@ApiParam(required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
+    ResponseEntity<SuccessResponse> updateMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
