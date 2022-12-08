@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static koreatech.in.util.ExceptionMessage.*;
+
 @Service(value = "memberService")
 public class MemberServiceImpl implements MemberService {
 
@@ -62,7 +64,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
+            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
         }
 
         Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
@@ -70,7 +72,7 @@ public class MemberServiceImpl implements MemberService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
+            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
         }
 
         List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
@@ -89,7 +91,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberMapper.getMemberForAdmin(id);
 
         if (member == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         return MemberResponse.builder()
@@ -109,7 +111,7 @@ public class MemberServiceImpl implements MemberService {
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
 
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
         Member member = new Member(request);
@@ -126,12 +128,12 @@ public class MemberServiceImpl implements MemberService {
         Member existingMember = memberMapper.getMemberForAdmin(id);
 
         if (existingMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
         existingMember.update(request);
@@ -147,11 +149,11 @@ public class MemberServiceImpl implements MemberService {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         if (selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(MEMBER_ALREADY_DELETED));
         }
 
         memberMapper.softDeleteMemberForAdmin(id);
@@ -166,11 +168,11 @@ public class MemberServiceImpl implements MemberService {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         if (!selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("it is not soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(MEMBER_NOT_DELETED));
         }
 
         memberMapper.undeleteMemberForAdmin(id);
@@ -183,7 +185,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Map<String, Object> uploadImage(MultipartFile image) throws Exception {
         if (image == null) {
-            throw new PreconditionFailedException(new ErrorMessage("업로드할 파일이 없습니다.", 0));
+            throw new PreconditionFailedException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
         }
 
         String directory = "bcsdlab_page_assets/img/people";
