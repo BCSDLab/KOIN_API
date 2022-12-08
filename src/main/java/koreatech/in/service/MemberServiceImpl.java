@@ -146,7 +146,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Map<String, Object> deleteMemberForAdmin(int id) throws Exception {
+    public SuccessResponse deleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
@@ -159,9 +159,7 @@ public class MemberServiceImpl implements MemberService {
 
         memberMapper.softDeleteMemberForAdmin(id);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override

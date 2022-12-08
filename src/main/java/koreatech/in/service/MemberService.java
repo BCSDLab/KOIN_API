@@ -27,7 +27,7 @@ public interface MemberService {
 
     SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
 
-    Map<String, Object> deleteMemberForAdmin(int id) throws Exception;
+    SuccessResponse deleteMemberForAdmin(int id) throws Exception;
 
     Map<String, Object> undeleteMemberForAdmin(int id) throws Exception;
 

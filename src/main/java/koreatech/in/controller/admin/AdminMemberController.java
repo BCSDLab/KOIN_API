@@ -75,11 +75,15 @@ public class AdminMemberController {
         return new ResponseEntity<>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 삭제", notes = "BCSDLab 회원을 soft delete 합니다.", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)"),
+            @ApiResponse(code = 409, message = "이미 soft delete 되어있을 때 (code: 202)")
+    })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
+    ResponseEntity<SuccessResponse> deleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
+        return new ResponseEntity<>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
