@@ -1,8 +1,6 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
@@ -20,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 // TODO: 응답 타입 전부 커스텀 DTO 클래스로 변경하기
@@ -30,7 +27,11 @@ public class AdminMemberController {
     @Inject
     private MemberService memberService;
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 페이지별 리스트 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때"),
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때")
+    })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<MembersResponse> getMembers(MembersCondition condition) throws Exception {

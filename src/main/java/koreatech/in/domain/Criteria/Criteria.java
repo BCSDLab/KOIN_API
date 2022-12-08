@@ -5,9 +5,17 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
 public class Criteria {
-    @ApiParam(required = false, defaultValue = "1")
+    @ApiParam(value = "페이지 \n" +
+            "- NOT NULL \n" +
+            "- 기본값: 1 \n" +
+            "- 1 미만의 값으로 요청할 경우 1로 요청됨",
+            required = true)
     private Integer page = 1;
-    @ApiParam(required = false, defaultValue = "10")
+    @ApiParam(value = "페이지당 조회할 최대 개수 \n" +
+            "- NOT NULL \n" +
+            "- 기본값: 10 \n" +
+            "- 50보다 초과된 값으로 요청할 경우 50으로 요청됨",
+            required = true)
     private Integer limit = 10;
 
     public Integer getLimit() {
