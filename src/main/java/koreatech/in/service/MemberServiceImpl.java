@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
+import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -109,7 +110,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception {
+    public SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception {
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
 
         if (track == null) {
@@ -119,10 +120,9 @@ public class MemberServiceImpl implements MemberService {
         Member member = new Member(request);
         memberMapper.createMemberForAdmin(member);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("id", member.getId());
-        }};
+        return SuccessCreateResponse.builder()
+                .id(member.getId())
+                .build();
     }
 
     @Override

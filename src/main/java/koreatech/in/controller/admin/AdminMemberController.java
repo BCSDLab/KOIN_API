@@ -3,6 +3,7 @@ package koreatech.in.controller.admin;
 import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
+import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
@@ -50,10 +51,14 @@ public class AdminMemberController {
 
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (code: 201)")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createMember(@RequestBody @Valid CreateMemberRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.createMemberForAdmin(request), HttpStatus.CREATED);
+    ResponseEntity<SuccessCreateResponse> createMember(@RequestBody @Valid CreateMemberRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(memberService.createMemberForAdmin(request), HttpStatus.CREATED);
     }
 
     @ParamValid
