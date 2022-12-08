@@ -95,15 +95,17 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return MemberResponse.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .student_number(member.getStudent_number())
-                .track(member.getTrack())
-                .position(member.getPosition())
-                .email(member.getEmail())
-                .image_url(member.getImage_url())
-                .is_deleted(member.getIs_deleted())
-                .build();
+                .member(MemberResponse.Member.builder()
+                        .id(member.getId())
+                        .name(member.getName())
+                        .student_number(member.getStudent_number())
+                        .track(member.getTrack())
+                        .position(member.getPosition())
+                        .email(member.getEmail())
+                        .image_url(member.getImage_url())
+                        .is_deleted(member.getIs_deleted())
+                        .build()
+                ).build();
     }
 
     @Override

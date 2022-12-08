@@ -39,9 +39,12 @@ public class AdminMemberController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)")
+    })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MemberResponse> getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+    ResponseEntity<MemberResponse> getMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(memberService.getMemberForAdmin(id), HttpStatus.OK);
     }
 
