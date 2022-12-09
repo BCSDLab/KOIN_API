@@ -2,90 +2,113 @@ package koreatech.in.domain.BokDuck;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.annotation.ValidationGroups;
 
-import javax.validation.constraints.*;
 import java.util.Date;
 
 public class Land {
-    @ApiModelProperty(notes = "고유 id", example = "10")
+    @ApiModelProperty(hidden = true)
     private Integer id;
-    @Size(max = 255, message = "건물 이름은 255자 이내여야 합니다.")
-    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "건물 이름은 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "건물 이름", example = "라이프")
+
+    @ApiModelProperty(hidden = true)
     private String name;
+
     @ApiModelProperty(hidden = true)
     private String internal_name;
-    @ApiModelProperty(notes = "방 크기", example = "3.5")
+
+    @ApiModelProperty(hidden = true)
     private Double size;
-    @ApiModelProperty(notes = "원룸 종류", example = "원룸")
+
+    @ApiModelProperty(hidden = true)
     private String room_type;
-    @ApiModelProperty(notes = "위도", example = "42.12345")
+
+    @ApiModelProperty(hidden = true)
     private Double latitude;
-    @ApiModelProperty(notes = "경도", example = "39.12354")
+
+    @ApiModelProperty(hidden = true)
     private Double longitude;
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "전화번호", example = "010-0000-0000")
+
+    @ApiModelProperty(hidden = true)
     private String phone;
-    @ApiModelProperty(notes = "이미지 링크, string으로 받아서 저장 후 json 으로 반환", example = "['http://url.com', 'http://url.com']")
+
+    @ApiModelProperty(hidden = true)
     private String image_urls;
-    @ApiModelProperty(notes = "주소", example = "병천면~~")
+
+    @ApiModelProperty(hidden = true)
     private String address;
-    @ApiModelProperty(notes = "세부사항", example = "세부사항입니다.")
+
+    @ApiModelProperty(hidden = true)
     private String description;
-    @Max(value = Integer.MAX_VALUE, message = "입력할 수 없는 층수입니다.")
-    @Min(value = 0, message = "입력할 수 없는 층수입니다.")
-    @ApiModelProperty(notes = "층수", example = "4")
+
+    @ApiModelProperty(hidden = true)
     private Integer floor;
-    @Size(max = 255, message = "보증금은 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "보증금", example = "35.5")
+
+    @ApiModelProperty(hidden = true)
     private String deposit;
-    @Size(max = 255, message = "월세는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "월세", example = "170(6개월)")
+
+    @ApiModelProperty(hidden = true)
     private String monthly_fee;
-    @Size(max = 255, message = "전세는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "전세", example = "43.2")
+
+    @ApiModelProperty(hidden = true)
     private String charter_fee;
-    @Size(max = 255, message = "관리비는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "관리비", example = "21(1인)/22(2인)/23(3인)")
+
+    @ApiModelProperty(hidden = true)
     private String management_fee;
-    @ApiModelProperty(notes = "냉장고 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_refrigerator;
-    @ApiModelProperty(notes = "옷장 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_closet;
-    @ApiModelProperty(notes = "tv 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_tv;
-    @ApiModelProperty(notes = "전자레인지 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_microwave;
-    @ApiModelProperty(notes = "가스레인지 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_gas_range;
-    @ApiModelProperty(notes = "인덕션 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_induction;
-    @ApiModelProperty(notes = "정수기 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_water_purifier;
-    @ApiModelProperty(notes = "에어컨 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_air_conditioner;
-    @ApiModelProperty(notes = "샤워기 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_washer;
-    @ApiModelProperty(notes = "침대 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_bed;
-    @ApiModelProperty(notes = "책상 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_desk;
-    @ApiModelProperty(notes = "신발장 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_shoe_closet;
-    @ApiModelProperty(notes = "전자 도어락 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_electronic_door_locks;
-    @ApiModelProperty(notes = "비데 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_bidet;
-    @ApiModelProperty(notes = "베란다 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_veranda;
-    @ApiModelProperty(notes = "엘레베이터 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_elevator;
+
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
+
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date created_at;
+
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date updated_at;

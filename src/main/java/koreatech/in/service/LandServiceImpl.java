@@ -27,6 +27,7 @@ import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.util.ExceptionMessage.*;
 
 @Service("landService")
 public class LandServiceImpl implements LandService {
@@ -108,7 +109,7 @@ public class LandServiceImpl implements LandService {
     @Override
     public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
+            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
         }
 
         Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
@@ -116,7 +117,7 @@ public class LandServiceImpl implements LandService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
+            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
         }
 
         List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);

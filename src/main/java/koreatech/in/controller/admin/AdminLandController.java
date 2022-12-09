@@ -1,8 +1,6 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -46,7 +44,11 @@ public class AdminLandController {
         return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 페이지별 리스트 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (error code: 1)"),
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)")
+    })
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<LandsResponse> getLands(LandsCondition condition) throws Exception {
