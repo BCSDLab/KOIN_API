@@ -36,10 +36,13 @@ public class AdminLandController {
         return new ResponseEntity<Land>(landService.createLandForAdmin(land), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 집 단건 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 300)")
+    })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<LandResponse> getLand(@PathVariable("id") Integer landId) throws Exception {
+    ResponseEntity<LandResponse> getLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
 
         return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
     }
