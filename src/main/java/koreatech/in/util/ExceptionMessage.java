@@ -3,8 +3,9 @@ package koreatech.in.util;
 import lombok.Getter;
 
 /**
+ *   -2: 권한 없음
  *   -1: 데이터 유효성 검증 통과 X
- *   1 ~ 100: 공통
+ *   1 ~ 99: 공통
  *
  *   100번대: 상점 관련
  *   - 100 ~ 109: 상점
@@ -14,10 +15,12 @@ import lombok.Getter;
  *
  *   200번대: BCSDLab 회원 관련
  *
+ *   300번대: 복덕방 관련
+ *
  */
 @Getter
 public enum ExceptionMessage {
-    FORBIDDEN("잘못된 접근입니다.", -2),
+    FORBIDDEN("권한이 없습니다.", -2),
     REQUEST_DATA_INVALID("요청 데이터가 유효하지 않습니다.", -1), // 메시지는 ErrorMessage 객체에 상황에 맞게 넣을 것
 
     // ======= 공통 =======
@@ -51,7 +54,13 @@ public enum ExceptionMessage {
     MEMBER_NOT_FOUND("존재하지 않는 BCSDLab 회원입니다.", 200),
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201),
     MEMBER_ALREADY_DELETED("BCSDLab 회원이 이미 삭제되어있습니다.", 202),
-    MEMBER_NOT_DELETED("BCSDLab 회원이 삭제되어 있지 않습니다.", 203);
+    MEMBER_NOT_DELETED("BCSDLab 회원이 삭제되어 있지 않습니다.", 203),
+
+    // ======= 복덕방 =======
+    LAND_NOT_FOUND("존재하지 않는 집입니다.", 300),
+    LAND_NAME_DUPLICATE("집 이름이 중복됩니다.", 301),
+    LAND_ALREADY_DELETED("이미 삭제된 집입니다.", 302),
+    LAND_NOT_DELETED("집이 삭제되어 있지 않습니다.", 303);
 
     ExceptionMessage(String message, Integer code) {
         this.message = message;
