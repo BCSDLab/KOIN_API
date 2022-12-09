@@ -3,14 +3,17 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.member.admin.request.CreateMemberRequest;
 import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
+import koreatech.in.exception.BadRequestException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
@@ -20,9 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static koreatech.in.util.ExceptionMessage.*;
 
 @Service(value = "memberService")
 public class MemberServiceImpl implements MemberService {
@@ -62,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
+            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
         }
 
         Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
@@ -70,7 +73,7 @@ public class MemberServiceImpl implements MemberService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
+            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
         }
 
         List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
@@ -89,101 +92,96 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberMapper.getMemberForAdmin(id);
 
         if (member == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         return MemberResponse.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .student_number(member.getStudent_number())
-                .track(member.getTrack())
-                .position(member.getPosition())
-                .email(member.getEmail())
-                .image_url(member.getImage_url())
-                .is_deleted(member.getIs_deleted())
-                .build();
+                .member(MemberResponse.Member.builder()
+                        .id(member.getId())
+                        .name(member.getName())
+                        .student_number(member.getStudent_number())
+                        .track(member.getTrack())
+                        .position(member.getPosition())
+                        .email(member.getEmail())
+                        .image_url(member.getImage_url())
+                        .is_deleted(member.getIs_deleted())
+                        .build()
+                ).build();
     }
 
     @Override
-    public Map<String, Object> createMemberForAdmin(CreateMemberRequest request) throws Exception {
+    public SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception {
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
 
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
         Member member = new Member(request);
         memberMapper.createMemberForAdmin(member);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("id", member.getId());
-        }};
+        return SuccessCreateResponse.builder()
+                .id(member.getId())
+                .build();
     }
 
     @Override
-    public Map<String, Object> updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
+    public SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
         Member existingMember = memberMapper.getMemberForAdmin(id);
 
         if (existingMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
         existingMember.update(request);
         memberMapper.updateMemberForAdmin(existingMember);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override
-    public Map<String, Object> deleteMemberForAdmin(int id) throws Exception {
+    public SuccessResponse deleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         if (selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(MEMBER_ALREADY_DELETED));
         }
 
         memberMapper.softDeleteMemberForAdmin(id);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override
-    public Map<String, Object> undeleteMemberForAdmin(int id) throws Exception {
+    public SuccessResponse undeleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
         if (!selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("it is not soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(MEMBER_NOT_DELETED));
         }
 
         memberMapper.undeleteMemberForAdmin(id);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override
-    public Map<String, Object> uploadImage(MultipartFile image) throws Exception {
+    public UploadImageResponse uploadImage(MultipartFile image) throws Exception {
         if (image == null) {
-            throw new PreconditionFailedException(new ErrorMessage("업로드할 파일이 없습니다.", 0));
+            throw new BadRequestException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
         }
 
         String directory = "bcsdlab_page_assets/img/people";
@@ -191,9 +189,8 @@ public class MemberServiceImpl implements MemberService {
         String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
         String imageUrl = "https://" + uploadFileUtils.getDomain() + "/" + directory + url;
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("image_url", imageUrl);
-        }};
+        return UploadImageResponse.builder()
+                .image_url(imageUrl)
+                .build();
     }
 }

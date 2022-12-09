@@ -11,6 +11,12 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(value = BadRequestException.class)
+    public @ResponseBody
+    ResponseEntity BadRequestException(BadRequestException e) {
+        return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(value = UnauthorizeException.class)
     public @ResponseBody
     ResponseEntity UnauthorizeException(UnauthorizeException e) {
