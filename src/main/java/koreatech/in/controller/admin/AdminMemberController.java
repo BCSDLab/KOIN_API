@@ -30,8 +30,8 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 페이지별 리스트 조회", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (code: 1)"),
-            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (code: 2)")
+            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (error code: 1)"),
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)")
     })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
@@ -41,7 +41,7 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 단건 조회", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)")
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200)")
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -52,7 +52,7 @@ public class AdminMemberController {
     @ParamValid
     @ApiOperation(value = "BCSDLab 회원 생성", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (code: 201)")
+            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (error code: 201)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
@@ -64,8 +64,8 @@ public class AdminMemberController {
     @ParamValid
     @ApiOperation(value = "BCSDLab 회원 수정", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200) \n\n" +
-                                               "요청한 트랙이 조회되지 않을 때 (code: 201)"),
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200) \n\n" +
+                                               "요청한 트랙이 조회되지 않을 때 (error code: 201)"),
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
@@ -76,8 +76,8 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 삭제", notes = "BCSDLab 회원을 soft delete 합니다.", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)"),
-            @ApiResponse(code = 409, message = "이미 soft delete 되어있을 때 (code: 202)")
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200)"),
+            @ApiResponse(code = 409, message = "이미 soft delete 되어있을 때 (error code: 202)")
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -87,8 +87,8 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 삭제 해제", notes = "BCSDLab 회원의 soft delete 상태를 해제합니다.", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (code: 200)"),
-            @ApiResponse(code = 409, message = "회원이 삭제되어 있는 상태가 아닐 때 (code: 203)")
+            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200)"),
+            @ApiResponse(code = 409, message = "회원이 삭제되어 있는 상태가 아닐 때 (error code: 203)")
     })
     @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
@@ -98,7 +98,7 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 프로필 이미지 업로드", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 400, message = "요청에 업로드할 이미지가 없을 때 (code: 3)")
+            @ApiResponse(code = 400, message = "요청에 업로드할 이미지가 없을 때 (error code: 3)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/image", method = RequestMethod.POST)
