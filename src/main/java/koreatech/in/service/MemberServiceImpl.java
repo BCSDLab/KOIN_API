@@ -14,7 +14,6 @@ import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.exception.BadRequestException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
@@ -24,9 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static koreatech.in.util.ExceptionMessage.*;
 

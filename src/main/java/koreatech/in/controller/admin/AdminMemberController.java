@@ -21,9 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.Map;
 
-// TODO: 응답 타입 전부 커스텀 DTO 클래스로 변경하기
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminMemberController {
@@ -32,8 +30,8 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 페이지별 리스트 조회", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때"),
-            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때")
+            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (code: 1)"),
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (code: 2)")
     })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
