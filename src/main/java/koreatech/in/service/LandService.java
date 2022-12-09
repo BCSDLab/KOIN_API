@@ -32,7 +32,7 @@ public interface LandService {
 
     SuccessResponse deleteLandForAdmin(Integer landId) throws Exception;
 
-    Map<String, Object> undeleteLandForAdmin(int id) throws Exception;
+    SuccessResponse undeleteLandForAdmin(Integer landId) throws Exception;
 
     Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception;
 }

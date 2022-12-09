@@ -81,12 +81,16 @@ public class AdminLandController {
         return new ResponseEntity<>(landService.deleteLandForAdmin(landId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 집 삭제 해제", notes = "복덕방 집의 soft delete 상태를 해제합니다.", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 300)"),
+            @ApiResponse(code = 409, message = "soft delete 되어있는 집이 아닐 때 (error code: 303)")
+    })
     @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity undeleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+    ResponseEntity<SuccessResponse> undeleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable(value = "id") Integer landId) throws Exception {
 
-        return new ResponseEntity<Map<String, Object>>(landService.undeleteLandForAdmin(id), HttpStatus.OK);
+        return new ResponseEntity<>(landService.undeleteLandForAdmin(landId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
