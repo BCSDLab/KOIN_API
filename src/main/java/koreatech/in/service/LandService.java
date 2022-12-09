@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -29,7 +30,7 @@ public interface LandService {
 
     Land updateLandForAdmin(Land land, int id) throws Exception;
 
-    Map<String, Object> deleteLandForAdmin(int id) throws Exception;
+    SuccessResponse deleteLandForAdmin(Integer landId) throws Exception;
 
     Map<String, Object> undeleteLandForAdmin(int id) throws Exception;
 

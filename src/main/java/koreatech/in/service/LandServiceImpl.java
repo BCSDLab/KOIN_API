@@ -5,6 +5,7 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -156,22 +157,20 @@ public class LandServiceImpl implements LandService {
 
     @Transactional
     @Override
-    public Map<String, Object> deleteLandForAdmin(int id) throws Exception {
-        Land land = landMapper.getLandForAdmin(id);
+    public SuccessResponse deleteLandForAdmin(Integer landId) throws Exception {
+        Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
         if (land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(LAND_ALREADY_DELETED));
         }
 
-        landMapper.softDeleteLandForAdmin(id);
+        landMapper.softDeleteLandForAdmin(landId);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Transactional

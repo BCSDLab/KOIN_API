@@ -5,6 +5,7 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -68,12 +69,16 @@ public class AdminLandController {
         return new ResponseEntity<Land>(landService.updateLandForAdmin(land, id), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 집 삭제", notes = "복덕방 집을 soft delete 합니다.", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 300)"),
+            @ApiResponse(code = 409, message = "이미 soft delete 되어있는 집일 때 (error code: 302)")
+    })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+    ResponseEntity<SuccessResponse> deleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
 
-        return new ResponseEntity<Map<String, Object>>(landService.deleteLandForAdmin(id), HttpStatus.OK);
+        return new ResponseEntity<>(landService.deleteLandForAdmin(landId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
