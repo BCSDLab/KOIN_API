@@ -27,6 +27,7 @@ public enum ExceptionMessage {
     PAGE_NOT_FOUND("유효하지 않은 페이지입니다.", 1),
     SEARCH_QUERY_MUST_NOT_BE_BLANK("검색 문자열은 공백 문자가 없어야 합니다.", 2),
     FILE_TO_UPLOAD_NOT_EXIST("업로드할 파일이 요청에 없습니다.", 3),
+    FILES_TO_UPLOAD_EXCEED_MAXIMUM("업로드할 수 있는 파일의 최대 개수를 초과하였습니다.", 4),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 100),

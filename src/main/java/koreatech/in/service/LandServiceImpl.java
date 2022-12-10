@@ -6,6 +6,7 @@ import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -324,10 +325,10 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
-    public Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception {
+    public UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception {
         // 무분별한 업로드 방지
         if (images.size() > 10) {
-            throw new PreconditionFailedException(new ErrorMessage("한번에 최대 10개까지 업로드 가능합니다.", 0));
+            throw new ConflictException(new ErrorMessage(FILES_TO_UPLOAD_EXCEED_MAXIMUM));
         }
 
         String directory = "lands";
@@ -338,9 +339,8 @@ public class LandServiceImpl implements LandService {
             imageUrls.add("https://" + uploadFileUtils.getDomain() + "/" + directory + url);
         }
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("image_urls", imageUrls);
-        }};
+        return UploadImagesResponse.builder()
+                .image_urls(imageUrls)
+                .build();
     }
 }

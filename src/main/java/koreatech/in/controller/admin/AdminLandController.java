@@ -6,6 +6,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
 @Controller
@@ -93,11 +93,16 @@ public class AdminLandController {
         return new ResponseEntity<>(landService.undeleteLandForAdmin(landId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 이미지 업로드 (다중 업로드 가능)"
+                , notes = "Swagger에서는 다중 파일 업로드가 되지 않아 Postman으로 테스트 바랍니다. ([링크](https://docs.google.com/document/d/1ReyohfSr-NuNWc25TN_sd_VDOjZ0sDje-eNGQvkFjWY/edit))"
+                , authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "한번에 업로드할 수 있는 최대 개수를 초과하였을 때 (error code: 4)")
+    })
     @RequestMapping(value = "/admin/lands/images", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity uploadImages(@RequestPart("images") List<MultipartFile> images) throws Exception {
+    ResponseEntity<UploadImagesResponse> uploadImages(@ApiParam(value = "이미지 파일 리스트", required = true) @RequestPart("images") List<MultipartFile> images) throws Exception {
 
-        return new ResponseEntity<Map<String, Object>>(landService.uploadImages(images), HttpStatus.CREATED);
+        return new ResponseEntity<>(landService.uploadImages(images), HttpStatus.CREATED);
     }
 }

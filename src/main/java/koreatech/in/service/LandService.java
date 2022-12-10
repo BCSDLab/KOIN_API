@@ -3,6 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -34,5 +35,5 @@ public interface LandService {
 
     SuccessResponse undeleteLandForAdmin(Integer landId) throws Exception;
 
-    Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception;
+    UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception;
 }
