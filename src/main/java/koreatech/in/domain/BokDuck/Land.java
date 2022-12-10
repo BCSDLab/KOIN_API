@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.Gson;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.dto.land.admin.request.CreateLandRequest;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -433,107 +434,40 @@ public class Land {
         this.opt_elevator = request.getOpt_elevator();
     }
 
-    public void update(Land land) {
-        //TODO: 현재 방식 update 문제점, 멤버변수를 특정값으로 초기화했을경우 update시 무조건 초기값 대입
-        if(land.name != null) {
-            this.name = land.name;
+    public void update(UpdateLandRequest request) {
+        this.name = request.getName();
+        this.internal_name = request.getName().replace(" ","").toLowerCase();
+        this.size = request.getSize();
+        this.room_type = request.getRoom_type();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+        this.phone = request.getPhone();
+        if (!request.getImage_urls().isEmpty()) {
+            this.image_urls = new Gson().toJson(request.getImage_urls());
         }
-        if(land.internal_name != null) {
-            this.internal_name = land.internal_name;
-        }
-        if(land.size != null) {
-            this.size = land.size;
-        }
-        if(land.room_type != null) {
-            this.room_type = land.room_type;
-        }
-        if(land.latitude != null) {
-            this.latitude = land.latitude;
-        }
-        if(land.longitude != null) {
-            this.longitude = land.longitude;
-        }
-        if(land.phone != null) {
-            this.phone = land.phone;
-        }
-        if(land.phone != null) {
-            this.phone = land.phone;
-        }
-        if(land.image_urls != null) {
-            this.image_urls = land.image_urls;
-        }
-        if(land.address != null) {
-            this.address = land.address;
-        }
-        if(land.description != null) {
-            this.description = land.description;
-        }
-        if(land.floor != null) {
-            this.floor = land.floor;
-        }
-        if(land.deposit != null) {
-            this.deposit = land.deposit;
-        }
-        if(land.monthly_fee != null) {
-            this.monthly_fee = land.monthly_fee;
-        }
-        if(land.charter_fee != null) {
-            this.charter_fee = land.charter_fee;
-        }
-        if(land.management_fee != null) {
-            this.management_fee = land.management_fee;
-        }
-        if(land.opt_refrigerator != null) {
-            this.opt_refrigerator = land.opt_refrigerator;
-        }
-        if(land.opt_closet != null) {
-            this.opt_closet = land.opt_closet;
-        }
-        if(land.opt_tv != null) {
-            this.opt_tv = land.opt_tv;
-        }
-        if(land.opt_microwave != null) {
-            this.opt_microwave = land.opt_microwave;
-        }
-        if(land.opt_gas_range != null) {
-            this.opt_gas_range = land.opt_gas_range;
-        }
-        if(land.opt_induction != null) {
-            this.opt_induction = land.opt_induction;
-        }
-        if(land.opt_water_purifier != null) {
-            this.opt_water_purifier = land.opt_water_purifier;
-        }
-        if(land.opt_air_conditioner != null) {
-            this.opt_air_conditioner = land.opt_air_conditioner;
-        }
-        if(land.opt_washer != null) {
-            this.opt_washer = land.opt_washer;
-        }
-        if(land.opt_bed != null) {
-            this.opt_bed = land.opt_bed;
-        }
-        if(land.opt_desk != null) {
-            this.opt_desk = land.opt_desk;
-        }
-        if(land.opt_shoe_closet != null) {
-            this.opt_shoe_closet = land.opt_shoe_closet;
-        }
-        if(land.opt_electronic_door_locks != null) {
-            this.opt_electronic_door_locks = land.opt_electronic_door_locks;
-        }
-        if(land.opt_bidet != null) {
-            this.opt_bidet = land.opt_bidet;
-        }
-        if(land.opt_veranda != null) {
-            this.opt_veranda = land.opt_veranda;
-        }
-        if(land.opt_elevator != null) {
-            this.opt_elevator = land.opt_elevator;
-        }
-        if(land.is_deleted != null) {
-            this.is_deleted = land.is_deleted;
-        }
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.floor = request.getFloor();
+        this.deposit = request.getDeposit();
+        this.monthly_fee = request.getMonthly_fee();
+        this.charter_fee = request.getCharter_fee();
+        this.management_fee = request.getManagement_fee();
+        this.opt_refrigerator = request.getOpt_refrigerator();
+        this.opt_closet = request.getOpt_closet();
+        this.opt_tv = request.getOpt_tv();
+        this.opt_microwave = request.getOpt_microwave();
+        this.opt_gas_range = request.getOpt_gas_range();
+        this.opt_induction = request.getOpt_induction();
+        this.opt_water_purifier = request.getOpt_water_purifier();
+        this.opt_air_conditioner = request.getOpt_air_conditioner();
+        this.opt_washer = request.getOpt_washer();
+        this.opt_bed = request.getOpt_bed();
+        this.opt_desk = request.getOpt_desk();
+        this.opt_shoe_closet = request.getOpt_shoe_closet();
+        this.opt_electronic_door_locks = request.getOpt_electronic_door_locks();
+        this.opt_bidet = request.getOpt_bidet();
+        this.opt_veranda = request.getOpt_veranda();
+        this.opt_elevator = request.getOpt_elevator();
     }
     public void init() {
         // create시 입력되지 않은 옵션이 있으면 false로 초기화
@@ -588,5 +522,13 @@ public class Land {
         if(this.is_deleted == null) {
             this.is_deleted = false;
         }
+    }
+
+    public boolean hasSameId(Integer id) {
+        if (this.id == null || id == null) {
+            return false;
+        }
+
+        return this.id.equals(id);
     }
 }

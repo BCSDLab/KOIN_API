@@ -10,6 +10,7 @@ import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.exception.ConflictException;
@@ -136,22 +137,21 @@ public class LandServiceImpl implements LandService {
 
     @Transactional
     @Override
-    public Land updateLandForAdmin(Land land, int id) throws Exception {
-        Land land_old = landMapper.getLandForAdmin(id);
-        if (land_old == null)
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
-
-        if (land.getName() != null) {
-            land.setInternal_name(land.getName().replace(" ", "").toLowerCase());
+    public SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
+        Land existingLand = landMapper.getLandForAdmin(landId);
+        if (existingLand == null) {
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
-        //image_urls 체크
-        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null && !sameNameLand.hasSameId(landId)) {
+            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+        }
 
-        land_old.update(land);
-        landMapper.updateLandForAdmin(land_old);
-        return land_old;
+        existingLand.update(request);
+        landMapper.updateLandForAdmin(existingLand);
+
+        return new SuccessResponse();
     }
 
     @Transactional

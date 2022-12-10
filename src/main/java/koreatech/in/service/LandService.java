@@ -7,6 +7,7 @@ import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ public interface LandService {
 
     LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception;
 
-    Land updateLandForAdmin(Land land, int id) throws Exception;
+    SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception;
 
     SuccessResponse deleteLandForAdmin(Integer landId) throws Exception;
 

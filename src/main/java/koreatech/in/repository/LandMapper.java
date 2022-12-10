@@ -48,7 +48,7 @@ public interface LandMapper {
     @Update("UPDATE koin.lands SET name=#{name}, internal_name=#{internal_name}, size=#{size}, room_type=#{room_type}, latitude=#{latitude}, longitude=#{longitude}, phone=#{phone}, image_urls=#{image_urls}, " +
             "address=#{address}, description=#{description}, floor=#{floor}, deposit=#{deposit}, monthly_fee=#{monthly_fee}, charter_fee=#{charter_fee}, management_fee=#{management_fee}, opt_refrigerator=#{opt_refrigerator}, opt_closet=#{opt_closet}, opt_tv=#{opt_tv}, " +
             "opt_microwave=#{opt_microwave}, opt_gas_range=#{opt_gas_range}, opt_induction=#{opt_induction}, opt_water_purifier=#{opt_water_purifier}, opt_air_conditioner=#{opt_air_conditioner}, opt_washer=#{opt_washer}, opt_bed=#{opt_bed}, opt_desk=#{opt_desk}, opt_shoe_closet=#{opt_shoe_closet}, " +
-            "opt_electronic_door_locks=#{opt_electronic_door_locks}, opt_bidet=#{opt_bidet}, opt_veranda=#{opt_veranda}, opt_elevator=#{opt_elevator}, is_deleted=#{is_deleted} WHERE ID = #{id}")
+            "opt_electronic_door_locks=#{opt_electronic_door_locks}, opt_bidet=#{opt_bidet}, opt_veranda=#{opt_veranda}, opt_elevator=#{opt_elevator} WHERE ID = #{id}")
     void updateLandForAdmin(Land land);
 
     @Delete("DELETE FROM koin.lands WHERE ID = #{id}")
