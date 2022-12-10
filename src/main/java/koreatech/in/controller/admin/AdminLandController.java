@@ -5,8 +5,10 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImagesResponse;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.List;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
@@ -29,12 +32,16 @@ public class AdminLandController {
     private LandService landService;
 
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "복덕방 집 생성", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "이름이 중복될 때 (error code: 301)")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/lands", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createLand(@ApiParam(value = "(required: name), (optional: size, room_type, floor, latitude, longitude, phone, image_urls, address, description, deposit, monthly_fee, charter_fee, management_fee, opt_refrigerator, opt_closet, opt_tv, opt_microwave, opt_gas_range, opt_induction, opt_water_purifier, opt_air_conditioner, opt_washer, opt_bed, opt_desk, opt_shoe_closet, opt_electronic_door_locks, opt_bidet, opt_veranda, opt_elevator)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Land land, BindingResult bindingResult) throws Exception {
+    ResponseEntity<SuccessCreateResponse> createLand(@RequestBody @Valid CreateLandRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<Land>(landService.createLandForAdmin(land), HttpStatus.CREATED);
+        return new ResponseEntity<>(landService.createLandForAdmin(request), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "복덕방 집 단건 조회", authorizations = {@Authorization(value="Authorization")})

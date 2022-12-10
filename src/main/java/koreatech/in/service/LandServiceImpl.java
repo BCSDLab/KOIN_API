@@ -5,8 +5,10 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.SuccessCreateResponse;
 import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImagesResponse;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
@@ -44,22 +46,18 @@ public class LandServiceImpl implements LandService {
 
     @Transactional
     @Override
-    public Land createLandForAdmin(Land land) throws Exception {
-        Land selectLand = landMapper.getLandByNameForAdmin(land.getName());
-        if (selectLand != null) {
-            throw new ConflictException(new ErrorMessage("exists land name", 0));
+    public SuccessCreateResponse createLandForAdmin(CreateLandRequest request) throws Exception {
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null) {
+            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
         }
 
-        land.init();
-        land.setInternal_name(land.getName().replace(" ","").toLowerCase());
-
-        //image_urls 체크
-        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-
+        Land land = new Land(request);
         landMapper.createLandForAdmin(land);
 
-        return land;
+        return SuccessCreateResponse.builder()
+                .id(land.getId())
+                .build();
     }
 
     @Transactional(readOnly = true)

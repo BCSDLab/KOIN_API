@@ -15,7 +15,7 @@ public class LandResponse {
         @ApiModelProperty(notes = "고유 id", example = "1", required = true)
         private Integer id;
 
-        @ApiModelProperty(notes = "집 이름", example = "금실타운", required = true)
+        @ApiModelProperty(notes = "이름", example = "금실타운", required = true)
         private String name;
 
         @ApiModelProperty(notes = "삭제(soft delete) 여부", example = "false")

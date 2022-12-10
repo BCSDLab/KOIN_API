@@ -1,10 +1,14 @@
 package koreatech.in.domain.BokDuck;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.gson.Gson;
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@NoArgsConstructor
 public class Land {
     @ApiModelProperty(hidden = true)
     private Integer id;
@@ -391,6 +395,42 @@ public class Land {
 
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public Land(CreateLandRequest request) {
+        this.name = request.getName();
+        this.internal_name = request.getName().replace(" ","").toLowerCase();
+        this.size = request.getSize();
+        this.room_type = request.getRoom_type();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+        this.phone = request.getPhone();
+        if (!request.getImage_urls().isEmpty()) {
+            this.image_urls = new Gson().toJson(request.getImage_urls());
+        }
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.floor = request.getFloor();
+        this.deposit = request.getDeposit();
+        this.monthly_fee = request.getMonthly_fee();
+        this.charter_fee = request.getCharter_fee();
+        this.management_fee = request.getManagement_fee();
+        this.opt_refrigerator = request.getOpt_refrigerator();
+        this.opt_closet = request.getOpt_closet();
+        this.opt_tv = request.getOpt_tv();
+        this.opt_microwave = request.getOpt_microwave();
+        this.opt_gas_range = request.getOpt_gas_range();
+        this.opt_induction = request.getOpt_induction();
+        this.opt_water_purifier = request.getOpt_water_purifier();
+        this.opt_air_conditioner = request.getOpt_air_conditioner();
+        this.opt_washer = request.getOpt_washer();
+        this.opt_bed = request.getOpt_bed();
+        this.opt_desk = request.getOpt_desk();
+        this.opt_shoe_closet = request.getOpt_shoe_closet();
+        this.opt_electronic_door_locks = request.getOpt_electronic_door_locks();
+        this.opt_bidet = request.getOpt_bidet();
+        this.opt_veranda = request.getOpt_veranda();
+        this.opt_elevator = request.getOpt_elevator();
     }
 
     public void update(Land land) {
