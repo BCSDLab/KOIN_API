@@ -39,16 +39,16 @@ public interface LandMapper {
 
     @Insert("INSERT INTO koin.lands (NAME, INTERNAL_NAME, SIZE, ROOM_TYPE, LATITUDE, LONGITUDE, PHONE, IMAGE_URLS, ADDRESS, DESCRIPTION, FLOOR, DEPOSIT, MONTHLY_FEE, CHARTER_FEE, MANAGEMENT_FEE, " +
             "OPT_REFRIGERATOR, OPT_CLOSET, OPT_TV, OPT_MICROWAVE, OPT_GAS_RANGE, OPT_INDUCTION, OPT_WATER_PURIFIER, OPT_AIR_CONDITIONER, OPT_WASHER, OPT_BED, OPT_DESK, OPT_SHOE_CLOSET, OPT_ELECTRONIC_DOOR_LOCKS, " +
-            "OPT_BIDET, OPT_VERANDA, OPT_ELEVATOR, IS_DELETED) " +
+            "OPT_BIDET, OPT_VERANDA, OPT_ELEVATOR) " +
             "VALUES (#{name}, #{internal_name}, #{size}, #{room_type}, #{latitude}, #{longitude}, #{phone}, #{image_urls}, #{address}, #{description}, #{floor}, #{deposit}, #{monthly_fee}, #{charter_fee}, #{management_fee}, " +
-            "#{opt_refrigerator}, #{opt_closet}, #{opt_tv}, #{opt_microwave}, #{opt_gas_range}, #{opt_induction}, #{opt_water_purifier}, #{opt_air_conditioner}, #{opt_washer}, #{opt_bed}, #{opt_desk}, #{opt_shoe_closet}, #{opt_electronic_door_locks}, #{opt_bidet}, #{opt_veranda}, #{opt_elevator}, #{is_deleted})")
+            "#{opt_refrigerator}, #{opt_closet}, #{opt_tv}, #{opt_microwave}, #{opt_gas_range}, #{opt_induction}, #{opt_water_purifier}, #{opt_air_conditioner}, #{opt_washer}, #{opt_bed}, #{opt_desk}, #{opt_shoe_closet}, #{opt_electronic_door_locks}, #{opt_bidet}, #{opt_veranda}, #{opt_elevator})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void createLandForAdmin(Land land);
 
     @Update("UPDATE koin.lands SET name=#{name}, internal_name=#{internal_name}, size=#{size}, room_type=#{room_type}, latitude=#{latitude}, longitude=#{longitude}, phone=#{phone}, image_urls=#{image_urls}, " +
             "address=#{address}, description=#{description}, floor=#{floor}, deposit=#{deposit}, monthly_fee=#{monthly_fee}, charter_fee=#{charter_fee}, management_fee=#{management_fee}, opt_refrigerator=#{opt_refrigerator}, opt_closet=#{opt_closet}, opt_tv=#{opt_tv}, " +
             "opt_microwave=#{opt_microwave}, opt_gas_range=#{opt_gas_range}, opt_induction=#{opt_induction}, opt_water_purifier=#{opt_water_purifier}, opt_air_conditioner=#{opt_air_conditioner}, opt_washer=#{opt_washer}, opt_bed=#{opt_bed}, opt_desk=#{opt_desk}, opt_shoe_closet=#{opt_shoe_closet}, " +
-            "opt_electronic_door_locks=#{opt_electronic_door_locks}, opt_bidet=#{opt_bidet}, opt_veranda=#{opt_veranda}, opt_elevator=#{opt_elevator}, is_deleted=#{is_deleted} WHERE ID = #{id}")
+            "opt_electronic_door_locks=#{opt_electronic_door_locks}, opt_bidet=#{opt_bidet}, opt_veranda=#{opt_veranda}, opt_elevator=#{opt_elevator} WHERE ID = #{id}")
     void updateLandForAdmin(Land land);
 
     @Delete("DELETE FROM koin.lands WHERE ID = #{id}")

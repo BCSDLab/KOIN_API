@@ -1,91 +1,119 @@
 package koreatech.in.domain.BokDuck;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.gson.Gson;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
 import java.util.Date;
 
+@NoArgsConstructor
 public class Land {
-    @ApiModelProperty(notes = "고유 id", example = "10")
+    @ApiModelProperty(hidden = true)
     private Integer id;
-    @Size(max = 255, message = "건물 이름은 255자 이내여야 합니다.")
-    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "건물 이름은 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "건물 이름", example = "라이프")
+
+    @ApiModelProperty(hidden = true)
     private String name;
+
     @ApiModelProperty(hidden = true)
     private String internal_name;
-    @ApiModelProperty(notes = "방 크기", example = "3.5")
+
+    @ApiModelProperty(hidden = true)
     private Double size;
-    @ApiModelProperty(notes = "원룸 종류", example = "원룸")
+
+    @ApiModelProperty(hidden = true)
     private String room_type;
-    @ApiModelProperty(notes = "위도", example = "42.12345")
+
+    @ApiModelProperty(hidden = true)
     private Double latitude;
-    @ApiModelProperty(notes = "경도", example = "39.12354")
+
+    @ApiModelProperty(hidden = true)
     private Double longitude;
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "전화번호", example = "010-0000-0000")
+
+    @ApiModelProperty(hidden = true)
     private String phone;
-    @ApiModelProperty(notes = "이미지 링크, string으로 받아서 저장 후 json 으로 반환", example = "['http://url.com', 'http://url.com']")
+
+    @ApiModelProperty(hidden = true)
     private String image_urls;
-    @ApiModelProperty(notes = "주소", example = "병천면~~")
+
+    @ApiModelProperty(hidden = true)
     private String address;
-    @ApiModelProperty(notes = "세부사항", example = "세부사항입니다.")
+
+    @ApiModelProperty(hidden = true)
     private String description;
-    @Max(value = Integer.MAX_VALUE, message = "입력할 수 없는 층수입니다.")
-    @Min(value = 0, message = "입력할 수 없는 층수입니다.")
-    @ApiModelProperty(notes = "층수", example = "4")
+
+    @ApiModelProperty(hidden = true)
     private Integer floor;
-    @Size(max = 255, message = "보증금은 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "보증금", example = "35.5")
+
+    @ApiModelProperty(hidden = true)
     private String deposit;
-    @Size(max = 255, message = "월세는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "월세", example = "170(6개월)")
+
+    @ApiModelProperty(hidden = true)
     private String monthly_fee;
-    @Size(max = 255, message = "전세는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "전세", example = "43.2")
+
+    @ApiModelProperty(hidden = true)
     private String charter_fee;
-    @Size(max = 255, message = "관리비는 255자 이내여야 합니다.")
-    @ApiModelProperty(notes = "관리비", example = "21(1인)/22(2인)/23(3인)")
+
+    @ApiModelProperty(hidden = true)
     private String management_fee;
-    @ApiModelProperty(notes = "냉장고 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_refrigerator;
-    @ApiModelProperty(notes = "옷장 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_closet;
-    @ApiModelProperty(notes = "tv 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_tv;
-    @ApiModelProperty(notes = "전자레인지 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_microwave;
-    @ApiModelProperty(notes = "가스레인지 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_gas_range;
-    @ApiModelProperty(notes = "인덕션 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_induction;
-    @ApiModelProperty(notes = "정수기 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_water_purifier;
-    @ApiModelProperty(notes = "에어컨 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_air_conditioner;
-    @ApiModelProperty(notes = "샤워기 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_washer;
-    @ApiModelProperty(notes = "침대 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_bed;
-    @ApiModelProperty(notes = "책상 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_desk;
-    @ApiModelProperty(notes = "신발장 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_shoe_closet;
-    @ApiModelProperty(notes = "전자 도어락 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_electronic_door_locks;
-    @ApiModelProperty(notes = "비데 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_bidet;
-    @ApiModelProperty(notes = "베란다 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_veranda;
-    @ApiModelProperty(notes = "엘레베이터 보유 여부", example = "1")
+
+    @ApiModelProperty(hidden = true)
     private Boolean opt_elevator;
+
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
+
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date created_at;
+
     @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date updated_at;
@@ -370,107 +398,76 @@ public class Land {
         this.updated_at = updated_at;
     }
 
-    public void update(Land land) {
-        //TODO: 현재 방식 update 문제점, 멤버변수를 특정값으로 초기화했을경우 update시 무조건 초기값 대입
-        if(land.name != null) {
-            this.name = land.name;
+    public Land(CreateLandRequest request) {
+        this.name = request.getName();
+        this.internal_name = request.getName().replace(" ","").toLowerCase();
+        this.size = request.getSize();
+        this.room_type = request.getRoom_type();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+        this.phone = request.getPhone();
+        if (!request.getImage_urls().isEmpty()) {
+            this.image_urls = new Gson().toJson(request.getImage_urls());
         }
-        if(land.internal_name != null) {
-            this.internal_name = land.internal_name;
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.floor = request.getFloor();
+        this.deposit = request.getDeposit();
+        this.monthly_fee = request.getMonthly_fee();
+        this.charter_fee = request.getCharter_fee();
+        this.management_fee = request.getManagement_fee();
+        this.opt_refrigerator = request.getOpt_refrigerator();
+        this.opt_closet = request.getOpt_closet();
+        this.opt_tv = request.getOpt_tv();
+        this.opt_microwave = request.getOpt_microwave();
+        this.opt_gas_range = request.getOpt_gas_range();
+        this.opt_induction = request.getOpt_induction();
+        this.opt_water_purifier = request.getOpt_water_purifier();
+        this.opt_air_conditioner = request.getOpt_air_conditioner();
+        this.opt_washer = request.getOpt_washer();
+        this.opt_bed = request.getOpt_bed();
+        this.opt_desk = request.getOpt_desk();
+        this.opt_shoe_closet = request.getOpt_shoe_closet();
+        this.opt_electronic_door_locks = request.getOpt_electronic_door_locks();
+        this.opt_bidet = request.getOpt_bidet();
+        this.opt_veranda = request.getOpt_veranda();
+        this.opt_elevator = request.getOpt_elevator();
+    }
+
+    public void update(UpdateLandRequest request) {
+        this.name = request.getName();
+        this.internal_name = request.getName().replace(" ","").toLowerCase();
+        this.size = request.getSize();
+        this.room_type = request.getRoom_type();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+        this.phone = request.getPhone();
+        if (!request.getImage_urls().isEmpty()) {
+            this.image_urls = new Gson().toJson(request.getImage_urls());
         }
-        if(land.size != null) {
-            this.size = land.size;
-        }
-        if(land.room_type != null) {
-            this.room_type = land.room_type;
-        }
-        if(land.latitude != null) {
-            this.latitude = land.latitude;
-        }
-        if(land.longitude != null) {
-            this.longitude = land.longitude;
-        }
-        if(land.phone != null) {
-            this.phone = land.phone;
-        }
-        if(land.phone != null) {
-            this.phone = land.phone;
-        }
-        if(land.image_urls != null) {
-            this.image_urls = land.image_urls;
-        }
-        if(land.address != null) {
-            this.address = land.address;
-        }
-        if(land.description != null) {
-            this.description = land.description;
-        }
-        if(land.floor != null) {
-            this.floor = land.floor;
-        }
-        if(land.deposit != null) {
-            this.deposit = land.deposit;
-        }
-        if(land.monthly_fee != null) {
-            this.monthly_fee = land.monthly_fee;
-        }
-        if(land.charter_fee != null) {
-            this.charter_fee = land.charter_fee;
-        }
-        if(land.management_fee != null) {
-            this.management_fee = land.management_fee;
-        }
-        if(land.opt_refrigerator != null) {
-            this.opt_refrigerator = land.opt_refrigerator;
-        }
-        if(land.opt_closet != null) {
-            this.opt_closet = land.opt_closet;
-        }
-        if(land.opt_tv != null) {
-            this.opt_tv = land.opt_tv;
-        }
-        if(land.opt_microwave != null) {
-            this.opt_microwave = land.opt_microwave;
-        }
-        if(land.opt_gas_range != null) {
-            this.opt_gas_range = land.opt_gas_range;
-        }
-        if(land.opt_induction != null) {
-            this.opt_induction = land.opt_induction;
-        }
-        if(land.opt_water_purifier != null) {
-            this.opt_water_purifier = land.opt_water_purifier;
-        }
-        if(land.opt_air_conditioner != null) {
-            this.opt_air_conditioner = land.opt_air_conditioner;
-        }
-        if(land.opt_washer != null) {
-            this.opt_washer = land.opt_washer;
-        }
-        if(land.opt_bed != null) {
-            this.opt_bed = land.opt_bed;
-        }
-        if(land.opt_desk != null) {
-            this.opt_desk = land.opt_desk;
-        }
-        if(land.opt_shoe_closet != null) {
-            this.opt_shoe_closet = land.opt_shoe_closet;
-        }
-        if(land.opt_electronic_door_locks != null) {
-            this.opt_electronic_door_locks = land.opt_electronic_door_locks;
-        }
-        if(land.opt_bidet != null) {
-            this.opt_bidet = land.opt_bidet;
-        }
-        if(land.opt_veranda != null) {
-            this.opt_veranda = land.opt_veranda;
-        }
-        if(land.opt_elevator != null) {
-            this.opt_elevator = land.opt_elevator;
-        }
-        if(land.is_deleted != null) {
-            this.is_deleted = land.is_deleted;
-        }
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.floor = request.getFloor();
+        this.deposit = request.getDeposit();
+        this.monthly_fee = request.getMonthly_fee();
+        this.charter_fee = request.getCharter_fee();
+        this.management_fee = request.getManagement_fee();
+        this.opt_refrigerator = request.getOpt_refrigerator();
+        this.opt_closet = request.getOpt_closet();
+        this.opt_tv = request.getOpt_tv();
+        this.opt_microwave = request.getOpt_microwave();
+        this.opt_gas_range = request.getOpt_gas_range();
+        this.opt_induction = request.getOpt_induction();
+        this.opt_water_purifier = request.getOpt_water_purifier();
+        this.opt_air_conditioner = request.getOpt_air_conditioner();
+        this.opt_washer = request.getOpt_washer();
+        this.opt_bed = request.getOpt_bed();
+        this.opt_desk = request.getOpt_desk();
+        this.opt_shoe_closet = request.getOpt_shoe_closet();
+        this.opt_electronic_door_locks = request.getOpt_electronic_door_locks();
+        this.opt_bidet = request.getOpt_bidet();
+        this.opt_veranda = request.getOpt_veranda();
+        this.opt_elevator = request.getOpt_elevator();
     }
     public void init() {
         // create시 입력되지 않은 옵션이 있으면 false로 초기화
@@ -525,5 +522,13 @@ public class Land {
         if(this.is_deleted == null) {
             this.is_deleted = false;
         }
+    }
+
+    public boolean hasSameId(Integer id) {
+        if (this.id == null || id == null) {
+            return false;
+        }
+
+        return this.id.equals(id);
     }
 }

@@ -5,7 +5,12 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImagesResponse;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
 import koreatech.in.exception.ConflictException;
@@ -27,6 +32,7 @@ import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.util.ExceptionMessage.*;
 
 @Service("landService")
 public class LandServiceImpl implements LandService {
@@ -41,22 +47,18 @@ public class LandServiceImpl implements LandService {
 
     @Transactional
     @Override
-    public Land createLandForAdmin(Land land) throws Exception {
-        Land selectLand = landMapper.getLandByNameForAdmin(land.getName());
-        if (selectLand != null) {
-            throw new ConflictException(new ErrorMessage("exists land name", 0));
+    public SuccessCreateResponse createLandForAdmin(CreateLandRequest request) throws Exception {
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null) {
+            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
         }
 
-        land.init();
-        land.setInternal_name(land.getName().replace(" ","").toLowerCase());
-
-        //image_urls 체크
-        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-
+        Land land = new Land(request);
         landMapper.createLandForAdmin(land);
 
-        return land;
+        return SuccessCreateResponse.builder()
+                .id(land.getId())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -65,42 +67,45 @@ public class LandServiceImpl implements LandService {
         Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
         return LandResponse.builder()
-                .id(land.getId())
-                .name(land.getName())
-                .is_deleted(land.getIs_deleted())
-                .room_type(land.getRoom_type())
-                .management_fee(land.getManagement_fee())
-                .size(land.getSize())
-                .monthly_fee(land.getMonthly_fee())
-                .charter_fee(land.getCharter_fee())
-                .latitude(land.getLatitude())
-                .longitude(land.getLongitude())
-                .deposit(land.getDeposit())
-                .floor(land.getFloor())
-                .phone(land.getPhone())
-                .address(land.getAddress())
-                .description(land.getDescription())
-                .opt_refrigerator(land.getOpt_refrigerator())
-                .opt_closet(land.getOpt_closet())
-                .opt_tv(land.getOpt_tv())
-                .opt_microwave(land.getOpt_microwave())
-                .opt_gas_range(land.getOpt_gas_range())
-                .opt_induction(land.getOpt_induction())
-                .opt_water_purifier(land.getOpt_water_purifier())
-                .opt_air_conditioner(land.getOpt_air_conditioner())
-                .opt_washer(land.getOpt_washer())
-                .opt_bed(land.getOpt_bed())
-                .opt_desk(land.getOpt_desk())
-                .opt_shoe_closet(land.getOpt_shoe_closet())
-                .opt_electronic_door_locks(land.getOpt_electronic_door_locks())
-                .opt_bidet(land.getOpt_bidet())
-                .opt_veranda(land.getOpt_veranda())
-                .opt_elevator(land.getOpt_elevator())
-                .image_urls(JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()))
+                .land(LandResponse.Land.builder()
+                        .id(land.getId())
+                        .name(land.getName())
+                        .is_deleted(land.getIs_deleted())
+                        .room_type(land.getRoom_type())
+                        .management_fee(land.getManagement_fee())
+                        .size(land.getSize())
+                        .monthly_fee(land.getMonthly_fee())
+                        .charter_fee(land.getCharter_fee())
+                        .latitude(land.getLatitude())
+                        .longitude(land.getLongitude())
+                        .deposit(land.getDeposit())
+                        .floor(land.getFloor())
+                        .phone(land.getPhone())
+                        .address(land.getAddress())
+                        .description(land.getDescription())
+                        .opt_refrigerator(land.getOpt_refrigerator())
+                        .opt_closet(land.getOpt_closet())
+                        .opt_tv(land.getOpt_tv())
+                        .opt_microwave(land.getOpt_microwave())
+                        .opt_gas_range(land.getOpt_gas_range())
+                        .opt_induction(land.getOpt_induction())
+                        .opt_water_purifier(land.getOpt_water_purifier())
+                        .opt_air_conditioner(land.getOpt_air_conditioner())
+                        .opt_washer(land.getOpt_washer())
+                        .opt_bed(land.getOpt_bed())
+                        .opt_desk(land.getOpt_desk())
+                        .opt_shoe_closet(land.getOpt_shoe_closet())
+                        .opt_electronic_door_locks(land.getOpt_electronic_door_locks())
+                        .opt_bidet(land.getOpt_bidet())
+                        .opt_veranda(land.getOpt_veranda())
+                        .opt_elevator(land.getOpt_elevator())
+                        .image_urls(JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()))
+                        .build()
+                )
                 .build();
     }
 
@@ -108,7 +113,7 @@ public class LandServiceImpl implements LandService {
     @Override
     public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 0));
+            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
         }
 
         Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
@@ -116,7 +121,7 @@ public class LandServiceImpl implements LandService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage("유효하지 않은 페이지입니다.", 0));
+            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
         }
 
         List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
@@ -132,62 +137,57 @@ public class LandServiceImpl implements LandService {
 
     @Transactional
     @Override
-    public Land updateLandForAdmin(Land land, int id) throws Exception {
-        Land land_old = landMapper.getLandForAdmin(id);
-        if (land_old == null)
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
-
-        if (land.getName() != null) {
-            land.setInternal_name(land.getName().replace(" ", "").toLowerCase());
+    public SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
+        Land existingLand = landMapper.getLandForAdmin(landId);
+        if (existingLand == null) {
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
-        //image_urls 체크
-        if (land.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null && !sameNameLand.hasSameId(landId)) {
+            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+        }
 
-        land_old.update(land);
-        landMapper.updateLandForAdmin(land_old);
-        return land_old;
+        existingLand.update(request);
+        landMapper.updateLandForAdmin(existingLand);
+
+        return new SuccessResponse();
     }
 
     @Transactional
     @Override
-    public Map<String, Object> deleteLandForAdmin(int id) throws Exception {
-        Land land = landMapper.getLandForAdmin(id);
+    public SuccessResponse deleteLandForAdmin(Integer landId) throws Exception {
+        Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
         if (land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It has already been soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(LAND_ALREADY_DELETED));
         }
 
-        landMapper.softDeleteLandForAdmin(id);
+        landMapper.softDeleteLandForAdmin(landId);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Transactional
     @Override
-    public Map<String, Object> undeleteLandForAdmin(int id) throws Exception {
-        Land land = landMapper.getLandForAdmin(id);
+    public SuccessResponse undeleteLandForAdmin(Integer landId) throws Exception {
+        Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
         }
 
         if (!land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage("It is not soft deleted.", 0));
+            throw new ConflictException(new ErrorMessage(LAND_NOT_DELETED));
         }
 
-        landMapper.undeleteLandForAdmin(id);
+        landMapper.undeleteLandForAdmin(landId);
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return new SuccessResponse();
     }
 
     @Override
@@ -323,10 +323,10 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
-    public Map<String, Object> uploadImages(List<MultipartFile> images) throws Exception {
+    public UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception {
         // 무분별한 업로드 방지
         if (images.size() > 10) {
-            throw new PreconditionFailedException(new ErrorMessage("한번에 최대 10개까지 업로드 가능합니다.", 0));
+            throw new ConflictException(new ErrorMessage(FILES_TO_UPLOAD_EXCEED_MAXIMUM));
         }
 
         String directory = "lands";
@@ -337,9 +337,8 @@ public class LandServiceImpl implements LandService {
             imageUrls.add("https://" + uploadFileUtils.getDomain() + "/" + directory + url);
         }
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-            put("image_urls", imageUrls);
-        }};
+        return UploadImagesResponse.builder()
+                .image_urls(imageUrls)
+                .build();
     }
 }
