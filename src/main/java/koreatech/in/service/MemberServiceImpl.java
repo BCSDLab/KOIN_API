@@ -18,6 +18,7 @@ import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +64,7 @@ public class MemberServiceImpl implements MemberService {
 
     // ===== ADMIN APIs =====
     @Override
+    @Transactional(readOnly = true)
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
             throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
@@ -88,6 +90,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MemberResponse getMemberForAdmin(int id) throws Exception {
         Member member = memberMapper.getMemberForAdmin(id);
 
@@ -110,6 +113,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception {
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
 
@@ -126,6 +130,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
         Member existingMember = memberMapper.getMemberForAdmin(id);
 
@@ -145,6 +150,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public SuccessResponse deleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
@@ -162,6 +168,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public SuccessResponse undeleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
