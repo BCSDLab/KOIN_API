@@ -56,7 +56,8 @@ public class AdminLandController {
     @ApiOperation(value = "복덕방 페이지별 리스트 조회", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (error code: 1)"),
-            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)")
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
@@ -107,11 +108,11 @@ public class AdminLandController {
                 , notes = "Swagger에서는 다중 파일 업로드가 되지 않아 Postman으로 테스트 바랍니다. ([링크](https://docs.google.com/document/d/1ReyohfSr-NuNWc25TN_sd_VDOjZ0sDje-eNGQvkFjWY/edit))"
                 , authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 409, message = "한번에 업로드할 수 있는 최대 개수를 초과하였을 때 (error code: 4)")
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @RequestMapping(value = "/admin/lands/images", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<UploadImagesResponse> uploadImages(@ApiParam(value = "이미지 파일 리스트", required = true) @RequestPart("images") List<MultipartFile> images) throws Exception {
+    ResponseEntity<UploadImagesResponse> uploadImages(@ApiParam(value = "이미지 파일 리스트 (최소 1개, 최대 10개)", required = true) @RequestPart("images") List<MultipartFile> images) throws Exception {
 
         return new ResponseEntity<>(landService.uploadImages(images), HttpStatus.CREATED);
     }

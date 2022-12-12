@@ -31,7 +31,8 @@ public class AdminMemberController {
     @ApiOperation(value = "BCSDLab 회원 페이지별 리스트 조회", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (error code: 1)"),
-            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)")
+            @ApiResponse(code = 409, message = "검색 문자열이 공백 문자로만 이루어져 있을 때 (error code: 2)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
@@ -98,12 +99,13 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 프로필 이미지 업로드", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 400, message = "요청에 업로드할 이미지가 없을 때 (error code: 3)")
+            @ApiResponse(code = 400, message = "요청에 업로드할 이미지가 없을 때 (error code: 3)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/image", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<UploadImageResponse> uploadProfileImage(@ApiParam(value = "이미지 파일", required = true) @RequestPart("image") MultipartFile image) throws Exception {
+    ResponseEntity<UploadImageResponse> uploadProfileImage(@ApiParam(value = "이미지 파일 (NOT NULL)", required = true) @RequestPart("image") MultipartFile image) throws Exception {
         return new ResponseEntity<>(memberService.uploadImage(image), HttpStatus.CREATED);
     }
 }

@@ -25,9 +25,6 @@ public enum ExceptionMessage {
 
     // ======= 공통 =======
     PAGE_NOT_FOUND("유효하지 않은 페이지입니다.", 1),
-    SEARCH_QUERY_MUST_NOT_BE_BLANK("검색 문자열은 공백 문자가 없어야 합니다.", 2),
-    FILE_TO_UPLOAD_NOT_EXIST("업로드할 파일이 요청에 없습니다.", 3),
-    FILES_TO_UPLOAD_EXCEED_MAXIMUM("업로드할 수 있는 파일의 최대 개수를 초과하였습니다.", 4),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 100),
@@ -49,19 +46,19 @@ public enum ExceptionMessage {
     SHOP_MENU_CATEGORY_NOT_FOUND("메뉴 카테고리가 존재하지 않습니다.", 130),
     SHOP_MENU_CATEGORY_NAME_DUPLICATE("메뉴 카테고리의 이름이 중복됩니다.", 131),
     SHOP_MENU_USING_CATEGORY_EXIST("메뉴 카테고리를 사용하고 있는 메뉴가 있어 삭제할 수 없습니다.", 132),
-    SHOP_MENU_CATEGORY_MAXIMUM_EXCEED("메뉴 카테고리의 최대 개수를 초과하였습니다.", 133),
+    SHOP_MENU_CATEGORY_MAXIMUM_EXCEED("등록할 수 있는 메뉴 카테고리의 최대 개수를 초과하였습니다.", 133),
 
     // ======= BCSDLab 회원 =======
     MEMBER_NOT_FOUND("존재하지 않는 BCSDLab 회원입니다.", 200),
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201),
-    MEMBER_ALREADY_DELETED("BCSDLab 회원이 이미 삭제되어있습니다.", 202),
-    MEMBER_NOT_DELETED("BCSDLab 회원이 삭제되어 있지 않습니다.", 203),
+    MEMBER_ALREADY_DELETED("이미 삭제되어 있는 BCSDLab 회원입니다.", 202),
+    MEMBER_NOT_DELETED("삭제되어 있는 BCSDLab 회원이 아닙니다.", 203),
 
     // ======= 복덕방 =======
     LAND_NOT_FOUND("존재하지 않는 집입니다.", 300),
     LAND_NAME_DUPLICATE("집 이름이 중복됩니다.", 301),
     LAND_ALREADY_DELETED("이미 삭제된 집입니다.", 302),
-    LAND_NOT_DELETED("집이 삭제되어 있지 않습니다.", 303);
+    LAND_NOT_DELETED("삭제되어 있는 집이 아닙니다.", 303);
 
     ExceptionMessage(String message, Integer code) {
         this.message = message;

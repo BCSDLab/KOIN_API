@@ -13,10 +13,7 @@ import koreatech.in.dto.land.admin.request.LandsCondition;
 import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import koreatech.in.dto.land.admin.response.LandResponse;
 import koreatech.in.dto.land.admin.response.LandsResponse;
-import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.exception.*;
 import koreatech.in.repository.LandMapper;
 import koreatech.in.util.JsonConstructor;
 import koreatech.in.util.UploadFileUtils;
@@ -113,7 +110,7 @@ public class LandServiceImpl implements LandService {
     @Override
     public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
+            throw new ValidationException(new ErrorMessage("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID.getCode()));
         }
 
         Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
@@ -326,7 +323,7 @@ public class LandServiceImpl implements LandService {
     public UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception {
         // 무분별한 업로드 방지
         if (images.size() > 10) {
-            throw new ConflictException(new ErrorMessage(FILES_TO_UPLOAD_EXCEED_MAXIMUM));
+            throw new ValidationException(new ErrorMessage("복덕방 이미지 업로드는 한번에 최대 10개까지만 가능합니다.", REQUEST_DATA_INVALID.getCode()));
         }
 
         String directory = "lands";

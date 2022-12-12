@@ -14,6 +14,7 @@ import koreatech.in.dto.member.admin.response.MembersResponse;
 import koreatech.in.exception.BadRequestException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.ValidationException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
@@ -67,7 +68,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
+            throw new ValidationException(new ErrorMessage("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID.getCode()));
         }
 
         Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
@@ -188,7 +189,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public UploadImageResponse uploadImage(MultipartFile image) throws Exception {
         if (image == null) {
-            throw new BadRequestException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
+            throw new ValidationException(new ErrorMessage("업로드할 파일이 요청에 없습니다.", REQUEST_DATA_INVALID.getCode()));
         }
 
         String directory = "bcsdlab_page_assets/img/people";
