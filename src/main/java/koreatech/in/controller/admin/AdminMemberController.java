@@ -46,14 +46,15 @@ public class AdminMemberController {
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MemberResponse> getMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
+    ResponseEntity<MemberResponse> getMember(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(memberService.getMemberForAdmin(id), HttpStatus.OK);
     }
 
     @ParamValid
     @ApiOperation(value = "BCSDLab 회원 생성", authorizations = {@Authorization(value = "Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (error code: 201)")
+            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (error code: 201)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
@@ -67,11 +68,12 @@ public class AdminMemberController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200) \n\n" +
                                                "요청한 트랙이 조회되지 않을 때 (error code: 201)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> updateMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<SuccessResponse> updateMember(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") int id, @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
         return new ResponseEntity<>(memberService.updateMemberForAdmin(id, request), HttpStatus.CREATED);
     }
 
@@ -82,7 +84,7 @@ public class AdminMemberController {
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> deleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
+    ResponseEntity<SuccessResponse> deleteMember(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
     }
 
@@ -93,7 +95,7 @@ public class AdminMemberController {
     })
     @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> undeleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") int id) throws Exception {
+    ResponseEntity<SuccessResponse> undeleteMember(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(memberService.undeleteMemberForAdmin(id), HttpStatus.OK);
     }
 

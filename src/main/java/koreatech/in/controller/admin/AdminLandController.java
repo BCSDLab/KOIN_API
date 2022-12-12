@@ -32,7 +32,8 @@ public class AdminLandController {
     @ParamValid
     @ApiOperation(value = "복덕방 집 생성", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 409, message = "이름이 중복될 때 (error code: 301)")
+            @ApiResponse(code = 409, message = "이름이 중복될 때 (error code: 301)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/admin/lands", method = RequestMethod.POST)
@@ -48,7 +49,7 @@ public class AdminLandController {
     })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<LandResponse> getLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
+    ResponseEntity<LandResponse> getLand(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") Integer landId) throws Exception {
 
         return new ResponseEntity<>(landService.getLandForAdmin(landId), HttpStatus.OK);
     }
@@ -70,12 +71,13 @@ public class AdminLandController {
     @ApiOperation(value = "복덕방 집 수정", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 300)"),
-            @ApiResponse(code = 409, message = "이름이 중복될 때 (error code: 301)")
+            @ApiResponse(code = 409, message = "이름이 중복될 때 (error code: 301)"),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: -1)")
     })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> updateLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId, @RequestBody @Valid UpdateLandRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<SuccessResponse> updateLand(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") Integer landId, @RequestBody @Valid UpdateLandRequest request, BindingResult bindingResult) throws Exception {
 
         return new ResponseEntity<>(landService.updateLandForAdmin(request, landId), HttpStatus.CREATED);
     }
@@ -87,7 +89,7 @@ public class AdminLandController {
     })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> deleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
+    ResponseEntity<SuccessResponse> deleteLand(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable("id") Integer landId) throws Exception {
 
         return new ResponseEntity<>(landService.deleteLandForAdmin(landId), HttpStatus.OK);
     }
@@ -99,7 +101,7 @@ public class AdminLandController {
     })
     @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity<SuccessResponse> undeleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable(value = "id") Integer landId) throws Exception {
+    ResponseEntity<SuccessResponse> undeleteLand(@ApiParam(value = "고유 id (NOT NULL)", required = true) @PathVariable(value = "id") Integer landId) throws Exception {
 
         return new ResponseEntity<>(landService.undeleteLandForAdmin(landId), HttpStatus.OK);
     }
