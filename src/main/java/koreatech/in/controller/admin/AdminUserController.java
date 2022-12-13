@@ -8,8 +8,9 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UsersCondition;
+import koreatech.in.dto.user.admin.UsersResponse;
 import koreatech.in.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Map;
 
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.USER)
@@ -27,11 +29,12 @@ public class AdminUserController {
     @Inject
     private UserService userService;
 
+    @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(userService.getUserListForAdmin(criteria), HttpStatus.OK);
+    ResponseEntity<UsersResponse> getUserList(@ModelAttribute @Valid UsersCondition condition, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<>(userService.getUserListForAdmin(condition), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

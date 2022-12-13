@@ -3,23 +3,32 @@ package koreatech.in.service;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
+import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
+import koreatech.in.exception.BadRequestException;
+import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import koreatech.in.util.UploadFileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static koreatech.in.util.ExceptionMessage.*;
 
 @Service(value = "memberService")
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
 
     @Resource(name = "memberMapper")
     private MemberMapper memberMapper;
@@ -54,114 +63,134 @@ public class MemberServiceImpl implements MemberService{
 
     // ===== ADMIN APIs =====
     @Override
-    public List<Member> getMembersForAdmin() throws Exception {
-        List<Member> members = memberMapper.getMembersForAdmin();
-
-        if(members == null) {
-            throw new NotFoundException(new ErrorMessage("Members not found.", 0));
+    public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
         }
 
-        return members;
+        Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage) {
+            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
+        }
+
+        List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
+
+        return MembersResponse.builder()
+                .total_count(totalCount)
+                .total_page(totalPage)
+                .current_count(members.size())
+                .current_page(currentPage)
+                .members(members)
+                .build();
     }
 
     @Override
-    public Member getMemberForAdmin(int id) throws Exception {
+    public MemberResponse getMemberForAdmin(int id) throws Exception {
         Member member = memberMapper.getMemberForAdmin(id);
 
-        if(member == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+        if (member == null) {
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
-        return member;
+        return MemberResponse.builder()
+                .member(MemberResponse.Member.builder()
+                        .id(member.getId())
+                        .name(member.getName())
+                        .student_number(member.getStudent_number())
+                        .track(member.getTrack())
+                        .position(member.getPosition())
+                        .email(member.getEmail())
+                        .image_url(member.getImage_url())
+                        .is_deleted(member.getIs_deleted())
+                        .build()
+                ).build();
     }
 
     @Override
-    public Member createMemberForAdmin(Member member) throws Exception {
-        Track selectTrack = trackMapper.getTrackByNameForAdmin(member.getTrack());
-        if(selectTrack == null) {
-            throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
+    public SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception {
+        Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
+
+        if (track == null) {
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
-        if(member.getIs_deleted() == null)
-            member.setIs_deleted(false);
-
+        Member member = new Member(request);
         memberMapper.createMemberForAdmin(member);
 
-        return member;
+        return SuccessCreateResponse.builder()
+                .id(member.getId())
+                .build();
     }
 
     @Override
-    public Member updateMemberForAdmin(Member member, int id) throws Exception {
-        Member member_old = memberMapper.getMemberForAdmin(id);
-        if(member_old == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+    public SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception {
+        Member existingMember = memberMapper.getMemberForAdmin(id);
+
+        if (existingMember == null) {
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
-        if(member.getTrack() != null) {
-            Track selectTrack = trackMapper.getTrackByNameForAdmin(member.getTrack());
-            if(selectTrack == null) {
-                throw new NotFoundException(new ErrorMessage("Track name not found.", 0));
-            }
+        Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
+        if (track == null) {
+            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
         }
 
-        member_old.update(member);
-        memberMapper.updateMemberForAdmin(member_old);
-        return member_old;
+        existingMember.update(request);
+        memberMapper.updateMemberForAdmin(existingMember);
+
+        return new SuccessResponse();
     }
 
     @Override
-    public Map<String, Object> deleteMemberForAdmin(int id) throws Exception {
+    public SuccessResponse deleteMemberForAdmin(int id) throws Exception {
         Member selectMember = memberMapper.getMemberForAdmin(id);
-        if(selectMember == null) {
-            throw new NotFoundException(new ErrorMessage("Member not found.", 0));
+
+        if (selectMember == null) {
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
-        memberMapper.deleteMemberForAdmin(id);
+        if (selectMember.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage(MEMBER_ALREADY_DELETED));
+        }
 
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        memberMapper.softDeleteMemberForAdmin(id);
+
+        return new SuccessResponse();
     }
 
     @Override
-    public String uploadImage(MultipartFile multipartFile, Integer flag) throws Exception{
-        if ( multipartFile == null){
-            throw new Exception();
+    public SuccessResponse undeleteMemberForAdmin(int id) throws Exception {
+        Member selectMember = memberMapper.getMemberForAdmin(id);
+
+        if (selectMember == null) {
+            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
         }
 
-        if ( flag == null){
-            throw new Exception();
+        if (!selectMember.getIs_deleted()) {
+            throw new ConflictException(new ErrorMessage(MEMBER_NOT_DELETED));
         }
-        String directory = "bcsdlab_page_assets/" + "img/" + "people/";
-        switch (flag){
-            case 1:
-                directory += "android";
-                break;
-            case 2:
-                directory +="backend";
-                break;
-            case 3:
-                directory +="frontend";
-                break;
-            case 4:
-                directory += "game";
-                break;
-            case 5:
-                directory += "HR";
-                break;
-            case 6:
-                directory += "P&M";
-                break;
-            case 7:
-                directory += "uiux";
-                break;
-            default:
-                throw new Exception();
-        }
-        String url = uploadFileUtils.uploadFile(directory,multipartFile.getOriginalFilename(), multipartFile.getBytes(), multipartFile);
 
+        memberMapper.undeleteMemberForAdmin(id);
 
-        return "https://static.koreatech.in/" + directory + url;
+        return new SuccessResponse();
     }
 
+    @Override
+    public UploadImageResponse uploadImage(MultipartFile image) throws Exception {
+        if (image == null) {
+            throw new BadRequestException(new ErrorMessage(FILE_TO_UPLOAD_NOT_EXIST));
+        }
+
+        String directory = "bcsdlab_page_assets/img/people";
+
+        String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
+        String imageUrl = "https://" + uploadFileUtils.getDomain() + "/" + directory + url;
+
+        return UploadImageResponse.builder()
+                .image_url(imageUrl)
+                .build();
+    }
 }

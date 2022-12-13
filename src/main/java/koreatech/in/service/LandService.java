@@ -2,7 +2,17 @@ package koreatech.in.service;
 
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImagesResponse;
+import koreatech.in.dto.land.admin.request.CreateLandRequest;
+import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.land.admin.request.UpdateLandRequest;
+import koreatech.in.dto.land.admin.response.LandResponse;
+import koreatech.in.dto.land.admin.response.LandsResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface LandService {
@@ -16,10 +26,17 @@ public interface LandService {
 
     Map<String, Object> deleteLandComment(int land_id) throws Exception;
 
-    Land createLandForAdmin(Land land) throws Exception;
+    SuccessCreateResponse createLandForAdmin(CreateLandRequest request) throws Exception;
 
-    Land updateLandForAdmin(Land land, int id) throws Exception;
+    LandResponse getLandForAdmin(Integer landId) throws Exception;
 
-    Map<String, Object> deleteLandForAdmin(int id) throws Exception;
+    LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception;
 
+    SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception;
+
+    SuccessResponse deleteLandForAdmin(Integer landId) throws Exception;
+
+    SuccessResponse undeleteLandForAdmin(Integer landId) throws Exception;
+
+    UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception;
 }

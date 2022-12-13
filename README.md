@@ -245,7 +245,6 @@ KOIN Community (ver. Spring Framework)
 - 챗봇에서 계절학기와 방학의 버스 시간표도 제공하도록 변경
 - JSON 직렬화 / 비직렬화 모듈이 올바르게 작동하지 않아 리팩토링
 
-
 ***version_2.0.0***
 
 `Changes`

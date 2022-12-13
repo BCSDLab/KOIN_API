@@ -1,6 +1,14 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
+import koreatech.in.dto.SuccessCreateResponse;
+import koreatech.in.dto.SuccessResponse;
+import koreatech.in.dto.UploadImageResponse;
+import koreatech.in.dto.member.admin.request.CreateMemberRequest;
+import koreatech.in.dto.member.admin.request.MembersCondition;
+import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
+import koreatech.in.dto.member.admin.response.MemberResponse;
+import koreatech.in.dto.member.admin.response.MembersResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -12,15 +20,17 @@ public interface MemberService {
     Member getMemberById(Integer memberId) throws Exception;
 
     // ===== ADMIN APIs =====
-    List<Member> getMembersForAdmin() throws Exception;
+    MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception;
 
-    Member getMemberForAdmin(int id) throws Exception;
+    MemberResponse getMemberForAdmin(int id) throws Exception;
 
-    Member createMemberForAdmin(Member member) throws Exception;
+    SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception;
 
-    Member updateMemberForAdmin(Member member, int id) throws Exception;
+    SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
 
-    Map<String, Object> deleteMemberForAdmin(int id) throws Exception;
+    SuccessResponse deleteMemberForAdmin(int id) throws Exception;
 
-    String uploadImage(MultipartFile multipartFile, Integer flag) throws Exception;
+    SuccessResponse undeleteMemberForAdmin(int id) throws Exception;
+
+    UploadImageResponse uploadImage(MultipartFile image) throws Exception;
 }

@@ -1,13 +1,10 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserResponseType;
+import koreatech.in.domain.User.*;
+import koreatech.in.dto.user.admin.UsersResponse;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
@@ -61,20 +58,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
 
-    public Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception {
-        double totalCount = userMapper.totalCount();
-        double countByLimit = totalCount / criteria.getLimit();
-        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / criteria.getLimit());
+    public UsersResponse getUserListForAdmin(UsersCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new PreconditionFailedException(new ErrorMessage("공백으로는 검색할 수 없습니다.", 1));
+        }
 
-        if (totalPage < 0)
-            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
+        Integer totalCount = userMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
 
-        Map<String, Object> map = new HashMap<>();
+        if (currentPage > totalPage || currentPage < 1) {
+            throw new PreconditionFailedException(new ErrorMessage("유효하지 않은 페이지입니다.", 2));
+        }
 
-        map.put("items", userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit()));
-        map.put("totalPage", totalPage);
+        List<UsersResponse.User> users = userMapper.getUsersByConditionForAdmin(condition.getCursor(), condition);
 
-        return map;
+        return UsersResponse.builder()
+                .totalCount(totalCount)
+                .currentCount(users.size())
+                .totalPage(totalPage)
+                .currentPage(currentPage)
+                .users(users)
+                .build();
     }
 
     @Override
@@ -165,6 +170,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user.getStudent_number() != null && !UserCode.isValidatedStudentNumber(user.getIdentity(), user.getStudent_number())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
+
+        // 학번으로부터 전공 추출
+        user.setMajor(UserCode.extractMajorFromStudentNumber(user.getStudent_number()));
 
         // 학과 유효성 체크
         if (user.getMajor() != null && !UserCode.isValidatedDeptNumber(user.getMajor())) {

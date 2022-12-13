@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.ApiParam;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.BeanSerializer;
 import koreatech.in.domain.Circle.Circle;
 import koreatech.in.domain.Circle.CircleResponseType;
@@ -19,6 +20,7 @@ public class CircleController {
     @Inject
     private CircleService circleService;
 
+    @ApiOff
     @RequestMapping(value = "/circles", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getCircleList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
@@ -26,6 +28,7 @@ public class CircleController {
         return new ResponseEntity<>(BeanSerializer.getSerializedResult(Circle.class, new BeanSerializer(CircleResponseType.getArrayList()), circleService.getCircles(criteria), Map.class), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/circles/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getCircle(@ApiParam(required = false) @RequestParam(value = "page", required = false, defaultValue = "1") int page, @ApiParam(required = false) @RequestParam(value = "limit", required = false, defaultValue = "10") int limit, @ApiParam(required = true) @PathVariable int id) throws Exception {
