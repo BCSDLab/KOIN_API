@@ -106,7 +106,7 @@ public abstract class SchoolBus extends Bus {
                     .build();
 
 
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             return response;
         }
     }
