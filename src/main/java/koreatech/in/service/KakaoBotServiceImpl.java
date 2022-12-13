@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,18 +67,20 @@ public class KakaoBotServiceImpl implements KakaoBotService {
             errorMessage.addSimpleText("출발지와 도착지는 같게 설정될 수 없습니다.");
             return errorMessage.getSkillPayload().toString();
         }
-        StringBuilder resultNow = new StringBuilder("[바로 도착]\n");
-        StringBuilder resultNext = new StringBuilder("[다음 도착]\n");
+        StringJoiner resultNow = new StringJoiner(System.lineSeparator());
+        resultNow.add("[바로 도착]");
+        StringJoiner resultNext = new StringJoiner(System.lineSeparator());
+        resultNext.add("[다음 도착]");
 
-        StringBuilder nowBuses = new StringBuilder();
-        StringBuilder nextBuses = new StringBuilder();
+        StringJoiner nowBuses = new StringJoiner(System.lineSeparator());
+        StringJoiner nextBuses = new StringJoiner(System.lineSeparator());
         for (BusTypeEnum busTypeEnum : BusTypeEnum.values()) {
             Bus bus = busTypeEnum.getBus();
             BusRemainTime busRemainTime = bus.getNowAndNextBusRemainTime(busTypeEnum.name().toLowerCase(), depart.getEngName(), arrival.getEngName());
             BusRemainTime.RemainTime nowRemainTime = busRemainTime.getNowBus();
             BusRemainTime.RemainTime nextRemainTime = busRemainTime.getNextBus();
             if (nowRemainTime != null) {
-                nowBuses.append(String.format("%s, %d시간 %d분 %d초 남음\n",
+                nowBuses.add(String.format("%s, %d시간 %d분 %d초 남음",
                         busTypeEnum.getBusName(),
                         nowRemainTime.getRemainTime() / 3600,
                         nowRemainTime.getRemainTime() % 3600 / 60,
@@ -85,7 +88,7 @@ public class KakaoBotServiceImpl implements KakaoBotService {
                 );
             }
             if (nextRemainTime != null) {
-                nextBuses.append(String.format("%s, %d시간 %d분 %d초 남음\n",
+                nextBuses.add(String.format("%s, %d시간 %d분 %d초 남음",
                         busTypeEnum.getBusName(),
                         nextRemainTime.getRemainTime() / 3600,
                         nextRemainTime.getRemainTime() % 3600 / 60,
@@ -95,13 +98,13 @@ public class KakaoBotServiceImpl implements KakaoBotService {
         }
 
         if (nowBuses.length() == 0) {
-            nowBuses.append("버스 운행정보없음\n");
+            nowBuses.add("버스 운행정보없음");
         }
         if (nextBuses.length() == 0) {
-            nextBuses.append("버스 운행정보없음\n");
+            nextBuses.add("버스 운행정보없음");
         }
-        resultNow.append(nowBuses);
-        resultNext.append(nextBuses);
+        resultNow.add(nowBuses.toString());
+        resultNext.add(nextBuses.toString());
 
         SkillResponse busTime = new SkillResponse();
         busTime.addSimpleText(resultNow.toString());
