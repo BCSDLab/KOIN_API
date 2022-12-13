@@ -93,7 +93,7 @@ public class IntercityBus extends Bus {
                             new BusRemainTime.RemainTime(null, (int) ChronoUnit.SECONDS.between(nowDateTime, nextDepartureTime))
                     )
                     .build();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             return response;
         }
     }
