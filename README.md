@@ -244,3 +244,11 @@ KOIN Community (ver. Spring Framework)
 - 닉네임 글자수 제한 변경 (50 -> 10)
 - 챗봇에서 계절학기와 방학의 버스 시간표도 제공하도록 변경
 - JSON 직렬화 / 비직렬화 모듈이 올바르게 작동하지 않아 리팩토링
+
+
+***version_2.0.0***
+
+`Changes`
+- 식단 명칭 변경
+- 버스 API 수정 및 셔틀버스 최신화
+- mongoDB 적용
