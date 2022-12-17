@@ -15,7 +15,11 @@ public class ShopMenuImage {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenuImage(Integer shopMenuId, String imageUrl) {
+    public static ShopMenuImage create(Integer shopMenuId, String imageUrl) {
+        return new ShopMenuImage(shopMenuId, imageUrl);
+    }
+
+    private ShopMenuImage(Integer shopMenuId, String imageUrl) {
         this.shop_menu_id = shopMenuId;
         this.image_url = imageUrl;
     }

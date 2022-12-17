@@ -18,7 +18,11 @@ public class ShopMenuCategory {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenuCategory(Integer shopId, String name) {
+    public static ShopMenuCategory create(Integer shopId, String name) {
+        return new ShopMenuCategory(shopId, name);
+    }
+
+    private ShopMenuCategory(Integer shopId, String name) {
         this.shop_id = shopId;
         this.name = name;
     }

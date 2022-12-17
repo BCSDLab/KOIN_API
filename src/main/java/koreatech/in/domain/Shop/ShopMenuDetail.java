@@ -18,13 +18,11 @@ public class ShopMenuDetail {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenuDetail(Integer shopMenuId, Integer price) {
-        this.shop_menu_id = shopMenuId;
-        this.option = null;
-        this.price = price;
+    public static ShopMenuDetail create(Integer shopMenuId, String option, Integer price) {
+        return new ShopMenuDetail(shopMenuId, option, price);
     }
 
-    public ShopMenuDetail(Integer shopMenuId, String option, Integer price) {
+    private ShopMenuDetail(Integer shopMenuId, String option, Integer price) {
         this.shop_menu_id = shopMenuId;
         this.option = option;
         this.price = price;

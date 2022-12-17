@@ -19,7 +19,11 @@ public class ShopCategory {
     private Date created_at;
     private Date updated_at;
 
-    public ShopCategory(CreateShopCategoryRequest request) {
+    public static ShopCategory create(CreateShopCategoryRequest request) {
+        return new ShopCategory(request);
+    }
+
+    private ShopCategory(CreateShopCategoryRequest request) {
         this.name = request.getName();
         this.image_url = request.getImage_url();
     }

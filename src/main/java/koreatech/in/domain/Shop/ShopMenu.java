@@ -20,7 +20,11 @@ public class ShopMenu {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenu(Integer shopId, CreateShopMenuRequest request) {
+    public static ShopMenu create(Integer shopId, CreateShopMenuRequest request) {
+        return new ShopMenu(shopId, request);
+    }
+
+    private ShopMenu(Integer shopId, CreateShopMenuRequest request) {
         this.shop_id = shopId;
         this.name = request.getName();
         this.description = request.getDescription();

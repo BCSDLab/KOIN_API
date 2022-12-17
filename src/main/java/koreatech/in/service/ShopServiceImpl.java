@@ -47,7 +47,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ConflictException(new ErrorMessage(SHOP_CATEGORY_NAME_DUPLICATE));
         }
 
-        ShopCategory category = new ShopCategory(request);
+        ShopCategory category = ShopCategory.create(request);
         shopMapper.createShopCategory(category);
 
         return SuccessCreateResponse.builder()
@@ -138,7 +138,7 @@ public class ShopServiceImpl implements ShopService {
 
         // ======= shops 테이블 =======
         Integer ownerId = null; // TODO: 수정 필요
-        Shop shop = new Shop(request, ownerId);
+        Shop shop = Shop.create(request, ownerId);
         shopMapper.createShop(shop);
 
 
@@ -158,7 +158,7 @@ public class ShopServiceImpl implements ShopService {
                 throw new NotFoundException(new ErrorMessage(SHOP_CATEGORY_NOT_FOUND));
             }
 
-            ShopCategoryMap shopCategoryMap = new ShopCategoryMap(shop.getId(), categoryId);
+            ShopCategoryMap shopCategoryMap = ShopCategoryMap.create(shop.getId(), categoryId);
             shopCategoryMaps.add(shopCategoryMap);
         });
 
@@ -172,7 +172,7 @@ public class ShopServiceImpl implements ShopService {
         String[] basicMenuCategoryNames = new String[]{"이벤트 메뉴", "대표 메뉴", "사이드 메뉴", "세트 메뉴"};
 
         List<ShopMenuCategory> menuCategories = Arrays.stream(basicMenuCategoryNames)
-                .map(name -> new ShopMenuCategory(shop.getId(), name))
+                .map(name -> ShopMenuCategory.create(shop.getId(), name))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         shopMapper.createMenuCategories(menuCategories);
@@ -180,7 +180,7 @@ public class ShopServiceImpl implements ShopService {
 
         // ======= shop_images 테이블 =======
         List<ShopImage> shopImages = request.getImage_urls().stream()
-                .map(url -> new ShopImage(shop.getId(), url))
+                .map(url -> ShopImage.create(shop.getId(), url))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopImages.isEmpty()) {
@@ -254,7 +254,7 @@ public class ShopServiceImpl implements ShopService {
 
             // 요청된 카테고리중 db에 존재하지 않던 카테고리는 새로운 insert 대상
             if (!existingCategories.contains(requestedCategory)) {
-                ShopCategoryMap shopCategoryMap = new ShopCategoryMap(shopId, categoryId);
+                ShopCategoryMap shopCategoryMap = ShopCategoryMap.create(shopId, categoryId);
                 shopCategoryMapsToCreate.add(shopCategoryMap);
             }
 
@@ -268,7 +268,7 @@ public class ShopServiceImpl implements ShopService {
 
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         shopCategoryMapsToDelete = existingCategories.stream()
-                .map(category -> new ShopCategoryMap(shopId, category.getId()))
+                .map(category -> ShopCategoryMap.create(shopId, category.getId()))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopCategoryMapsToDelete.isEmpty()) {
@@ -285,7 +285,7 @@ public class ShopServiceImpl implements ShopService {
         request.getImage_urls().forEach(imageUrl -> {
             // 기존에 없던 url은 새로운 INSERT 대상
             if (!existingImageUrls.contains(imageUrl)) {
-                ShopImage shopImage = new ShopImage(shopId, imageUrl);
+                ShopImage shopImage = ShopImage.create(shopId, imageUrl);
                 shopImagesToCreate.add(shopImage);
             }
 
@@ -299,7 +299,7 @@ public class ShopServiceImpl implements ShopService {
 
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         shopImagesToDelete = existingImageUrls.stream()
-                .map(imageUrl -> new ShopImage(shopId, imageUrl))
+                .map(imageUrl -> ShopImage.create(shopId, imageUrl))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopImagesToDelete.isEmpty()) {
@@ -381,7 +381,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ConflictException(new ErrorMessage(SHOP_MENU_CATEGORY_MAXIMUM_EXCEED));
         }
 
-        ShopMenuCategory menuCategory = new ShopMenuCategory(shopId, request.getName());
+        ShopMenuCategory menuCategory = ShopMenuCategory.create(shopId, request.getName());
         shopMapper.createMenuCategory(menuCategory);
 
         return SuccessCreateResponse.builder()
@@ -439,7 +439,7 @@ public class ShopServiceImpl implements ShopService {
         findShop(shopId); // 상점 존재 여부 체크
 
         // ======= shop_menus 테이블 =======
-        ShopMenu menu = new ShopMenu(shopId, request);
+        ShopMenu menu = ShopMenu.create(shopId, request);
         shopMapper.createMenu(menu);
 
 
@@ -450,7 +450,7 @@ public class ShopServiceImpl implements ShopService {
                 throw new ValidationException(new ErrorMessage("is_single이 true이면 single_price는 필수입니다.", REQUEST_DATA_INVALID.getCode()));
             }
 
-            ShopMenuDetail menuDetail = new ShopMenuDetail(menu.getId(), request.getSingle_price());
+            ShopMenuDetail menuDetail = ShopMenuDetail.create(menu.getId(), null, request.getSingle_price());
             shopMapper.createMenuDetail(menuDetail);
         }
         // 단일 메뉴가 아닐때
@@ -465,7 +465,7 @@ public class ShopServiceImpl implements ShopService {
             }
 
             List<ShopMenuDetail> menuDetails = request.getOption_prices().stream()
-                    .map(optionPrice -> new ShopMenuDetail(menu.getId(), optionPrice.getOption(), optionPrice.getPrice()))
+                    .map(optionPrice -> ShopMenuDetail.create(menu.getId(), optionPrice.getOption(), optionPrice.getPrice()))
                     .collect(Collectors.toCollection(LinkedList::new));
 
             shopMapper.createMenuDetails(menuDetails);
@@ -474,7 +474,7 @@ public class ShopServiceImpl implements ShopService {
 
         // ======= shop_menu_images 테이블 =======
         List<ShopMenuImage> menuImages = request.getImage_urls().stream()
-                .map(imageUrl -> new ShopMenuImage(menu.getId(), imageUrl))
+                .map(imageUrl -> ShopMenuImage.create(menu.getId(), imageUrl))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuImages.isEmpty()) {
@@ -493,7 +493,8 @@ public class ShopServiceImpl implements ShopService {
                 throw new NotFoundException(new ErrorMessage(SHOP_MENU_CATEGORY_NOT_FOUND));
             }
 
-            shopMenuCategoryMaps.add(new ShopMenuCategoryMap(menu.getId(), categoryId));
+            ShopMenuCategoryMap shopMenuCategoryMap = ShopMenuCategoryMap.create(menu.getId(), categoryId);
+            shopMenuCategoryMaps.add(shopMenuCategoryMap);
         });
 
         shopMapper.createMenuCategoryMaps(shopMenuCategoryMaps);
@@ -557,7 +558,7 @@ public class ShopServiceImpl implements ShopService {
                 throw new ValidationException(new ErrorMessage("is_single이 true이면 single_price는 필수입니다.", REQUEST_DATA_INVALID.getCode()));
             }
 
-            ShopMenuDetail requestedMenuDetail = new ShopMenuDetail(menuId, request.getSingle_price());
+            ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, null, request.getSingle_price());
 
             if (existingMenuDetails.contains(requestedMenuDetail)) {
                 existingMenuDetails.remove(requestedMenuDetail);
@@ -581,7 +582,7 @@ public class ShopServiceImpl implements ShopService {
             List<ShopMenuDetail> menuDetailsToCreate = new LinkedList<>();
 
             request.getOption_prices().forEach(optionPrice -> {
-                ShopMenuDetail requestedMenuDetail = new ShopMenuDetail(menuId, optionPrice.getOption(), optionPrice.getPrice());
+                ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, optionPrice.getOption(), optionPrice.getPrice());
 
                 // 기존에 없던 menu detail은 새로운 INSERT 대상
                 if (!existingMenuDetails.contains(requestedMenuDetail)) {
@@ -611,7 +612,7 @@ public class ShopServiceImpl implements ShopService {
 
         request.getImage_urls().forEach(imageUrl -> {
             if (!existingImageUrls.contains(imageUrl)) {
-                ShopMenuImage menuImage = new ShopMenuImage(menuId, imageUrl);
+                ShopMenuImage menuImage = ShopMenuImage.create(menuId, imageUrl);
                 menuImagesToCreate.add(menuImage);
             }
 
@@ -625,7 +626,7 @@ public class ShopServiceImpl implements ShopService {
 
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         menuImagesToDelete = existingImageUrls.stream()
-                .map(imageUrl -> new ShopMenuImage(menuId, imageUrl))
+                .map(imageUrl -> ShopMenuImage.create(menuId, imageUrl))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuImagesToDelete.isEmpty()) {
@@ -648,7 +649,7 @@ public class ShopServiceImpl implements ShopService {
 
             // 기존에 없던 메뉴 카테고리는 새로운 INSERT 대상
             if (!existingCategories.contains(requestedCategory)) {
-                ShopMenuCategoryMap shopMenuCategoryMap = new ShopMenuCategoryMap(menuId, requestedCategory.getId());
+                ShopMenuCategoryMap shopMenuCategoryMap = ShopMenuCategoryMap.create(menuId, requestedCategory.getId());
                 menuCategoryMapsToCreate.add(shopMenuCategoryMap);
             }
 
@@ -662,7 +663,7 @@ public class ShopServiceImpl implements ShopService {
 
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         menuCategoryMapsToDelete = existingCategories.stream()
-                .map(category -> new ShopMenuCategoryMap(menuId, category.getId()))
+                .map(category -> ShopMenuCategoryMap.create(menuId, category.getId()))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuCategoryMapsToDelete.isEmpty()) {
@@ -875,7 +876,7 @@ public class ShopServiceImpl implements ShopService {
             }
 
             actual.add(dayOfWeek);
-            shopOpens.add(new ShopOpen(shopId, dayOfWeek, closed, openTime, closeTime));
+            shopOpens.add(ShopOpen.create(shopId, dayOfWeek, closed, openTime, closeTime));
         });
 
         Collections.sort(actual);

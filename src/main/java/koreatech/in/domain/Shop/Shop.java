@@ -29,7 +29,11 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public Shop(CreateShopRequest request, Integer ownerId) {
+    public static Shop create(CreateShopRequest request, Integer ownerId) {
+        return new Shop(request, ownerId);
+    }
+
+    private Shop(CreateShopRequest request, Integer ownerId) {
         this.owner_id = ownerId;
         this.name = request.getName();
         this.internal_name = this.name.replace(" ", "").toLowerCase();

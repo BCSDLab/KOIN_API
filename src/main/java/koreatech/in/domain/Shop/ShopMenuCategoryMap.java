@@ -15,7 +15,11 @@ public class ShopMenuCategoryMap {
     private Date created_at;
     private Date updated_at;
 
-    public ShopMenuCategoryMap(Integer shopMenuId, Integer shopMenuCategoryId) {
+    public static ShopMenuCategoryMap create(Integer shopMenuId, Integer shopMenuCategoryId) {
+        return new ShopMenuCategoryMap(shopMenuId, shopMenuCategoryId);
+    }
+
+    private ShopMenuCategoryMap(Integer shopMenuId, Integer shopMenuCategoryId) {
         this.shop_menu_id = shopMenuId;
         this.shop_menu_category_id = shopMenuCategoryId;
     }
