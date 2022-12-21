@@ -1,4 +1,4 @@
-package koreatech.in.dto.shop.admin.response;
+package koreatech.in.dto.shop.normal.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +26,6 @@ public class ShopResponse {
         private List<ShopCategory> shop_categories;
         private List<MenuCategory> menu_categories;
         private List<Menu> menus;
-        private Boolean is_deleted;
 
         public void decideWhetherSingleOrNotOfMenus() {
             this.menus.forEach(Menu::decideWhetherSingleOrNot);

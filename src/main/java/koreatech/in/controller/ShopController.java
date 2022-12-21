@@ -1,8 +1,8 @@
 package koreatech.in.controller;
 
-import koreatech.in.dto.shop.admin.response.AllShopCategoriesResponse;
-import koreatech.in.dto.shop.admin.response.AllShopsResponse;
-import koreatech.in.dto.shop.admin.response.ShopResponse;
+import koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse;
+import koreatech.in.dto.shop.normal.response.AllShopsResponse;
+import koreatech.in.dto.shop.normal.response.ShopResponse;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

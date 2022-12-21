@@ -9,9 +9,10 @@ import koreatech.in.dto.shop.admin.request.inner.Open;
 import koreatech.in.dto.shop.admin.response.*;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.shop.admin.response.inner.MinimizedShop;
+import koreatech.in.dto.shop.normal.response.AllShopsResponse;
 import koreatech.in.exception.*;
 import koreatech.in.repository.ShopMapper;
+import koreatech.in.repository.query.ShopQueryMapper;
 import koreatech.in.util.S3Bucket;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class ShopServiceImpl implements ShopService {
     private ShopMapper shopMapper;
 
     @Autowired
+    private ShopQueryMapper shopQueryMapper;
+
+    @Autowired
     JwtValidator jwtValidator;
 
     @Inject
@@ -48,7 +52,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         ShopCategory category = ShopCategory.create(request);
-        shopMapper.createShopCategory(category);
+        shopMapper.createShopCategoryForAdmin(category);
 
         return SuccessCreateResponse.builder()
                 .id(category.getId())
@@ -66,7 +70,7 @@ public class ShopServiceImpl implements ShopService {
 
         if (existingCategory.needToUpdate(request)) {
             existingCategory.update(request);
-            shopMapper.updateShopCategory(existingCategory);
+            shopMapper.updateShopCategoryForAdmin(existingCategory);
         }
 
         return new SuccessResponse();
@@ -77,14 +81,14 @@ public class ShopServiceImpl implements ShopService {
     public SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception {
         findShopCategory(shopCategoryId); // 카테고리 존재 여부 체크
 
-        List<Shop> shopsUsingCategory = shopMapper.getShopsUsingCategory(shopCategoryId);
+        List<Shop> shopsUsingCategory = shopMapper.getShopsUsingCategoryForAdmin(shopCategoryId);
 
         // 카테고리를 사용하고 있는 상점이 있으면 삭제할 수 없다.
         if (!shopsUsingCategory.isEmpty()) {
             throw new ConflictException(new ErrorMessage(SHOP_USING_CATEGORY_EXIST));
         }
 
-        shopMapper.deleteShopCategoryById(shopCategoryId);
+        shopMapper.deleteShopCategoryByIdForAdmin(shopCategoryId);
 
         return new SuccessResponse();
     }
@@ -92,12 +96,9 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public AllShopCategoriesResponse getAllShopCategoriesForAdmin() throws Exception {
-        List<koreatech.in.dto.shop.admin.response.inner.ShopCategory> categories = shopMapper.getAllShopCategories();
+        List<ShopCategory> allShopCategories = shopMapper.getAllShopCategoriesForAdmin();
 
-        return AllShopCategoriesResponse.builder()
-                .total_count(categories.size())
-                .shop_categories(categories)
-                .build();
+        return AllShopCategoriesResponse.from(allShopCategories);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class ShopServiceImpl implements ShopService {
         // TODO: 사장님의 존재 여부 확인 + 회원가입 후 권한이 주어졌는지 확인
 
         shop.matchOwnerId(request.getOwner_id());
-        shopMapper.updateShop(shop);
+        shopMapper.updateShopForAdmin(shop);
 
         return new SuccessResponse();
     }
@@ -139,19 +140,19 @@ public class ShopServiceImpl implements ShopService {
         // ======= shops 테이블 =======
         Integer ownerId = null; // TODO: 수정 필요
         Shop shop = Shop.create(request, ownerId);
-        shopMapper.createShop(shop);
+        shopMapper.createShopForAdmin(shop);
 
 
         // ======= shop_opens 테이블 =======
         List<ShopOpen> shopOpens = generateShopOpens(shop.getId(), request.getOpen());
-        shopMapper.createShopOpens(shopOpens);
+        shopMapper.createShopOpensForAdmin(shopOpens);
 
 
         // ======= shop_category_map 테이블 =======
         List<ShopCategoryMap> shopCategoryMaps = new LinkedList<>();
 
         request.getCategory_ids().forEach(categoryId -> {
-            ShopCategory category = shopMapper.getShopCategoryById(categoryId);
+            ShopCategory category = shopMapper.getShopCategoryByIdForAdmin(categoryId);
 
             // 카테고리가 db에 존재하는지 확인
             if (category == null) {
@@ -162,7 +163,7 @@ public class ShopServiceImpl implements ShopService {
             shopCategoryMaps.add(shopCategoryMap);
         });
 
-        shopMapper.createShopCategoryMaps(shopCategoryMaps);
+        shopMapper.createShopCategoryMapsForAdmin(shopCategoryMaps);
 
 
         // ======= shop_menu_categories 테이블 =======
@@ -175,7 +176,7 @@ public class ShopServiceImpl implements ShopService {
                 .map(name -> ShopMenuCategory.create(shop.getId(), name))
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        shopMapper.createMenuCategories(menuCategories);
+        shopMapper.createMenuCategoriesForAdmin(menuCategories);
 
 
         // ======= shop_images 테이블 =======
@@ -184,7 +185,7 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopImages.isEmpty()) {
-            shopMapper.createShopImages(shopImages);
+            shopMapper.createShopImagesForAdmin(shopImages);
         }
 
 
@@ -196,7 +197,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public ShopResponse getShopForAdmin(Integer shopId) throws Exception {
-        ShopResponse.Shop shop = shopMapper.getShopForResponse(shopId);
+        ShopResponse.Shop shop = shopQueryMapper.getShopInShopResponseForAdmin(shopId);
 
         if (shop == null) {
             throw new NotFoundException(new ErrorMessage(SHOP_NOT_FOUND));
@@ -230,22 +231,22 @@ public class ShopServiceImpl implements ShopService {
         // ======= shops 테이블 =======
         if (existingShop.needToUpdate(request)) {
             existingShop.update(request);
-            shopMapper.updateShop(existingShop);
+            shopMapper.updateShopForAdmin(existingShop);
         }
 
 
         // ======= shop_opens 테이블 =======
         List<ShopOpen> shopOpens = generateShopOpens(shopId, request.getOpen());
-        shopMapper.updateShopOpens(shopOpens);
+        shopMapper.updateShopOpensForAdmin(shopOpens);
 
 
         // ======= shop_category_map 테이블 =======
-        List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopId(shopId); // 상점이 속해있는 상점 카테고리 목록
+        List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopIdForAdmin(shopId); // 상점이 속해있는 상점 카테고리 목록
         List<ShopCategoryMap> shopCategoryMapsToCreate = new LinkedList<>(); // 추가할 관계
         List<ShopCategoryMap> shopCategoryMapsToDelete; // 삭제할 관계
 
         request.getCategory_ids().forEach(categoryId -> {
-            ShopCategory requestedCategory = shopMapper.getShopCategoryById(categoryId);
+            ShopCategory requestedCategory = shopMapper.getShopCategoryByIdForAdmin(categoryId);
 
             // 요청된 카테고리가 db에 존재하는지 검증
             if (requestedCategory == null) {
@@ -263,7 +264,7 @@ public class ShopServiceImpl implements ShopService {
         });
 
         if (!shopCategoryMapsToCreate.isEmpty()) {
-            shopMapper.createShopCategoryMaps(shopCategoryMapsToCreate);
+            shopMapper.createShopCategoryMapsForAdmin(shopCategoryMapsToCreate);
         }
 
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
@@ -272,12 +273,12 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopCategoryMapsToDelete.isEmpty()) {
-            shopMapper.deleteShopCategoryMaps(shopCategoryMapsToDelete);
+            shopMapper.deleteShopCategoryMapsForAdmin(shopCategoryMapsToDelete);
         }
 
 
         // ======= shop_images 테이블 =======
-        List<String> existingImageUrls = shopMapper.getShopImageUrlsByShopId(shopId);
+        List<String> existingImageUrls = shopMapper.getShopImageUrlsByShopIdForAdmin(shopId);
 
         List<ShopImage> shopImagesToCreate = new LinkedList<>(); // 추가할 shop image list
         List<ShopImage> shopImagesToDelete; // 삭제할 shop image list
@@ -294,7 +295,7 @@ public class ShopServiceImpl implements ShopService {
         });
 
         if (!shopImagesToCreate.isEmpty()) {
-            shopMapper.createShopImages(shopImagesToCreate);
+            shopMapper.createShopImagesForAdmin(shopImagesToCreate);
         }
 
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
@@ -303,7 +304,7 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!shopImagesToDelete.isEmpty()) {
-            shopMapper.deleteShopImages(shopImagesToDelete);
+            shopMapper.deleteShopImagesForAdmin(shopImagesToDelete);
         }
 
 
@@ -324,7 +325,7 @@ public class ShopServiceImpl implements ShopService {
              shop 테이블의 레코드만 soft delete 한다.
              이유는 어드민페이지에서 상점 삭제 해제 기능을 사용할때 쉽게 복구가 가능해야 하기 때문이다.
          */
-        shopMapper.deleteShopById(shopId);
+        shopMapper.deleteShopByIdForAdmin(shopId);
 
         return new SuccessResponse();
     }
@@ -338,7 +339,7 @@ public class ShopServiceImpl implements ShopService {
             throw new ConflictException(new ErrorMessage(SHOP_NOT_DELETED));
         }
 
-        shopMapper.undeleteShopById(shopId);
+        shopMapper.undeleteShopByIdForAdmin(shopId);
 
         return new SuccessResponse();
     }
@@ -346,10 +347,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public ShopsResponse getShopsForAdmin(ShopsCondition condition) throws Exception {
-        condition.removeBlankOfSearchName();
-        //request.setFilter();
-
-        Integer totalCount = shopMapper.getTotalCountOfShopsByCondition(condition);
+        Integer totalCount = shopQueryMapper.getTotalCountOfShopsByConditionForAdmin(condition);
         Integer totalPage = condition.extractTotalPage(totalCount);
         Integer currentPage = condition.getPage();
 
@@ -357,10 +355,12 @@ public class ShopServiceImpl implements ShopService {
             throw new ValidationException(new ErrorMessage(PAGE_NOT_FOUND));
         }
 
-        List<MinimizedShop> shops = shopMapper.getShopsByCondition(condition.extractBegin(), condition);
+        List<ShopsResponse.Shop> shops = shopQueryMapper.getShopsInShopsResponseByConditionForAdmin(condition.getCursor(), condition);
 
         return ShopsResponse.builder()
+                .total_count(totalCount)
                 .total_page(totalPage)
+                .current_count(shops.size())
                 .current_page(currentPage)
                 .shops(shops)
                 .build();
@@ -375,14 +375,14 @@ public class ShopServiceImpl implements ShopService {
             throw new ConflictException(new ErrorMessage(SHOP_MENU_CATEGORY_NAME_DUPLICATE));
         }
 
-        Integer existingCount = shopMapper.getCountOfMenuCategoriesByShopId(shopId);
+        Integer existingCount = shopMapper.getCountOfMenuCategoriesByShopIdForAdmin(shopId);
         // 한 상점당 메뉴 카테고리 최대 개수는 20개
         if (existingCount.equals(20)) {
             throw new ConflictException(new ErrorMessage(SHOP_MENU_CATEGORY_MAXIMUM_EXCEED));
         }
 
         ShopMenuCategory menuCategory = ShopMenuCategory.create(shopId, request.getName());
-        shopMapper.createMenuCategory(menuCategory);
+        shopMapper.createMenuCategoryForAdmin(menuCategory);
 
         return SuccessCreateResponse.builder()
                 .id(menuCategory.getId())
@@ -394,13 +394,9 @@ public class ShopServiceImpl implements ShopService {
     public AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShopForAdmin(Integer shopId) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
-        List<koreatech.in.dto.shop.admin.response.inner.ShopMenuCategory> menuCategories = shopMapper.getMenuCategoriesOfShopByShopId(shopId);
+        List<ShopMenuCategory> menuCategoriesOfShop = shopMapper.getMenuCategoriesOfShopByShopIdForAdmin(shopId);
 
-        return AllMenuCategoriesOfShopResponse.builder()
-                .shop_id(shopId)
-                .count(menuCategories.size())
-                .menu_categories(menuCategories)
-                .build();
+        return AllMenuCategoriesOfShopResponse.from(menuCategoriesOfShop);
     }
 
     @Override
@@ -408,19 +404,19 @@ public class ShopServiceImpl implements ShopService {
     public SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
-        ShopMenuCategory category = shopMapper.getMenuCategoryById(menuCategoryId);
+        ShopMenuCategory category = shopMapper.getMenuCategoryByIdForAdmin(menuCategoryId);
 
         if (category == null || !category.hasSameShopId(shopId)) {
             throw new NotFoundException(new ErrorMessage(SHOP_MENU_CATEGORY_NOT_FOUND));
         }
 
         // 카테고리를 사용하고 있는 메뉴가 1개라도 있으면 삭제 불가
-        List<ShopMenu> menusUsingCategory = shopMapper.getMenusUsingCategory(menuCategoryId);
+        List<ShopMenu> menusUsingCategory = shopMapper.getMenusUsingCategoryForAdmin(menuCategoryId);
         if (!menusUsingCategory.isEmpty()) {
             throw new ConflictException(new ErrorMessage(SHOP_MENU_USING_CATEGORY_EXIST));
         }
 
-        shopMapper.deleteMenuCategoryById(menuCategoryId);
+        shopMapper.deleteMenuCategoryByIdForAdmin(menuCategoryId);
 
         return new SuccessResponse();
     }
@@ -440,7 +436,7 @@ public class ShopServiceImpl implements ShopService {
 
         // ======= shop_menus 테이블 =======
         ShopMenu menu = ShopMenu.create(shopId, request);
-        shopMapper.createMenu(menu);
+        shopMapper.createMenuForAdmin(menu);
 
 
         // ======= shop_menu_details 테이블 =======
@@ -451,7 +447,7 @@ public class ShopServiceImpl implements ShopService {
             }
 
             ShopMenuDetail menuDetail = ShopMenuDetail.create(menu.getId(), null, request.getSingle_price());
-            shopMapper.createMenuDetail(menuDetail);
+            shopMapper.createMenuDetailForAdmin(menuDetail);
         }
         // 단일 메뉴가 아닐때
         else {
@@ -468,7 +464,7 @@ public class ShopServiceImpl implements ShopService {
                     .map(optionPrice -> ShopMenuDetail.create(menu.getId(), optionPrice.getOption(), optionPrice.getPrice()))
                     .collect(Collectors.toCollection(LinkedList::new));
 
-            shopMapper.createMenuDetails(menuDetails);
+            shopMapper.createMenuDetailsForAdmin(menuDetails);
         }
 
 
@@ -478,7 +474,7 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuImages.isEmpty()) {
-            shopMapper.createMenuImages(menuImages);
+            shopMapper.createMenuImagesForAdmin(menuImages);
         }
 
 
@@ -486,7 +482,7 @@ public class ShopServiceImpl implements ShopService {
         List<ShopMenuCategoryMap> shopMenuCategoryMaps = new LinkedList<>();
 
         request.getCategory_ids().forEach(categoryId -> {
-            ShopMenuCategory category = shopMapper.getMenuCategoryById(categoryId);
+            ShopMenuCategory category = shopMapper.getMenuCategoryByIdForAdmin(categoryId);
 
             // 카테고리가 조회되지 않거나 해당 상점의 메뉴 카테고리가 아니라면
             if (category == null || !category.hasSameShopId(shopId)) {
@@ -497,7 +493,7 @@ public class ShopServiceImpl implements ShopService {
             shopMenuCategoryMaps.add(shopMenuCategoryMap);
         });
 
-        shopMapper.createMenuCategoryMaps(shopMenuCategoryMaps);
+        shopMapper.createMenuCategoryMapsForAdmin(shopMenuCategoryMaps);
 
 
         return SuccessCreateResponse.builder()
@@ -510,7 +506,7 @@ public class ShopServiceImpl implements ShopService {
     public MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
-        koreatech.in.dto.shop.admin.response.inner.ShopMenu menu = shopMapper.getMenuForResponse(menuId);
+        MenuResponse.Menu menu = shopQueryMapper.getMenuInMenuResponseForAdmin(menuId);
 
         if (menu == null || !menu.hasSameShopId(shopId)) {
             throw new NotFoundException(new ErrorMessage(SHOP_MENU_NOT_FOUND));
@@ -518,9 +514,13 @@ public class ShopServiceImpl implements ShopService {
 
         menu.decideWhetherSingleOrNot();
 
-        return MenuResponse.builder()
-                .menu(menu)
-                .build();
+        List<ShopMenuCategory> allMenuCategoriesOfShop = shopMapper.getMenuCategoriesOfShopByShopIdForAdmin(shopId);
+
+        MenuResponse menuResponse = new MenuResponse();
+        menuResponse.setMenu(menu);
+        menuResponse.setMenuCategoriesOfShopFrom(allMenuCategoriesOfShop);
+
+        return menuResponse;
     }
 
     @Override
@@ -546,12 +546,12 @@ public class ShopServiceImpl implements ShopService {
         // ======= shop_menus 테이블 =======
         if (existingMenu.needToUpdate(request)) {
             existingMenu.update(request);
-            shopMapper.updateMenu(existingMenu);
+            shopMapper.updateMenuForAdmin(existingMenu);
         }
 
 
         // ======= shop_menu_details 테이블 =======
-        List<ShopMenuDetail> existingMenuDetails = shopMapper.getMenuDetailsByMenuId(menuId);
+        List<ShopMenuDetail> existingMenuDetails = shopMapper.getMenuDetailsByMenuIdForAdmin(menuId);
         // 단일 메뉴일때
         if (request.getIs_single()) {
             if (request.getSingle_price() == null) {
@@ -563,11 +563,11 @@ public class ShopServiceImpl implements ShopService {
             if (existingMenuDetails.contains(requestedMenuDetail)) {
                 existingMenuDetails.remove(requestedMenuDetail);
                 if (!existingMenuDetails.isEmpty()) {
-                    shopMapper.deleteMenuDetails(existingMenuDetails);
+                    shopMapper.deleteMenuDetailsForAdmin(existingMenuDetails);
                 }
             } else {
-                shopMapper.deleteMenuDetailsByMenuId(menuId);
-                shopMapper.createMenuDetail(requestedMenuDetail);
+                shopMapper.deleteMenuDetailsByMenuIdForAdmin(menuId);
+                shopMapper.createMenuDetailForAdmin(requestedMenuDetail);
             }
         }
         // 단일 메뉴가 아닐때
@@ -594,18 +594,18 @@ public class ShopServiceImpl implements ShopService {
             });
 
             if (!menuDetailsToCreate.isEmpty()) {
-                shopMapper.createMenuDetails(menuDetailsToCreate);
+                shopMapper.createMenuDetailsForAdmin(menuDetailsToCreate);
             }
 
             // existingMenuDetails 리스트에 남아있는 menu detail: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
             if (!existingMenuDetails.isEmpty()) {
-                shopMapper.deleteMenuDetails(existingMenuDetails);
+                shopMapper.deleteMenuDetailsForAdmin(existingMenuDetails);
             }
         }
 
 
         // ======= shop_menu_images 테이블 =======
-        List<String> existingImageUrls = shopMapper.getMenuImageUrlsByMenuId(menuId);
+        List<String> existingImageUrls = shopMapper.getMenuImageUrlsByMenuIdForAdmin(menuId);
 
         List<ShopMenuImage> menuImagesToCreate = new LinkedList<>();
         List<ShopMenuImage> menuImagesToDelete;
@@ -621,7 +621,7 @@ public class ShopServiceImpl implements ShopService {
         });
 
         if (!menuImagesToCreate.isEmpty()) {
-            shopMapper.createMenuImages(menuImagesToCreate);
+            shopMapper.createMenuImagesForAdmin(menuImagesToCreate);
         }
 
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
@@ -630,17 +630,17 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuImagesToDelete.isEmpty()) {
-            shopMapper.deleteMenuImages(menuImagesToDelete);
+            shopMapper.deleteMenuImagesForAdmin(menuImagesToDelete);
         }
 
 
         // --- shop_menu_category_map 테이블 ---
-        List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenuByMenuId(menuId);
+        List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenuByMenuIdForAdmin(menuId);
         List<ShopMenuCategoryMap> menuCategoryMapsToCreate = new LinkedList<>();
         List<ShopMenuCategoryMap> menuCategoryMapsToDelete;
 
         request.getCategory_ids().forEach(categoryId -> {
-            ShopMenuCategory requestedCategory = shopMapper.getMenuCategoryById(categoryId);
+            ShopMenuCategory requestedCategory = shopMapper.getMenuCategoryByIdForAdmin(categoryId);
 
             // 카테고리가 db에 존재하는지, 해당 상점의 메뉴 카테고리가 맞는지 검증
             if (requestedCategory == null || !requestedCategory.hasSameShopId(shopId)) {
@@ -658,7 +658,7 @@ public class ShopServiceImpl implements ShopService {
         });
 
         if (!menuCategoryMapsToCreate.isEmpty()) {
-            shopMapper.createMenuCategoryMaps(menuCategoryMapsToCreate);
+            shopMapper.createMenuCategoryMapsForAdmin(menuCategoryMapsToCreate);
         }
 
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
@@ -667,7 +667,7 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         if (!menuCategoryMapsToDelete.isEmpty()) {
-            shopMapper.deleteMenuCategoryMaps(menuCategoryMapsToDelete);
+            shopMapper.deleteMenuCategoryMapsForAdmin(menuCategoryMapsToDelete);
         }
 
 
@@ -685,7 +685,7 @@ public class ShopServiceImpl implements ShopService {
             throw new NotFoundException(new ErrorMessage(SHOP_MENU_NOT_FOUND));
         }
 
-        shopMapper.deleteAllForInvolvedWithMenu(menuId);
+        shopMapper.deleteAllForInvolvedWithMenuForAdmin(menuId);
 
         return new SuccessResponse();
     }
@@ -706,13 +706,13 @@ public class ShopServiceImpl implements ShopService {
                 throw new ConflictException(new ErrorMessage(SHOP_MENU_ALREADY_HIDDEN));
             }
 
-            shopMapper.hideMenuById(menuId);
+            shopMapper.hideMenuByIdForAdmin(menuId);
         } else {
             if (!menu.getIs_hidden()) {
                 throw new ConflictException(new ErrorMessage(SHOP_MENU_NOT_HIDDEN));
             }
 
-            shopMapper.revealMenuById(menuId);
+            shopMapper.revealMenuByIdForAdmin(menuId);
         }
 
         return new SuccessResponse();
@@ -721,27 +721,32 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public AllMenusOfShopResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception {
-        AllMenusOfShopResponse menus = shopMapper.getAllMenusOfShopForResponse(shopId);
+        findShop(shopId); // 상점 존재 여부 체크
 
-        if (menus == null) {
-            throw new NotFoundException(new ErrorMessage(SHOP_NOT_FOUND));
-        }
+        List<AllMenusOfShopResponse.Menu> menus = shopQueryMapper.getMenusInAllMenusOfShopResponseForAdmin(shopId);
 
-        return menus.decideOptionalOfMenus();
+        AllMenusOfShopResponse response = AllMenusOfShopResponse.builder()
+                .count(menus.size())
+                .menus(menus)
+                .build();
+
+        response.decideWhetherSingleOrNotOfMenus();
+
+        return response;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ShopResponse getShop(Integer shopId) throws Exception {
-        ShopResponse.Shop shop = shopMapper.getShopForResponse(shopId);
+    public koreatech.in.dto.shop.normal.response.ShopResponse getShop(Integer shopId) throws Exception {
+        koreatech.in.dto.shop.normal.response.ShopResponse.Shop shop = shopQueryMapper.getShopInShopResponse(shopId);
 
-        if (shop == null || shop.getIs_deleted()) {
+        if (shop == null) {
             throw new NotFoundException(new ErrorMessage(SHOP_NOT_FOUND));
         }
 
         shop.decideWhetherSingleOrNotOfMenus();
 
-        return ShopResponse.builder()
+        return koreatech.in.dto.shop.normal.response.ShopResponse.builder()
                 .shop(shop)
                 .build();
     }
@@ -749,7 +754,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public AllShopsResponse getAllShops() throws Exception {
-        List<koreatech.in.dto.shop.admin.response.inner.Shop> shops = shopMapper.getAllShops();
+        List<AllShopsResponse.Shop> shops = shopQueryMapper.getShopsInAllShopsResponse();
 
         return AllShopsResponse.builder()
                 .total_count(shops.size())
@@ -759,13 +764,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public AllShopCategoriesResponse getAllShopCategories() throws Exception {
-        List<koreatech.in.dto.shop.admin.response.inner.ShopCategory> categories = shopMapper.getAllShopCategories();
+    public koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse getAllShopCategories() throws Exception {
+        List<ShopCategory> allShopCategories = shopMapper.getAllShopCategories();
 
-        return AllShopCategoriesResponse.builder()
-                .total_count(categories.size())
-                .shop_categories(categories)
-                .build();
+        return koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse.from(allShopCategories);
     }
 
     @Override
@@ -796,31 +798,31 @@ public class ShopServiceImpl implements ShopService {
     }
 
     private boolean isDuplicatedShopCategoryName(String name) {
-        return shopMapper.getShopCategoryByName(name) != null;
+        return shopMapper.getShopCategoryByNameForAdmin(name) != null;
     }
 
     private boolean isDuplicatedShopCategoryName(String name, Integer shopCategoryId) {
-        ShopCategory shopCategory = shopMapper.getShopCategoryByName(name);
+        ShopCategory shopCategory = shopMapper.getShopCategoryByNameForAdmin(name);
 
         return shopCategory != null && !shopCategory.hasSameId(shopCategoryId);
     }
 
     private boolean isDuplicatedShopName(String name) {
-        return shopMapper.getShopByName(name) != null;
+        return shopMapper.getShopByNameForAdmin(name) != null;
     }
 
     private boolean isDuplicatedShopName(String name, Integer shopId) {
-        Shop shop = shopMapper.getShopByName(name);
+        Shop shop = shopMapper.getShopByNameForAdmin(name);
 
         return shop != null && !shop.hasSameId(shopId);
     }
 
     private boolean isDuplicatedMenuCategoryName(String name, Integer shopId) {
-        return shopMapper.getMenuCategoryByShopIdAndName(shopId, name) != null;
+        return shopMapper.getMenuCategoryByShopIdAndNameForAdmin(shopId, name) != null;
     }
 
     private ShopCategory findShopCategory(Integer shopCategoryId) {
-        ShopCategory category = shopMapper.getShopCategoryById(shopCategoryId);
+        ShopCategory category = shopMapper.getShopCategoryByIdForAdmin(shopCategoryId);
 
         if (category == null) {
             throw new NotFoundException(new ErrorMessage(SHOP_CATEGORY_NOT_FOUND));
@@ -830,7 +832,7 @@ public class ShopServiceImpl implements ShopService {
     }
 
     private Shop findShop(Integer shopId) {
-        Shop shop = shopMapper.getShopById(shopId);
+        Shop shop = shopMapper.getShopByIdForAdmin(shopId);
 
         if (shop == null) {
             throw new NotFoundException(new ErrorMessage(SHOP_NOT_FOUND));
@@ -840,7 +842,7 @@ public class ShopServiceImpl implements ShopService {
     }
 
     private ShopMenu findMenu(Integer menuId) {
-        ShopMenu menu = shopMapper.getMenuById(menuId);
+        ShopMenu menu = shopMapper.getMenuByIdForAdmin(menuId);
 
         if (menu == null) {
             throw new NotFoundException(new ErrorMessage(SHOP_MENU_NOT_FOUND));

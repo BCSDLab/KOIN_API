@@ -1,11 +1,6 @@
 package koreatech.in.repository;
 
-import koreatech.in.dto.shop.admin.request.ShopsCondition;
-import koreatech.in.dto.shop.admin.response.ShopResponse;
-import koreatech.in.dto.shop.admin.response.MenuResponse;
-import koreatech.in.dto.shop.admin.response.AllMenusOfShopResponse;
 import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.shop.admin.response.inner.MinimizedShop;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -18,189 +13,230 @@ public interface ShopMapper {
     @Insert("INSERT INTO koin.shops " +
             "(owner_id, `name`, internal_name, chosung, phone, address, `description`, " +
             "delivery, delivery_price, pay_card, pay_bank, is_event, remarks, hit) " +
-            "VALUES (#{owner_id}, #{name}, #{internal_name}, #{chosung}, #{phone}, " +
-            "#{address}, #{description}, #{delivery}, #{delivery_price}, #{pay_card}, " +
-            "#{pay_bank}, #{is_event}, #{remarks}, #{hit})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
-    void createShop(Shop shop);
+            "VALUES (#{shop.owner_id}, #{shop.name}, #{shop.internal_name}, #{shop.chosung}, #{shop.phone}, " +
+            "#{shop.address}, #{shop.description}, #{shop.delivery}, #{shop.delivery_price}, #{shop.pay_card}, " +
+            "#{shop.pay_bank}, #{shop.is_event}, #{shop.remarks}, #{shop.hit})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    void createShopForAdmin(@Param("shop") Shop shop);
 
     @Select("SELECT * " +
             "FROM koin.shops " +
             "WHERE id = #{id}")
-    Shop getShopById(@Param("id") int id);
+    Shop getShopByIdForAdmin(@Param("id") Integer id);
 
     @Select("SELECT * " +
             "FROM koin.shops " +
-            "WHERE `name` = #{name} AND is_deleted = 0")
-    Shop getShopByName(@Param("name") String name);
+            "WHERE " +
+                "`name` = #{name} " +
+                "AND is_deleted = 0")
+    Shop getShopByNameForAdmin(@Param("name") String name);
 
     @Select("SELECT * " +
             "FROM koin.shops " +
             "WHERE id IN (" +
                 "SELECT shop_id " +
                 "FROM koin.shop_category_map " +
-                "WHERE shop_category_id = #{shop_category_id} AND is_deleted = 0" +
+                "WHERE " +
+                    "shop_category_id = #{shopCategoryId} " +
+                    "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<Shop> getShopsUsingCategory(@Param("shop_category_id") int shopCategoryId);
+    List<Shop> getShopsUsingCategoryForAdmin(@Param("shopCategoryId") Integer shopCategoryId);
 
-    Integer getTotalCountOfShopsByCondition(@Param("condition") ShopsCondition dto);
+    @Select("SELECT image_url " +
+            "FROM koin.shop_images " +
+            "WHERE " +
+                "shop_id = #{shopId} " +
+                "AND is_deleted = 0")
+    List<String> getShopImageUrlsByShopIdForAdmin(@Param("shopId") Integer shopId);
 
     @Update("UPDATE koin.shops " +
             "SET " +
-                "`owner_id` = #{owner_id}, " +
-                "`name` = #{name}, " +
-                "internal_name = #{internal_name}, " +
-                "chosung = #{chosung}, " +
-                "phone = #{phone}, " +
-                "address = #{address}, " +
-                "`description` = #{description}, " +
-                "delivery = #{delivery}, " +
-                "delivery_price = #{delivery_price}, " +
-                "pay_card = #{pay_card}, " +
-                "pay_bank = #{pay_bank}, " +
-                "is_event = #{is_event}, " +
-                "remarks = #{remarks}, " +
-                "hit = #{hit} " +
+                "`owner_id` = #{shop.owner_id}, " +
+                "`name` = #{shop.name}, " +
+                "internal_name = #{shop.internal_name}, " +
+                "chosung = #{shop.chosung}, " +
+                "phone = #{shop.phone}, " +
+                "address = #{shop.address}, " +
+                "`description` = #{shop.description}, " +
+                "delivery = #{shop.delivery}, " +
+                "delivery_price = #{shop.delivery_price}, " +
+                "pay_card = #{shop.pay_card}, " +
+                "pay_bank = #{shop.pay_bank}, " +
+                "is_event = #{shop.is_event}, " +
+                "remarks = #{shop.remarks}, " +
+                "hit = #{shop.hit} " +
             "WHERE " +
-                "id = #{id}")
-    void updateShop(Shop shop);
+                "id = #{shop.id}")
+    void updateShopForAdmin(@Param("shop") Shop shop);
 
     @Update("UPDATE koin.shops " +
             "SET is_deleted = 1 " +
             "WHERE id = #{id}")
-    void deleteShopById(@Param("id") int id);
+    void deleteShopByIdForAdmin(@Param("id") Integer id);
 
     @Update("UPDATE koin.shops " +
             "SET is_deleted = 0 " +
             "WHERE id = #{id}")
-    void undeleteShopById(@Param("id") int id);
+    void undeleteShopByIdForAdmin(@Param("id") Integer id);
 
 
     // =========================================== 상점 카테고리 ===========================================
     @Insert("INSERT INTO koin.shop_categories " +
             "(`name`, image_url) " +
-            "VALUES (#{name}, #{image_url})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
-    void createShopCategory(ShopCategory shopCategory);
+            "VALUES (#{shopCategory.name}, #{shopCategory.image_url})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    void createShopCategoryForAdmin(@Param("shopCategory") ShopCategory shopCategory);
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
-            "WHERE id = #{id} AND is_deleted = 0")
-    ShopCategory getShopCategoryById(@Param("id") int id);
+            "WHERE " +
+                "id = #{id} " +
+                "AND is_deleted = 0")
+    ShopCategory getShopCategoryByIdForAdmin(@Param("id") Integer id);
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
-            "WHERE `name` = #{name} AND is_deleted = 0")
-    ShopCategory getShopCategoryByName(String name);
+            "WHERE " +
+                "`name` = #{name} " +
+                "AND is_deleted = 0")
+    ShopCategory getShopCategoryByNameForAdmin(@Param("name") String name);
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
             "WHERE id IN (" +
                 "SELECT shop_category_id " +
                 "FROM koin.shop_category_map " +
-                "WHERE shop_id = #{shop_id} AND is_deleted = 0" +
+                "WHERE " +
+                    "shop_id = #{shopId} " +
+                    "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<ShopCategory> getShopCategoriesOfShopByShopId(@Param("shop_id") int shopId);
-
-    @Select("SELECT COUNT(*) " +
-            "FROM koin.shop_menu_categories " +
-            "WHERE shop_id = #{shop_id} AND is_deleted = 0")
-    Integer getCountOfMenuCategoriesByShopId(@Param("shop_id") int shopId);
+    List<ShopCategory> getShopCategoriesOfShopByShopIdForAdmin(@Param("shopId") Integer shopId);
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
             "WHERE is_deleted = 0")
-    List<koreatech.in.dto.shop.admin.response.inner.ShopCategory> getAllShopCategories();
+    List<ShopCategory> getAllShopCategoriesForAdmin();
+
+    @Select("SELECT * " +
+            "FROM koin.shop_categories " +
+            "WHERE is_deleted = 0")
+    List<ShopCategory> getAllShopCategories();
+
+    @Select("SELECT COUNT(*) " +
+            "FROM koin.shop_menu_categories " +
+            "WHERE " +
+                "shop_id = #{shopId} " +
+                "AND is_deleted = 0")
+    Integer getCountOfMenuCategoriesByShopIdForAdmin(@Param("shopId") Integer shopId);
 
     @Update("UPDATE koin.shop_categories " +
             "SET " +
-                "`name` = #{name}, " +
-                "image_url = #{image_url} " +
+                "`name` = #{shopCategory.name}, " +
+                "image_url = #{shopCategory.image_url} " +
             "WHERE id = #{id}")
-    void updateShopCategory(ShopCategory updatedCategory);
+    void updateShopCategoryForAdmin(@Param("shopCategory") ShopCategory shopCategory);
 
     @Update("UPDATE (" +
                 "koin.shop_categories sc " +
-                "LEFT JOIN koin.shop_category_map scm " +
-                "ON sc.id = scm.shop_category_id" +
+                    "LEFT JOIN koin.shop_category_map scm " +
+                    "ON sc.id = scm.shop_category_id" +
             ") " +
             "SET " +
                 "sc.is_deleted = 1, " +
                 "scm.is_deleted = 1 " +
             "WHERE " +
                 "sc.id = #{id}")
-    void deleteShopCategoryById(@Param("id") int id);
+    void deleteShopCategoryByIdForAdmin(@Param("id") Integer id);
 
 
     // ============================================= 메뉴 =============================================
     @Insert("INSERT INTO koin.shop_menus " +
             "(shop_id, `name`, `description`, is_hidden) " +
-            "VALUES (#{shop_id}, #{name}, #{description}, #{is_hidden})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
-    void createMenu(ShopMenu shopMenu);
+            "VALUES (#{shopMenu.shop_id}, #{shopMenu.name}, #{shopMenu.description}, #{shopMenu.is_hidden})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    void createMenuForAdmin(@Param("shopMenu") ShopMenu shopMenu);
 
     @Select("SELECT * " +
             "FROM koin.shop_menus " +
-            "WHERE id = #{shop_menu_id} AND is_deleted = 0")
-    ShopMenu getMenuById(@Param("shop_menu_id") int shopMenuId);
+            "WHERE " +
+                "id = #{shopMenuId} " +
+                "AND is_deleted = 0")
+    ShopMenu getMenuByIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
     @Select("SELECT * " +
             "FROM koin.shop_menus " +
             "WHERE id IN (" +
                 "SELECT shop_menu_id " +
                 "FROM koin.shop_menu_category_map " +
-                "WHERE shop_menu_category_id = #{shop_menu_category_id} AND is_deleted = 0" +
+                "WHERE " +
+                    "shop_menu_category_id = #{shopMenuCategoryId} " +
+                    "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<ShopMenu> getMenusUsingCategory(@Param("shop_menu_category_id") int shopMenuCategoryId);
+    List<ShopMenu> getMenusUsingCategoryForAdmin(@Param("shopMenuCategoryId") Integer shopMenuCategoryId);
+
+    @Select("SELECT image_url " +
+            "FROM koin.shop_menu_images " +
+            "WHERE " +
+            "shop_menu_id = #{shop_menu_id} " +
+            "AND is_deleted = 0")
+    List<String> getMenuImageUrlsByMenuIdForAdmin(Integer menuId);
 
     @Update("UPDATE koin.shop_menus " +
             "SET " +
-                "`name` = #{name}, " +
-                "`description` = #{description} " +
-            "WHERE id = #{id}")
-    void updateMenu(ShopMenu shopMenu);
+                "`name` = #{shopMenu.name}, " +
+                "`description` = #{shopMenu.description} " +
+            "WHERE id = #{shopMenu.id}")
+    void updateMenuForAdmin(@Param("shopMenu") ShopMenu shopMenu);
 
     @Update("UPDATE koin.shop_menus " +
             "SET is_hidden = 1 " +
-            "WHERE id = #{shop_menu_id}")
-    void hideMenuById(@Param("shop_menu_id") int shopMenuId);
+            "WHERE id = #{shopMenuId}")
+    void hideMenuByIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
     @Update("UPDATE koin.shop_menus " +
             "SET is_hidden = 0 " +
-            "WHERE id = #{shop_menu_id}")
-    void revealMenuById(@Param("shop_menu_id") int shopMenuId);
+            "WHERE id = #{shopMenuId}")
+    void revealMenuByIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
 
     // ========================================= 메뉴 카테고리 =========================================
     @Insert("INSERT INTO koin.shop_menu_categories " +
             "(shop_id, `name`) " +
-            "VALUES (#{shop_id}, #{name})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
-    void createMenuCategory(ShopMenuCategory shopMenuCategory);
+            "VALUES (#{shopMenuCategory.shop_id}, #{shopMenuCategory.name})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    void createMenuCategoryForAdmin(@Param("shopMenuCategory") ShopMenuCategory shopMenuCategory);
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
-            "WHERE id = #{id} AND is_deleted = 0")
-    ShopMenuCategory getMenuCategoryById(@Param("id") int id);
+            "WHERE " +
+                "id = #{id} " +
+                "AND is_deleted = 0")
+    ShopMenuCategory getMenuCategoryByIdForAdmin(@Param("id") Integer id);
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
-            "WHERE shop_id = #{shop_id} AND `name` = #{name} AND is_deleted = 0")
-    ShopMenuCategory getMenuCategoryByShopIdAndName(@Param("shop_id") int shopId, @Param("name") String name);
+            "WHERE shop_id = #{shopId} " +
+                "AND `name` = #{name} " +
+                "AND is_deleted = 0")
+    ShopMenuCategory getMenuCategoryByShopIdAndNameForAdmin(@Param("shopId") Integer shopId, @Param("name") String name);
+
+    @Select("SELECT * " +
+            "FROM koin.shop_menu_categories " +
+            "WHERE " +
+                "shop_id = #{shopId} " +
+                "AND is_deleted = 0")
+    List<ShopMenuCategory> getMenuCategoriesOfShopByShopIdForAdmin(@Param("shopId") Integer shopId);
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_categories " +
             "WHERE id IN (" +
                 "SELECT shop_menu_category_id " +
                 "FROM koin.shop_menu_category_map " +
-                "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0" +
+                "WHERE " +
+                    "shop_menu_id = #{shopMenuId} " +
+                    "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<ShopMenuCategory> getMenuCategoriesOfMenuByMenuId(@Param("shop_menu_id") int shopMenuId);
-
-    @Select("SELECT * " +
-            "FROM koin.shop_menu_categories " +
-            "WHERE shop_id = #{shop_id} AND is_deleted = 0")
-    List<koreatech.in.dto.shop.admin.response.inner.ShopMenuCategory> getMenuCategoriesOfShopByShopId(@Param("shop_id") int shopId);
+    List<ShopMenuCategory> getMenuCategoriesOfMenuByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
     @Update("UPDATE (" +
                 "koin.shop_menu_categories smc " +
@@ -212,73 +248,61 @@ public interface ShopMapper {
                 "smcm.is_deleted = 1 " +
             "WHERE " +
                 "smc.id = #{id}")
-    void deleteMenuCategoryById(@Param("id") int id);
+    void deleteMenuCategoryByIdForAdmin(@Param("id") Integer id);
 
     @Insert("INSERT INTO koin.shop_menu_details " +
             "(shop_menu_id, `option`, price)" +
-            "VALUES (#{shop_menu_id}, #{option}, #{price})")
-    void createMenuDetail(ShopMenuDetail shopMenuDetail);
+            "VALUES (#{shopMenuDetail.shop_menu_id}, #{shopMenuDetail.option}, #{shopMenuDetail.price})")
+    void createMenuDetailForAdmin(@Param("shopMenuDetail") ShopMenuDetail shopMenuDetail);
 
     @Select("SELECT * " +
             "FROM koin.shop_menu_details " +
-            "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
-    List<ShopMenuDetail> getMenuDetailsByMenuId(@Param("shop_menu_id") int shopMenuId);
+            "WHERE " +
+                "shop_menu_id = #{shopMenuId} " +
+                "AND is_deleted = 0")
+    List<ShopMenuDetail> getMenuDetailsByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
     @Update("UPDATE koin.shop_menu_details " +
             "SET is_deleted = 1 " +
-            "WHERE shop_menu_id = #{shop_menu_id} AND is_deleted = 0")
-    void deleteMenuDetailsByMenuId(@Param("shop_menu_id") int shopMenuId);
+            "WHERE " +
+                "shop_menu_id = #{shopMenuId} " +
+                "AND is_deleted = 0")
+    void deleteMenuDetailsByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
 
     // ------------------------------------------ xml Mapper ------------------------------------------
     // ============================================== 상점 =============================================
-    ShopResponse.Shop getShopForResponse(@Param("shop_id") int shopId);
+    void createShopOpensForAdmin(@Param("shopOpen") List<ShopOpen> shopOpen);
 
-    List<koreatech.in.dto.shop.admin.response.inner.Shop> getShops(@Param("begin") int begin, @Param("limit") int limit);
+    void createShopImagesForAdmin(@Param("shopImages") List<ShopImage> shopImages);
 
-    List<MinimizedShop> getShopsByCondition(@Param("begin") Integer begin, @Param("condition") ShopsCondition condition);
+    void updateShopOpensForAdmin(@Param("shopOpens") List<ShopOpen> shopOpens);
 
-    List<koreatech.in.dto.shop.admin.response.inner.Shop> getAllShops();
-
-    List<String> getShopImageUrlsByShopId(@Param("shop_id") Integer shopId);
-
-    void createShopOpens(List<ShopOpen> shopOpen);
-
-    void createShopImages(List<ShopImage> shopImages);
-
-    void updateShopOpens(List<ShopOpen> updatedShopOpens);
-
-    void deleteShopImages(List<ShopImage> shopImagesToDelete);
+    void deleteShopImagesForAdmin(@Param("shopImages") List<ShopImage> shopImages);
 
 
     // ========================================== 상점 카테고리 =========================================
-    void createShopCategoryMaps(List<ShopCategoryMap> shopCategoryMaps);
+    void createShopCategoryMapsForAdmin(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
 
-    void deleteShopCategoryMaps(List<ShopCategoryMap> shopCategoryMapsToDelete);
+    void deleteShopCategoryMapsForAdmin(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
 
 
     // ============================================= 메뉴 =============================================
-    void createMenuDetails(List<ShopMenuDetail> shopMenuDetails);
+    void createMenuDetailsForAdmin(@Param("shopMenuDetails") List<ShopMenuDetail> shopMenuDetails);
 
-    void createMenuImages(List<ShopMenuImage> shopMenuImages);
+    void createMenuImagesForAdmin(@Param("shopMenuImages") List<ShopMenuImage> shopMenuImages);
 
-    List<String> getMenuImageUrlsByMenuId(@Param("shop_menu_id") int shopMenuId);
+    void deleteMenuDetailsForAdmin(@Param("shopMenuDetails") List<ShopMenuDetail> shopMenuDetails);
 
-    koreatech.in.dto.shop.admin.response.inner.ShopMenu getMenuForResponse(@Param("shop_menu_id") int shopMenuId);
+    void deleteAllForInvolvedWithMenuForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
-    AllMenusOfShopResponse getAllMenusOfShopForResponse(@Param("shop_id") int shopId);
-
-    void deleteMenuDetails(List<ShopMenuDetail> existingMenuDetails);
-
-    void deleteAllForInvolvedWithMenu(@Param("shop_menu_id") int shopMenuId);
-
-    void deleteMenuImages(List<ShopMenuImage> menuImagesToDelete);
+    void deleteMenuImagesForAdmin(@Param("menuImages") List<ShopMenuImage> menuImages);
 
 
     // ========================================== 메뉴 카테고리 =========================================
-    void createMenuCategories(List<ShopMenuCategory> shopMenuCategories);
+    void createMenuCategoriesForAdmin(@Param("shopMenuCategories") List<ShopMenuCategory> shopMenuCategories);
 
-    void createMenuCategoryMaps(List<ShopMenuCategoryMap> shopMenuCategoryMaps);
+    void createMenuCategoryMapsForAdmin(@Param("shopMenuCategoryMaps") List<ShopMenuCategoryMap> shopMenuCategoryMaps);
 
-    void deleteMenuCategoryMaps(List<ShopMenuCategoryMap> menuCategoryMapsToDelete);
+    void deleteMenuCategoryMapsForAdmin(@Param("shopMenuCategoryMaps") List<ShopMenuCategoryMap> shopMenuCategoryMaps);
 }

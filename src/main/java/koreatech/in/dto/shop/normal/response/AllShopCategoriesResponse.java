@@ -1,4 +1,4 @@
-package koreatech.in.dto.shop.admin.response;
+package koreatech.in.dto.shop.normal.response;
 
 import koreatech.in.domain.Shop.ShopCategory;
 import lombok.Builder;

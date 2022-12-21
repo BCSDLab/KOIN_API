@@ -6,6 +6,7 @@ import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.admin.request.*;
 import koreatech.in.dto.shop.admin.response.*;
+import koreatech.in.dto.shop.normal.response.AllShopsResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -51,11 +52,11 @@ public interface ShopService {
 
     AllMenusOfShopResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
 
-    ShopResponse getShop(Integer shopId) throws Exception;
+    koreatech.in.dto.shop.normal.response.ShopResponse getShop(Integer shopId) throws Exception;
 
     AllShopsResponse getAllShops() throws Exception;
 
-    AllShopCategoriesResponse getAllShopCategories() throws Exception;
+    koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse getAllShopCategories() throws Exception;
 
     UploadImageResponse uploadShopCategoryImage(MultipartFile image) throws Exception;
 
