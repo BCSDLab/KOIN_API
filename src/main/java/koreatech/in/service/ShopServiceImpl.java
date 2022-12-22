@@ -149,7 +149,7 @@ public class ShopServiceImpl implements ShopService {
 
 
         // ======= shop_category_map 테이블 =======
-        List<ShopCategoryMap> shopCategoryMaps = new LinkedList<>();
+        List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
         request.getCategory_ids().forEach(categoryId -> {
             ShopCategory category = shopMapper.getShopCategoryByIdForAdmin(categoryId);
@@ -174,7 +174,7 @@ public class ShopServiceImpl implements ShopService {
 
         List<ShopMenuCategory> menuCategories = Arrays.stream(basicMenuCategoryNames)
                 .map(name -> ShopMenuCategory.create(shop.getId(), name))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         shopMapper.createMenuCategoriesForAdmin(menuCategories);
 
@@ -182,7 +182,7 @@ public class ShopServiceImpl implements ShopService {
         // ======= shop_images 테이블 =======
         List<ShopImage> shopImages = request.getImage_urls().stream()
                 .map(url -> ShopImage.create(shop.getId(), url))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!shopImages.isEmpty()) {
             shopMapper.createShopImagesForAdmin(shopImages);
@@ -242,7 +242,7 @@ public class ShopServiceImpl implements ShopService {
 
         // ======= shop_category_map 테이블 =======
         List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopIdForAdmin(shopId); // 상점이 속해있는 상점 카테고리 목록
-        List<ShopCategoryMap> shopCategoryMapsToCreate = new LinkedList<>(); // 추가할 관계
+        List<ShopCategoryMap> shopCategoryMapsToCreate = new ArrayList<>(); // 추가할 관계
         List<ShopCategoryMap> shopCategoryMapsToDelete; // 삭제할 관계
 
         request.getCategory_ids().forEach(categoryId -> {
@@ -270,7 +270,7 @@ public class ShopServiceImpl implements ShopService {
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         shopCategoryMapsToDelete = existingCategories.stream()
                 .map(category -> ShopCategoryMap.create(shopId, category.getId()))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!shopCategoryMapsToDelete.isEmpty()) {
             shopMapper.deleteShopCategoryMapsForAdmin(shopCategoryMapsToDelete);
@@ -280,7 +280,7 @@ public class ShopServiceImpl implements ShopService {
         // ======= shop_images 테이블 =======
         List<String> existingImageUrls = shopMapper.getShopImageUrlsByShopIdForAdmin(shopId);
 
-        List<ShopImage> shopImagesToCreate = new LinkedList<>(); // 추가할 shop image list
+        List<ShopImage> shopImagesToCreate = new ArrayList<>(); // 추가할 shop image list
         List<ShopImage> shopImagesToDelete; // 삭제할 shop image list
 
         request.getImage_urls().forEach(imageUrl -> {
@@ -301,7 +301,7 @@ public class ShopServiceImpl implements ShopService {
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         shopImagesToDelete = existingImageUrls.stream()
                 .map(imageUrl -> ShopImage.create(shopId, imageUrl))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!shopImagesToDelete.isEmpty()) {
             shopMapper.deleteShopImagesForAdmin(shopImagesToDelete);
@@ -462,7 +462,7 @@ public class ShopServiceImpl implements ShopService {
 
             List<ShopMenuDetail> menuDetails = request.getOption_prices().stream()
                     .map(optionPrice -> ShopMenuDetail.create(menu.getId(), optionPrice.getOption(), optionPrice.getPrice()))
-                    .collect(Collectors.toCollection(LinkedList::new));
+                    .collect(Collectors.toCollection(ArrayList::new));
 
             shopMapper.createMenuDetailsForAdmin(menuDetails);
         }
@@ -471,7 +471,7 @@ public class ShopServiceImpl implements ShopService {
         // ======= shop_menu_images 테이블 =======
         List<ShopMenuImage> menuImages = request.getImage_urls().stream()
                 .map(imageUrl -> ShopMenuImage.create(menu.getId(), imageUrl))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!menuImages.isEmpty()) {
             shopMapper.createMenuImagesForAdmin(menuImages);
@@ -479,7 +479,7 @@ public class ShopServiceImpl implements ShopService {
 
 
         // ======= shop_menu_category_map 테이블 =======
-        List<ShopMenuCategoryMap> shopMenuCategoryMaps = new LinkedList<>();
+        List<ShopMenuCategoryMap> shopMenuCategoryMaps = new ArrayList<>();
 
         request.getCategory_ids().forEach(categoryId -> {
             ShopMenuCategory category = shopMapper.getMenuCategoryByIdForAdmin(categoryId);
@@ -579,7 +579,7 @@ public class ShopServiceImpl implements ShopService {
                 throw new ValidationException(new ErrorMessage("option_prices에서 중복되는 option이 있습니다.", REQUEST_DATA_INVALID.getCode()));
             }
 
-            List<ShopMenuDetail> menuDetailsToCreate = new LinkedList<>();
+            List<ShopMenuDetail> menuDetailsToCreate = new ArrayList<>();
 
             request.getOption_prices().forEach(optionPrice -> {
                 ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, optionPrice.getOption(), optionPrice.getPrice());
@@ -607,7 +607,7 @@ public class ShopServiceImpl implements ShopService {
         // ======= shop_menu_images 테이블 =======
         List<String> existingImageUrls = shopMapper.getMenuImageUrlsByMenuIdForAdmin(menuId);
 
-        List<ShopMenuImage> menuImagesToCreate = new LinkedList<>();
+        List<ShopMenuImage> menuImagesToCreate = new ArrayList<>();
         List<ShopMenuImage> menuImagesToDelete;
 
         request.getImage_urls().forEach(imageUrl -> {
@@ -627,7 +627,7 @@ public class ShopServiceImpl implements ShopService {
         // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         menuImagesToDelete = existingImageUrls.stream()
                 .map(imageUrl -> ShopMenuImage.create(menuId, imageUrl))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!menuImagesToDelete.isEmpty()) {
             shopMapper.deleteMenuImagesForAdmin(menuImagesToDelete);
@@ -636,7 +636,7 @@ public class ShopServiceImpl implements ShopService {
 
         // --- shop_menu_category_map 테이블 ---
         List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenuByMenuIdForAdmin(menuId);
-        List<ShopMenuCategoryMap> menuCategoryMapsToCreate = new LinkedList<>();
+        List<ShopMenuCategoryMap> menuCategoryMapsToCreate = new ArrayList<>();
         List<ShopMenuCategoryMap> menuCategoryMapsToDelete;
 
         request.getCategory_ids().forEach(categoryId -> {
@@ -664,7 +664,7 @@ public class ShopServiceImpl implements ShopService {
         // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
         menuCategoryMapsToDelete = existingCategories.stream()
                 .map(category -> ShopMenuCategoryMap.create(menuId, category.getId()))
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (!menuCategoryMapsToDelete.isEmpty()) {
             shopMapper.deleteMenuCategoryMapsForAdmin(menuCategoryMapsToDelete);
@@ -856,12 +856,9 @@ public class ShopServiceImpl implements ShopService {
             throw new ValidationException(new ErrorMessage("open의 길이는 7이어야 합니다.", REQUEST_DATA_INVALID.getCode()));
         }
 
-        List<DayOfWeek> expected = Arrays.asList(
-                DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
-
-        List<DayOfWeek> actual = new LinkedList<>();
-        List<ShopOpen> shopOpens = new LinkedList<>();
+        List<DayOfWeek> expected = Arrays.asList(DayOfWeek.values());
+        List<DayOfWeek> actual = new ArrayList<>();
+        List<ShopOpen> shopOpens = new ArrayList<>();
 
         opens.forEach(open -> {
             DayOfWeek dayOfWeek = open.getDay_of_week();
@@ -906,7 +903,7 @@ public class ShopServiceImpl implements ShopService {
 
     // 다중 이미지 업로드
     private List<String> uploadImages(List<MultipartFile> images, S3Bucket bucket) throws Exception {
-        List<String> imageUrls = new LinkedList<>();
+        List<String> imageUrls = new ArrayList<>();
 
         for (MultipartFile image : images) {
             String uploadedImageName = uploadFileUtils.uploadFile(bucket.getPath(), image.getOriginalFilename(), image.getBytes(), image);

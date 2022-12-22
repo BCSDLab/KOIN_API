@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
@@ -29,12 +29,12 @@ public class UpdateShopMenuRequest {
     @Valid
     @Size(min = 1, message = "is_single이 false이면 option_prices의 길이는 1 이상입니다.")
     @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트")
-    private List<OptionPrice> option_prices;
+    private List<OptionPrice> option_prices = new ArrayList<>();
 
     @Size(min = 1, message = "category_ids의 길이는 1 이상입니다.")
     @NotNull(message = "category_ids는 필수입니다.")
     @ApiModelProperty(notes = "선택된 카테고리 고유 id 리스트", example = "[1, 2]")
-    private List<Integer> category_ids;
+    private List<Integer> category_ids = new ArrayList<>();
 
     @Size(max = 80, message = "description의 길이는 80 이하입니다.")
     @ApiModelProperty(notes = "메뉴 구성 설명", example = "저희 가게의 대표 메뉴 짜장면입니다.")
@@ -42,7 +42,7 @@ public class UpdateShopMenuRequest {
 
     @Size(max = 3, message = "image_urls의 size는 최대 3입니다.")
     @ApiModelProperty(notes = "이미지 URL 리스트")
-    private List<String> image_urls = new LinkedList<>();
+    private List<String> image_urls = new ArrayList<>();
 
     public boolean hasDuplicatedOption() {
         if (this.option_prices == null || this.option_prices.isEmpty() || this.option_prices.size() == 1) {

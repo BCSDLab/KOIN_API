@@ -4,7 +4,7 @@ import koreatech.in.domain.Shop.ShopMenuCategory;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +34,7 @@ public class AllMenuCategoriesOfShopResponse {
                                                 .name(shopMenuCategory.getName())
                                                 .build()
                                 )
-                                .collect(Collectors.toCollection(LinkedList::new))
+                                .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .build();
     }

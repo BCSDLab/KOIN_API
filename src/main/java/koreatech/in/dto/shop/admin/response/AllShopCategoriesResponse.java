@@ -4,7 +4,7 @@ import koreatech.in.domain.Shop.ShopCategory;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +32,7 @@ public class AllShopCategoriesResponse {
                                                .image_url(shopCategory.getImage_url())
                                                .build()
                                )
-                                .collect(Collectors.toCollection(LinkedList::new))
+                                .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .build();
     }
