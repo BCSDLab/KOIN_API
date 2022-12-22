@@ -69,7 +69,7 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity<SuccessResponse> updateShopCategory(@PathVariable("id") Integer shopCategoryId, @RequestBody @Valid UpdateShopCategoryRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.updateShopCategoryForAdmin(shopCategoryId, (UpdateShopCategoryRequest) xssPrevent(request)), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.updateShopCategoryForAdmin(shopCategoryId, (UpdateShopCategoryRequest) xssPrevent(request)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
@@ -133,7 +133,7 @@ public class AdminShopController {
     public @ResponseBody
     ResponseEntity<SuccessResponse> updateShop(@PathVariable("id") Integer shopId, @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.updateShopForAdmin(shopId, (UpdateShopRequest) xssPrevent(request)), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.updateShopForAdmin(shopId, (UpdateShopRequest) xssPrevent(request)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "상점 삭제", authorizations = {@Authorization(value = "Authorization")})
@@ -219,7 +219,7 @@ public class AdminShopController {
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.POST)
     ResponseEntity<SuccessResponse> updateMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId, @RequestBody @Valid UpdateShopMenuRequest request, BindingResult bindingResult) throws Exception {
 
-        return new ResponseEntity<>(shopService.updateMenuForAdmin(shopId, menuId, (UpdateShopMenuRequest) xssPrevent(request)), HttpStatus.CREATED);
+        return new ResponseEntity<>(shopService.updateMenuForAdmin(shopId, menuId, (UpdateShopMenuRequest) xssPrevent(request)), HttpStatus.OK);
     }
 
     // TODO: 사장님 권한은 자신의 상점 아니면 403
