@@ -16,7 +16,7 @@ public interface ShopMapper {
             "VALUES (#{shop.owner_id}, #{shop.name}, #{shop.internal_name}, #{shop.chosung}, #{shop.phone}, " +
             "#{shop.address}, #{shop.description}, #{shop.delivery}, #{shop.delivery_price}, #{shop.pay_card}, " +
             "#{shop.pay_bank}, #{shop.is_event}, #{shop.remarks}, #{shop.hit})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "shop.id", before = false, resultType = Integer.class)
     void createShopForAdmin(@Param("shop") Shop shop);
 
     @Select("SELECT * " +
@@ -84,7 +84,7 @@ public interface ShopMapper {
     @Insert("INSERT INTO koin.shop_categories " +
             "(`name`, image_url) " +
             "VALUES (#{shopCategory.name}, #{shopCategory.image_url})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "shopCategory.id", before = false, resultType = Integer.class)
     void createShopCategoryForAdmin(@Param("shopCategory") ShopCategory shopCategory);
 
     @Select("SELECT * " +
@@ -153,7 +153,7 @@ public interface ShopMapper {
     @Insert("INSERT INTO koin.shop_menus " +
             "(shop_id, `name`, `description`, is_hidden) " +
             "VALUES (#{shopMenu.shop_id}, #{shopMenu.name}, #{shopMenu.description}, #{shopMenu.is_hidden})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "shopMenu.id", before = false, resultType = Integer.class)
     void createMenuForAdmin(@Param("shopMenu") ShopMenu shopMenu);
 
     @Select("SELECT * " +
@@ -203,7 +203,7 @@ public interface ShopMapper {
     @Insert("INSERT INTO koin.shop_menu_categories " +
             "(shop_id, `name`) " +
             "VALUES (#{shopMenuCategory.shop_id}, #{shopMenuCategory.name})")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = Integer.class)
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "shopMenuCategory.id", before = false, resultType = Integer.class)
     void createMenuCategoryForAdmin(@Param("shopMenuCategory") ShopMenuCategory shopMenuCategory);
 
     @Select("SELECT * " +
