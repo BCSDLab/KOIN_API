@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter @Setter
 public class UpdateShopMenuRequest {
@@ -45,22 +47,15 @@ public class UpdateShopMenuRequest {
     private List<String> image_urls = new ArrayList<>();
 
     public boolean hasDuplicatedOption() {
-        if (this.option_prices == null || this.option_prices.isEmpty() || this.option_prices.size() == 1) {
+        if (this.option_prices.isEmpty() || this.option_prices.size() == 1) {
             return false;
         }
 
-        for (int i = 0; i < this.option_prices.size() - 1; i++) {
-            String prevOption = this.option_prices.get(i).getOption();
+        Set<String> optionSet = option_prices.stream()
+                .map(OptionPrice::getOption)
+                .collect(Collectors.toSet());
 
-            for (int j = i + 1; j < this.option_prices.size(); j++) {
-                String nextOption = this.option_prices.get(j).getOption();
-
-                if (prevOption.equals(nextOption)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        // 요청된 개수와 Set에 담긴 개수가 다르면 중복이 있다는 것
+        return option_prices.size() != optionSet.size();
     }
 }
