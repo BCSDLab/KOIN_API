@@ -28,7 +28,7 @@
         INSERT INTO koin.shop_menu_images
         (shop_menu_id, image_url)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopMenuImages" item="item" separator=",">
             (
                 #{item.shop_menu_id},
                 #{item.image_url}
@@ -40,7 +40,7 @@
         INSERT INTO koin.shop_menu_details
         (shop_menu_id, `option`, price)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopMenuDetails" item="item" separator=",">
             (
                 #{item.shop_menu_id},
                 #{item.option},
@@ -53,7 +53,7 @@
         INSERT INTO koin.shop_menu_category_map
         (shop_menu_id, shop_menu_category_id)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopMenuCategoryMaps" item="item" separator=",">
             (
                 #{item.shop_menu_id},
                 #{item.shop_menu_category_id}
@@ -62,7 +62,7 @@
     </insert>
 
     <update id="deleteMenuDetailsForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopMenuDetails" item="item" separator=";">
             UPDATE koin.shop_menu_details
             SET is_deleted = 1
             WHERE id = #{item.id}
@@ -70,14 +70,12 @@
     </update>
 
     <update id="deleteMenuCategoryMapsForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopMenuCategoryMaps" item="item" separator=";">
             UPDATE koin.shop_menu_category_map
-            SET
-                is_deleted = 1
+            SET is_deleted = 1
             WHERE
                 shop_menu_id = #{item.shop_menu_id}
                 AND shop_menu_category_id = #{item.shop_menu_category_id}
-                AND is_deleted = 0
         </foreach>
     </update>
 
@@ -85,7 +83,7 @@
         INSERT INTO koin.shop_opens
         (shop_id, day_of_week, closed, open_time, close_time)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopOpens" item="item" separator=",">
             <choose>
                 <when test="item.closed">
                     (
@@ -113,7 +111,7 @@
         INSERT INTO koin.shop_category_map
         (shop_id, shop_category_id)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopCategoryMaps" item="item" separator=",">
             (
                 #{item.shop_id},
                 #{item.shop_category_id}
@@ -125,7 +123,7 @@
         INSERT INTO koin.shop_menu_categories
         (shop_id, `name`)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopMenuCategories" item="item" separator=",">
             (
                 #{item.shop_id},
                 #{item.name}
@@ -134,7 +132,7 @@
     </insert>
 
     <update id="updateShopOpensForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopOpens" item="item" separator=";">
             UPDATE koin.shop_opens
             SET
                 closed = #{item.closed},
@@ -156,13 +154,12 @@
     </update>
 
     <update id="deleteShopCategoryMapsForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopCategoryMaps" item="item" separator=";">
             UPDATE koin.shop_category_map
             SET is_deleted = 1
             WHERE
                 shop_id = #{item.shop_id}
                 AND shop_category_id = #{item.shop_category_id}
-                AND is_deleted = 0
         </foreach>
     </update>
 
@@ -170,7 +167,7 @@
         INSERT INTO koin.shop_images
         (shop_id, image_url)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="shopImages" item="item" separator=",">
             (
                 #{item.shop_id},
                 #{item.image_url}
@@ -179,18 +176,22 @@
     </insert>
 
     <update id="deleteShopImagesForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopImages" item="item" separator=";">
             UPDATE koin.shop_images
             SET is_deleted = 1
-            WHERE id = #{item.id}
+            WHERE
+                shop_id = #{item.shop_id}
+                AND image_url = #{item.image_url}
         </foreach>
     </update>
 
     <update id="deleteMenuImagesForAdmin" parameterType="list">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="shopMenuImages" item="item" separator=";">
             UPDATE koin.shop_menu_images
             SET is_deleted = 1
-            WHERE id = #{item.id}
+            WHERE
+                shop_menu_id = #{item.shop_menu_id}
+                AND image_url = #{item.image_url}
         </foreach>
     </update>
 </mapper>

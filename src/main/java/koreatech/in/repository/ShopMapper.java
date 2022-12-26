@@ -101,7 +101,7 @@ public interface ShopMapper {
                 "AND is_deleted = 0")
     ShopCategory getShopCategoryByNameForAdmin(@Param("name") String name);
 
-    @Select("SELECT * " +
+    @Select("SELECT id " +
             "FROM koin.shop_categories " +
             "WHERE id IN (" +
                 "SELECT shop_category_id " +
@@ -110,7 +110,7 @@ public interface ShopMapper {
                     "shop_id = #{shopId} " +
                     "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<ShopCategory> getShopCategoriesOfShopByShopIdForAdmin(@Param("shopId") Integer shopId);
+    List<Integer> getShopCategoryIdsOfShopByShopIdForAdmin(@Param("shopId") Integer shopId);
 
     @Select("SELECT * " +
             "FROM koin.shop_categories " +
@@ -177,8 +177,8 @@ public interface ShopMapper {
     @Select("SELECT image_url " +
             "FROM koin.shop_menu_images " +
             "WHERE " +
-            "shop_menu_id = #{shop_menu_id} " +
-            "AND is_deleted = 0")
+                "shop_menu_id = #{shop_menu_id} " +
+                "AND is_deleted = 0")
     List<String> getMenuImageUrlsByMenuIdForAdmin(Integer menuId);
 
     @Update("UPDATE koin.shop_menus " +
@@ -227,7 +227,7 @@ public interface ShopMapper {
                 "AND is_deleted = 0")
     List<ShopMenuCategory> getMenuCategoriesOfShopByShopIdForAdmin(@Param("shopId") Integer shopId);
 
-    @Select("SELECT * " +
+    @Select("SELECT id " +
             "FROM koin.shop_menu_categories " +
             "WHERE id IN (" +
                 "SELECT shop_menu_category_id " +
@@ -236,7 +236,7 @@ public interface ShopMapper {
                     "shop_menu_id = #{shopMenuId} " +
                     "AND is_deleted = 0" +
             ") AND is_deleted = 0")
-    List<ShopMenuCategory> getMenuCategoriesOfMenuByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
+    List<Integer> getMenuCategoryIdsOfMenuByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
     @Update("UPDATE (" +
                 "koin.shop_menu_categories smc " +
@@ -264,15 +264,13 @@ public interface ShopMapper {
 
     @Update("UPDATE koin.shop_menu_details " +
             "SET is_deleted = 1 " +
-            "WHERE " +
-                "shop_menu_id = #{shopMenuId} " +
-                "AND is_deleted = 0")
+            "WHERE shop_menu_id = #{shopMenuId}")
     void deleteMenuDetailsByMenuIdForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
 
     // ------------------------------------------ xml Mapper ------------------------------------------
     // ============================================== 상점 =============================================
-    void createShopOpensForAdmin(@Param("shopOpen") List<ShopOpen> shopOpen);
+    void createShopOpensForAdmin(@Param("shopOpens") List<ShopOpen> shopOpens);
 
     void createShopImagesForAdmin(@Param("shopImages") List<ShopImage> shopImages);
 
@@ -296,7 +294,7 @@ public interface ShopMapper {
 
     void deleteAllForInvolvedWithMenuForAdmin(@Param("shopMenuId") Integer shopMenuId);
 
-    void deleteMenuImagesForAdmin(@Param("menuImages") List<ShopMenuImage> menuImages);
+    void deleteMenuImagesForAdmin(@Param("shopMenuImages") List<ShopMenuImage> shopMenuImages);
 
 
     // ========================================== 메뉴 카테고리 =========================================

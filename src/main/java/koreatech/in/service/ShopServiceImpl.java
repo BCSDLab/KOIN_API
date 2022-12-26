@@ -229,6 +229,7 @@ public class ShopServiceImpl implements ShopService {
 
 
         // ======= shops 테이블 =======
+        // 불필요한 커넥션을 방지하기 위해 수정 필요 여부 검사
         if (existingShop.needToUpdate(request)) {
             existingShop.update(request);
             shopMapper.updateShopForAdmin(existingShop);
@@ -241,72 +242,63 @@ public class ShopServiceImpl implements ShopService {
 
 
         // ======= shop_category_map 테이블 =======
-        List<ShopCategory> existingCategories = shopMapper.getShopCategoriesOfShopByShopIdForAdmin(shopId); // 상점이 속해있는 상점 카테고리 목록
-        List<ShopCategoryMap> shopCategoryMapsToCreate = new ArrayList<>(); // 추가할 관계
-        List<ShopCategoryMap> shopCategoryMapsToDelete; // 삭제할 관계
+        List<Integer> existingCategoryIds = shopMapper.getShopCategoryIdsOfShopByShopIdForAdmin(shopId); // 상점이 속해있는 상점 카테고리 목록
+        List<Integer> copiedExistingCategoryIds = new ArrayList<>(existingCategoryIds);
 
-        request.getCategory_ids().forEach(categoryId -> {
-            ShopCategory requestedCategory = shopMapper.getShopCategoryByIdForAdmin(categoryId);
+        List<Integer> requestedCategoryIds = request.getCategory_ids();
 
-            // 요청된 카테고리가 db에 존재하는지 검증
-            if (requestedCategory == null) {
+        requestedCategoryIds.forEach(categoryId -> {
+            ShopCategory category = shopMapper.getShopCategoryByIdForAdmin(categoryId);
+
+            if (category == null) {
                 throw new NotFoundException(new ErrorMessage(SHOP_CATEGORY_NOT_FOUND));
             }
-
-            // 요청된 카테고리중 db에 존재하지 않던 카테고리는 새로운 insert 대상
-            if (!existingCategories.contains(requestedCategory)) {
-                ShopCategoryMap shopCategoryMap = ShopCategoryMap.create(shopId, categoryId);
-                shopCategoryMapsToCreate.add(shopCategoryMap);
-            }
-
-            // 삭제 대상을 추리기 위한 remove
-            existingCategories.remove(requestedCategory);
         });
 
-        if (!shopCategoryMapsToCreate.isEmpty()) {
-            shopMapper.createShopCategoryMapsForAdmin(shopCategoryMapsToCreate);
-        }
+        // shop_category_map 테이블에서 삭제할 관계(레코드)의 카테고리 id 리스트 = (기존 카테고리 id 리스트)에서 (요청된 카테고리 id)들을 제거한 리스트
+        existingCategoryIds.removeAll(requestedCategoryIds);
+        List<ShopCategoryMap> shopCategoryMapsToDelete = existingCategoryIds.stream()
+                .map(categoryId -> ShopCategoryMap.create(shopId, categoryId))
+                .collect(Collectors.toList());
 
-        // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
-        shopCategoryMapsToDelete = existingCategories.stream()
-                .map(category -> ShopCategoryMap.create(shopId, category.getId()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        // shop_category_map 테이블에 추가할 관계(레코드)의 카테고리 id 리스트 = (요청된 카테고리 id 리스트)에서 (기존 카테고리 id)들을 제거한 리스트
+        requestedCategoryIds.removeAll(copiedExistingCategoryIds);
+        List<ShopCategoryMap> shopCategoryMapsToCreate = requestedCategoryIds.stream()
+                .map(categoryId -> ShopCategoryMap.create(shopId, categoryId))
+                .collect(Collectors.toList());
 
         if (!shopCategoryMapsToDelete.isEmpty()) {
             shopMapper.deleteShopCategoryMapsForAdmin(shopCategoryMapsToDelete);
+        }
+        if (!shopCategoryMapsToCreate.isEmpty()) {
+            shopMapper.createShopCategoryMapsForAdmin(shopCategoryMapsToCreate);
         }
 
 
         // ======= shop_images 테이블 =======
         List<String> existingImageUrls = shopMapper.getShopImageUrlsByShopIdForAdmin(shopId);
+        List<String> copiedExistingImageUrls = new ArrayList<>(existingImageUrls);
 
-        List<ShopImage> shopImagesToCreate = new ArrayList<>(); // 추가할 shop image list
-        List<ShopImage> shopImagesToDelete; // 삭제할 shop image list
+        List<String> requestedImageUrls = request.getImage_urls();
 
-        request.getImage_urls().forEach(imageUrl -> {
-            // 기존에 없던 url은 새로운 INSERT 대상
-            if (!existingImageUrls.contains(imageUrl)) {
-                ShopImage shopImage = ShopImage.create(shopId, imageUrl);
-                shopImagesToCreate.add(shopImage);
-            }
-
-            // 삭제 대상을 추리기 위한 remove
-            existingImageUrls.remove(imageUrl);
-        });
-
-        if (!shopImagesToCreate.isEmpty()) {
-            shopMapper.createShopImagesForAdmin(shopImagesToCreate);
-        }
-
-        // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
-        shopImagesToDelete = existingImageUrls.stream()
+        // 삭제할 이미지 url 리스트 = (기존 이미지 url 리스트)에서 (요청된 이미지 url)들을 제거한 리스트
+        existingImageUrls.removeAll(requestedImageUrls);
+        List<ShopImage> shopImagesToDelete = existingImageUrls.stream()
                 .map(imageUrl -> ShopImage.create(shopId, imageUrl))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
+
+        // 추가할 이미지 url 리스트 = (요청된 이미지 url 리스트)에서 (기존 이미지 url)들을 제거한 리스트
+        requestedImageUrls.removeAll(copiedExistingImageUrls);
+        List<ShopImage> shopImagesToCreate = requestedImageUrls.stream()
+                .map(imageUrl -> ShopImage.create(shopId, imageUrl))
+                .collect(Collectors.toList());
 
         if (!shopImagesToDelete.isEmpty()) {
             shopMapper.deleteShopImagesForAdmin(shopImagesToDelete);
         }
-
+        if (!shopImagesToCreate.isEmpty()) {
+            shopMapper.createShopImagesForAdmin(shopImagesToCreate);
+        }
 
         return new SuccessResponse();
     }
@@ -558,7 +550,7 @@ public class ShopServiceImpl implements ShopService {
                 throw new ValidationException(new ErrorMessage("is_single이 true이면 single_price는 필수입니다.", REQUEST_DATA_INVALID.getCode()));
             }
 
-            ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, null, request.getSingle_price());
+            ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, null, request.getSingle_price()); // 단일 메뉴는 option이 null
 
             if (existingMenuDetails.contains(requestedMenuDetail)) {
                 existingMenuDetails.remove(requestedMenuDetail);
@@ -579,95 +571,83 @@ public class ShopServiceImpl implements ShopService {
                 throw new ValidationException(new ErrorMessage("option_prices에서 중복되는 option이 있습니다.", REQUEST_DATA_INVALID.getCode()));
             }
 
-            List<ShopMenuDetail> menuDetailsToCreate = new ArrayList<>();
+            List<ShopMenuDetail> copiedExistingMenuDetails = new ArrayList<>(existingMenuDetails);
 
-            request.getOption_prices().forEach(optionPrice -> {
-                ShopMenuDetail requestedMenuDetail = ShopMenuDetail.create(menuId, optionPrice.getOption(), optionPrice.getPrice());
+            // OptionPrice 타입을 ShopMenuDetail 타입으로 변환
+            List<ShopMenuDetail> requestedMenuDetails = request.getOption_prices().stream()
+                    .map(optionPrice -> ShopMenuDetail.create(menuId, optionPrice.getOption(), optionPrice.getPrice()))
+                    .collect(Collectors.toList());
 
-                // 기존에 없던 menu detail은 새로운 INSERT 대상
-                if (!existingMenuDetails.contains(requestedMenuDetail)) {
-                    menuDetailsToCreate.add(requestedMenuDetail);
-                }
+            // 삭제할 menu detail 리스트 = (기존 menu detail 리스트)에서 (요청된 menu detail)들을 제거한 리스트
+            existingMenuDetails.removeAll(requestedMenuDetails);
+            // 추가할 menu detail 리스트 = (요청된 menu detail 리스트)에서 (기존 menu detail)들을 제거한 리스트
+            requestedMenuDetails.removeAll(copiedExistingMenuDetails);
 
-                // 삭제 대상을 추리기 위한 remove
-                existingMenuDetails.remove(requestedMenuDetail);
-            });
-
-            if (!menuDetailsToCreate.isEmpty()) {
-                shopMapper.createMenuDetailsForAdmin(menuDetailsToCreate);
-            }
-
-            // existingMenuDetails 리스트에 남아있는 menu detail: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
             if (!existingMenuDetails.isEmpty()) {
                 shopMapper.deleteMenuDetailsForAdmin(existingMenuDetails);
             }
+            if (!requestedMenuDetails.isEmpty()) {
+                shopMapper.createMenuDetailsForAdmin(requestedMenuDetails);
+            }
+        }
+
+
+        // ======= shop_menu_category_map 테이블 =======
+        List<Integer> existingCategoryIds = shopMapper.getMenuCategoryIdsOfMenuByMenuIdForAdmin(menuId);
+        List<Integer> copiedExistingCategoryIds = new ArrayList<>(existingCategoryIds);
+
+        List<Integer> requestedCategoryIds = request.getCategory_ids();
+        requestedCategoryIds.forEach(categoryId -> {
+            ShopMenuCategory menuCategory = shopMapper.getMenuCategoryByIdForAdmin(categoryId);
+
+            if (menuCategory == null || !menuCategory.hasSameShopId(shopId)) {
+                throw new NotFoundException(new ErrorMessage(SHOP_MENU_CATEGORY_NOT_FOUND));
+            }
+        });
+
+        // shop_menu_category_map 테이블에서 삭제할 관계(레코드)의 카테고리 id 리스트 = (기존 카테고리 id 리스트)에서 (요청된 카테고리 id)들을 제거한 리스트
+        existingCategoryIds.removeAll(requestedCategoryIds);
+        List<ShopMenuCategoryMap> menuCategoryMapsToDelete = existingCategoryIds.stream()
+                .map(categoryId -> ShopMenuCategoryMap.create(menuId, categoryId))
+                .collect(Collectors.toList());
+
+        // shop_menu_category_map 테이블에 추가할 관계(레코드)의 카테고리 id 리스트 = (요청된 카테고리 id 리스트)에서 (기존 카테고리 id)들을 제거한 리스트
+        requestedCategoryIds.removeAll(copiedExistingCategoryIds);
+        List<ShopMenuCategoryMap> menuCategoryMapsToCreate = requestedCategoryIds.stream()
+                .map(categoryId -> ShopMenuCategoryMap.create(menuId, categoryId))
+                .collect(Collectors.toList());
+
+        if (!menuCategoryMapsToDelete.isEmpty()) {
+            shopMapper.deleteMenuCategoryMapsForAdmin(menuCategoryMapsToDelete);
+        }
+        if (!menuCategoryMapsToCreate.isEmpty()) {
+            shopMapper.createMenuCategoryMapsForAdmin(menuCategoryMapsToCreate);
         }
 
 
         // ======= shop_menu_images 테이블 =======
         List<String> existingImageUrls = shopMapper.getMenuImageUrlsByMenuIdForAdmin(menuId);
+        List<String> copiedExistingImageUrls = new ArrayList<>(existingImageUrls);
 
-        List<ShopMenuImage> menuImagesToCreate = new ArrayList<>();
-        List<ShopMenuImage> menuImagesToDelete;
+        List<String> requestedImageUrls = request.getImage_urls();
 
-        request.getImage_urls().forEach(imageUrl -> {
-            if (!existingImageUrls.contains(imageUrl)) {
-                ShopMenuImage menuImage = ShopMenuImage.create(menuId, imageUrl);
-                menuImagesToCreate.add(menuImage);
-            }
-
-            // 삭제 대상을 추려내기 위한 remove
-            existingImageUrls.remove(imageUrl);
-        });
-
-        if (!menuImagesToCreate.isEmpty()) {
-            shopMapper.createMenuImagesForAdmin(menuImagesToCreate);
-        }
-
-        // existingImageUrls 리스트에 남아있는 url: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
-        menuImagesToDelete = existingImageUrls.stream()
+        // 삭제할 이미지 url 리스트 = (기존 이미지 url 리스트)에서 (요청된 이미지 url)들을 제거한 리스트
+        existingImageUrls.removeAll(requestedImageUrls);
+        List<ShopMenuImage> menuImagesToDelete = existingImageUrls.stream()
                 .map(imageUrl -> ShopMenuImage.create(menuId, imageUrl))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
+
+        // 추가할 이미지 url 리스트 = (요청된 이미지 url 리스트)에서 (기존 이미지 url)들을 제거한 리스트
+        requestedImageUrls.removeAll(copiedExistingImageUrls);
+        List<ShopMenuImage> menuImagesToCreate = requestedImageUrls.stream()
+                .map(imageUrl -> ShopMenuImage.create(menuId, imageUrl))
+                .collect(Collectors.toList());
 
         if (!menuImagesToDelete.isEmpty()) {
             shopMapper.deleteMenuImagesForAdmin(menuImagesToDelete);
         }
-
-
-        // --- shop_menu_category_map 테이블 ---
-        List<ShopMenuCategory> existingCategories = shopMapper.getMenuCategoriesOfMenuByMenuIdForAdmin(menuId);
-        List<ShopMenuCategoryMap> menuCategoryMapsToCreate = new ArrayList<>();
-        List<ShopMenuCategoryMap> menuCategoryMapsToDelete;
-
-        request.getCategory_ids().forEach(categoryId -> {
-            ShopMenuCategory requestedCategory = shopMapper.getMenuCategoryByIdForAdmin(categoryId);
-
-            // 카테고리가 db에 존재하는지, 해당 상점의 메뉴 카테고리가 맞는지 검증
-            if (requestedCategory == null || !requestedCategory.hasSameShopId(shopId)) {
-                throw new NotFoundException(new ErrorMessage(SHOP_MENU_CATEGORY_NOT_FOUND));
-            }
-
-            // 기존에 없던 메뉴 카테고리는 새로운 INSERT 대상
-            if (!existingCategories.contains(requestedCategory)) {
-                ShopMenuCategoryMap shopMenuCategoryMap = ShopMenuCategoryMap.create(menuId, requestedCategory.getId());
-                menuCategoryMapsToCreate.add(shopMenuCategoryMap);
-            }
-
-            // 삭제 대상을 추리기 위한 remove
-            existingCategories.remove(requestedCategory);
-        });
-
-        if (!menuCategoryMapsToCreate.isEmpty()) {
-            shopMapper.createMenuCategoryMapsForAdmin(menuCategoryMapsToCreate);
-        }
-
-        // existingCategories 리스트에 남아있는 카테고리: 기존에는 있었지만 요청에는 없음 --> 삭제 대상
-        menuCategoryMapsToDelete = existingCategories.stream()
-                .map(category -> ShopMenuCategoryMap.create(menuId, category.getId()))
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        if (!menuCategoryMapsToDelete.isEmpty()) {
-            shopMapper.deleteMenuCategoryMapsForAdmin(menuCategoryMapsToDelete);
+        if (!menuImagesToCreate.isEmpty()) {
+            shopMapper.createMenuImagesForAdmin(menuImagesToCreate);
         }
 
 

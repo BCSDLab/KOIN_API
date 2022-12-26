@@ -32,8 +32,8 @@ public class ShopMenu {
     }
 
     public void update(UpdateShopMenuRequest request) {
-        this.name = name;
-        this.description = description;
+        this.name = request.getName();
+        this.description = request.getDescription();
     }
 
     public boolean hasSameShopId(Integer shopId) {

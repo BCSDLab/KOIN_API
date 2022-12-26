@@ -9,7 +9,9 @@ import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.admin.request.*;
 import koreatech.in.dto.shop.admin.response.*;
+import koreatech.in.repository.ShopMapper;
 import koreatech.in.service.ShopService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -51,6 +53,9 @@ import static koreatech.in.util.StringXssChecker.xssPrevent;
 public class AdminShopController {
     @Inject
     private ShopService shopService;
+
+    @Autowired
+    private ShopMapper shopMapper;
 
     // ======================================= 상점 카테고리 ============================================
 
@@ -216,7 +221,7 @@ public class AdminShopController {
     // TODO: 사장님 권한은 자신의 상점 아니면 403
     @ParamValid
     @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)
     ResponseEntity<SuccessResponse> updateMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId, @RequestBody @Valid UpdateShopMenuRequest request, BindingResult bindingResult) throws Exception {
 
         return new ResponseEntity<>(shopService.updateMenuForAdmin(shopId, menuId, (UpdateShopMenuRequest) xssPrevent(request)), HttpStatus.OK);
