@@ -1,7 +1,5 @@
 package koreatech.in.service;
 
-import koreatech.in.dto.SuccessCreateResponse;
-import koreatech.in.dto.SuccessResponse;
 import koreatech.in.dto.UploadImageResponse;
 import koreatech.in.dto.UploadImagesResponse;
 import koreatech.in.dto.shop.admin.request.*;
@@ -46,22 +44,18 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopCategoryForAdmin(CreateShopCategoryRequest request) throws Exception {
+    public void createShopCategoryForAdmin(CreateShopCategoryRequest request) throws Exception {
         if (isDuplicatedShopCategoryName(request.getName())) {
             throw new ConflictException(new ErrorMessage(SHOP_CATEGORY_NAME_DUPLICATE));
         }
 
         ShopCategory category = ShopCategory.create(request);
         shopMapper.createShopCategoryForAdmin(category);
-
-        return SuccessCreateResponse.builder()
-                .id(category.getId())
-                .build();
     }
 
     @Override
     @Transactional
-    public SuccessResponse updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request) throws Exception {
+    public void updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request) throws Exception {
         ShopCategory existingCategory = findShopCategory(shopCategoryId);
 
         if (isDuplicatedShopCategoryName(request.getName(), shopCategoryId)) {
@@ -72,13 +66,11 @@ public class ShopServiceImpl implements ShopService {
             existingCategory.update(request);
             shopMapper.updateShopCategoryForAdmin(existingCategory);
         }
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessResponse deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception {
+    public void deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception {
         findShopCategory(shopCategoryId); // 카테고리 존재 여부 체크
 
         List<Shop> shopsUsingCategory = shopMapper.getShopsUsingCategoryForAdmin(shopCategoryId);
@@ -89,8 +81,6 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shopMapper.deleteShopCategoryByIdForAdmin(shopCategoryId);
-
-        return new SuccessResponse();
     }
 
     @Override
@@ -103,20 +93,18 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception {
+    public void matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception {
         Shop shop = findShop(shopId);
 
         // TODO: 사장님의 존재 여부 확인 + 회원가입 후 권한이 주어졌는지 확인
 
         shop.matchOwnerId(request.getOwner_id());
         shopMapper.updateShopForAdmin(shop);
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessCreateResponse createShopForAdmin(CreateShopRequest request) throws Exception {
+    public void createShopForAdmin(CreateShopRequest request) throws Exception {
         /*
              INSERT 대상 테이블
              - shops
@@ -187,11 +175,6 @@ public class ShopServiceImpl implements ShopService {
         if (!shopImages.isEmpty()) {
             shopMapper.createShopImagesForAdmin(shopImages);
         }
-
-
-        return SuccessCreateResponse.builder()
-                .id(shop.getId())
-                .build();
     }
 
     @Override
@@ -212,7 +195,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateShopForAdmin(Integer shopId, UpdateShopRequest request) throws Exception {
+    public void updateShopForAdmin(Integer shopId, UpdateShopRequest request) throws Exception {
         /*
              UPDATE 대상 테이블
              - shops
@@ -299,13 +282,11 @@ public class ShopServiceImpl implements ShopService {
         if (!shopImagesToCreate.isEmpty()) {
             shopMapper.createShopImagesForAdmin(shopImagesToCreate);
         }
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessResponse deleteShopForAdmin(Integer shopId) throws Exception {
+    public void deleteShopForAdmin(Integer shopId) throws Exception {
         Shop shop = findShop(shopId);
 
         if (shop.getIs_deleted()) {
@@ -318,13 +299,11 @@ public class ShopServiceImpl implements ShopService {
              이유는 어드민페이지에서 상점 삭제 해제 기능을 사용할때 쉽게 복구가 가능해야 하기 때문이다.
          */
         shopMapper.deleteShopByIdForAdmin(shopId);
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessResponse undeleteOfShopForAdmin(Integer shopId) throws Exception {
+    public void undeleteOfShopForAdmin(Integer shopId) throws Exception {
         Shop shop = findShop(shopId);
 
         if (!shop.getIs_deleted()) {
@@ -332,8 +311,6 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shopMapper.undeleteShopByIdForAdmin(shopId);
-
-        return new SuccessResponse();
     }
 
     @Override
@@ -360,7 +337,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessCreateResponse createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception {
+    public void createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
         if (isDuplicatedMenuCategoryName(request.getName(), shopId)) {
@@ -375,10 +352,6 @@ public class ShopServiceImpl implements ShopService {
 
         ShopMenuCategory menuCategory = ShopMenuCategory.create(shopId, request.getName());
         shopMapper.createMenuCategoryForAdmin(menuCategory);
-
-        return SuccessCreateResponse.builder()
-                .id(menuCategory.getId())
-                .build();
     }
 
     @Override
@@ -393,7 +366,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception {
+    public void deleteMenuCategoryForAdmin(Integer shopId, Integer menuCategoryId) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
         ShopMenuCategory category = shopMapper.getMenuCategoryByIdForAdmin(menuCategoryId);
@@ -409,13 +382,11 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shopMapper.deleteMenuCategoryByIdForAdmin(menuCategoryId);
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessCreateResponse createMenuForAdmin(Integer shopId, CreateShopMenuRequest request) throws Exception {
+    public void createMenuForAdmin(Integer shopId, CreateShopMenuRequest request) throws Exception {
         /*
              INSERT 대상 테이블
              - shop_menus
@@ -486,11 +457,6 @@ public class ShopServiceImpl implements ShopService {
         });
 
         shopMapper.createMenuCategoryMapsForAdmin(shopMenuCategoryMaps);
-
-
-        return SuccessCreateResponse.builder()
-                .id(menu.getId())
-                .build();
     }
 
     @Override
@@ -517,7 +483,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public SuccessResponse updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request) throws Exception {
+    public void updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request) throws Exception {
         /*
              UPDATE 대상 테이블
              - shop_menus
@@ -649,14 +615,11 @@ public class ShopServiceImpl implements ShopService {
         if (!menuImagesToCreate.isEmpty()) {
             shopMapper.createMenuImagesForAdmin(menuImagesToCreate);
         }
-
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessResponse deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
+    public void deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception {
         findShop(shopId); // 상점 존재 여부 체크
 
         ShopMenu menu = findMenu(menuId);
@@ -666,13 +629,11 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shopMapper.deleteAllForInvolvedWithMenuForAdmin(menuId);
-
-        return new SuccessResponse();
     }
 
     @Override
     @Transactional
-    public SuccessResponse hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hidden) throws Exception {
+    public void hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hidden) throws Exception {
         findShop(shopId);
 
         ShopMenu menu = findMenu(menuId);
@@ -694,8 +655,6 @@ public class ShopServiceImpl implements ShopService {
 
             shopMapper.revealMenuByIdForAdmin(menuId);
         }
-
-        return new SuccessResponse();
     }
 
     @Override

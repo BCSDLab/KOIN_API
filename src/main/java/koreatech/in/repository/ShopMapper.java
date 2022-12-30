@@ -133,7 +133,7 @@ public interface ShopMapper {
             "SET " +
                 "`name` = #{shopCategory.name}, " +
                 "image_url = #{shopCategory.image_url} " +
-            "WHERE id = #{id}")
+            "WHERE id = #{shopCategory.id}")
     void updateShopCategoryForAdmin(@Param("shopCategory") ShopCategory shopCategory);
 
     @Update("UPDATE (" +

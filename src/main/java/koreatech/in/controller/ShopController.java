@@ -19,13 +19,15 @@ public class ShopController {
     @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) throws Exception {
-        return new ResponseEntity<>(shopService.getShop(shopId), HttpStatus.OK);
+        ShopResponse response = shopService.getShop(shopId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shops", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopsResponse> getAllShops() throws Exception {
-        return new ResponseEntity<>(shopService.getAllShops(), HttpStatus.OK);
+        AllShopsResponse response = shopService.getAllShops();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /*
@@ -35,6 +37,7 @@ public class ShopController {
     @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() throws Exception {
-        return new ResponseEntity<>(shopService.getAllShopCategories(), HttpStatus.OK);
+        AllShopCategoriesResponse response = shopService.getAllShopCategories();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
