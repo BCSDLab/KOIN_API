@@ -1,6 +1,8 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.Shop.*;
+import koreatech.in.dto.shop.admin.request.ShopCategoriesCondition;
+import koreatech.in.dto.shop.admin.request.ShopsCondition;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +14,10 @@ public interface ShopMapper {
     // ============================================= 상점 ==============================================
     @Insert("INSERT INTO koin.shops " +
             "(owner_id, `name`, internal_name, chosung, phone, address, `description`, " +
-            "delivery, delivery_price, pay_card, pay_bank, is_event, remarks, hit) " +
+            "delivery, delivery_price, pay_card, pay_bank) " +
             "VALUES (#{shop.owner_id}, #{shop.name}, #{shop.internal_name}, #{shop.chosung}, #{shop.phone}, " +
             "#{shop.address}, #{shop.description}, #{shop.delivery}, #{shop.delivery_price}, #{shop.pay_card}, " +
-            "#{shop.pay_bank}, #{shop.is_event}, #{shop.remarks}, #{shop.hit})")
+            "#{shop.pay_bank})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "shop.id", before = false, resultType = Integer.class)
     void createShopForAdmin(@Param("shop") Shop shop);
 
@@ -278,11 +280,27 @@ public interface ShopMapper {
 
     void deleteShopImagesForAdmin(@Param("shopImages") List<ShopImage> shopImages);
 
+    Integer getTotalCountOfShopsByConditionForAdmin(@Param("condition") ShopsCondition condition);
+
+    List<RelatedToShop> getRelatedToShopsByConditionForAdmin(@Param("begin") Integer begin, @Param("condition") ShopsCondition condition);
+
+    RelatedToShop getRelatedToShopByShopId(@Param("shopId") Integer shopId);
+
+    List<RelatedToShop> getRelatedToShops();
+
+    RelatedToShopMenu getRelatedToShopMenuByMenuId(@Param("shopMenuId") Integer shopMenuId);
+
+    List<RelatedToShopMenu> getRelatedToShopMenusOfShopByShopId(@Param("shopId") Integer shopId);
+
 
     // ========================================== 상점 카테고리 =========================================
     void createShopCategoryMapsForAdmin(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
 
     void deleteShopCategoryMapsForAdmin(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
+
+    Integer getTotalCountOfShopCategoriesByConditionForAdmin(@Param("condition") ShopCategoriesCondition condition);
+
+    List<ShopCategory> getShopCategoriesByConditionForAdmin(@Param("begin") Integer begin, @Param("condition") ShopCategoriesCondition condition);
 
 
     // ============================================= 메뉴 =============================================

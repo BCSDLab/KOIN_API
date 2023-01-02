@@ -15,7 +15,7 @@ public class ShopImage {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopImage create(Integer shopId, String imageUrl) {
+    public static ShopImage of(Integer shopId, String imageUrl) {
         return new ShopImage(shopId, imageUrl);
     }
 

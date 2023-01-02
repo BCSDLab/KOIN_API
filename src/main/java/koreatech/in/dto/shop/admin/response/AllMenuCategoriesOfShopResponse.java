@@ -4,7 +4,6 @@ import koreatech.in.domain.Shop.ShopMenuCategory;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +20,13 @@ public class AllMenuCategoriesOfShopResponse {
     private static class Category {
         private Integer id;
         private String name;
+
+        public static Category of(Integer id, String name) {
+            return Category.builder()
+                    .id(id)
+                    .name(name)
+                    .build();
+        }
     }
 
     public static AllMenuCategoriesOfShopResponse from(List<ShopMenuCategory> shopMenuCategories) {
@@ -28,13 +34,8 @@ public class AllMenuCategoriesOfShopResponse {
                 .count(shopMenuCategories.size())
                 .menu_categories(
                         shopMenuCategories.stream()
-                                .map(shopMenuCategory ->
-                                        Category.builder()
-                                                .id(shopMenuCategory.getId())
-                                                .name(shopMenuCategory.getName())
-                                                .build()
-                                )
-                                .collect(Collectors.toCollection(ArrayList::new))
+                                .map(shopMenuCategory -> Category.of(shopMenuCategory.getId(), shopMenuCategory.getName()))
+                                .collect(Collectors.toList())
                 )
                 .build();
     }

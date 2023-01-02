@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import koreatech.in.dto.shop.normal.response.AllMenusOfShopResponse;
 import koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse;
 import koreatech.in.dto.shop.normal.response.AllShopsResponse;
 import koreatech.in.dto.shop.normal.response.ShopResponse;
@@ -16,6 +17,17 @@ public class ShopController {
     @Inject
     private ShopService shopService;
 
+    /*
+         TODO: 카테고리 순서 확정 후 마이그레이션 SQL 변경,
+               페이지 방식으로 결정된다면 리팩토링
+     */
+    @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() throws Exception {
+        AllShopCategoriesResponse response = shopService.getAllShopCategories();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/shops/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) throws Exception {
@@ -30,14 +42,10 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /*
-         TODO: 카테고리 순서 확정 후 마이그레이션 SQL 변경,
-               페이지 방식으로 결정된다면 리팩토링
-     */
-    @RequestMapping(value = "/shops/categories", method = RequestMethod.GET)
+    @RequestMapping(value = "/shops/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() throws Exception {
-        AllShopCategoriesResponse response = shopService.getAllShopCategories();
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
+        AllMenusOfShopResponse response = shopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

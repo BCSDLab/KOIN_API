@@ -1,14 +1,16 @@
 package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.dto.shop.admin.request.inner.Open;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 public class UpdateShopRequest {
@@ -61,4 +63,48 @@ public class UpdateShopRequest {
     @Size(max = 10, message = "image_urls의 size는 최대 10입니다.")
     @ApiModelProperty(notes = "이미지 URL 리스트")
     private List<String> image_urls = new ArrayList<>();
+
+    @Getter @Setter
+    public static class Open {
+        @NotNull(message = "open의 day_of_week는 필수입니다.")
+        @ApiModelProperty(notes = "요일", example = "MONDAY")
+        private DayOfWeek day_of_week;
+
+        @NotNull(message = "open의 closed는 필수입니다.")
+        @ApiModelProperty(notes = "휴무 여부", example = "false")
+        private Boolean closed;
+
+        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "open의 open_time은 시간 형식입니다.")
+        @ApiModelProperty(notes = "여는 시간", example = "10:00")
+        private String open_time;
+
+        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "open의 closed_time은 시간 형식입니다.")
+        @ApiModelProperty(notes = "닫는 시간", example = "22:30")
+        private String close_time;
+    }
+
+    public boolean isOpenValid() {
+        if (this.open.size() != 7) {
+            return false;
+        }
+
+        Set<DayOfWeek> dayOfWeeksWithoutDuplication = new HashSet<>();
+
+        for (Open open : this.open) {
+            DayOfWeek dayOfWeek = open.getDay_of_week();
+            Boolean closed = open.getClosed();
+            String openTime = open.getOpen_time();
+            String closeTime = open.getClose_time();
+
+            if (!closed) {
+                if (openTime == null || closeTime == null) {
+                    return false;
+                }
+            }
+
+            dayOfWeeksWithoutDuplication.add(dayOfWeek);
+        }
+
+        return dayOfWeeksWithoutDuplication.size() == 7;
+    }
 }

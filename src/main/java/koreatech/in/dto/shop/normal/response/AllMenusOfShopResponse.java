@@ -1,16 +1,13 @@
-package koreatech.in.dto.shop.admin.response;
+package koreatech.in.dto.shop.normal.response;
 
 import koreatech.in.domain.Shop.RelatedToShopMenu;
-import koreatech.in.mapstruct.shop.admin.AdminShopMenuMapper;
+import koreatech.in.mapstruct.shop.normal.ShopMenuMapper;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-/**
- *   특정 상점의 모든 메뉴를 응답
- */
 
 @Getter @Builder
 public class AllMenusOfShopResponse {
@@ -25,7 +22,9 @@ public class AllMenusOfShopResponse {
         private Boolean is_single;
         private Integer single_price;
         private List<OptionPrice> option_prices;
+        private String description;
         private List<Integer> category_ids;
+        private List<String> image_urls;
 
         @Getter @Builder
         public static final class OptionPrice {
@@ -35,11 +34,15 @@ public class AllMenusOfShopResponse {
     }
 
     public static AllMenusOfShopResponse from(List<RelatedToShopMenu> relatedToShopMenus) {
+        List<RelatedToShopMenu> noHiddenMenus = relatedToShopMenus.stream()
+                .filter(menu -> !menu.isHidden())
+                .collect(Collectors.toList());
+
         return AllMenusOfShopResponse.builder()
-                .count(relatedToShopMenus.size())
+                .count(noHiddenMenus.size())
                 .menus(
-                        relatedToShopMenus.stream()
-                                .map(AdminShopMenuMapper.INSTANCE::toAllMenusOfShopResponse$Menu)
+                        noHiddenMenus.stream()
+                                .map(ShopMenuMapper.INSTANCE::toAllMenusOfShopResponse$Menu)
                                 .collect(Collectors.toList())
                 )
                 .build();

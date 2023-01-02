@@ -15,7 +15,7 @@ public class ShopMenuImage {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopMenuImage create(Integer shopMenuId, String imageUrl) {
+    public static ShopMenuImage of(Integer shopMenuId, String imageUrl) {
         return new ShopMenuImage(shopMenuId, imageUrl);
     }
 

@@ -15,7 +15,7 @@ public class ShopMenuCategoryMap {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopMenuCategoryMap create(Integer shopMenuId, Integer shopMenuCategoryId) {
+    public static ShopMenuCategoryMap of(Integer shopMenuId, Integer shopMenuCategoryId) {
         return new ShopMenuCategoryMap(shopMenuId, shopMenuCategoryId);
     }
 

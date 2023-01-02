@@ -1,14 +1,16 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.admin.request.CreateShopRequest;
 import koreatech.in.dto.shop.admin.request.UpdateShopRequest;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
 
-@Getter
+@Getter @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Shop {
     private Integer id;
     private Integer owner_id;
@@ -29,40 +31,6 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public static Shop create(CreateShopRequest request, Integer ownerId) {
-        return new Shop(request, ownerId);
-    }
-
-    private Shop(CreateShopRequest request, Integer ownerId) {
-        this.owner_id = ownerId;
-        this.name = request.getName();
-        this.internal_name = this.name.replace(" ", "").toLowerCase();
-        this.chosung = this.internal_name.substring(0, 1);
-        this.phone = request.getPhone();
-        this.address = request.getAddress();
-        this.description = request.getDescription();
-        this.delivery = request.getDelivery();
-        this.delivery_price = request.getDelivery_price();
-        this.pay_card = request.getPay_card();
-        this.pay_bank = request.getPay_bank();
-        this.is_event = false;
-        this.remarks = null;
-        this.hit = 0;
-    }
-
-    public void update(UpdateShopRequest request) {
-        this.name = request.getName();
-        this.phone = request.getPhone();
-        this.address = request.getAddress();
-        this.description = request.getDescription();
-        this.delivery = request.getDelivery();
-        this.delivery_price = request.getDelivery_price();
-        this.pay_card = request.getPay_card();
-        this.pay_bank = request.getPay_bank();
-        this.internal_name = this.name.replace(" ", "").toLowerCase();
-        this.chosung = this.internal_name.substring(0, 1);
-    }
-
     public boolean hasSameId(Integer id) {
         if (this.id == null || id == null) {
             return false;
@@ -82,7 +50,28 @@ public class Shop {
                 || !Objects.equals(this.pay_bank, request.getPay_bank());
     }
 
+    public void update(UpdateShopRequest request) {
+        this.name = request.getName();
+        this.phone = request.getPhone();
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.delivery = request.getDelivery();
+        this.delivery_price = request.getDelivery_price();
+        this.pay_card = request.getPay_card();
+        this.pay_bank = request.getPay_bank();
+        this.internal_name = this.name.replace(" ", "").toLowerCase();
+        this.chosung = this.internal_name.substring(0, 1);
+    }
+
     public void matchOwnerId(Integer ownerId) {
         this.owner_id = ownerId;
+    }
+
+    public boolean isSoftDeleted() {
+        if (this.is_deleted == null) {
+            return false;
+        }
+
+        return this.is_deleted.equals(true);
     }
 }

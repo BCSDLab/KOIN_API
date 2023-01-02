@@ -1,14 +1,12 @@
 package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.dto.shop.admin.request.inner.OptionPrice;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +28,6 @@ public class CreateShopMenuRequest {
     private Integer single_price;
 
     @Valid
-    @Size(min = 1, message = "is_single이 false이면 option_prices의 길이는 1 이상입니다.")
     @ApiModelProperty(notes = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트")
     private List<OptionPrice> option_prices = new ArrayList<>();
 
@@ -47,6 +44,20 @@ public class CreateShopMenuRequest {
     @ApiModelProperty(notes = "이미지 URL 리스트")
     private List<String> image_urls = new ArrayList<>();
 
+    @Getter @Setter
+    public static class OptionPrice {
+        @Size(min = 1, max = 12, message = "option_prices의 option은 1자 이상 12자 이하입니다.")
+        @NotNull(message = "option_prices의 option은 필수입니다.")
+        @ApiModelProperty(notes = "옵션명", example = "곱빼기")
+        private String option;
+
+        @PositiveOrZero(message = "option_prices의 price는 0 이상 2147483647 이하입니다.")
+        @Max(value = Integer.MAX_VALUE, message = "option_prices의 price는 0 이상 2147483647 이하입니다.")
+        @NotNull(message = "option_prices의 price는 필수입니다.")
+        @ApiModelProperty(notes = "옵션에 대한 가격", example = "12000")
+        private Integer price;
+    }
+
     public boolean hasDuplicatedOption() {
         if (this.option_prices.isEmpty() || this.option_prices.size() == 1) {
             return false;
@@ -56,7 +67,7 @@ public class CreateShopMenuRequest {
                 .map(OptionPrice::getOption)
                 .collect(Collectors.toSet());
 
-        // 요청된 개수와 Set에 담긴 개수가 다르면 중복이 있다는 것
+        // 요청된 개수와 Set에 담긴 개수가 다르면 옵션명의 중복이 있다는 것
         return option_prices.size() != optionSet.size();
     }
 }

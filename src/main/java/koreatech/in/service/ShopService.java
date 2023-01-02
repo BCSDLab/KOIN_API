@@ -12,11 +12,13 @@ import java.util.List;
 public interface ShopService {
     void createShopCategoryForAdmin(CreateShopCategoryRequest request) throws Exception;
 
+    ShopCategoryResponse getShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
+
+    ShopCategoriesResponse getShopCategoriesForAdmin(ShopCategoriesCondition condition) throws Exception;
+
     void updateShopCategoryForAdmin(Integer shopCategoryId, UpdateShopCategoryRequest request) throws Exception;
 
     void deleteShopCategoryForAdmin(Integer shopCategoryId) throws Exception;
-
-    AllShopCategoriesResponse getAllShopCategoriesForAdmin() throws Exception;
 
     void matchShopWithOwner(Integer shopId, MatchShopWithOwnerRequest request) throws Exception;
 
@@ -24,13 +26,13 @@ public interface ShopService {
 
     ShopResponse getShopForAdmin(Integer shopId) throws Exception;
 
+    ShopsResponse getShopsForAdmin(ShopsCondition condition) throws Exception;
+
     void updateShopForAdmin(Integer shopId, UpdateShopRequest request) throws Exception;
 
     void deleteShopForAdmin(Integer shopId) throws Exception;
 
     void undeleteOfShopForAdmin(Integer shopId) throws Exception;
-
-    ShopsResponse getShopsForAdmin(ShopsCondition condition) throws Exception;
 
     void createMenuCategoryForAdmin(Integer shopId, CreateShopMenuCategoryRequest request) throws Exception;
 
@@ -42,19 +44,21 @@ public interface ShopService {
 
     MenuResponse getMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
+    AllMenusOfShopResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
+
     void updateMenuForAdmin(Integer shopId, Integer menuId, UpdateShopMenuRequest request) throws Exception;
 
     void deleteMenuForAdmin(Integer shopId, Integer menuId) throws Exception;
 
     void hideMenuForAdmin(Integer shopId, Integer menuId, Boolean hidden) throws Exception;
 
-    AllMenusOfShopResponse getAllMenusOfShopForAdmin(Integer shopId) throws Exception;
+    koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse getAllShopCategories() throws Exception;
 
     koreatech.in.dto.shop.normal.response.ShopResponse getShop(Integer shopId) throws Exception;
 
     AllShopsResponse getAllShops() throws Exception;
 
-    koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse getAllShopCategories() throws Exception;
+    koreatech.in.dto.shop.normal.response.AllMenusOfShopResponse getAllMenusOfShop(Integer shopId) throws Exception;
 
     UploadImageResponse uploadShopCategoryImage(MultipartFile image) throws Exception;
 

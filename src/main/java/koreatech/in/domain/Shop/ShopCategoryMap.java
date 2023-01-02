@@ -15,7 +15,7 @@ public class ShopCategoryMap {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopCategoryMap create(Integer shopId, Integer shopCategoryId) {
+    public static ShopCategoryMap of(Integer shopId, Integer shopCategoryId) {
         return new ShopCategoryMap(shopId, shopCategoryId);
     }
 

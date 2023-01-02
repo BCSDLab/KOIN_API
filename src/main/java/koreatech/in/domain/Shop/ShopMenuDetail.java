@@ -18,7 +18,7 @@ public class ShopMenuDetail {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopMenuDetail create(Integer shopMenuId, String option, Integer price) {
+    public static ShopMenuDetail of(Integer shopMenuId, String option, Integer price) {
         return new ShopMenuDetail(shopMenuId, option, price);
     }
 

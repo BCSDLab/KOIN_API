@@ -2,14 +2,17 @@ package koreatech.in.domain.Shop;
 
 import koreatech.in.dto.shop.admin.request.CreateShopMenuRequest;
 import koreatech.in.dto.shop.admin.request.UpdateShopMenuRequest;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.Objects;
 
-@Getter
+@Getter @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ShopMenu {
     private Integer id;
     private Integer shop_id;
@@ -20,7 +23,7 @@ public class ShopMenu {
     private Date created_at;
     private Date updated_at;
 
-    public static ShopMenu create(Integer shopId, CreateShopMenuRequest request) {
+    public static ShopMenu of(Integer shopId, CreateShopMenuRequest request) {
         return new ShopMenu(shopId, request);
     }
 
@@ -44,13 +47,20 @@ public class ShopMenu {
         return this.shop_id.equals(shopId);
     }
 
-    public ShopMenu reverseIsHidden() {
-        this.is_hidden = !this.is_hidden;
-        return this;
+    public void matchShopId(Integer shopId) {
+        this.shop_id = shopId;
     }
 
     public boolean needToUpdate(UpdateShopMenuRequest request) {
         return !Objects.equals(this.name, request.getName())
                 || !Objects.equals(this.description, request.getDescription());
+    }
+
+    public boolean isHidden() {
+        if (this.is_hidden == null) {
+            return false;
+        }
+
+        return this.is_hidden.equals(true);
     }
 }

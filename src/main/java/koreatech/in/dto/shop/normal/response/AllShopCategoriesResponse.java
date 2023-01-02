@@ -1,10 +1,10 @@
 package koreatech.in.dto.shop.normal.response;
 
 import koreatech.in.domain.Shop.ShopCategory;
+import koreatech.in.mapstruct.shop.normal.ShopCategoryMapper;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +14,7 @@ public class AllShopCategoriesResponse {
     private List<Category> shop_categories;
 
     @Getter @Builder
-    private static final class Category {
+    public static final class Category {
         private Integer id;
         private String name;
         private String image_url;
@@ -25,14 +25,8 @@ public class AllShopCategoriesResponse {
                 .total_count(shopCategories.size())
                 .shop_categories(
                         shopCategories.stream()
-                               .map(shopCategory ->
-                                       Category.builder()
-                                               .id(shopCategory.getId())
-                                               .name(shopCategory.getName())
-                                               .image_url(shopCategory.getImage_url())
-                                               .build()
-                               )
-                                .collect(Collectors.toCollection(LinkedList::new))
+                                .map(ShopCategoryMapper.INSTANCE::toAllShopCategoriesResponse$Category)
+                                .collect(Collectors.toList())
                 )
                 .build();
     }
