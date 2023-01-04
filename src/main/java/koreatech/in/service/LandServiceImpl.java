@@ -29,7 +29,7 @@ import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.util.ExceptionMessage.*;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("landService")
 public class LandServiceImpl implements LandService {
@@ -42,12 +42,12 @@ public class LandServiceImpl implements LandService {
     @Autowired
     UploadFileUtils uploadFileUtils;
 
-    @Transactional
     @Override
+    @Transactional
     public SuccessCreateResponse createLandForAdmin(CreateLandRequest request) throws Exception {
         Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
         if (sameNameLand != null) {
-            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+            throw new BaseException(LAND_NAME_DUPLICATE);
         }
 
         Land land = new Land(request);
@@ -64,7 +64,7 @@ public class LandServiceImpl implements LandService {
         Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
+            throw new BaseException(LAND_NOT_FOUND);
         }
 
         return LandResponse.builder()
@@ -118,7 +118,7 @@ public class LandServiceImpl implements LandService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
+            throw new BaseException(PAGE_NOT_FOUND);
         }
 
         List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
@@ -137,12 +137,12 @@ public class LandServiceImpl implements LandService {
     public SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
         Land existingLand = landMapper.getLandForAdmin(landId);
         if (existingLand == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
+            throw new BaseException(LAND_NOT_FOUND);
         }
 
         Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
         if (sameNameLand != null && !sameNameLand.hasSameId(landId)) {
-            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+            throw new BaseException(LAND_NAME_DUPLICATE);
         }
 
         existingLand.update(request);
@@ -157,11 +157,11 @@ public class LandServiceImpl implements LandService {
         Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
+            throw new BaseException(LAND_NOT_FOUND);
         }
 
         if (land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(LAND_ALREADY_DELETED));
+            throw new BaseException(LAND_ALREADY_DELETED);
         }
 
         landMapper.softDeleteLandForAdmin(landId);
@@ -175,11 +175,11 @@ public class LandServiceImpl implements LandService {
         Land land = landMapper.getLandForAdmin(landId);
 
         if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
+            throw new BaseException(LAND_NOT_FOUND);
         }
 
         if (!land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(LAND_NOT_DELETED));
+            throw new BaseException(LAND_NOT_DELETED);
         }
 
         landMapper.undeleteLandForAdmin(landId);

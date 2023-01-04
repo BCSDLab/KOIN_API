@@ -11,8 +11,7 @@ import koreatech.in.dto.member.admin.request.MembersCondition;
 import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
 import koreatech.in.dto.member.admin.response.MemberResponse;
 import koreatech.in.dto.member.admin.response.MembersResponse;
-import koreatech.in.exception.BadRequestException;
-import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.BaseException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.repository.MemberMapper;
@@ -27,7 +26,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.util.List;
 
-import static koreatech.in.util.ExceptionMessage.*;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service(value = "memberService")
 public class MemberServiceImpl implements MemberService {
@@ -68,7 +67,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new ValidationException(new ErrorMessage("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID.getCode()));
+            throw new BaseException("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
         }
 
         Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
@@ -76,7 +75,7 @@ public class MemberServiceImpl implements MemberService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
+            throw new BaseException(PAGE_NOT_FOUND);
         }
 
         List<MembersResponse.Member> members = memberMapper.getMembersByConditionForAdmin(condition.getCursor(), condition);
@@ -96,7 +95,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberMapper.getMemberForAdmin(id);
 
         if (member == null) {
-            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
+            throw new BaseException(MEMBER_NOT_FOUND);
         }
 
         return MemberResponse.builder()
@@ -119,7 +118,7 @@ public class MemberServiceImpl implements MemberService {
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
 
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
+            throw new BaseException(TRACK_NOT_FOUND);
         }
 
         Member member = new Member(request);
@@ -136,12 +135,12 @@ public class MemberServiceImpl implements MemberService {
         Member existingMember = memberMapper.getMemberForAdmin(id);
 
         if (existingMember == null) {
-            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
+            throw new BaseException(MEMBER_NOT_FOUND);
         }
 
         Track track = trackMapper.getTrackByNameForAdmin(request.getTrack());
         if (track == null) {
-            throw new NotFoundException(new ErrorMessage(TRACK_NOT_FOUND));
+            throw new BaseException(TRACK_NOT_FOUND);
         }
 
         existingMember.update(request);
@@ -156,11 +155,11 @@ public class MemberServiceImpl implements MemberService {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
+            throw new BaseException(MEMBER_NOT_FOUND);
         }
 
         if (selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(MEMBER_ALREADY_DELETED));
+            throw new BaseException(MEMBER_ALREADY_DELETED);
         }
 
         memberMapper.softDeleteMemberForAdmin(id);
@@ -174,11 +173,11 @@ public class MemberServiceImpl implements MemberService {
         Member selectMember = memberMapper.getMemberForAdmin(id);
 
         if (selectMember == null) {
-            throw new NotFoundException(new ErrorMessage(MEMBER_NOT_FOUND));
+            throw new BaseException(MEMBER_NOT_FOUND);
         }
 
         if (!selectMember.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(MEMBER_NOT_DELETED));
+            throw new BaseException(MEMBER_NOT_DELETED);
         }
 
         memberMapper.undeleteMemberForAdmin(id);
