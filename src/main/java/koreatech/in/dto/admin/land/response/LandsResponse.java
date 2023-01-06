@@ -1,11 +1,12 @@
-package koreatech.in.dto.land.admin.response;
+package koreatech.in.dto.admin.land.response;
 
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.mapstruct.admin.AdminLandConverter;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter @Builder
 public class LandsResponse {
@@ -24,7 +25,8 @@ public class LandsResponse {
     @ApiModelProperty(notes = "집 정보 리스트", required = true)
     private List<Land> lands;
 
-    @Getter @Setter
+    @Getter
+    @Builder
     public static final class Land {
         @ApiModelProperty(notes = "고유 id", example = "1", required = true)
         private Integer id;
@@ -40,5 +42,22 @@ public class LandsResponse {
 
         @ApiModelProperty(notes = "전세", example = "3500")
         private String charter_fee;
+
+        @ApiModelProperty(notes = "삭제(soft delete) 여부", example = "false", required = true)
+        private Boolean is_deleted;
+    }
+
+    public static LandsResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<koreatech.in.domain.BokDuck.Land> lands) {
+        return LandsResponse.builder()
+                .total_count(totalCount)
+                .current_count(lands.size())
+                .total_page(totalPage)
+                .current_page(currentPage)
+                .lands(
+                        lands.stream()
+                                .map(AdminLandConverter.INSTANCE::toLandsResponse$Land)
+                                .collect(Collectors.toList())
+                )
+                .build();
     }
 }

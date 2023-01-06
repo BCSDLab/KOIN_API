@@ -11,7 +11,7 @@ import java.util.List;
 @Getter @Setter
 public class LandsCondition extends Criteria {
     @ApiParam(value = "정렬 기준 \n" +
-            "- NULL 가능 \n" +
+            "- null 가능 \n" +
             "- 다음 중 하나로만 요청 가능\n" +
             "   - NAME_ASC: 이름 오름차순 \n" +
             "   - NAME_DESC: 이름 내림차순 \n" +
@@ -20,7 +20,7 @@ public class LandsCondition extends Criteria {
     private Sort sort;
 
     @ApiParam(value = "필터링 기준 (리스트)\n" +
-            "- NULL 가능 \n" +
+            "- null 가능 \n" +
             "- 다음 중 선택하여 요청 가능 \n" +
             "   - IS_DELETED \n" +
             "   - REFRIGERATOR \n" +
@@ -42,15 +42,15 @@ public class LandsCondition extends Criteria {
     private List<Filter> filter = new ArrayList<>();
 
     @ApiParam(value = "검색 대상 \n" +
-            "- NULL 가능 \n" +
+            "- null 가능 \n" +
             "- 기본값: NAME \n" +
             "- 다음중 하나로만 요청 가능 \n" +
             "   - NAME (이름 검색)")
     private SearchType searchType = SearchType.NAME;
 
     @ApiParam(value = "검색 문자열 \n" +
-            "- NULL 가능 \n" +
-            "- NULL이 아닐 경우에는 문자열이 공백 문자로만 구성되어 있으면 안됨")
+            "- null 가능 \n" +
+            "- null이 아닐 경우에는 문자열이 공백 문자로만 구성되어 있으면 안됨")
     private String query;
 
     private enum Sort {

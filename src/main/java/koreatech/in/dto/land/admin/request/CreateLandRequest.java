@@ -4,17 +4,16 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.LinkedList;
+import javax.validation.constraints.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
 public class CreateLandRequest {
     @NotNull(message = "name은 필수입니다.")
-    @Size(max = 255, message = "name의 최대 길이는 80자 입니다.")
+    @Size(max = 255, message = "name의 최대 길이는 255자 입니다.")
     @ApiModelProperty(notes = "이름 \n" +
-                              "- NOT NULL \n" +
+                              "- not null \n" +
                               "- 최대 255자", example = "금실타운", required = true)
     private String name;
 
@@ -32,13 +31,13 @@ public class CreateLandRequest {
     @ApiModelProperty(notes = "경도", example = "127.284638")
     private Double longitude;
 
-    @Size(max = 20, message = "phone의 최대 길이는 20자 입니다.")
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "phone의 정규식은 ^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$ 입니다.")
     @ApiModelProperty(notes = "전화번호 \n" +
-                              "- 최대 20자", example = "041-111-1111")
+                              "- 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$` 을 만족해야함", example = "041-111-1111")
     private String phone;
 
     @ApiModelProperty(notes = "이미지 url 리스트")
-    private List<String> image_urls = new LinkedList<>();
+    private List<String> image_urls = new ArrayList<>();
 
     @Size(max = 65535, message = "address의 최대 길이는 65535자 입니다.")
     @ApiModelProperty(notes = "주소 \n" +
@@ -50,7 +49,9 @@ public class CreateLandRequest {
                               "- 최대 65535자", example = "1년 계약시 20만원 할인")
     private String description;
 
-    @ApiModelProperty(notes = "층수", example = "4")
+    @PositiveOrZero(message = "floor은 0 이상이어야 합니다.")
+    @ApiModelProperty(notes = "층수 \n" +
+                              "- 음수 불가능", example = "4")
     private Integer floor;
 
     @Size(max = 255, message = "deposit의 최대 길이는 255자 입니다.")
@@ -74,66 +75,66 @@ public class CreateLandRequest {
     private String management_fee;
 
     @ApiModelProperty(notes = "냉장고 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_refrigerator = false;
 
     @ApiModelProperty(notes = "옷장 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_closet = false;
 
     @ApiModelProperty(notes = "tv 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_tv = false;
 
     @ApiModelProperty(notes = "전자레인지 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_microwave = false;
 
     @ApiModelProperty(notes = "가스레인지 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "false")
+                              "- null일경우 false로 요청됨", example = "false")
     private Boolean opt_gas_range = false;
 
     @ApiModelProperty(notes = "인덕션 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_induction = false;
 
     @ApiModelProperty(notes = "정수기 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_water_purifier = false;
 
     @ApiModelProperty(notes = "에어컨 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_air_conditioner = false;
 
     @ApiModelProperty(notes = "샤워기 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_washer = false;
 
     @ApiModelProperty(notes = "침대 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "false")
+                              "- null일경우 false로 요청됨", example = "false")
     private Boolean opt_bed = false;
 
     @ApiModelProperty(notes = "책상 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_desk = false;
 
     @ApiModelProperty(notes = "신발장 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_shoe_closet = false;
 
     @ApiModelProperty(notes = "전자 도어락 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_electronic_door_locks = false;
 
     @ApiModelProperty(notes = "비데 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "false")
+                              "- null일경우 false로 요청됨", example = "false")
     private Boolean opt_bidet = false;
 
     @ApiModelProperty(notes = "베란다 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "false")
+                              "- null일경우 false로 요청됨", example = "false")
     private Boolean opt_veranda = false;
 
     @ApiModelProperty(notes = "엘레베이터 보유 여부 \n" +
-                              "- NULL일경우 false로 요청됨", example = "true")
+                              "- null일경우 false로 요청됨", example = "true")
     private Boolean opt_elevator = false;
 }
