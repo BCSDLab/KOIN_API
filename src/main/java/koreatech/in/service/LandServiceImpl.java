@@ -29,6 +29,7 @@ import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("landService")
+@Transactional
 public class LandServiceImpl implements LandService {
     @Resource(name="landMapper")
     private LandMapper landMapper;
@@ -40,7 +41,6 @@ public class LandServiceImpl implements LandService {
     UploadFileUtils uploadFileUtils;
 
     @Override
-    @Transactional
     public void createLandForAdmin(CreateLandRequest request) throws Exception {
         Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
         if (sameNameLand != null) {
@@ -80,7 +80,6 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
-    @Transactional
     public void updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
         Land existingLand = getLandById(landId);
 
@@ -94,7 +93,6 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
-    @Transactional
     public void deleteLandForAdmin(Integer landId) throws Exception {
         Land land = getLandById(landId);
 
@@ -106,7 +104,6 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
-    @Transactional
     public void undeleteLandForAdmin(Integer landId) throws Exception {
         Land land = getLandById(landId);
 
@@ -118,6 +115,7 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLands() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -136,6 +134,7 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLand(int id) throws Exception {
         User user = jwtValidator.validate();
 
@@ -164,7 +163,6 @@ public class LandServiceImpl implements LandService {
         return convertLand;
     }
 
-    @Transactional
     @Override
     public LandComment createLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -193,7 +191,6 @@ public class LandServiceImpl implements LandService {
         return landComment;
     }
 
-    @Transactional
     @Override
     public LandComment updateLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -223,7 +220,6 @@ public class LandServiceImpl implements LandService {
         return landComment_old;
     }
 
-    @Transactional
     @Override
     public Map<String, Object> deleteLandComment(int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -249,7 +245,7 @@ public class LandServiceImpl implements LandService {
         }};
     }
 
-    private Land getLandById(Integer landId) {
+    private Land getLandById(Integer landId) throws Exception {
         return Optional.ofNullable(landMapper.getLandByIdForAdmin(landId))
                 .orElseThrow(() -> new BaseException(LAND_NOT_FOUND));
     }
