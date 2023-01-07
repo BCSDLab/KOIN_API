@@ -2,7 +2,7 @@ package koreatech.in.repository;
 
 import koreatech.in.domain.BokDuck.Land;
 import koreatech.in.domain.BokDuck.LandComment;
-import koreatech.in.dto.land.admin.request.LandsCondition;
+import koreatech.in.dto.admin.land.request.LandsCondition;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 

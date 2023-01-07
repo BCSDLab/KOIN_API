@@ -83,7 +83,7 @@
         WHERE `name` = #{name}
     </select>
 
-    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.dto.land.admin.request.LandsCondition" resultType="integer">
+    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.dto.admin.land.request.LandsCondition" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`lands`
 
@@ -125,7 +125,7 @@
         </trim>
     </select>
 
-    <select id="getLandsByConditionForAdmin" parameterType="koreatech.in.dto.land.admin.request.LandsCondition" resultType="koreatech.in.domain.BokDuck.Land">
+    <select id="getLandsByConditionForAdmin" parameterType="koreatech.in.dto.admin.land.request.LandsCondition" resultType="koreatech.in.domain.BokDuck.Land">
         SELECT *
         FROM `koin`.`lands`
 

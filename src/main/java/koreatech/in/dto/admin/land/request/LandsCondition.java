@@ -1,4 +1,4 @@
-package koreatech.in.dto.land.admin.request;
+package koreatech.in.dto.admin.land.request;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;

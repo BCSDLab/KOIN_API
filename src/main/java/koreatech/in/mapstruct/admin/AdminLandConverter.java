@@ -2,9 +2,9 @@ package koreatech.in.mapstruct.admin;
 
 import com.google.gson.Gson;
 import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.admin.land.request.CreateLandRequest;
 import koreatech.in.dto.admin.land.response.LandResponse;
 import koreatech.in.dto.admin.land.response.LandsResponse;
-import koreatech.in.dto.land.admin.request.CreateLandRequest;
 import koreatech.in.util.JsonConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

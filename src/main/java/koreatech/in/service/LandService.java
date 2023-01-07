@@ -1,10 +1,10 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.BokDuck.LandComment;
+import koreatech.in.dto.admin.land.request.CreateLandRequest;
+import koreatech.in.dto.admin.land.request.LandsCondition;
+import koreatech.in.dto.admin.land.request.UpdateLandRequest;
 import koreatech.in.dto.admin.land.response.LandsResponse;
-import koreatech.in.dto.land.admin.request.CreateLandRequest;
-import koreatech.in.dto.land.admin.request.LandsCondition;
-import koreatech.in.dto.land.admin.request.UpdateLandRequest;
 import koreatech.in.dto.admin.land.response.LandResponse;
 
 import java.util.Map;
