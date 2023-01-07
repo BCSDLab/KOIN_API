@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+@Api(tags = "(Admin) Land", description = "복덕방")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
 @Controller
 public class AdminLandController {

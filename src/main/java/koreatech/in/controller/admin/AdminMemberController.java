@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+@Api(tags = "(Admin) Member", description = "BCSDLab 회원")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminMemberController {

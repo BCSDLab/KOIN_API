@@ -1,10 +1,9 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.util.Map;
 
+@Api(tags = "(Normal) Shop", description = "상점")
 @Controller
 public class ShopController {
     @Inject

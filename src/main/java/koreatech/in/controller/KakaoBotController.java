@@ -2,6 +2,7 @@ package koreatech.in.controller;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import io.swagger.annotations.Api;
 import koreatech.in.service.KakaoBotService;
 import koreatech.in.skillresponse.KakaoBot;
 import koreatech.in.skillresponse.SkillResponse;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
+@Api(tags = "카카오 봇")
 @RequestMapping(value = "/koinbot")
 @Controller
 public class KakaoBotController {

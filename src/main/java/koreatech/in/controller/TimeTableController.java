@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -13,12 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Map;
 
+@Api(tags = "(Normal) TimeTable", description = "시간표")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class TimeTableController {
@@ -63,6 +65,7 @@ public class TimeTableController {
         return new ResponseEntity<Map<String, Object>>(timeTableService.updateTimeTable(timetable_log), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/timetables", method = RequestMethod.DELETE)
@@ -77,6 +80,4 @@ public class TimeTableController {
     ResponseEntity deleteTimeTableById(@ApiParam(value = "스케줄의 uid", required = true) @RequestParam(value = "id") int id) throws Exception {
         return new ResponseEntity<Map<String, Object>>(timeTableService.deleteTimeTableById(id), HttpStatus.OK);
     }
-
-
 }

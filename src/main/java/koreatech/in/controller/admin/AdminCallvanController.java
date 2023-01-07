@@ -1,5 +1,6 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -15,10 +16,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+@ApiIgnore
+@Api(tags = "(Admin) Callvan", description = "콜밴")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.CALLVAN)
 @Controller
 public class AdminCallvanController {

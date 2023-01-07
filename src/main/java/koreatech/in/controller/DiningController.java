@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Dining.DiningMenuDTO;
 import koreatech.in.service.DiningService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+@Api(tags = "(Normal) Dining", description = "식단")
 @Controller
 public class DiningController {
     @Autowired

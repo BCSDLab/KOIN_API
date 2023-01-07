@@ -17,11 +17,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.Map;
 
+@Api(tags = "(Normal) MarketPlace", description = "판매")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class MarketPlaceController {
@@ -29,6 +30,7 @@ public class MarketPlaceController {
     @Inject
     private MarketPlaceService marketPlaceService;
 
+    @ApiIgnore
     @ApiOff
     @AuthExcept
     @RequestMapping(value = "/market/items", method = RequestMethod.GET)
@@ -39,6 +41,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.getItems(type, criteria), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -49,6 +52,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Item>(marketPlaceService.createItem((Item) StringXssChecker.xssCheck(item, clear)), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @AuthExcept
     @RequestMapping(value = "/market/items/{id}", method = RequestMethod.GET)
@@ -58,6 +62,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.getItem(id), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -68,6 +73,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Item>(marketPlaceService.updateItem((Item) StringXssChecker.xssCheck(item, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/{id}", method = RequestMethod.DELETE)
@@ -77,6 +83,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.deleteItem(id), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/{id}/state", method = RequestMethod.PUT)
@@ -86,6 +93,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Item>(marketPlaceService.updateStateOfItem(state.getState(), id), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/my/items", method = RequestMethod.GET)
@@ -96,6 +104,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.getMyItemList(type, criteria), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -106,6 +115,7 @@ public class MarketPlaceController {
         return new ResponseEntity<ItemComment>(marketPlaceService.createItemComment((ItemComment)StringXssChecker.xssCheck(itemComment, clear), item_id), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/{itemId}/comments/{commentId}", method = RequestMethod.GET)
@@ -115,6 +125,7 @@ public class MarketPlaceController {
         return new ResponseEntity<ItemComment>(marketPlaceService.getItemComment(itemId, commentId), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
@@ -125,6 +136,7 @@ public class MarketPlaceController {
         return new ResponseEntity<ItemComment>(marketPlaceService.updateItemComment((ItemComment)StringXssChecker.xssCheck(itemComment, clear), itemId, commentId), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/{itemId}/comments/{commentId}", method = RequestMethod.DELETE)
@@ -134,6 +146,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.deleteItemComment(itemId, commentId), HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/grant/check", method = RequestMethod.POST)
@@ -156,6 +169,7 @@ public class MarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.itemImagesUpload(fileMap), HttpStatus.CREATED);
     }
 
+    @ApiIgnore
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/market/items/image/thumbnail/upload", method = RequestMethod.POST)
