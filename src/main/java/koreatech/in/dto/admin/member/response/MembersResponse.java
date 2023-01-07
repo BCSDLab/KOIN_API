@@ -1,10 +1,12 @@
-package koreatech.in.dto.member.admin.response;
+package koreatech.in.dto.admin.member.response;
 
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.mapstruct.admin.AdminMemberConverter;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter @Builder
 public class MembersResponse {
@@ -23,7 +25,7 @@ public class MembersResponse {
     @ApiModelProperty(notes = "회원 정보 리스트", required = true)
     private List<Member> members;
 
-    @Getter
+    @Getter @Builder
     public static final class Member {
         @ApiModelProperty(notes = "고유 id", example = "1", required = true)
         private Integer id;
@@ -42,5 +44,25 @@ public class MembersResponse {
 
         @ApiModelProperty(notes = "이메일", example = "damiano102777@naver.com")
         private String email;
+
+        @ApiModelProperty(notes = "이미지 url", example = "https://static.koreatech.in/test.png")
+        private String image_url;
+
+        @ApiModelProperty(notes = "삭제(soft delete) 여부", example = "false", required = true)
+        private Boolean is_deleted;
+    }
+
+    public static MembersResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<koreatech.in.domain.Homepage.Member> members) {
+        return MembersResponse.builder()
+                .total_count(totalCount)
+                .current_count(members.size())
+                .total_page(totalPage)
+                .current_page(currentPage)
+                .members(
+                        members.stream()
+                                .map(AdminMemberConverter.INSTANCE::toMembersResponse$Member)
+                                .collect(Collectors.toList())
+                )
+                .build();
     }
 }

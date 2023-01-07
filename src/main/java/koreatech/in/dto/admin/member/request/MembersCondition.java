@@ -1,4 +1,4 @@
-package koreatech.in.dto.member.admin.request;
+package koreatech.in.dto.admin.member.request;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;
@@ -11,7 +11,6 @@ import java.util.List;
 @Getter @Setter
 public class MembersCondition extends Criteria {
     @ApiParam(value = "정렬 기준 \n" +
-                      "- NULL 가능 \n" +
                       "- 다음 중 하나로만 요청 가능\n" +
                       "   - NAME_ASC: 이름 오름차순 \n" +
                       "   - NAME_DESC: 이름 내림차순 \n" +
@@ -20,7 +19,6 @@ public class MembersCondition extends Criteria {
     private Sort sort;
 
     @ApiParam(value = "트랙 \n" +
-                      "- NULL 가능 \n" +
                       "- 다음 중 하나로만 요청 가능 \n" +
                       "   - ANDROID \n" +
                       "   - BACKEND \n" +
@@ -30,28 +28,24 @@ public class MembersCondition extends Criteria {
     private Track track;
 
     @ApiParam(value = "직책 \n" +
-                      "- NULL 가능 \n" +
                       "- 다음 중 하나로만 요청 가능 \n" +
                       "   - MENTOR \n" +
                       "   - REGULAR")
     private Position position;
 
     @ApiParam(value = "필터링 기준 (리스트)\n" +
-                      "- NULL 가능 \n" +
                       "- 다음 중 선택하여 요청 가능 \n" +
                       "   - IS_DELETED")
     private List<Filter> filter = new ArrayList<>();
 
     @ApiParam(value = "검색 대상 \n" +
-                      "- NULL 가능 \n" +
-                      "- 기본값: NAME \n" +
+                      "- null일 경우 기본값: NAME \n" +
                       "- 다음중 하나로만 요청 가능 \n" +
                       "   - NAME (이름 검색)")
     private SearchType searchType = SearchType.NAME;
 
     @ApiParam(value = "검색 문자열 \n" +
-                      "- NULL 가능 \n" +
-                      "- NULL이 아닐 경우에는 문자열이 공백 문자로만 구성되어 있으면 안됨")
+                      "- null이 아닐 경우에는 문자열이 공백 문자로만 구성되어 있으면 안됨")
     private String query;
 
     private enum Sort {

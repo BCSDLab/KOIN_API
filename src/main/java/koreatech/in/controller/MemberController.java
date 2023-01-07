@@ -29,6 +29,6 @@ public class MemberController {
     @RequestMapping(value = "/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getMemberById(@ApiParam(value = "멤버 id", required = true) @PathVariable(value = "id") Integer memberId) throws Exception {
-        return new ResponseEntity<Member>(memberService.getMemberById(memberId), HttpStatus.OK);
+        return new ResponseEntity<Member>(memberService.getMember(memberId), HttpStatus.OK);
     }
 }
