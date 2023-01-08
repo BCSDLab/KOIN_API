@@ -3,16 +3,19 @@ package koreatech.in.domain.Homepage;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.dto.member.admin.request.CreateMemberRequest;
-import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
+import koreatech.in.dto.admin.member.request.UpdateMemberRequest;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
-@Getter
+@Getter @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Member {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;
@@ -40,13 +43,13 @@ public class Member {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date updated_at;
 
-    public Member(CreateMemberRequest request) {
-        this.name = request.getName();
-        this.student_number = request.getStudent_number();
-        this.track = request.getTrack();
-        this.position = request.getPosition();
-        this.email = request.getEmail();
-        this.image_url = request.getImage_url();
+    public boolean needToUpdate(UpdateMemberRequest request) {
+        return !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.student_number, request.getStudent_number())
+                || !Objects.equals(this.track, request.getTrack())
+                || !Objects.equals(this.position, request.getPosition())
+                || !Objects.equals(this.email, request.getEmail())
+                || !Objects.equals(this.image_url, request.getImage_url());
     }
 
     public void update(UpdateMemberRequest request) {
@@ -56,6 +59,14 @@ public class Member {
         this.position = request.getPosition();
         this.email = request.getEmail();
         this.image_url = request.getImage_url();
+    }
+
+    public boolean isSoftDeleted() {
+        if (this.is_deleted == null) {
+            return false;
+        }
+
+        return this.is_deleted.equals(true);
     }
 
     @Override

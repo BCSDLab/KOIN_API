@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.service.SearchService;
@@ -10,9 +11,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 
+@ApiIgnore
+@Api(tags = "(Normal) Search", description = "검색")
 @Controller
 public class SearchController {
     @Inject

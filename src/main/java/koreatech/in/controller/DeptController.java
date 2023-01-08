@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import koreatech.in.domain.Dept.DeptInfoVO;
 import koreatech.in.domain.Dept.DeptNum;
 import koreatech.in.service.DeptService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+@Api(tags = "(Normal) Dept", description = "학과")
 @Controller
 public class DeptController {
 

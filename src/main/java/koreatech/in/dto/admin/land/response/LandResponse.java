@@ -1,11 +1,10 @@
-package koreatech.in.dto.land.admin.response;
+package koreatech.in.dto.admin.land.response;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.domain.BokDuck.Land;
-import koreatech.in.util.JsonConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Builder
@@ -103,43 +102,6 @@ public class LandResponse {
     @ApiModelProperty(notes = "엘레베이터 보유 여부", example = "true", required = true)
     private Boolean opt_elevator;
 
-    @ApiModelProperty(notes = "이미지 url 리스트", example = "[\"https://static.koreatech.in/example1.png\", \"https://static.koreatech.in/example2.png\"]")
-    private List<String> image_urls;
-
-    public static LandResponse from(Land land) {
-        return LandResponse.builder()
-                .id(land.getId())
-                .name(land.getName())
-                .is_deleted(land.getIs_deleted())
-                .room_type(land.getRoom_type())
-                .management_fee(land.getManagement_fee())
-                .size(land.getSize())
-                .monthly_fee(land.getMonthly_fee())
-                .charter_fee(land.getCharter_fee())
-                .latitude(land.getLatitude())
-                .longitude(land.getLongitude())
-                .deposit(land.getDeposit())
-                .floor(land.getFloor())
-                .phone(land.getPhone())
-                .address(land.getAddress())
-                .description(land.getDescription())
-                .opt_refrigerator(land.getOpt_refrigerator())
-                .opt_closet(land.getOpt_closet())
-                .opt_tv(land.getOpt_tv())
-                .opt_microwave(land.getOpt_microwave())
-                .opt_gas_range(land.getOpt_gas_range())
-                .opt_induction(land.getOpt_induction())
-                .opt_water_purifier(land.getOpt_water_purifier())
-                .opt_air_conditioner(land.getOpt_air_conditioner())
-                .opt_washer(land.getOpt_washer())
-                .opt_bed(land.getOpt_bed())
-                .opt_desk(land.getOpt_desk())
-                .opt_shoe_closet(land.getOpt_shoe_closet())
-                .opt_electronic_door_locks(land.getOpt_electronic_door_locks())
-                .opt_bidet(land.getOpt_bidet())
-                .opt_veranda(land.getOpt_veranda())
-                .opt_elevator(land.getOpt_elevator())
-                .image_urls(JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()))
-                .build();
-    }
+    @ApiModelProperty(notes = "이미지 url 리스트")
+    private List<String> image_urls = new ArrayList<>();
 }

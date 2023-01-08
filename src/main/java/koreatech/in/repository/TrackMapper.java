@@ -1,6 +1,5 @@
 package koreatech.in.repository;
 
-import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.TechStack;
 import koreatech.in.domain.Homepage.Track;
 import org.apache.ibatis.annotations.*;
@@ -10,6 +9,9 @@ import java.util.List;
 
 @Repository(value = "trackMapper")
 public interface TrackMapper {
+    Track getTrackByNameForAdmin(@Param("name") String name);
+
+
 
     @Select("SELECT * FROM koin.tracks WHERE is_deleted = 0")
     List<Track> getTracks();
@@ -27,9 +29,6 @@ public interface TrackMapper {
     Track getTrackForAdmin(@Param("id") int id);
     @Select("SELECT * FROM koin.tech_stacks AS t1, koin.tracks AS t2 WHERE t1.track_id = #{id} AND t2.id = #{id}")
     List<TechStack> getTrackTechStacksForAdmin(@Param("id") int id);
-
-    @Select("SELECT * FROM koin.tracks WHERE NAME = #{name}")
-    Track getTrackByNameForAdmin(@Param("name") String name);
 
     @Insert("INSERT INTO koin.tracks(name, headcount, is_deleted) VALUES(#{name}, #{headcount}, #{is_deleted})")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)

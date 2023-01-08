@@ -1,5 +1,6 @@
 package koreatech.in.controller.v2.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.util.Map;
 
+@Api(tags = "(Admin) Shop", description = "상점")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.SHOP)
 @Controller("AdminShopControllerV2")
 @RequestMapping(value="/admin/v2/shops")

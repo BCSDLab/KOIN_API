@@ -32,7 +32,7 @@
         </if>
     </select>
 
-    <select id="getUsersByConditionForAdmin" resultType="koreatech.in.dto.user.admin.UsersResponse$User">
+    <select id="getUsersByConditionForAdmin" resultType="koreatech.in.dto.admin.user.response.UsersResponse$User">
         SELECT *
         FROM `koin`.`users`
         <if test="condition.query != null">

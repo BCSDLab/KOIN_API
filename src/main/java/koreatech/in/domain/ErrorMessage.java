@@ -1,7 +1,5 @@
 package koreatech.in.domain;
 
-import koreatech.in.util.ExceptionMessage;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,13 +11,6 @@ public class ErrorMessage {
     public ErrorMessage(String message, int code) {
         this.message = message;
         this.code = code;
-
-        update();
-    }
-
-    public ErrorMessage(ExceptionMessage exceptionMessage) {
-        this.message = exceptionMessage.getMessage();
-        this.code = exceptionMessage.getCode();
 
         update();
     }

@@ -15,13 +15,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Map;
 
+@ApiIgnore
+@Api(tags = "(Normal) Event", description = "홍보")
 @Auth(role = Auth.Role.OWNER)
 @Controller
 public class EventController {

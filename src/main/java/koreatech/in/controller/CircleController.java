@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.domain.BeanSerializer;
@@ -11,10 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+@ApiIgnore
+@Api(tags = "(Normal) Circle", description = "동아리")
 @Controller
 public class CircleController {
     @Inject

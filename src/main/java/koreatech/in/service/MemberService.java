@@ -1,36 +1,28 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Homepage.Member;
-import koreatech.in.dto.SuccessCreateResponse;
-import koreatech.in.dto.SuccessResponse;
-import koreatech.in.dto.UploadImageResponse;
-import koreatech.in.dto.member.admin.request.CreateMemberRequest;
-import koreatech.in.dto.member.admin.request.MembersCondition;
-import koreatech.in.dto.member.admin.request.UpdateMemberRequest;
-import koreatech.in.dto.member.admin.response.MemberResponse;
-import koreatech.in.dto.member.admin.response.MembersResponse;
-import org.springframework.web.multipart.MultipartFile;
+import koreatech.in.dto.admin.member.request.CreateMemberRequest;
+import koreatech.in.dto.admin.member.request.MembersCondition;
+import koreatech.in.dto.admin.member.request.UpdateMemberRequest;
+import koreatech.in.dto.admin.member.response.MemberResponse;
+import koreatech.in.dto.admin.member.response.MembersResponse;
 
 import java.util.List;
-import java.util.Map;
 
 public interface MemberService {
-    List<Member> getMembers() throws Exception;
+    void createMemberForAdmin(CreateMemberRequest request) throws Exception;
 
-    Member getMemberById(Integer memberId) throws Exception;
+    MemberResponse getMemberForAdmin(Integer memberId) throws Exception;
 
-    // ===== ADMIN APIs =====
     MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception;
 
-    MemberResponse getMemberForAdmin(int id) throws Exception;
+    void updateMemberForAdmin(Integer memberId, UpdateMemberRequest request) throws Exception;
 
-    SuccessCreateResponse createMemberForAdmin(CreateMemberRequest request) throws Exception;
+    void deleteMemberForAdmin(Integer memberId) throws Exception;
 
-    SuccessResponse updateMemberForAdmin(int id, UpdateMemberRequest request) throws Exception;
+    void undeleteMemberForAdmin(Integer memberId) throws Exception;
 
-    SuccessResponse deleteMemberForAdmin(int id) throws Exception;
+    List<Member> getMembers() throws Exception;
 
-    SuccessResponse undeleteMemberForAdmin(int id) throws Exception;
-
-    UploadImageResponse uploadImage(MultipartFile image) throws Exception;
+    Member getMember(Integer memberId) throws Exception;
 }

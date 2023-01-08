@@ -4,7 +4,7 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.*;
-import koreatech.in.dto.user.admin.UsersResponse;
+import koreatech.in.dto.admin.user.response.UsersResponse;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.UserMapper;
@@ -74,10 +74,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         List<UsersResponse.User> users = userMapper.getUsersByConditionForAdmin(condition.getCursor(), condition);
 
         return UsersResponse.builder()
-                .totalCount(totalCount)
-                .currentCount(users.size())
-                .totalPage(totalPage)
-                .currentPage(currentPage)
+                .total_count(totalCount)
+                .current_count(users.size())
+                .total_page(totalPage)
+                .current_page(currentPage)
                 .users(users)
                 .build();
     }

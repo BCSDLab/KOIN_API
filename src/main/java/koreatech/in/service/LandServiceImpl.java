@@ -5,18 +5,13 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
-import koreatech.in.dto.SuccessCreateResponse;
-import koreatech.in.dto.SuccessResponse;
-import koreatech.in.dto.UploadImagesResponse;
-import koreatech.in.dto.land.admin.request.CreateLandRequest;
-import koreatech.in.dto.land.admin.request.LandsCondition;
-import koreatech.in.dto.land.admin.request.UpdateLandRequest;
-import koreatech.in.dto.land.admin.response.LandResponse;
-import koreatech.in.dto.land.admin.response.LandsResponse;
-import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.dto.admin.land.request.CreateLandRequest;
+import koreatech.in.dto.admin.land.request.LandsCondition;
+import koreatech.in.dto.admin.land.request.UpdateLandRequest;
+import koreatech.in.dto.admin.land.response.LandsResponse;
+import koreatech.in.dto.admin.land.response.LandResponse;
+import koreatech.in.exception.*;
+import koreatech.in.mapstruct.admin.AdminLandConverter;
 import koreatech.in.repository.LandMapper;
 import koreatech.in.util.JsonConstructor;
 import koreatech.in.util.UploadFileUtils;
@@ -24,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -32,9 +26,10 @@ import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.util.ExceptionMessage.*;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("landService")
+@Transactional
 public class LandServiceImpl implements LandService {
     @Resource(name="landMapper")
     private LandMapper landMapper;
@@ -45,39 +40,30 @@ public class LandServiceImpl implements LandService {
     @Autowired
     UploadFileUtils uploadFileUtils;
 
-    @Transactional
     @Override
-    public SuccessCreateResponse createLandForAdmin(CreateLandRequest request) throws Exception {
+    public void createLandForAdmin(CreateLandRequest request) throws Exception {
         Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
         if (sameNameLand != null) {
-            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+            throw new BaseException(LAND_NAME_DUPLICATE);
         }
 
-        Land land = new Land(request);
+        Land land = AdminLandConverter.INSTANCE.toLand(request);
         landMapper.createLandForAdmin(land);
-
-        return SuccessCreateResponse.builder()
-                .id(land.getId())
-                .build();
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public LandResponse getLandForAdmin(Integer landId) throws Exception {
-        Land land = landMapper.getLandForAdmin(landId);
+        Land land = getLandById(landId);
 
-        if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
-        }
-
-        return LandResponse.from(land);
+        return AdminLandConverter.INSTANCE.toLandResponse(land);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
         if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new ConflictException(new ErrorMessage(SEARCH_QUERY_MUST_NOT_BE_BLANK));
+            throw new BaseException("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
         }
 
         Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
@@ -85,76 +71,51 @@ public class LandServiceImpl implements LandService {
         Integer currentPage = condition.getPage();
 
         if (currentPage > totalPage) {
-            throw new NotFoundException(new ErrorMessage(PAGE_NOT_FOUND));
+            throw new BaseException(PAGE_NOT_FOUND);
         }
 
-        List<LandsResponse.Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
+        List<Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
 
-        return LandsResponse.builder()
-                .total_count(totalCount)
-                .total_page(totalPage)
-                .current_count(lands.size())
-                .current_page(currentPage)
-                .lands(lands)
-                .build();
+        return LandsResponse.of(totalCount, totalPage, currentPage, lands);
     }
 
-    @Transactional
     @Override
-    public SuccessResponse updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
-        Land existingLand = landMapper.getLandForAdmin(landId);
-        if (existingLand == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
-        }
+    public void updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
+        Land existingLand = getLandById(landId);
 
         Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
         if (sameNameLand != null && !sameNameLand.hasSameId(landId)) {
-            throw new ConflictException(new ErrorMessage(LAND_NAME_DUPLICATE));
+            throw new BaseException(LAND_NAME_DUPLICATE);
         }
 
         existingLand.update(request);
         landMapper.updateLandForAdmin(existingLand);
-
-        return new SuccessResponse();
     }
 
-    @Transactional
     @Override
-    public SuccessResponse deleteLandForAdmin(Integer landId) throws Exception {
-        Land land = landMapper.getLandForAdmin(landId);
+    public void deleteLandForAdmin(Integer landId) throws Exception {
+        Land land = getLandById(landId);
 
-        if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
+        if (land.isSoftDeleted()) {
+            throw new BaseException(LAND_ALREADY_DELETED);
         }
 
-        if (land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(LAND_ALREADY_DELETED));
-        }
-
-        landMapper.softDeleteLandForAdmin(landId);
-
-        return new SuccessResponse();
+        landMapper.deleteLandForAdmin(landId);
     }
 
-    @Transactional
     @Override
-    public SuccessResponse undeleteLandForAdmin(Integer landId) throws Exception {
-        Land land = landMapper.getLandForAdmin(landId);
+    public void undeleteLandForAdmin(Integer landId) throws Exception {
+        Land land = getLandById(landId);
 
-        if (land == null) {
-            throw new NotFoundException(new ErrorMessage(LAND_NOT_FOUND));
-        }
-
-        if (!land.getIs_deleted()) {
-            throw new ConflictException(new ErrorMessage(LAND_NOT_DELETED));
+        if (!land.isSoftDeleted()) {
+            throw new BaseException(LAND_NOT_DELETED);
         }
 
         landMapper.undeleteLandForAdmin(landId);
-
-        return new SuccessResponse();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLands() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -173,6 +134,7 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLand(int id) throws Exception {
         User user = jwtValidator.validate();
 
@@ -201,7 +163,6 @@ public class LandServiceImpl implements LandService {
         return convertLand;
     }
 
-    @Transactional
     @Override
     public LandComment createLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -230,7 +191,6 @@ public class LandServiceImpl implements LandService {
         return landComment;
     }
 
-    @Transactional
     @Override
     public LandComment updateLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -260,7 +220,6 @@ public class LandServiceImpl implements LandService {
         return landComment_old;
     }
 
-    @Transactional
     @Override
     public Map<String, Object> deleteLandComment(int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -286,23 +245,8 @@ public class LandServiceImpl implements LandService {
         }};
     }
 
-    @Override
-    public UploadImagesResponse uploadImages(List<MultipartFile> images) throws Exception {
-        // 무분별한 업로드 방지
-        if (images.size() > 10) {
-            throw new ConflictException(new ErrorMessage(FILES_TO_UPLOAD_EXCEED_MAXIMUM));
-        }
-
-        String directory = "lands";
-        List<String> imageUrls = new LinkedList<>();
-
-        for (MultipartFile image : images) {
-            String url = uploadFileUtils.uploadFile(directory, image.getOriginalFilename(), image.getBytes(), image);
-            imageUrls.add("https://" + uploadFileUtils.getDomain() + "/" + directory + url);
-        }
-
-        return UploadImagesResponse.builder()
-                .image_urls(imageUrls)
-                .build();
+    private Land getLandById(Integer landId) throws Exception {
+        return Optional.ofNullable(landMapper.getLandByIdForAdmin(landId))
+                .orElseThrow(() -> new BaseException(LAND_NOT_FOUND));
     }
 }
