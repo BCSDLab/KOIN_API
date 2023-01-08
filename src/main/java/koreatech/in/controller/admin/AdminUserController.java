@@ -11,7 +11,7 @@ import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UsersCondition;
-import koreatech.in.dto.user.admin.UsersResponse;
+import koreatech.in.dto.admin.user.response.UsersResponse;
 import koreatech.in.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

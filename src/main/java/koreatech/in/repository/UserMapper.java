@@ -2,11 +2,10 @@ package koreatech.in.repository;
 
 //import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.SearchCriteria;
 import koreatech.in.domain.User.Owner;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UsersCondition;
-import koreatech.in.dto.user.admin.UsersResponse;
+import koreatech.in.dto.admin.user.response.UsersResponse;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
