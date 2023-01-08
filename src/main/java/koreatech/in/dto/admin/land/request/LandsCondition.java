@@ -40,7 +40,7 @@ public class LandsCondition extends Criteria {
     private List<Filter> filter = new ArrayList<>();
 
     @ApiParam(value = "검색 대상 \n" +
-            "- 기본값: NAME \n" +
+            "- null일 경우 기본값: NAME \n" +
             "- 다음중 하나로만 요청 가능 \n" +
             "   - NAME (이름 검색)")
     private SearchType searchType = SearchType.NAME;

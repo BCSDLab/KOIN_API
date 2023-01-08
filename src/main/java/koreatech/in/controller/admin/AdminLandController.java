@@ -26,7 +26,8 @@ public class AdminLandController {
     @Inject
     private LandService landService;
 
-    @ApiOperation(value = "집 생성", code = 201, authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 생성", authorizations = {@Authorization("Authorization")})
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
             @ApiResponse(code = 409, message = "이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)

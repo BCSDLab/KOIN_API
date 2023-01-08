@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.util.Map;
 
-@Api(tags = "(Admin) Shop", description = " ")
+@Api(tags = "(Admin) Shop", description = "상점")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.SHOP)
 @Controller("AdminShopControllerV2")
 @RequestMapping(value="/admin/v2/shops")

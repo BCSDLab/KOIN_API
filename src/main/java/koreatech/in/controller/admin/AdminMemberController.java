@@ -27,7 +27,8 @@ public class AdminMemberController {
     @Inject
     private MemberService memberService;
 
-    @ApiOperation(value = "BCSDLab 회원 생성", code = 201, authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 생성", authorizations = {@Authorization("Authorization")})
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
             @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
