@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         if (selectUser.getIdentity() == UserCode.UserIdentity.OWNER.getIdentityType()) {
-            Owner owner = (Owner) selectUser;
+            Owner owner = new Owner();
             owner.update(user);
             userMapper.updateUser(owner);
             userMapper.updateOwner(owner);
