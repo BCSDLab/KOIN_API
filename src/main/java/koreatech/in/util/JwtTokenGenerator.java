@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.UnauthorizeException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +19,9 @@ import java.util.Date;
 public class JwtTokenGenerator {
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
+
+    @Value("${redis.key.login_prefix}")
+    private String redisLoginTokenKeyPrefix;
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
@@ -59,7 +63,7 @@ public class JwtTokenGenerator {
         try {
             Claims body = Jwts.parser().setSigningKey(this.key).parseClaimsJws(token).getBody();
             int userId = Integer.parseInt(body.getSubject());
-            String redisToken = stringRedisUtilStr.getDataAsString("user@" + userId);
+            String redisToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + userId);
             if (!token.equals(redisToken)) {
                 throw new UnauthorizeException(new ErrorMessage("토큰이 변경되었습니다. 다시 로그인해주세요.", 0));
             }

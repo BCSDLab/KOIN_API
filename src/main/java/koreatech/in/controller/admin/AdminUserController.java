@@ -12,6 +12,7 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Map;
 
 @Api(tags = "(Admin) User", description = "회원")
@@ -114,8 +116,8 @@ public class AdminUserController {
     @AuthExcept
     @ParamValid
     @RequestMapping(value = "/admin/user/login", method = RequestMethod.POST)
-    public ResponseEntity login(@ApiParam(value = "(required: portal_account, password)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) User user, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(adminUserService.loginForAdmin(user), HttpStatus.OK);
+    public ResponseEntity login(@ApiParam(required = true) @RequestBody @Valid LoginRequest request, BindingResult bindingResult) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(adminUserService.loginForAdmin(request), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

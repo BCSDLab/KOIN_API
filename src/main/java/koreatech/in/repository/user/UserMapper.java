@@ -17,6 +17,9 @@ public interface UserMapper {
     void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
+
+
+    @Select("SELECT * FROM koin.admins WHERE USER_ID = #{id}")
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
     void insertUser(User user) throws SQLException;
     void deleteUser(@Param("id") int id);

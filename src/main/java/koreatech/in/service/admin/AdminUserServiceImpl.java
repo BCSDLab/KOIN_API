@@ -8,6 +8,7 @@ import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
@@ -20,6 +21,7 @@ import koreatech.in.service.JwtValidator;
 import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
+
+    @Value("${redis.key.login_prefix}")
+    private String redisLoginTokenKeyPrefix;
 
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) {
@@ -255,14 +260,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public Map<String, Object> loginForAdmin(User user) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(user.getAccount());
+    public Map<String, Object> loginForAdmin(LoginRequest request) throws Exception {
+        final User selectUser = userMapper.getAuthedUserByAccount(request.getAccount());
 
         if(selectUser == null){
             throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
         }
 
-        if (!passwordEncoder.matches(user.getPassword(), selectUser.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), selectUser.getPassword())) {
             throw new UnauthorizeException(new ErrorMessage("password not match", 0));
         }
 
@@ -274,10 +279,10 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
 
-        String getToken = stringRedisUtilStr.getDataAsString("student@" + selectUser.getId().toString());
+        String getToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + selectUser.getId().toString());
         if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
             getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set("student@" + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
+            stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
         }
 
         final String token = getToken;
@@ -292,7 +297,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public Map<String, Object> logoutForAdmin() {
         // TODO: jwt 이력 삭제
         User user = jwtValidator.validate();
-        stringRedisUtilStr.deleteData("student@" + user.getId().toString());
+        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
 
         return new HashMap<String, Object>() {{
             put("success", "logout");

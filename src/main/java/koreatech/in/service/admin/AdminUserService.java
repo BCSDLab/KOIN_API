@@ -4,6 +4,7 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.LoginRequest;
 
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public interface AdminUserService {
 
     Map<String, Object> deletePermissionForAdmin(int userId);
 
-    Map<String, Object> loginForAdmin(User user) throws Exception;
+    Map<String, Object> loginForAdmin(LoginRequest request) throws Exception;
 
     Map<String, Object> logoutForAdmin();
 

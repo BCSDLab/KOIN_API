@@ -252,7 +252,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> withdraw() throws Exception {
         User user = jwtValidator.validate();
         userMapper.deleteUser(user.getId());
-        stringRedisUtilStr.deleteData("student@" + user.getId().toString());
+        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
 
         slackNotiSender.noticeWithdraw(NotiSlack.builder()
                 .color("good")
