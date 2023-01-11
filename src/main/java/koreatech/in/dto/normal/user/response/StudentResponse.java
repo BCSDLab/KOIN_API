@@ -1,4 +1,4 @@
-package koreatech.in.dto.admin.user.response;
+package koreatech.in.dto.normal.user.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -1,9 +1,9 @@
 package koreatech.in.service;
 
-import koreatech.in.dto.admin.user.request.StudentRegisterRequest;
-import koreatech.in.dto.admin.user.request.UpdateUserRequest;
-import koreatech.in.dto.admin.user.response.LoginResponse;
-import koreatech.in.dto.admin.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 

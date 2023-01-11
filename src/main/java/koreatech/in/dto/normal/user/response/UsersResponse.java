@@ -1,4 +1,4 @@
-package koreatech.in.dto.admin.user.response;
+package koreatech.in.dto.normal.user.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
