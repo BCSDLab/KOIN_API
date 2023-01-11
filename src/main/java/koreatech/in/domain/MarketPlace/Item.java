@@ -3,7 +3,7 @@ package koreatech.in.domain.MarketPlace;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.user.User;
+import koreatech.in.domain.User.User;
 
 import javax.validation.constraints.*;
 import java.util.Date;

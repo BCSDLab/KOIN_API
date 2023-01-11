@@ -17,11 +17,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+@ApiIgnore
+@Api(tags = "(Normal) LostAndFound", description = "분실물")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class LostAndFoundController {

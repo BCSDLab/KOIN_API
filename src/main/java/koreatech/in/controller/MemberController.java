@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Homepage.Member;
 import koreatech.in.service.MemberService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Api(tags = "(Normal) Member", description = "BCSDLab 회원")
 @Controller
 public class MemberController {
 
@@ -29,6 +31,6 @@ public class MemberController {
     @RequestMapping(value = "/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getMemberById(@ApiParam(value = "멤버 id", required = true) @PathVariable(value = "id") Integer memberId) throws Exception {
-        return new ResponseEntity<Member>(memberService.getMemberById(memberId), HttpStatus.OK);
+        return new ResponseEntity<Member>(memberService.getMember(memberId), HttpStatus.OK);
     }
 }

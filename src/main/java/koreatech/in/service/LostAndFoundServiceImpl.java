@@ -6,13 +6,12 @@ import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.LostAndFound.LostItemComment;
 import koreatech.in.domain.LostAndFound.LostItemViewLog;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.user.User;
-import koreatech.in.exception.*;
+import koreatech.in.domain.User.User;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.LostAndFoundMapper;
-import koreatech.in.util.DateUtil;
-import koreatech.in.util.SearchUtil;
-import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.UploadFileUtils;
+import koreatech.in.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,9 +44,6 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
     @Autowired
     private SearchUtil searchUtil;
 
-    @Autowired
-    private JsonConstructor con;
-
     @Transactional
     @Override
     public LostItem createLostItemForAdmin(LostItem lostItem) throws Exception {
@@ -74,7 +70,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         if (lostItem.getIs_deleted() == null) {
@@ -111,7 +107,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         for (LostItem lostItem : lostItems) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 
@@ -144,8 +140,9 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, Object> map = domainToMap(lostItem);
         Map<String, String> profile = new HashMap<String, String>();
 
-        map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+        map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
+
         map.put("user", profile);
         map.put("comments", comments);
 
@@ -172,7 +169,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -306,7 +303,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         lostAndFoundMapper.createLostItem(lostItem);
@@ -346,7 +343,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         for (LostItem lostItem : lostItems) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 
@@ -395,8 +392,9 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         Map<String, Object> map = domainToMap(lostItem);
         Map<String, String> profile = new HashMap<String, String>();
 
-        map.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+        map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
+
         map.put("user", profile);
         map.put("comments", comments);
 
@@ -426,7 +424,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
         lostItem.setIp(ip);
 
         //image_urls 체크
-        if (lostItem.getImage_urls() != null && !con.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
+        if (lostItem.getImage_urls() != null && !JsonConstructor.isJsonArrayWithOnlyString(lostItem.getImage_urls()))
             throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
 
         //TODO : validator를 사용해 입력된 정보의 유효화 검사 후 입력된 부분만 기존 내용에 반영
@@ -506,7 +504,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         for (LostItem lostItem : items) {
             Map<String, Object> map_lostItem = domainToMap(lostItem);
-            map_lostItem.replace("image_urls", con.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
+            map_lostItem.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
             convert_items.add(map_lostItem);
         }
 

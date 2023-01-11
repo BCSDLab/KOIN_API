@@ -6,7 +6,7 @@ import koreatech.in.domain.MarketPlace.Item;
 import koreatech.in.domain.MarketPlace.ItemComment;
 import koreatech.in.domain.MarketPlace.ItemViewLog;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.user.User;
+import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.MarketPlaceMapper;
 import koreatech.in.util.SearchUtil;

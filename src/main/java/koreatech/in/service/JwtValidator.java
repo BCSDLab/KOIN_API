@@ -2,17 +2,12 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.user.User;
-import koreatech.in.domain.user.UserCode;
-import koreatech.in.domain.user.UserType;
-import koreatech.in.exception.NotFoundException;
+import koreatech.in.domain.User.User;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
-import lombok.RequiredArgsConstructor;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;

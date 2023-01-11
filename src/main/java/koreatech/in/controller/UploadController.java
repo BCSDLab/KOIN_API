@@ -1,7 +1,6 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.*;
-import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.util.UploadFileUtils;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+@Api(tags = "(Normal) Upload", description = "업로드")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {

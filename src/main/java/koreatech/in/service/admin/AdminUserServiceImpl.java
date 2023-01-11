@@ -3,11 +3,11 @@ package koreatech.in.service.admin;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.user.User;
-import koreatech.in.domain.user.UserCode;
-import koreatech.in.domain.user.UserResponseType;
-import koreatech.in.domain.user.UserType;
-import koreatech.in.domain.user.student.Student;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserCode;
+import koreatech.in.domain.User.UserResponseType;
+import koreatech.in.domain.User.UserType;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
@@ -32,7 +32,7 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 
 @Service
-public class AdminUserServiceImpl implements AdminUserService{
+public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private UserMapper userMapper;

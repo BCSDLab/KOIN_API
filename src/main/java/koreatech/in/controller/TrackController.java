@@ -1,7 +1,7 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
-import koreatech.in.domain.Homepage.Member;
 import koreatech.in.domain.Homepage.Track;
 import koreatech.in.service.TrackService;
 import org.springframework.http.HttpStatus;
@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
+@Api(tags = "(Normal) Track", description = "BCSDLab 트랙")
 @Controller
 public class TrackController {
     @Resource(name = "trackService")

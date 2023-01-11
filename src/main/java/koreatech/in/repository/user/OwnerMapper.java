@@ -1,12 +1,9 @@
 package koreatech.in.repository.user;
 
-import koreatech.in.domain.user.owner.Owner;
-import org.apache.ibatis.annotations.Param;
+import koreatech.in.domain.User.owner.Owner;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface OwnerMapper {

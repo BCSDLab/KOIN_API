@@ -12,7 +12,7 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.CircleMapper;
 import koreatech.in.repository.FaqMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import koreatech.in.util.JsonConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -27,9 +27,6 @@ public class CircleServiceImpl implements CircleService {
 
     @Inject
     FaqMapper faqMapper;
-
-    @Autowired
-    private JsonConstructor con;
 
     @Override
     public Map<String, Object> getCirclesForAdmin(Criteria criteria) throws Exception {
@@ -62,7 +59,7 @@ public class CircleServiceImpl implements CircleService {
         }
 
         //link_urls 체크
-        if (circle.getLink_urls() != null && !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+        if (circle.getLink_urls() != null && !JsonConstructor.isJsonArrayWithOnlyObject(circle.getLink_urls()))
             throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 
         if (circle.getIs_deleted() == null) {
@@ -116,7 +113,7 @@ public class CircleServiceImpl implements CircleService {
         faq.put("totalPage", faqTotalPage);
         faq.put("totalItemCount", faqTotalCount);
 
-        map.replace("link_urls", con.parseJsonArrayWithObject(circle.getLink_urls()));
+        map.replace("link_urls", JsonConstructor.parseJsonArrayWithObject(circle.getLink_urls()));
         map.put("faq", faq);
 
         return map;
@@ -150,7 +147,7 @@ public class CircleServiceImpl implements CircleService {
         }
 
         //link_urls 체크
-        if (circle.getLink_urls() != null && !con.isJsonArrayWithOnlyObject(circle.getLink_urls()))
+        if (circle.getLink_urls() != null && !JsonConstructor.isJsonArrayWithOnlyObject(circle.getLink_urls()))
             throw new PreconditionFailedException(new ErrorMessage("link_urls are not valid", 0));
 
         selectCircle.update(circle);

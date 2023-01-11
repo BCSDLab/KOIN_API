@@ -2,7 +2,7 @@ package koreatech.in.domain.LostAndFound;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.domain.user.User;
+import koreatech.in.domain.User.User;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;

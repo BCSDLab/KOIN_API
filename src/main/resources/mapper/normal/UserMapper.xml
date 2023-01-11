@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="koreatech.in.repository.user.UserMapper">
+
+    <select id="getUserById" resultMap="userDiscriminator">
+        SELECT * FROM koin.users WHERE ID = #{id};
+    </select>
+
+    <select id="getTotalCount" resultType="Integer">
+        SELECT COUNT(*) AS totalCount FROM koin.users WHERE IS_DELETED = 0;
+    </select>
+
+    <select id="getUserListForAdmin" resultMap="userDiscriminator">
+        SELECT *
+        FROM koin.users
+        ORDER BY created_at LIMIT #{cursor}, #{limit};
+    </select>
+
+    <select id="isAccountAlreadyUsed" resultType="Integer">
+        select count(*)
+        from koin.users
+        where account=#{account} and is_deleted=0
+            limit 1;
+    </select>
+
+    <select id="isNicknameAlreadyUsed" resultType="Integer">
+        select count(*)
+        from koin.users
+        where nickname=#{nickname}
+          and is_deleted=0 limit 1;
+    </select>
+
+    <select id="getUserByNickName" resultMap="userDiscriminator">
+        SELECT *
+        FROM koin.users
+        WHERE NICKNAME = #{nickname} AND IS_DELETED = 0;
+    </select>
+
+    <select id="getUserByAccount" resultMap="userDiscriminator">
+        SELECT *
+        FROM koin.users
+        where account=#{account}
+    </select>
+
+    <select id="getAuthedUserByAccount" resultMap="userDiscriminator">
+        select *
+        from koin.users
+        where is_authed=1 and account=#{account}
+    </select>
+
+    <select id="getUserTypeById" resultType="koreatech.in.domain.User.UserType">
+        SELECT user_type as userType FROM koin.users WHERE ID = #{id}
+    </select>
+
+    <select id="getUserEmail" resultType="String">
+        SELECT EMAIL FROM koin.users WHERE ID = #{id}
+    </select>
+
+    <select id="getUserByAuthToken" resultMap="userDiscriminator">
+        SELECT * FROM koin.users WHERE AUTH_TOKEN = #{authToken};
+    </select>
+
+    <select id="getUserByResetToken" resultMap="userDiscriminator">
+        SELECT * FROM koin.users WHERE RESET_TOKEN = #{resetToken}
+    </select>
+
+    <insert id="insertUser">
+        INSERT IGNORE
+        INTO koin.users (
+        account,
+        password,
+        name,
+        nickname,
+        gender,
+        phone_number,
+        email,
+        auth_token,
+        auth_expired_at,
+        is_authed,
+        profile_image_url,
+        user_type)
+        VALUES (
+        #{account},
+        #{password},
+        #{name},
+        #{nickname},
+        #{gender},
+        #{phoneNumber},
+        #{email},
+        #{authToken},
+        #{authExpiredAt},
+        #{isAuthed},
+        #{profileImageUrl},
+        #{userType});
+        <selectKey keyProperty="id" resultType="Integer">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <update id="updateUserIsAuthed">
+        update koin.users
+        set is_authed=#{isAuth}
+        where id=#{id}
+    </update>
+
+    <update id="updateResetTokenAndResetTokenExpiredTime">
+        update koin.users
+        set
+            reset_token=#{resetToken},
+            reset_expired_at=#{resetTokenExpiredTime}
+        where id=#{id}
+    </update>
+
+    <update id="updateUser">
+        UPDATE koin.users
+        SET
+            ACCOUNT = #{account},
+            PASSWORD = #{password},
+            NAME = #{name},
+            NICKNAME = #{nickname},
+            GENDER = #{gender},
+            USER_TYPE = #{userType},
+            PHONE_NUMBER = #{phoneNumber},
+            AUTH_TOKEN = #{authToken},
+            AUTH_EXPIRED_AT = #{authExpiredAt},
+            IS_AUTHED = #{isAuthed},
+            RESET_TOKEN = #{resetToken},
+            RESET_EXPIRED_AT = #{resetExpiredAt},
+            PROFILE_IMAGE_URL = #{profileImageUrl}
+        WHERE ID = #{id}
+    </update>
+
+    <update id="updateLastLoggedAt">
+        UPDATE koin.users
+        SET last_logged_at=#{currentDate}
+        WHERE id=#{id}
+    </update>
+
+    <delete id="deleteUser">
+        DELETE FROM koin.users WHERE ID = #{id};
+    </delete>
+
+    <resultMap type="koreatech.in.domain.User.student.Student" extends="userResultMap" id="userDiscriminator">
+
+<!--        <discriminator javaType="String" column="user_type">-->
+<!--            <case value="STUDENT" resultType="koreatech.in.domain.User.student.Student"/>-->
+<!--            <case value="OWNER" resultType="koreatech.in.domain.User.owner.Owner/"/>-->
+<!--        </discriminator>-->
+    </resultMap>
+
+    <resultMap id="userResultMap" type="koreatech.in.domain.User.student.Student">
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="nickname" column="nickname"/>
+        <result property="gender" column="gender"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="userType" column="user_type"/>
+        <result property="isAuthed" column="is_authed"/>
+        <result property="lastLoggedAt" column="last_logged_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="authToken" column="auth_token"/>
+        <result property="authExpiredAt" column="auth_expired_at"/>
+        <result property="resetToken" column="reset_token"/>
+        <result property="resetExpiredAt" column="reset_expired_at"/>
+    </resultMap>
+
+</mapper>

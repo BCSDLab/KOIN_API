@@ -1,8 +1,8 @@
 package koreatech.in.repository.user;
 
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.user.UserType;
-import koreatech.in.domain.user.User;
+import koreatech.in.domain.User.UserType;
+import koreatech.in.domain.User.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 @Repository
-public interface UserMapper{
+public interface UserMapper {
     Integer isAccountAlreadyUsed(String account);
     Integer isNicknameAlreadyUsed(String nickname);
     User getAuthedUserByAccount(String account);

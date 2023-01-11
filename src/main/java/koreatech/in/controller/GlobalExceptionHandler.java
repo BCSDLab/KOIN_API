@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,40 +12,52 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = UnauthorizeException.class)
+    @ExceptionHandler(BadRequestException.class)
+    public @ResponseBody
+    ResponseEntity BadRequestException(BadRequestException e) {
+        return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizeException.class)
     public @ResponseBody
     ResponseEntity UnauthorizeException(UnauthorizeException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(value = ForbiddenException.class)
+    @ExceptionHandler(ForbiddenException.class)
     public @ResponseBody
     ResponseEntity ForbiddenException(ForbiddenException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(value = NotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     public @ResponseBody
     ResponseEntity NotFoundException(NotFoundException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = ConflictException.class)
+    @ExceptionHandler(ConflictException.class)
     public @ResponseBody
     ResponseEntity ConflictException(ConflictException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(value = PreconditionFailedException.class)
+    @ExceptionHandler(PreconditionFailedException.class)
     public @ResponseBody
     ResponseEntity PreconditionFailedException(PreconditionFailedException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.PRECONDITION_FAILED);
     }
 
-    @ExceptionHandler(value = ValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     public @ResponseBody
     ResponseEntity ValidationException(ValidationException e) {
         return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(BaseException.class)
+    public @ResponseBody
+    ResponseEntity<ExceptionResponse> BaseException(BaseException e) {
+        return new ResponseEntity<>(ExceptionResponse.of(e.getErrorCode(), e.getMessage()), e.getHttpStatus());
     }
 
 //    @ExceptionHandler(value = Exception.class)
