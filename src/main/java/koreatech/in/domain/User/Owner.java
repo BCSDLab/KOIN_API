@@ -13,6 +13,17 @@ public class Owner extends User {
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     private String email;
 
+    public void update(User user) {
+        super.update(user);
+
+        if (user instanceof Owner) {
+            Owner owner = (Owner) user;
+            if (owner.email != null) {
+                this.email = owner.email;
+            }
+        }
+    }
+
     public String getEmail() {
         return email;
     }
