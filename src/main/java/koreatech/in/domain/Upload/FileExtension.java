@@ -1,8 +1,8 @@
 package koreatech.in.domain.Upload;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor(staticName = "from")
 public class FileExtension {
     private final String originalFileName;
 
