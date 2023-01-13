@@ -1,11 +1,12 @@
 package koreatech.in.service;
 
 import koreatech.in.dto.upload.request.UploadFileRequest;
+import koreatech.in.dto.upload.request.UploadFilesRequest;
 import koreatech.in.dto.upload.response.UploadFileResponse;
+import koreatech.in.dto.upload.response.UploadFilesResponse;
 
 public interface UploadService {
     UploadFileResponse uploadFil(UploadFileRequest uploadFileRequest);
 
-    UploadFileUrl getUploadFileUrl(UploadFile uploadFile);
-
+    UploadFilesResponse uploadFiles(UploadFilesRequest uploadFilesRequest);
 }
