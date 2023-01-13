@@ -7,23 +7,30 @@ public class UploadFileFullName {
     private static final String DASH = "-";
 
     //추후 파일명이 필요할 것 같아 필드를 둠.
-    private final String name;
+    private final String originalName;
     private final FileExtension fileExtension;
+    private final String fullName;
 
     private UploadFileFullName(String originalFileName) {
-        this.name = originalFileName;
+        this.originalName = originalFileName;
         this.fileExtension = FileExtension.from(originalFileName);
+        this.fullName = makeFileFullName();
+
     }
 
     public static UploadFileFullName from(String originalFileName) {
         return new UploadFileFullName(originalFileName);
     }
 
-    public String getFileFullName() {
-        return File.separator + getFileName() + fileExtension.getExtensionWithSeparator();
+    public String makeFileFullName() {
+        return File.separator + makeFileName() + fileExtension.getExtensionWithSeparator();
     }
 
-    private String getFileName() {
+    private String makeFileName() {
         return UUID.randomUUID() + DASH + System.currentTimeMillis();
+    }
+
+    public String getFileFullName() {
+        return this.fullName;
     }
 }
