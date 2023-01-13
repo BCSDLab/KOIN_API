@@ -38,7 +38,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {
-    public static final String FILES = "files";
+    public static final String KEY_NAME = "file";
     private final static String UPLOAD_DIRECTORY_NAME = "upload";
     private final static String SLASH = "/";
     private final static String ADMIN_PATH = "/admin";
@@ -105,7 +105,6 @@ public class UploadController {
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
-
     // 다중 이미지 업로드
     @ApiImplicitParams(
             @ApiImplicitParam(name = "multipleFile", required = true, paramType = "form", dataType = "file")
@@ -114,14 +113,14 @@ public class UploadController {
     @RequestMapping(value = "/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<UploadFilesResponse> uploadFiles(@ApiParam(required = true) MultipartHttpServletRequest mtfRequest,
+    ResponseEntity<UploadFilesResponse> uploadFiles(@ApiParam(required = true) MultipartHttpServletRequest multipartFiles,
                                                     @PathVariable String domain){
 
         DomainEnum.validate(domain);
         String enrichedDomain = enrichDomainPath(domain);
 
         UploadFilesRequest uploadFilesRequest = UploadFilesRequest.from(new ArrayList<>());
-        fillUploadFilesRequest(mtfRequest, enrichedDomain, uploadFilesRequest);
+        fillUploadFilesRequest(multipartFiles, enrichedDomain, uploadFilesRequest);
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadFiles(uploadFilesRequest);
 
@@ -130,7 +129,7 @@ public class UploadController {
 
     private static void fillUploadFilesRequest(MultipartHttpServletRequest multipartHttpServletRequest, String enrichedDomain,
                                   UploadFilesRequest uploadFilesRequest) {
-        for (MultipartFile multipartFile : multipartHttpServletRequest.getFiles(FILES)) {
+        for (MultipartFile multipartFile : multipartHttpServletRequest.getFiles(KEY_NAME)) {
 
             UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichedDomain, multipartFile.getOriginalFilename(),
                     dataFor(multipartFile));
@@ -206,6 +205,4 @@ public class UploadController {
 
         return new ResponseEntity<>(UploadFilesResponse.from(fileUrls), HttpStatus.CREATED);
     }
-
-
 }
