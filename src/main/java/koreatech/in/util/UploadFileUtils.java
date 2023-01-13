@@ -1,34 +1,33 @@
 package koreatech.in.util;
 
-import org.imgscalr.Scalr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.UUID;
+import javax.imageio.ImageIO;
+import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class UploadFileUtils {
     private static final Logger logger = LoggerFactory.getLogger(UploadFileUtils.class);
 
-    private S3Util s3Util;
+    private final S3Util s3Util;
+
+    @Value("${s3.bucket}")
     private String bucketName;
+    @Value("${s3.custom_domain}")
     private String domain;
 
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public void setS3Util(S3Util s3Util) {
+    @Autowired
+    public UploadFileUtils(S3Util s3Util) {
         this.s3Util = s3Util;
     }
 
@@ -36,9 +35,16 @@ public class UploadFileUtils {
         return domain;
     }
 
+    //uploadFileV2 사용 권장
+    @Deprecated
     public String uploadFile(String uploadPath, String originalFileName, byte[] byteData) throws Exception {
+
         int index = originalFileName.lastIndexOf(".");
-        String fileExt = originalFileName.substring(index+1);
+
+
+        String fileExt = originalFileName.substring(index + 1);
+
+        if(index <= 1) fileExt = "";
 
         UUID uid = UUID.randomUUID();
 
@@ -66,14 +72,10 @@ public class UploadFileUtils {
 
         String savedName = "/" + uid.toString() + "-" + System.currentTimeMillis() + "." + fileExt;
 
-
-
         String uploadedFileName = savedName.replace(File.separatorChar, '/');
 
         //S3Util 의 fileUpload 메서드로 파일을 업로드한다.
         s3Util.fileUpload(bucketName, uploadPath + uploadedFileName, byteData, multipartFile);
-        //System.out.println(uploadPath + uploadedFileName);
-
 
         return uploadedFileName;
     }
