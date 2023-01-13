@@ -17,7 +17,7 @@ public class UploadFileFullPath {
     }
 
     //유닉스 시스템에서의 경로를 반환한다.
-    public String fileFullPath() {
+    public String unixValue() {
         return updateFileSeparator(value());
     }
     //윈도우 시스템에서의 경로를 반환한다.
