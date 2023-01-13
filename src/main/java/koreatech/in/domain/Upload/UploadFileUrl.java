@@ -1,6 +1,6 @@
 package koreatech.in.domain.Upload;
 
-import koreatech.in.dto.Upload.UploadFileResponse;
+import koreatech.in.dto.upload.UploadFileResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

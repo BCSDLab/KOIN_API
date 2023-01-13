@@ -1,4 +1,4 @@
-package koreatech.in.dto.Upload;
+package koreatech.in.dto.upload;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
