@@ -44,15 +44,16 @@ public class S3Util {
     }
 
     // 파일 업로드
-    public void fileUpload(String bucketName, String fileName, byte[] fileData) throws FileNotFoundException {
-        String filePath = (fileName).replace(File.separatorChar, '/'); // 파일 구별자를 `/`로 설정(\->/) 이게 기존에 / 였어도 넘어오면서 \로 바뀌는 거같다.
+    public void fileUpload(String bucketName, String filePath, byte[] fileData) {
+
         ObjectMetadata metaData = new ObjectMetadata();
-
         metaData.setContentLength(fileData.length);   //메타데이터 설정 -->원래는 128kB까지 업로드 가능했으나 파일크기만큼 버퍼를 설정시켰다.
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData); //파일 넣음
 
-        conn.putObject(new PutObjectRequest(bucketName, filePath, byteArrayInputStream, metaData).withCannedAcl(CannedAccessControlList.PublicRead));
+        conn.putObject(
+                new PutObjectRequest(bucketName, filePath, new ByteArrayInputStream(fileData), metaData)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
     }
+
     // 이미지 업로드 전용
     public void fileUpload(String bucketName, String fileName, byte[] fileData, MultipartFile multipartFile) throws FileNotFoundException {
         String filePath = (fileName).replace(File.separatorChar, '/'); // 파일 구별자를 `/`로 설정(\->/) 이게 기존에 / 였어도 넘어오면서 \로 바뀌는 거같다.
