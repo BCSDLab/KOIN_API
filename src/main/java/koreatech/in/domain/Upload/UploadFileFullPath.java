@@ -15,6 +15,9 @@ public class UploadFileFullPath {
         this.path = uploadPath;
         this.uploadFileFullName = UploadFileFullName.from(originalFileName);
     }
+    public static UploadFileFullPath of(String uploadPath, String originalFileName) {
+        return new UploadFileFullPath(uploadPath, originalFileName);
+    }
 
     //유닉스 시스템에서의 경로를 반환한다.
     public String unixValue() {
