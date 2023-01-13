@@ -3,6 +3,10 @@ package koreatech.in.service;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileUrl;
+import koreatech.in.dto.upload.request.UploadFileRequest;
+import koreatech.in.dto.upload.request.UploadFilesRequest;
+import koreatech.in.dto.upload.response.UploadFileResponse;
+import koreatech.in.dto.upload.response.UploadFilesResponse;
 import koreatech.in.util.S3Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +31,25 @@ public class S3UploadServiceImpl implements UploadService {
         this.domainName = domainName;
     }
 
+    private UploadFileUrl makeFileUrl(String fileFullPath) {
+        return UploadFileUrl.from(domainName + UploadFileFullPath.SLASH + fileFullPath);
+    }
+
     @Override
-    public void uploadFile(UploadFile uploadFile) {
+    public UploadFileResponse uploadFil(UploadFileRequest uploadFileRequest) {
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(uploadFileRequest.getDomain(), uploadFileRequest.getOriginalFileName());
+        UploadFile uploadFile = UploadFile.of(uploadFileFullPath, uploadFileRequest.getData());
 
         String fileFullPath = uploadFile.getFullPath();
         s3Util.fileUpload(bucketName, fileFullPath, uploadFile.getData());
 
-        logger.info(fileFullPath);
+        UploadFileUrl uploadFileUrl = makeFileUrl(fileFullPath);
+
+        return uploadFileUrl.toDTO();
     }
 
     @Override
-    public UploadFileUrl getUploadFileUrl(UploadFile uploadFile) {
-
-        String fileFullPath = uploadFile.getFullPath();
-
-        return makeFileUrl(fileFullPath);
-    }
-
-    private UploadFileUrl makeFileUrl(String fileFullPath) {
-        return UploadFileUrl.from(domainName + UploadFileFullPath.SLASH + fileFullPath);
+    public UploadFilesResponse uploadFiles(UploadFilesRequest uploadFilesRequest) {
+        return null;
     }
 }
