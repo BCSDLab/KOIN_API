@@ -36,14 +36,8 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFileResponse uploadFil(UploadFileRequest uploadFileRequest) {
-        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(uploadFileRequest.getDomain(), uploadFileRequest.getOriginalFileName());
-        UploadFile uploadFile = UploadFile.of(uploadFileFullPath, uploadFileRequest.getData());
-
-        String fileFullPath = uploadFile.getFullPath();
-        s3Util.fileUpload(bucketName, fileFullPath, uploadFile.getData());
-
-        UploadFileUrl uploadFileUrl = makeFileUrl(fileFullPath);
+    public UploadFileResponse uploadFile(UploadFileRequest uploadFileRequest) {
+        UploadFileUrl uploadFileUrl = uploadAndGetUrl(uploadFileRequest);
 
         return uploadFileUrl.toDTO();
     }
