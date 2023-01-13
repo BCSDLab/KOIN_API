@@ -28,7 +28,8 @@ public class UploadController {
     private UploadFileUtils uploadFileUtils;
 
     // 단일 이미지 업로드
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @Deprecated
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/upload/image", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity uploadImage(@ApiParam(required = true) MultipartFile image) throws Exception {
@@ -41,6 +42,7 @@ public class UploadController {
     }
 
     // 다중 이미지 업로드
+    @Deprecated
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
