@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 public class UploadFileUrls {
     private final List<UploadFileUrl> uploadFileUrls;
 
+    public void append(UploadFileUrl uploadFileUrl) {
+        uploadFileUrls.add(uploadFileUrl);
+    }
+
     public UploadFilesResponse toDTO() {
         return UploadFilesResponse.from(uploadFileUrls.stream().map(UploadFileUrl::getFileUrl).collect(Collectors.toList()));
     }
