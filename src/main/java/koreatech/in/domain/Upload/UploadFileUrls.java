@@ -2,7 +2,7 @@ package koreatech.in.domain.Upload;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import koreatech.in.dto.upload.UploadFilesResponse;
+import koreatech.in.dto.upload.response.UploadFilesResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

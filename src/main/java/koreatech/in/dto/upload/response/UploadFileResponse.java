@@ -1,4 +1,4 @@
-package koreatech.in.dto.upload;
+package koreatech.in.dto.upload.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
