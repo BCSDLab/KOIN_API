@@ -2,8 +2,9 @@ package koreatech.in.util;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -15,15 +16,18 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class S3Util {
-    private String accessKey;
-    private String secretKey;
 
-    private AmazonS3 conn;
+    private final AmazonS3 conn;
 
-    public S3Util(String accessKey, String secretKey) {
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+    @Autowired
+    public S3Util(@Value("${s3.key}") String accessKey, @Value("${s3.secret}") String secretKey) {
         ClientConfiguration clientConfig = new ClientConfiguration();
         clientConfig.setProtocol(Protocol.HTTP);
 
