@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter @RequiredArgsConstructor(staticName = "of")
+@Getter @RequiredArgsConstructor(staticName = "from")
 public class UploadFilesRequest {
     private final List<UploadFileRequest> uploadFileRequests;
 
