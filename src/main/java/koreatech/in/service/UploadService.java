@@ -6,7 +6,7 @@ import koreatech.in.dto.upload.response.UploadFileResponse;
 import koreatech.in.dto.upload.response.UploadFilesResponse;
 
 public interface UploadService {
-    UploadFileResponse uploadFile(UploadFileRequest uploadFileRequest);
+    UploadFileResponse uploadAndGetUrl(UploadFileRequest uploadFileRequest);
 
-    UploadFilesResponse uploadFiles(UploadFilesRequest uploadFilesRequest);
+    UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest);
 }
