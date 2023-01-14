@@ -9,6 +9,7 @@ import koreatech.in.dto.upload.request.UploadFileRequest;
 import koreatech.in.dto.upload.request.UploadFilesRequest;
 import koreatech.in.dto.upload.response.UploadFileResponse;
 import koreatech.in.dto.upload.response.UploadFilesResponse;
+import koreatech.in.mapstruct.UploadFileConverter;
 import koreatech.in.util.S3Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,14 +35,14 @@ public class S3UploadServiceImpl implements UploadService {
     public UploadFileResponse uploadFile(UploadFileRequest uploadFileRequest) {
         UploadFileUrl uploadFileUrl = uploadAndGetUrl(uploadFileRequest);
 
-        return uploadFileUrl.toDTO();
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileUrl);
     }
 
     @Override
     public UploadFilesResponse uploadFiles(UploadFilesRequest uploadFilesRequest) {
         UploadFileUrls uploadFileUrls = uploadAndGetUploadFileUrls(uploadFilesRequest);
 
-        return uploadFileUrls.toDTO();
+        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFileUrls);
     }
 
     private UploadFileUrl makeFileUrl(String fileFullPath) {

@@ -156,7 +156,7 @@ public class UploadController {
                 multipartFile.getOriginalFilename(),
                 multipartFile.getBytes());
 
-        UploadFileResponse uploadFileResponse = UploadFileResponse.from(fileUrl);
+        UploadFileResponse uploadFileResponse = new UploadFileResponse(fileUrl);
 
         //CREATED 가 낫지 않을까?
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
@@ -206,6 +206,6 @@ public class UploadController {
             fileUrls.add(fileUrl);
         }
 
-        return new ResponseEntity<>(UploadFilesResponse.from(fileUrls), HttpStatus.CREATED);
+        return new ResponseEntity<>(new UploadFilesResponse(fileUrls), HttpStatus.CREATED);
     }
 }

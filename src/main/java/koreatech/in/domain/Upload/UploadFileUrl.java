@@ -1,6 +1,5 @@
 package koreatech.in.domain.Upload;
 
-import koreatech.in.dto.upload.response.UploadFileResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -9,8 +8,4 @@ import lombok.RequiredArgsConstructor;
 public class UploadFileUrl {
 
     private final String fileUrl;
-
-    public UploadFileResponse toDTO() {
-        return UploadFileResponse.from(fileUrl);
-    }
 }

@@ -1,8 +1,6 @@
 package koreatech.in.domain.Upload;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import koreatech.in.dto.upload.response.UploadFilesResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,9 +11,5 @@ public class UploadFileUrls {
 
     public void append(UploadFileUrl uploadFileUrl) {
         uploadFileUrls.add(uploadFileUrl);
-    }
-
-    public UploadFilesResponse toDTO() {
-        return UploadFilesResponse.from(uploadFileUrls.stream().map(UploadFileUrl::getFileUrl).collect(Collectors.toList()));
     }
 }
