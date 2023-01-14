@@ -1,14 +1,14 @@
 package koreatech.in.dto.upload.request;
 
+import java.util.Collections;
 import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter @RequiredArgsConstructor(staticName = "from")
-public class UploadFilesRequest {
+@RequiredArgsConstructor(staticName = "from")
+public final class UploadFilesRequest {
     private final List<UploadFileRequest> uploadFileRequests;
 
-    public void append(UploadFileRequest uploadFileRequest) {
-        uploadFileRequests.add(uploadFileRequest);
+    public List<UploadFileRequest> getUploadFileRequests() {
+        return Collections.unmodifiableList(uploadFileRequests);
     }
 }
