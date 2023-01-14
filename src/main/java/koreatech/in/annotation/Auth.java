@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Auth {
-    public enum Role { ADMIN, USER, OWNER, NONE }
-    public enum Authority { USER, CALLVAN, LAND, COMMUNITY, SHOP, VERSION, MARKET, CIRCLE, LOST, SURVEY, BCSDLAB, EVENT, NONE }
+    enum Role { ADMIN, USER, STUDENT, OWNER, NONE }
+    enum Authority { USER, CALLVAN, LAND, COMMUNITY, SHOP, VERSION, MARKET, CIRCLE, LOST, SURVEY, BCSDLAB, EVENT, NONE }
 
-    public Role role() default Role.NONE;
-    public Authority authority() default Authority.NONE;
+    Role role() default Role.NONE;
+    Authority authority() default Authority.NONE;
 }
