@@ -117,25 +117,26 @@ public class UploadController {
                                                     @PathVariable String domain){
 
         DomainEnum.validate(domain);
-        String enrichedDomain = enrichDomainPath(domain);
-
-        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.from(new ArrayList<>());
-        fillUploadFilesRequest(multipartFiles, enrichedDomain, uploadFilesRequest);
+        UploadFilesRequest uploadFilesRequest = makeUploadFilesRequest(multipartFiles, enrichDomainPath(domain));
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadFiles(uploadFilesRequest);
 
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 
-    private static void fillUploadFilesRequest(MultipartHttpServletRequest multipartHttpServletRequest, String enrichedDomain,
-                                  UploadFilesRequest uploadFilesRequest) {
+    private static UploadFilesRequest makeUploadFilesRequest(MultipartHttpServletRequest multipartHttpServletRequest, String domain) {
+
+        List<UploadFileRequest> uploadFileRequests = new ArrayList<>();
+
         for (MultipartFile multipartFile : multipartHttpServletRequest.getFiles(KEY_NAME)) {
 
-            UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichedDomain, multipartFile.getOriginalFilename(),
+            UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile.getOriginalFilename(),
                     dataFor(multipartFile));
 
-            uploadFilesRequest.append(uploadFileRequest);
+            uploadFileRequests.add(uploadFileRequest);
+
         }
+        return UploadFilesRequest.from(uploadFileRequests);
     }
 
 
