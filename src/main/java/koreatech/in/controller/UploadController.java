@@ -169,12 +169,12 @@ public class UploadController {
 
     private static byte[] dataFor(MultipartFile multipartFile) {
         if(multipartFile == null || multipartFile.isEmpty()) {
-            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+            throw new BaseException(ExceptionInformation.FILE_INVALID);
         }
         try {
             return multipartFile.getBytes();
         } catch (IOException e) {
-            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+            throw new BaseException(ExceptionInformation.FILE_INVALID);
         }
     }
     // 다중 이미지 업로드
