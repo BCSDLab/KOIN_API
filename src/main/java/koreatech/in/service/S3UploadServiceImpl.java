@@ -5,6 +5,7 @@ import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileUrl;
 import koreatech.in.domain.Upload.UploadFileUrls;
+import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.dto.upload.request.UploadFileRequest;
 import koreatech.in.dto.upload.request.UploadFilesRequest;
 import koreatech.in.dto.upload.response.UploadFileResponse;
@@ -32,41 +33,45 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFileResponse uploadFile(UploadFileRequest uploadFileRequest) {
-        UploadFileUrl uploadFileUrl = uploadAndGetUrl(uploadFileRequest);
+    public UploadFileResponse uploadAndGetUrl(UploadFileRequest uploadFileRequest) {
+        UploadFile file = UploadFileConverter.INSTANCE.toUploadFile(uploadFileRequest);
 
-        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileUrl);
+        uploadFor(file);
+        UploadFileUrl uploadedFileUrl = getUploadedFileUrl(file);
+
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadedFileUrl);
     }
 
     @Override
-    public UploadFilesResponse uploadFiles(UploadFilesRequest uploadFilesRequest) {
-        UploadFileUrls uploadFileUrls = uploadAndGetUploadFileUrls(uploadFilesRequest);
+    public UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest) {
+        UploadFiles uploadFiles = UploadFileConverter.INSTANCE.toUploadFiles(uploadFilesRequest);
+
+        UploadFileUrls uploadFileUrls = uploadAndGetUrls(uploadFiles);
 
         return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFileUrls);
     }
 
-    private UploadFileUrl makeFileUrl(String fileFullPath) {
-        return UploadFileUrl.from(domainName + UploadFileFullPath.SLASH + fileFullPath);
-    }
-
-    private UploadFileUrl uploadAndGetUrl(UploadFileRequest uploadFileRequest) {
-        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(uploadFileRequest.getDomain(), uploadFileRequest.getOriginalFileName());
-
-        UploadFile uploadFile = UploadFile.of(uploadFileFullPath, uploadFileRequest.getData());
-
-        String fileFullPath = uploadFile.getFullPath();
-        s3Util.fileUpload(bucketName, fileFullPath, uploadFile.getData());
-
-        return makeFileUrl(fileFullPath);
-    }
-
-    private UploadFileUrls uploadAndGetUploadFileUrls(UploadFilesRequest uploadFilesRequest) {
+    private UploadFileUrls uploadAndGetUrls(UploadFiles uploadFiles) {
         UploadFileUrls uploadFileUrls = UploadFileUrls.from(new ArrayList<>());
 
-        for(UploadFileRequest uploadFileRequest: uploadFilesRequest.getUploadFileRequests()) {
-            uploadFileUrls.append(uploadAndGetUrl(uploadFileRequest));
-        }
+        for (UploadFile file : uploadFiles.getUploadFiles()) {
+            uploadFor(file);
+            UploadFileUrl uploadedFileUrl = getUploadedFileUrl(file);
 
+            uploadFileUrls.append(uploadedFileUrl);
+        }
         return uploadFileUrls;
+    }
+
+    private void uploadFor(UploadFile uploadFile) {
+        s3Util.fileUpload(bucketName, uploadFile.getFullPath(), uploadFile.getData());
+    }
+
+    private UploadFileUrl getUploadedFileUrl(UploadFile uploadFile) {
+        return makeFileUrl(uploadFile.getFullPath());
+    }
+
+    private UploadFileUrl makeFileUrl(String fileFullPath) {
+        return UploadFileUrl.from(domainName + UploadFileFullPath.SLASH + fileFullPath);
     }
 }
