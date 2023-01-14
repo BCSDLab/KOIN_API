@@ -1,9 +1,9 @@
 package koreatech.in.domain.Upload;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
 
-@RequiredArgsConstructor(staticName = "of")
+@AllArgsConstructor
 public class UploadFile {
 
     private final UploadFileFullPath fullPath;
