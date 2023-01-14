@@ -32,6 +32,11 @@ public enum ExceptionInformation {
     LAND_ALREADY_DELETED("이미 삭제된 집입니다.", 107002, HttpStatus.CONFLICT),
     LAND_NOT_DELETED("삭제되어 있는 집이 아닙니다.", 107003, HttpStatus.CONFLICT),
 
+    // ======= 공통 =======
+    DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
+    FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.NOT_FOUND),
+
+
     // ======= BCSDLab 트랙 =======
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201000, HttpStatus.NOT_FOUND),
 
