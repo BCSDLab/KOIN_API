@@ -3,7 +3,7 @@ package koreatech.in.domain.Upload;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(staticName = "from")
-public class FileExtension {
+public class FileExtensionName {
     private final String originalFileName;
 
     static private final String EXTENSION_SEPARATOR = ".";
