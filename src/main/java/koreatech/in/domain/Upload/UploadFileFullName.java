@@ -8,12 +8,12 @@ public class UploadFileFullName {
 
     //추후 파일명이 필요할 것 같아 필드를 둠.
     private final String originalName;
-    private final FileExtension fileExtension;
+    private final FileExtensionName fileExtensionName;
     private final String fullName;
 
     private UploadFileFullName(String originalFileName) {
         this.originalName = originalFileName;
-        this.fileExtension = FileExtension.from(originalFileName);
+        this.fileExtensionName = FileExtensionName.from(originalFileName);
         this.fullName = makeFileFullName();
 
     }
@@ -23,7 +23,7 @@ public class UploadFileFullName {
     }
 
     public String makeFileFullName() {
-        return File.separator + makeFileName() + fileExtension.getExtensionWithSeparator();
+        return File.separator + makeFileName() + fileExtensionName.getExtensionWithSeparator();
     }
 
     private String makeFileName() {
