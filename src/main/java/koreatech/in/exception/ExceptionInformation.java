@@ -34,7 +34,7 @@ public enum ExceptionInformation {
 
     // ======= 공통 =======
     DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
-    FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.NOT_FOUND),
+    FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
 
 
     // ======= BCSDLab 트랙 =======
