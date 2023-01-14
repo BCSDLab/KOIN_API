@@ -142,6 +142,7 @@ public class UploadController {
 
     // 업로드 전용 단일 파일 업로드
     // 어드민 전용 설정을 원한다면, Auth를 메서드별로 설정 & 인터셉터에서 인식 가능케 코드 변경 & Upload에 대한 Authority DB, enum, 인터셉터에 추가 해야 함.
+    @Deprecated
     @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/{domain}/upload/file", method = RequestMethod.POST)
@@ -179,6 +180,7 @@ public class UploadController {
         }
     }
     // 다중 이미지 업로드
+    @Deprecated
     @ApiOff
     @ApiImplicitParams(
             @ApiImplicitParam(name = "filesRequest", required = true, paramType = "form", dataType = "file")
