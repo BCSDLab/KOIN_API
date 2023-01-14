@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(staticName = "from")
 public final class UploadFilesRequest {
-    private final List<UploadFileRequest> uploadFileRequests;
+    private final List<UploadFileRequest> uploadFilesRequest;
 
-    public List<UploadFileRequest> getUploadFileRequests() {
-        return Collections.unmodifiableList(uploadFileRequests);
+    public List<UploadFileRequest> getUploadFilesRequest() {
+        return Collections.unmodifiableList(uploadFilesRequest);
     }
 }
