@@ -11,7 +11,6 @@ import io.swagger.annotations.Authorization;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.domain.Upload.DomainEnum;
@@ -24,6 +23,7 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UploadService;
 import koreatech.in.util.UploadFileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +46,9 @@ public class UploadController {
     private final static String SLASH = "/";
     private final static String ADMIN_PATH = "/admin";
 
-    @Inject
+    @Autowired
     private UploadFileUtils uploadFileUtils;
-    @Inject
+    @Autowired
     private UploadService s3uploadService;
 
     // 단일 이미지 업로드
