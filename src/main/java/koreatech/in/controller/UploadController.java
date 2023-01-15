@@ -53,7 +53,7 @@ public class UploadController {
 
     // 단일 이미지 업로드
     @Deprecated
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @RequestMapping(value = "/upload/image", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity uploadImage(@ApiParam(required = true) MultipartFile image) throws Exception {
@@ -70,7 +70,7 @@ public class UploadController {
     @ApiImplicitParams(
             @ApiImplicitParam(name = "mtfRequest", required = true, paramType = "form", dataType = "file")
     )
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @RequestMapping(value = "/upload/images", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity uploadImages(@ApiParam(required = true) MultipartHttpServletRequest mtfRequest) throws Exception {
@@ -92,7 +92,7 @@ public class UploadController {
 
 
     // 단일 이미지 업로드
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -122,7 +122,7 @@ public class UploadController {
 //            , value = "복합 파일")
 //    )
     @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
-            @Authorization(value = "Authorization")})
+            @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -185,7 +185,7 @@ public class UploadController {
     // 어드민 전용 설정을 원한다면, Auth를 메서드별로 설정 & 인터셉터에서 인식 가능케 코드 변경 & Upload에 대한 Authority DB, enum, 인터셉터에 추가 해야 함.
     @Deprecated
     @ApiOff
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -220,7 +220,7 @@ public class UploadController {
 //                    , value = "복합 파일")
 //    )
     @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
-            @Authorization(value = "Authorization")})
+            @Authorization("Authorization")})
 
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
