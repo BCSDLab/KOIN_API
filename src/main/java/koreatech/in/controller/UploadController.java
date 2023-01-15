@@ -41,7 +41,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {
-    public static final String KEY_NAME = "files";
+    private static final String KEY_NAME = "files";
     private final static String UPLOAD_DIRECTORY_NAME = "upload";
     private final static String SLASH = "/";
     private final static String ADMIN_PATH = "/admin";
