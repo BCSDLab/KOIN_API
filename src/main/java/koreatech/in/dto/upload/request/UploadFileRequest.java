@@ -12,7 +12,7 @@ public class UploadFileRequest {
     private final String originalFileName;
     private final byte[] data;
 
-    public UploadFileRequest(String domain, String originalFileName, byte[] data) {
+    private UploadFileRequest(String domain, String originalFileName, byte[] data) {
         this.domain = domain;
         this.originalFileName = originalFileName;
         this.data = data;
