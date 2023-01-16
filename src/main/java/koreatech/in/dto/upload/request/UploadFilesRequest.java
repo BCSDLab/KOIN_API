@@ -15,7 +15,7 @@ public class UploadFilesRequest {
     }
 
 
-    public static UploadFilesRequest from(List<MultipartFile> files,
+    public static UploadFilesRequest of(List<MultipartFile> files,
                                                              String domain) {
 
         List<UploadFileRequest> uploadFileRequests = new ArrayList<>();
