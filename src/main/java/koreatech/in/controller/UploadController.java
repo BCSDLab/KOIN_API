@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +40,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {
-    private static final String KEY_NAME = "files";
     private final static String UPLOAD_DIRECTORY_NAME = "upload";
     private final static String SLASH = "/";
     private final static String ADMIN_PATH = "/admin";
@@ -132,7 +132,7 @@ public class UploadController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFiles(
-            @ApiParam(required = true) MultipartHttpServletRequest files,
+            @ApiParam(required = true) @RequestPart List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain) {
 
@@ -144,12 +144,12 @@ public class UploadController {
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 
-    private static UploadFilesRequest makeUploadFilesRequest(MultipartHttpServletRequest multipartHttpServletRequest,
+    private static UploadFilesRequest makeUploadFilesRequest(List<MultipartFile> files,
                                                              String domain) {
 
         List<UploadFileRequest> uploadFileRequests = new ArrayList<>();
 
-        for (MultipartFile multipartFile : multipartHttpServletRequest.getFiles(KEY_NAME)) {
+        for (MultipartFile multipartFile : files) {
 
             UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile.getOriginalFilename(),
                     dataFor(multipartFile));
@@ -231,8 +231,8 @@ public class UploadController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFilesForAdmin(
-            @ApiParam(required = true)
-            MultipartHttpServletRequest files,
+            @ApiParam(required = true) @RequestPart
+            List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain)
             throws Exception {
@@ -241,7 +241,7 @@ public class UploadController {
 
         List<String> fileUrls = new ArrayList<>();
 
-        for (MultipartFile multipartFile : files.getFiles(KEY_NAME)) {
+        for (MultipartFile multipartFile : files) {
             String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
                     multipartFile.getOriginalFilename(),
                     multipartFile.getBytes());
