@@ -135,28 +135,12 @@ public class UploadController {
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain) {
 
         DomainEnum.validate(domain);
-        UploadFilesRequest uploadFilesRequest = makeUploadFilesRequest(files, enrichDomainPath(domain));
+        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
 
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
-
-    private static UploadFilesRequest makeUploadFilesRequest(List<MultipartFile> files,
-                                                             String domain) {
-
-        List<UploadFileRequest> uploadFileRequests = new ArrayList<>();
-
-        for (MultipartFile multipartFile : files) {
-
-            UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile);
-
-            uploadFileRequests.add(uploadFileRequest);
-
-        }
-        return UploadFilesRequest.from(uploadFileRequests);
-    }
-
 
     private static String enrichDomainPath(String domain) {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase();
