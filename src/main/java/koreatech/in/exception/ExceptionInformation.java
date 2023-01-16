@@ -35,6 +35,8 @@ public enum ExceptionInformation {
     // ======= 파일 업로드 =======
     DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
     FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
+    FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
+    FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
 
 
     // ======= BCSDLab 트랙 =======
