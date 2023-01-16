@@ -105,9 +105,7 @@ public class UploadController {
                                                       + "`{items, lands, circles, market, shops, members}`", example = "items", required = true) @PathVariable String domain) {
         DomainEnum.validate(domain);
 
-        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain),
-                multipartFile.getOriginalFilename(),
-                dataFor(multipartFile));
+        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain), multipartFile);
 
         UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(uploadFileRequest);
 
@@ -151,8 +149,7 @@ public class UploadController {
 
         for (MultipartFile multipartFile : files) {
 
-            UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile.getOriginalFilename(),
-                    dataFor(multipartFile));
+            UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile);
 
             uploadFileRequests.add(uploadFileRequest);
 
@@ -167,17 +164,6 @@ public class UploadController {
 
     private static String enrichDomainPathForAdmin(String domain) {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase() + ADMIN_PATH;
-    }
-
-    private static byte[] dataFor(MultipartFile multipartFile) {
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new BaseException(ExceptionInformation.FILE_INVALID);
-        }
-        try {
-            return multipartFile.getBytes();
-        } catch (IOException e) {
-            throw new BaseException(ExceptionInformation.FILE_INVALID);
-        }
     }
 
     // 업로드 전용 단일 파일 업로드
