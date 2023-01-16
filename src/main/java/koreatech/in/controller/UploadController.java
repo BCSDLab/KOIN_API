@@ -233,7 +233,8 @@ public class UploadController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFilesForAdmin(
-            @ApiParam(value = "다중 파일 (입력 불가능)", required = true) @RequestPart("file") MultipartFile[] multipartFiles,
+            @ApiParam(required = true)
+            MultipartHttpServletRequest files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain)
             throws Exception {
@@ -242,7 +243,7 @@ public class UploadController {
 
         List<String> fileUrls = new ArrayList<>();
 
-        for (MultipartFile multipartFile : multipartFiles) {
+        for (MultipartFile multipartFile : files.getFiles(KEY_NAME)) {
             String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
                     multipartFile.getOriginalFilename(),
                     multipartFile.getBytes());
