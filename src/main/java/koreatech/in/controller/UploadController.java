@@ -89,7 +89,7 @@ public class UploadController {
     }
 
 
-    // 단일 이미지 업로드
+    // 단일 파일 업로드
     @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
@@ -114,7 +114,7 @@ public class UploadController {
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
-    // 다중 이미지 업로드
+    // 다중 파일 업로드
     @ApiImplicitParams(
             @ApiImplicitParam(name = "files", required = true, paramType = "form",
                     dataType = "file",
@@ -211,7 +211,7 @@ public class UploadController {
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
-    // 다중 이미지 업로드
+    // 다중 파일 업로드
     @Deprecated
     @ApiOff
     @ApiImplicitParams(
@@ -221,7 +221,6 @@ public class UploadController {
     )
     @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.**", authorizations = {
             @Authorization("Authorization")})
-
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
