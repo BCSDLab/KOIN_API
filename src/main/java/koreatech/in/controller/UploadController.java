@@ -25,13 +25,11 @@ import koreatech.in.service.UploadService;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -117,11 +115,12 @@ public class UploadController {
     }
 
     // 다중 이미지 업로드
-//    @ApiImplicitParams(
-//            @ApiImplicitParam(name = "multipleFiles", required = true, paramType = "form", dataType = "file"
-//            , value = "복합 파일")
-//    )
-    @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "files", required = true, paramType = "form",
+                    dataType = "file",
+                    value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
+    )
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.**", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
@@ -133,12 +132,12 @@ public class UploadController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFiles(
-            @ApiParam(value = "다중 파일 (입력 불가능)", required = true) MultipartHttpServletRequest multipartFiles,
+            @ApiParam(required = true) MultipartHttpServletRequest files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain) {
 
         DomainEnum.validate(domain);
-        UploadFilesRequest uploadFilesRequest = makeUploadFilesRequest(multipartFiles, enrichDomainPath(domain));
+        UploadFilesRequest uploadFilesRequest = makeUploadFilesRequest(files, enrichDomainPath(domain));
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
 
@@ -215,11 +214,12 @@ public class UploadController {
     // 다중 이미지 업로드
     @Deprecated
     @ApiOff
-//    @ApiImplicitParams(
-//            @ApiImplicitParam(name = "multipleFiles", required = true, paramType = "form", dataType = "file"
-//                    , value = "복합 파일")
-//    )
-    @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "files", required = true, paramType = "form",
+                    dataType = "file",
+                    value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
+    )
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.**", authorizations = {
             @Authorization("Authorization")})
 
     @ApiResponses({
@@ -228,8 +228,7 @@ public class UploadController {
             @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
                     + "(error code: 110001)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFilesForAdmin(
