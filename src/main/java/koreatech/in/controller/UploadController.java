@@ -115,13 +115,16 @@ public class UploadController {
                     dataType = "file",
                     value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
     )
-    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.**", authorizations = {
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
+                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
+                    + "(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
@@ -155,8 +158,11 @@ public class UploadController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
+                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
+                    + "(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/{domain}/upload/file", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
@@ -186,13 +192,15 @@ public class UploadController {
                     dataType = "file",
                     value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
     )
-    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.**", authorizations = {
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 (error code: 110001)\n"
+                    + "파일목록이 비어있을 때(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
