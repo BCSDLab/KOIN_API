@@ -9,12 +9,12 @@ import javax.validation.constraints.Pattern;
 
 @Getter @Setter
 public class LoginRequest {
-    @NotNull(message = "아이디는 비워둘 수 없습니다.")
+    @NotNull(message = "아이디는 필수입니다.")
     @Pattern(regexp = "^[a-z_0-9]{1,12}$", message = "아이디 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "아이디", required = true)
-    protected String account;
+    private String portal_account;
 
-    @NotNull
+    @NotNull(message = "비밀번호는 필수입니다.")
     @ApiModelProperty(notes = "비밀번호", required = true)
-    protected String password;
+    private String password;
 }

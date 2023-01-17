@@ -135,7 +135,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         Map<String, Object> map = domainToMap(item);
         Map<String, String> profile = new HashMap<String, String>();
-        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
+        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
         map.put("comments", itemComments);
 
@@ -326,7 +326,7 @@ public class MarketPlaceServiceImpl implements MarketPlaceService {
 
         Map<String, Object> map = domainToMap(item);
         Map<String, String> profile = new HashMap<String, String>();
-        profile.put("profile_image_url", user != null ? user.getProfileImageUrl() : null);
+        profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
         map.put("user", profile);
         map.put("comments", itemComments);
 

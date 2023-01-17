@@ -28,11 +28,11 @@ public class UserResponse {
         this.account = user.getAccount();
         this.nickname = user.getNickname();
         this.name = user.getName();
-        this.phoneNumber = user.getPhoneNumber();
+        this.phoneNumber = user.getPhone_number();
         this.email = user.getEmail();
         this.gender = user.getGender();
-        this.isAuth = user.getIsAuthed();
-        this.userType = user.getUserType();
-        this.isDeleted = user.getIsDeleted();
+        this.isAuth = user.getIs_authed();
+        this.userType = user.getUser_type();
+        this.isDeleted = user.getIs_deleted();
     }
 }

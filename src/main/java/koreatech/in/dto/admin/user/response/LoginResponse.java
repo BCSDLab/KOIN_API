@@ -1,4 +1,4 @@
-package koreatech.in.dto.normal.user.response;
+package koreatech.in.dto.admin.user.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,4 +8,3 @@ import lombok.RequiredArgsConstructor;
 public class LoginResponse {
     private final String token;
 }
-

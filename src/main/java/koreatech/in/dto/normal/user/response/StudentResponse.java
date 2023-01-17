@@ -19,11 +19,11 @@ public class StudentResponse extends UserResponse {
 
     public StudentResponse(Student student) {
         super(student);
-        this.anonymousNickname = student.getAnonymousNickname();
-        this.studentNumber = student.getStudentNumber();
+        this.anonymousNickname = student.getAnonymous_nickname();
+        this.studentNumber = student.getStudent_number();
         this.major = student.getMajor();
         this.identity = student.getIdentity();
-        this.isGraduated = student.getIsGraduated();
-        this.phoneNumber = student.getPhoneNumber();
+        this.isGraduated = student.getIs_graduated();
+        this.phoneNumber = student.getPhone_number();
     }
 }

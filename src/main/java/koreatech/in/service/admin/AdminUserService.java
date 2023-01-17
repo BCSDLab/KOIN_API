@@ -5,10 +5,15 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.response.LoginResponse;
 
 import java.util.Map;
 
 public interface AdminUserService {
+    LoginResponse loginForAdmin(LoginRequest request) throws Exception;
+
+    void logoutForAdmin();
+
     Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
 
     User getUserForAdmin(int id) throws Exception;
@@ -27,10 +32,5 @@ public interface AdminUserService {
 
     Map<String, Object> deletePermissionForAdmin(int userId);
 
-    Map<String, Object> loginForAdmin(LoginRequest request) throws Exception;
-
-    Map<String, Object> logoutForAdmin();
-
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
-
 }

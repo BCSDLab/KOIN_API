@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
@@ -34,8 +35,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("userService")
+@Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
@@ -74,6 +77,48 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Value("${redis.key.login_prefix}")
     private String redisLoginTokenKeyPrefix;
 
+    @Override
+    public LoginResponse login(LoginRequest request) throws Exception {
+        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+
+        if (user == null) {
+            throw new BaseException(USER_NOT_FOUND);
+        }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BaseException(PASSWORD_DIFFERENT);
+        }
+
+        userMapper.updateLastLoggedAt(user.getId(), new Date());
+
+        String accessToken = getAccessTokenFromRedis(user);
+        if (isTokenNotExistOrExpired(accessToken)) {
+            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+        }
+
+        return LoginResponse.from(accessToken);
+    }
+
+    private String getAccessTokenFromRedis(User user) throws Exception {
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String regenerateAccessTokenAndSetRedis(Integer userId) {
+        String accessToken = jwtTokenGenerator.generate(userId);
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
+        return accessToken;
+    }
+
+    @Override
+    public void logout() {
+        jwtValidator.validate(); // access token 인증이 잘 되는지 확인
+    }
+
+
+
     @Transactional
     @Override
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception {
@@ -83,7 +128,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = student.getAccount()+"@koreatech.ac.kr";
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
         student.setEmail(email);
-        student.setAnonymousNickname(anonymousNickname);
+        student.setAnonymous_nickname(anonymousNickname);
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
         student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
@@ -142,7 +187,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkStudentNumberValidation(Student student) {
-        if (student.getStudentNumber() != null) {
+        if (student.getStudent_number() != null) {
             if (!student.isStudentNumberValidated()) {
                 throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
             }
@@ -218,7 +263,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean changePasswordInput(String resetToken) {
         User user = userMapper.getUserByResetToken(resetToken);
 
-        if ((user == null) || isTokenExpired(user.getResetExpiredAt())) {
+        if ((user == null) || isTokenExpired(user.getReset_expired_at())) {
             return false;
 
         } else {
@@ -234,13 +279,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean changePasswordAuthenticate(String password, String resetToken) {
         User selectUser = userMapper.getUserByResetToken(resetToken);
 
-        if ((selectUser == null) || isTokenExpired(selectUser.getResetExpiredAt())) {
+        if ((selectUser == null) || isTokenExpired(selectUser.getReset_expired_at())) {
             return false;
         }
 
         // TODO: password hashing
         selectUser.setPassword(passwordEncoder.encode(password));
-        selectUser.setResetExpiredAt(new Date());
+        selectUser.setReset_expired_at(new Date());
 
         userMapper.updateUser(selectUser);
 
@@ -280,7 +325,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
         checkNicknameDuplicationWithoutSameUser(student);
-        if (student.getStudentNumber() != null) {
+        if (student.getStudent_number() != null) {
             checkStudentNumberValidation(student);
         }
         if (student.getMajor() != null) {
@@ -309,7 +354,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         // 인증받은 유저인지 체크
-        if (!user_old.getIsAuthed()) {
+        if (!user_old.getIs_authed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
 
@@ -356,56 +401,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public LoginResponse login(String account, String password) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(account);
-        if(selectUser == null){
-            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
-        }
-
-        if (!passwordEncoder.matches(password, selectUser.getPassword())) {
-            throw new UnauthorizeException(new ErrorMessage("password not match", 0));
-        }
-
-        userMapper.updateLastLoggedAt(selectUser.getId(), new Date());
-
-        String loginToken = getLoginTokenFromRedis(selectUser);
-        if (isTokenNotExistOrExpired(loginToken)) {
-            loginToken = regenerateLoginTokenAndSetRedis(selectUser.getId());
-        }
-
-        return new LoginResponse(selectUser, 4320, loginToken);
-    }
-
-    private boolean isTokenNotExistOrExpired(String getToken) {
-        return getToken == null || jwtTokenGenerator.isExpired(getToken);
-    }
-
-    private String getLoginTokenFromRedis(User user) throws Exception{
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
-    }
-
-    private String regenerateLoginTokenAndSetRedis(Integer userId) {
-        String loginToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, loginToken, 72, TimeUnit.HOURS);
-        return loginToken;
-    }
-
-    @Override
-    public Map<String, Object> logout() {
-        jwtValidator.validate();
-
-        return new HashMap<String, Object>() {{
-            put("success", "logout");
-        }};
-    }
-
-    @Override
     public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
-        UserDetails userDetails = userMapper.getUserByAccount(account);
-        if(userDetails == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-        return userDetails;
+        return null;
     }
 
     @Override

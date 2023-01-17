@@ -11,9 +11,14 @@ import java.util.Date;
 
 @Repository
 public interface UserMapper {
+    User getAuthedUserById(@Param("id") Integer id);
+    User getAuthedUserByAccount(@Param("account") String account);
+    void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
+
+
+
     Integer isAccountAlreadyUsed(String account);
     Integer isNicknameAlreadyUsed(String nickname);
-    User getAuthedUserByAccount(String account);
     void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
@@ -27,7 +32,6 @@ public interface UserMapper {
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
     void updateUser(User user);
-    void updateLastLoggedAt(@Param("id")int id, @Param("currentDate") Date currentDate);
     Integer getTotalCount();
     User getUserByAccount(String account);
     User getUserByNickName(String nickname);

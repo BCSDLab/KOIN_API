@@ -5,14 +5,11 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.UnauthorizeException;
+import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
@@ -31,11 +28,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
+@Transactional
 public class AdminUserServiceImpl implements AdminUserService {
-
     @Autowired
     private UserMapper userMapper;
 
@@ -62,6 +59,47 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Value("${redis.key.login_prefix}")
     private String redisLoginTokenKeyPrefix;
+
+    @Override
+    public LoginResponse loginForAdmin(LoginRequest request) throws Exception {
+        final User user = userMapper.getAuthedUserByAccount(request.getPortal_account());
+
+        if (user == null || !user.hasAuthority() /* 어드민 권한이 없으면 없는 회원으로 간주 */) {
+            throw new BaseException(USER_NOT_FOUND);
+        }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BaseException(PASSWORD_DIFFERENT);
+        }
+
+        userMapper.updateLastLoggedAt(user.getId(), new Date());
+
+        String accessToken = getAccessTokenFromRedis(user);
+        if (isTokenNotExistOrExpired(accessToken)) {
+            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+        }
+
+        return LoginResponse.from(accessToken);
+    }
+
+    private String getAccessTokenFromRedis(User user) throws Exception {
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private boolean isTokenNotExistOrExpired(String accessToken) {
+        return accessToken == null || jwtTokenGenerator.isExpired(accessToken);
+    }
+
+    private String regenerateAccessTokenAndSetRedis(Integer userId) {
+        String accessToken = jwtTokenGenerator.generate(userId);
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
+        return accessToken;
+    }
+
+    @Override
+    public void logoutForAdmin() {
+        User user = jwtValidator.validate();
+        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
+    }
 
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) {
@@ -100,7 +138,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
 
         // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
+        if (student.getStudent_number() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudent_number())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
@@ -110,19 +148,19 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
 
         student.setPassword(passwordEncoder.encode(student.getPassword()));
-        student.setAnonymousNickname("익명_" + (System.currentTimeMillis()));
+        student.setAnonymous_nickname("익명_" + (System.currentTimeMillis()));
 
         // TODO: default로 셋팅할 수 있는 방법 알아보기
         if (student.getIdentity() == null) {
             student.setIdentity(UserCode.UserIdentity.STUDENT.getIdentityType());
         }
 
-        if (student.getIsGraduated() == null) {
-            student.setIsGraduated(false);
+        if (student.getIs_graduated() == null) {
+            student.setIs_graduated(false);
         }
 
-        if (student.getIsAuthed() == null) {
-            student.setIsAuthed(false);
+        if (student.getIs_authed() == null) {
+            student.setIs_authed(false);
         }
 
         // 추후 메일 인증에 필요한 가입 정보를 디비에 업데이트
@@ -156,7 +194,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
 
         // 학번 유효성 체크
-        if (student.getStudentNumber() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudentNumber())) {
+        if (student.getStudent_number() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudent_number())) {
             throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
         }
 
@@ -180,11 +218,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     public Map<String, Object> deleteUserForAdmin(int id) {
         User selectUser = userMapper.getUserById(id);
 
-        if(selectUser == null){
+        if(selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
-        if (selectUser.getUserType().equals(UserType.STUDENT)){
+        if (selectUser.getUser_type().equals(UserType.STUDENT)){
             studentMapper.deleteStudent(id);
 
         } else {
@@ -258,52 +296,6 @@ public class AdminUserServiceImpl implements AdminUserService {
             put("success", "delete authority");
         }};
     }
-
-    @Override
-    public Map<String, Object> loginForAdmin(LoginRequest request) throws Exception {
-        final User selectUser = userMapper.getAuthedUserByAccount(request.getAccount());
-
-        if(selectUser == null){
-            throw new UnauthorizeException(new ErrorMessage("There is no such ID", 0));
-        }
-
-        if (!passwordEncoder.matches(request.getPassword(), selectUser.getPassword())) {
-            throw new UnauthorizeException(new ErrorMessage("password not match", 0));
-        }
-
-        if (userMapper.getAuthorityByUserIdForAdmin(selectUser.getId()) == null) {
-            throw new UnauthorizeException(new ErrorMessage("There is no authority", 0));
-        }
-
-        selectUser.setLastLoggedAt(new Date());
-        userMapper.updateUser(selectUser);
-        Map<String, Object> map = domainToMapWithExcept(selectUser, UserResponseType.getArray(), false);
-
-        String getToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + selectUser.getId().toString());
-        if (getToken == null || jwtTokenGenerator.isExpired(getToken)) {
-            getToken = jwtTokenGenerator.generate(selectUser.getId());
-            stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + selectUser.getId().toString(), getToken, 72, TimeUnit.HOURS);
-        }
-
-        final String token = getToken;
-
-        return new HashMap<String, Object>() {{
-            put("user", map);
-            put("token", token);
-        }};
-    }
-
-    @Override
-    public Map<String, Object> logoutForAdmin() {
-        // TODO: jwt 이력 삭제
-        User user = jwtValidator.validate();
-        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
-
-        return new HashMap<String, Object>() {{
-            put("success", "logout");
-        }};
-    }
-
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
         Map<String, Object> map = new HashMap<>();

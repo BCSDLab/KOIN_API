@@ -1,90 +1,47 @@
 package koreatech.in.domain.User;
 
-import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.Date;
 
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
-public abstract class User implements UserDetails {
-    @ApiModelProperty(notes = "고유 id", example = "10")
+public abstract class User {
     protected Integer id;
-    @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "아이디는 비워둘 수 없습니다.")
-    @Pattern(regexp = "^[a-z_0-9]{1,12}$", message = "아이디 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "아이디", example = "jjw266")
     protected String account;
-    @NotNull(groups = {ValidationGroups.CreateAdmin.class, ValidationGroups.Create.class}, message = "비밀번호는 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
     protected String password;
-    @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
-    @ApiModelProperty(notes = "닉네임", example = "bbo")
     protected String nickname;
-    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
-    @ApiModelProperty(notes = "이름", example = "정보혁")
     protected String name;
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "휴대폰 번호", example = "010-0000-0000")
-    protected String phoneNumber;
-    @ApiModelProperty(notes = "이메일", example = "abc@example.com")
-    @Email(message = "올바른 이메일 형식이 아닙니다.")
+    protected String phone_number;
+    protected UserType user_type;
     protected String email;
-    @ApiModelProperty(notes = "성별(남:0, 여:1)", example = "0")
     protected Integer gender;
-    @ApiModelProperty(hidden = true)
-    protected Boolean isAuthed;
-    protected String authToken;
-    protected Date authExpiredAt;
-    protected String resetToken;
-    protected Date resetExpiredAt;
-    @ApiModelProperty(notes = "프로필 이미지 링크", example = "https://static.koreatech.in/upload/~~")
-    protected String profileImageUrl;
-    protected Date lastLoggedAt;
+    protected Boolean is_authed;
+    protected Date last_logged_at;
+    protected String profile_image_url;
+    protected String auth_token;
+    protected Date auth_expired_at;
+    protected String reset_token;
+    protected Date reset_expired_at;
     protected Authority authority;
-    protected UserType userType;
-    protected Boolean isDeleted;
-    protected Date createdAt;
-    protected Date updatedAt;
+    protected Boolean is_deleted;
+    protected Date created_at;
+    protected Date updated_at;
 
     protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender, UserType userType) {
         this.account = account;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
-        this.phoneNumber = phoneNumber;
+        this.phone_number = phoneNumber;
         this.email = email;
         this.gender = gender;
-        this.userType = userType;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", account='" + account + '\'' +
-                ", password='" + password + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", gender=" + gender +
-                ", is_authed=" + isAuthed +
-                ", auth_token='" + authToken + '\'' +
-                ", auth_expired_at=" + authExpiredAt +
-                ", reset_token='" + resetToken + '\'' +
-                ", reset_expired_at=" + resetExpiredAt +
-                ", last_logged_at='" + lastLoggedAt + '\'' +
-                ", profile_image_url='" + profileImageUrl + '\'' +
-                '}';
+        this.user_type = userType;
     }
 
     public void update(User user) {
@@ -103,38 +60,50 @@ public abstract class User implements UserDetails {
         if (user.gender != null) {
             this.gender = user.gender;
         }
-        if(user.phoneNumber != null) {
-            this.phoneNumber = user.phoneNumber;
+        if(user.phone_number != null) {
+            this.phone_number = user.phone_number;
         }
         if(user.email != null) {
             this.email = user.email;
         }
-        if (user.isAuthed != null) {
-            this.isAuthed = user.isAuthed;
+        if (user.is_authed != null) {
+            this.is_authed = user.is_authed;
         }
-        if (user.profileImageUrl != null) {
-            this.profileImageUrl = user.profileImageUrl;
+        if (user.profile_image_url != null) {
+            this.profile_image_url = user.profile_image_url;
         }
-        if (user.authToken != null) {
-            this.authToken = user.authToken;
+        if (user.auth_token != null) {
+            this.auth_token = user.auth_token;
         }
-        if (user.authExpiredAt != null) {
-            this.authExpiredAt = user.authExpiredAt;
+        if (user.auth_expired_at != null) {
+            this.auth_expired_at = user.auth_expired_at;
         }
-        if (user.resetToken != null) {
-            this.resetToken = user.resetToken;
+        if (user.reset_token != null) {
+            this.reset_token = user.reset_token;
         }
-        if (user.resetExpiredAt != null) {
-            this.resetExpiredAt = user.resetExpiredAt;
+        if (user.reset_expired_at != null) {
+            this.reset_expired_at = user.reset_expired_at;
         }
-        if (user.lastLoggedAt != null) {
-            this.lastLoggedAt = user.lastLoggedAt;
+        if (user.last_logged_at != null) {
+            this.last_logged_at = user.last_logged_at;
         }
     }
 
+    public boolean isStudent() {
+        return this.getClass().equals(Student.class);
+    }
+
+    public boolean isOwner() {
+        return this.getClass().equals(Owner.class);
+    }
+
+    public boolean hasAuthority() {
+        return this.authority != null;
+    }
+
     public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
-        this.authToken = authToken;
-        this.authExpiredAt = authExpiredAt;
+        this.auth_token = authToken;
+        this.auth_expired_at = authExpiredAt;
     }
 
     public void changePassword(String password){
@@ -144,9 +113,9 @@ public abstract class User implements UserDetails {
     public boolean isAwaitingEmailAuthenticate(){
         return !isUserAuthed() && !isAuthTokenExpired();
     }
-    public boolean isUserAuthed() { return isAuthed == null ? false : isAuthed; }
+    public boolean isUserAuthed() { return is_authed == null ? false : is_authed; }
     public boolean isAuthTokenExpired(){
-        return authExpiredAt == null ? false : authExpiredAt.getTime() - (new Date()).getTime() < 0;
+        return auth_expired_at == null ? false : auth_expired_at.getTime() - (new Date()).getTime() < 0;
     }
 
     public boolean equals(User user){
