@@ -20,9 +20,9 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Event", description = "홍보")
-@Auth(role = Auth.Role.OWNER)
+@Auth(role = Auth.Role.OWNER, authority = Auth.Authority.EVENT)
 @Controller
 public class EventController {
     @Inject

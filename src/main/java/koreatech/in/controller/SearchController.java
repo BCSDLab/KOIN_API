@@ -15,7 +15,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Search", description = "검색")
 @Controller
 public class SearchController {

@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) LostAndFound", description = "분실물")
 @Auth(role = Auth.Role.USER)
 @Controller

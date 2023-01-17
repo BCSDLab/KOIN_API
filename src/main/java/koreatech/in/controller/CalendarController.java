@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Calendar", description = "학기 일정")
 @Controller
 public class CalendarController {

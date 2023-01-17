@@ -18,7 +18,8 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.util.Map;
 
-@ApiIgnore
+
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Admin) Activity", description = "BCSDLab 활동")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller

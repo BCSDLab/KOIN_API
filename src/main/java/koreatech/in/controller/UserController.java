@@ -1,24 +1,21 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.dto.EmptyResponse;
+import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.dto.normal.user.request.UserLoginRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -39,8 +36,32 @@ public class UserController {
     @Inject
     private UserService userService;
 
-    @Autowired
-    StudentMapper studentMapper;
+    @ApiOperation("로그인")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
+                                               "비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @AuthExcept
+    @ParamValid
+    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) throws Exception {
+        LoginResponse response = userService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "로그아웃", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "토큰의 유효시간이 만료되었을 때 (code: 100004) \n\n" +
+                                               "토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/user/logout", method = RequestMethod.POST)
+    public ResponseEntity<EmptyResponse> logout() {
+        userService.logout();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @AuthExcept
     @ParamValid
@@ -60,6 +81,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(userService.StudentRegister(StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
+    @Auth(role = Auth.Role.STUDENT)
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
@@ -69,6 +91,7 @@ public class UserController {
         return new ResponseEntity<Object>(response, HttpStatus.OK);
     }
 
+    @Auth(role = Auth.Role.STUDENT)
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
@@ -94,7 +117,7 @@ public class UserController {
     @RequestMapping(value = "/user/me", method = RequestMethod.DELETE)
     public @ResponseBody ResponseEntity withdraw() throws Exception {
 
-        // TODO soft delete 방식으로 변경?
+        // TODO soft delete 방식으로 변경? yes.
         return new ResponseEntity<Map<String, Object>>(userService.withdraw(), HttpStatus.OK);
     }
 
@@ -170,18 +193,5 @@ public class UserController {
         }
 
         return "mail/success_change_password_config";
-    }
-
-    @AuthExcept
-    @ParamValid
-    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
-    public ResponseEntity login(@ApiParam(value = "(required: account, password)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) UserLoginRequest request, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<LoginResponse>(userService.login(request.getAccount(), request.getPassword()), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/logout", method = RequestMethod.POST)
-    public ResponseEntity logout() {
-        return new ResponseEntity<Map<String, Object>>(userService.logout(), HttpStatus.OK);
     }
 }
