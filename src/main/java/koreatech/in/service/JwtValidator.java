@@ -1,9 +1,7 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Authority;
-import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.ValidationException;
+import koreatech.in.exception.BaseException;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -15,21 +13,15 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
+
 @Service
 public class JwtValidator {
-
     @Autowired
     private JwtTokenGenerator jwtTokenGenerator;
 
     @Autowired
     private UserMapper userMapper;
-
-    @Autowired
-    private AuthorityMapper authorityMapper;
-
-    @Autowired
-    private OwnerMapper ownerMapper;
-
 
     public User validate() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -39,23 +31,21 @@ public class JwtValidator {
     }
 
     public User validate(String header) {
-        if (header == null || !header.startsWith("Bearer "))
-            return null;
-
-        String authToken = header.substring(7);
-        if (authToken.equals("undefined")) // 추후 프론트엔드 측에서 변경
-            return null;
-
-        Integer userId = jwtTokenGenerator.me(authToken);
-
-        User user = userMapper.getUserById(userId);
-
-        if(user == null){
-            throw new ValidationException(new ErrorMessage("token not validate", 402));
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new BaseException(BAD_ACCESS);
         }
 
-        Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
-        user.setAuthority(authority);
+        String accessToken = header.substring(7);
+        if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
+            throw new BaseException(BAD_ACCESS);
+        }
+
+        Integer userId = jwtTokenGenerator.me(accessToken);
+        User user = userMapper.getAuthedUserById(userId);
+
+        if (user == null) {
+            throw new BaseException(BAD_ACCESS);
+        }
 
         return user;
     }
