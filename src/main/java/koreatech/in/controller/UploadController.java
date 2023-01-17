@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import koreatech.in.annotation.ApiOff;
@@ -19,13 +18,10 @@ import koreatech.in.dto.upload.request.UploadFileRequest;
 import koreatech.in.dto.upload.request.UploadFilesRequest;
 import koreatech.in.dto.upload.response.UploadFileResponse;
 import koreatech.in.dto.upload.response.UploadFilesResponse;
-import koreatech.in.exception.BaseException;
-import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UploadService;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +37,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {
-    private static final String KEY_NAME = "files";
     private final static String UPLOAD_DIRECTORY_NAME = "upload";
     private final static String SLASH = "/";
     private final static String ADMIN_PATH = "/admin";
@@ -91,7 +86,7 @@ public class UploadController {
     }
 
 
-    // 단일 이미지 업로드
+    // 단일 파일 업로드
     @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
@@ -107,60 +102,45 @@ public class UploadController {
                                                       + "`{items, lands, circles, market, shops, members}`", example = "items", required = true) @PathVariable String domain) {
         DomainEnum.validate(domain);
 
-        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain),
-                multipartFile.getOriginalFilename(),
-                dataFor(multipartFile));
+        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain), multipartFile);
 
         UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(uploadFileRequest);
 
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
-    // 다중 이미지 업로드
-//    @ApiImplicitParams(
-//            @ApiImplicitParam(name = "multipleFiles", required = true, paramType = "form", dataType = "file"
-//            , value = "복합 파일")
-//    )
-    @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
+    // 다중 파일 업로드
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "files", required = true, paramType = "form",
+                    dataType = "file",
+                    value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
+    )
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
+                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
+                    + "(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFiles(
-            @ApiParam(value = "다중 파일 (입력 불가능)", required = true) MultipartHttpServletRequest multipartFiles,
+            @ApiParam(required = true) @RequestPart List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain) {
 
         DomainEnum.validate(domain);
-        UploadFilesRequest uploadFilesRequest = makeUploadFilesRequest(multipartFiles, enrichDomainPath(domain));
+        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
 
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
-
-    private static UploadFilesRequest makeUploadFilesRequest(MultipartHttpServletRequest multipartHttpServletRequest,
-                                                             String domain) {
-
-        List<UploadFileRequest> uploadFileRequests = new ArrayList<>();
-
-        for (MultipartFile multipartFile : multipartHttpServletRequest.getFiles(KEY_NAME)) {
-
-            UploadFileRequest uploadFileRequest = UploadFileRequest.of(domain, multipartFile.getOriginalFilename(),
-                    dataFor(multipartFile));
-
-            uploadFileRequests.add(uploadFileRequest);
-
-        }
-        return UploadFilesRequest.from(uploadFileRequests);
-    }
-
 
     private static String enrichDomainPath(String domain) {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase();
@@ -168,17 +148,6 @@ public class UploadController {
 
     private static String enrichDomainPathForAdmin(String domain) {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase() + ADMIN_PATH;
-    }
-
-    private static byte[] dataFor(MultipartFile multipartFile) {
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new BaseException(ExceptionInformation.FILE_INVALID);
-        }
-        try {
-            return multipartFile.getBytes();
-        } catch (IOException e) {
-            throw new BaseException(ExceptionInformation.FILE_INVALID);
-        }
     }
 
     // 업로드 전용 단일 파일 업로드
@@ -189,8 +158,11 @@ public class UploadController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
+                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
+                    + "(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/{domain}/upload/file", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
@@ -212,28 +184,30 @@ public class UploadController {
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
-    // 다중 이미지 업로드
+    // 다중 파일 업로드
     @Deprecated
     @ApiOff
-//    @ApiImplicitParams(
-//            @ApiImplicitParam(name = "multipleFiles", required = true, paramType = "form", dataType = "file"
-//                    , value = "복합 파일")
-//    )
-    @ApiOperation(value = "", notes = "**Swagger에서 다중 파일 업로드 요청은 불가능함.**", authorizations = {
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "files", required = true, paramType = "form",
+                    dataType = "file",
+                    value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
+    )
+    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
-
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 (error code: 110001)\n"
+                    + "파일목록이 비어있을 때(error code: 110002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
+                    + "(error code: 110003)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFilesForAdmin(
-            @ApiParam(value = "다중 파일 (입력 불가능)", required = true) @RequestPart("file") MultipartFile[] multipartFiles,
+            @ApiParam(required = true) @RequestPart
+            List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
                     + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain)
             throws Exception {
@@ -242,7 +216,7 @@ public class UploadController {
 
         List<String> fileUrls = new ArrayList<>();
 
-        for (MultipartFile multipartFile : multipartFiles) {
+        for (MultipartFile multipartFile : files) {
             String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
                     multipartFile.getOriginalFilename(),
                     multipartFile.getBytes());
