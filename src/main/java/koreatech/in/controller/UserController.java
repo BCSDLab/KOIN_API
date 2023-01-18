@@ -113,12 +113,12 @@ public class UserController {
         return new ResponseEntity<>(userService.updateOwnerInformation(StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
     @RequestMapping(value = "/user", method = RequestMethod.DELETE)
-    public @ResponseBody ResponseEntity withdraw() throws Exception {
-
-        // TODO soft delete 방식으로 변경? yes.
-        return new ResponseEntity<Map<String, Object>>(userService.withdraw(), HttpStatus.OK);
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> withdraw() throws Exception {
+        userService.withdraw();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @AuthExcept

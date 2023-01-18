@@ -294,7 +294,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public Map<String, Object> withdraw() throws Exception {
+    public void withdraw() throws Exception {
         User user = jwtValidator.validate();
         userMapper.deleteUser(user.getId());
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
@@ -303,10 +303,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .color("good")
                 .text(user.getAccount() + "님이 탈퇴하셨습니다.")
                 .build());
-
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
     }
 
 

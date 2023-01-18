@@ -25,7 +25,7 @@ public interface UserService {
 
     Boolean changePasswordAuthenticate(String password, String resetToken);
 
-    Map<String, Object> withdraw() throws Exception;
+    void withdraw() throws Exception;
 
     Student getStudent() throws Exception;
 
