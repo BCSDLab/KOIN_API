@@ -2,30 +2,39 @@ package koreatech.in.util;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class S3Util {
-    private String accessKey;
-    private String secretKey;
 
-    private AmazonS3 conn;
+    private final AmazonS3 conn;
 
-    public S3Util(String accessKey, String secretKey) {
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+    @Autowired
+    public S3Util(@Value("${s3.key}") String accessKey, @Value("${s3.secret}") String secretKey) {
         ClientConfiguration clientConfig = new ClientConfiguration();
         clientConfig.setProtocol(Protocol.HTTP);
-        this.conn = new AmazonS3Client(credentials, clientConfig);
-        conn.setEndpoint("s3.ap-northeast-2.amazonaws.com"); // 엔드포인트 설정 [ 아시아 태평양 서울 ]
+
+        this.conn = AmazonS3ClientBuilder.standard().withRegion(Regions.AP_NORTHEAST_2)
+                .withClientConfiguration(clientConfig)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                .build();
     }
 
     // 버킷 리스트를 가져오는 메서드이다.
@@ -44,15 +53,16 @@ public class S3Util {
     }
 
     // 파일 업로드
-    public void fileUpload(String bucketName, String fileName, byte[] fileData) throws FileNotFoundException {
-        String filePath = (fileName).replace(File.separatorChar, '/'); // 파일 구별자를 `/`로 설정(\->/) 이게 기존에 / 였어도 넘어오면서 \로 바뀌는 거같다.
+    public void fileUpload(String bucketName, String filePath, byte[] fileData) {
+
         ObjectMetadata metaData = new ObjectMetadata();
-
         metaData.setContentLength(fileData.length);   //메타데이터 설정 -->원래는 128kB까지 업로드 가능했으나 파일크기만큼 버퍼를 설정시켰다.
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData); //파일 넣음
 
-        conn.putObject(new PutObjectRequest(bucketName, filePath, byteArrayInputStream, metaData).withCannedAcl(CannedAccessControlList.PublicRead));
+        conn.putObject(
+                new PutObjectRequest(bucketName, filePath, new ByteArrayInputStream(fileData), metaData)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
     }
+
     // 이미지 업로드 전용
     public void fileUpload(String bucketName, String fileName, byte[] fileData, MultipartFile multipartFile) throws FileNotFoundException {
         String filePath = (fileName).replace(File.separatorChar, '/'); // 파일 구별자를 `/`로 설정(\->/) 이게 기존에 / 였어도 넘어오면서 \로 바뀌는 거같다.
