@@ -114,7 +114,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user", method = RequestMethod.DELETE)
     public @ResponseBody ResponseEntity withdraw() throws Exception {
 
         // TODO soft delete 방식으로 변경? yes.
