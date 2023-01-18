@@ -228,7 +228,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         } else {
             ownerMapper.deleteOwner(id);
         }
-        userMapper.deleteUser(id);
+        userMapper.deleteUserLogicallyById(id);
 
         return new HashMap<String, Object>() {{
             put("success", "delete student");
