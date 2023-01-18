@@ -298,12 +298,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = jwtValidator.validate();
 
         userMapper.deleteUser(user.getId(), false);
-        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
+        deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeWithdraw(NotiSlack.builder()
                 .color("good")
                 .text(user.getAccount() + "님이 탈퇴하셨습니다.")
                 .build());
+    }
+
+    private void deleteAccessTokenFromRedis(Integer userId) {
+        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
 
 
