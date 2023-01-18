@@ -116,9 +116,9 @@ public class UserController {
 
     @ApiOperation(value = "탈퇴", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
-                                               "토큰의 유효시간이 만료되었을 때 (code: 100004) \n\n" +
-                                               "토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "- 토큰의 유효시간이 만료되었을 때 (code: 100004) \n\n" +
+                                               "- 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/user", method = RequestMethod.DELETE)
     public @ResponseBody
