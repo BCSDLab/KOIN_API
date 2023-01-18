@@ -24,7 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Admin) MarketPlace", description = "판매")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.MARKET)
 @Controller

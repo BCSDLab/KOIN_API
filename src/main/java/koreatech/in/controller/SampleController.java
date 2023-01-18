@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Sample", description = "샘플")
 @Controller
 public class SampleController {

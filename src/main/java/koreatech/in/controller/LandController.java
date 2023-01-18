@@ -45,8 +45,7 @@ public class LandController {
         return new ResponseEntity<Map<String, Object>>(landService.getLand(id), HttpStatus.OK);
     }
 
-    @ApiIgnore
-    @ApiOff
+    @ApiOff @ApiIgnore
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.PUT)
@@ -56,8 +55,7 @@ public class LandController {
         return new ResponseEntity<LandComment>(landService.updateLandComment(landComment, id), HttpStatus.CREATED);
     }
 
-    @ApiIgnore
-    @ApiOff
+    @ApiOff @ApiIgnore
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.POST)
@@ -67,8 +65,7 @@ public class LandController {
         return new ResponseEntity<LandComment>(landService.createLandComment((LandComment)StringXssChecker.xssCheck(landComment, clear), id), HttpStatus.CREATED);
     }
 
-    @ApiIgnore
-    @ApiOff
+    @ApiOff @ApiIgnore
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -76,5 +73,4 @@ public class LandController {
 
         return new ResponseEntity<Map<String, Object>>(landService.deleteLandComment(id), HttpStatus.OK);
     }
-
 }

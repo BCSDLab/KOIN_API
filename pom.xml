@@ -119,13 +119,6 @@
             <version>5.1.31</version>
         </dependency>
 
-        <!-- mysql -->
-<!--        <dependency>-->
-<!--            <groupId>mysql</groupId>-->
-<!--            <artifactId>mysql-connector-java</artifactId>-->
-<!--            <version>8.0.21</version>-->
-<!--        </dependency>-->
-
         <!--MailSender-->
         <dependency>
             <groupId>org.springframework</groupId>

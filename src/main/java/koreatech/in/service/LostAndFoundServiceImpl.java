@@ -142,6 +142,7 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+
         map.put("user", profile);
         map.put("comments", comments);
 
@@ -393,6 +394,8 @@ public class LostAndFoundServiceImpl implements LostAndFoundService {
 
         map.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(lostItem.getImage_urls()));
         profile.put("profile_image_url", user != null ? user.getProfile_image_url() : null);
+
+
         map.put("user", profile);
         map.put("comments", comments);
 

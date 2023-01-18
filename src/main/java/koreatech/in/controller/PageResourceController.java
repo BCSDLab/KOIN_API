@@ -14,7 +14,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) PageResource", description = "페이지 리소스")
 @Controller
 public class PageResourceController {

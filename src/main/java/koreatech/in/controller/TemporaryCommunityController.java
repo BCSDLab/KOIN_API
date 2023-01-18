@@ -27,7 +27,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Temporary Community", description = "익명 커뮤니티")
 @Controller
 public class TemporaryCommunityController {

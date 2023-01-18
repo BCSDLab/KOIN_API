@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Admin) Version", description = "버전")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.VERSION)
 @Controller

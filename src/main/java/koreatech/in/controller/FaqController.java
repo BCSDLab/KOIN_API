@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Normal) Faq", description = "질문")
 @Controller
 public class FaqController {

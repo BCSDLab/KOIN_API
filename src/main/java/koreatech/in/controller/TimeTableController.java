@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @Api(tags = "(Normal) TimeTable", description = "시간표")
-@Auth(role = Auth.Role.USER)
+@Auth(role = Auth.Role.STUDENT)
 @Controller
 public class TimeTableController {
 
@@ -65,8 +65,7 @@ public class TimeTableController {
         return new ResponseEntity<Map<String, Object>>(timeTableService.updateTimeTable(timetable_log), HttpStatus.CREATED);
     }
 
-    @ApiIgnore
-    @ApiOff
+    @ApiOff @ApiIgnore
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/timetables", method = RequestMethod.DELETE)
     public @ResponseBody

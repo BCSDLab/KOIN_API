@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.io.IOException;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Admin) Calendar", description = "학기 일정")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.COMMUNITY)
 @Controller

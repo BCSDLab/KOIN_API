@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 
-@ApiIgnore
+@ApiOff @ApiIgnore @Deprecated
 @Api(tags = "(Admin) PageResource", description = "페이지 리소스")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.COMMUNITY)
 @Controller

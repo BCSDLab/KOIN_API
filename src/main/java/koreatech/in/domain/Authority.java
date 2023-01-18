@@ -1,10 +1,13 @@
 package koreatech.in.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
+@Getter @Setter
+@NoArgsConstructor
 public class Authority {
     private Integer id;
     private Integer user_id;
@@ -14,152 +17,15 @@ public class Authority {
     private Boolean grant_community;
     private Boolean grant_shop;
     private Boolean grant_version;
-    @ApiModelProperty(hidden = true)
-    private Boolean is_deleted;
-    @ApiModelProperty(hidden = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private Date created_at;
-    @ApiModelProperty(hidden = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private Date updated_at;
     private Boolean grant_market;
     private Boolean grant_circle;
     private Boolean grant_lost;
     private Boolean grant_survey;
     private Boolean grant_bcsdlab;
     private Boolean grant_event;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
-    }
-
-    public Boolean getGrant_user() {
-        return grant_user;
-    }
-
-    public void setGrant_user(Boolean grant_user) {
-        this.grant_user = grant_user;
-    }
-
-    public Boolean getGrant_callvan() {
-        return grant_callvan;
-    }
-
-    public void setGrant_callvan(Boolean grant_callvan) {
-        this.grant_callvan = grant_callvan;
-    }
-
-    public Boolean getGrant_land() {
-        return grant_land;
-    }
-
-    public void setGrant_land(Boolean grant_land) {
-        this.grant_land = grant_land;
-    }
-
-    public Boolean getGrant_community() {
-        return grant_community;
-    }
-
-    public void setGrant_community(Boolean grant_community) {
-        this.grant_community = grant_community;
-    }
-
-    public Boolean getGrant_shop() {
-        return grant_shop;
-    }
-
-    public void setGrant_shop(Boolean grant_shop) {
-        this.grant_shop = grant_shop;
-    }
-
-    public Boolean getGrant_version() {
-        return grant_version;
-    }
-
-    public void setGrant_version(Boolean grant_version) {
-        this.grant_version = grant_version;
-    }
-
-    public Boolean getIs_deleted() {
-        return is_deleted;
-    }
-
-    public void setIs_deleted(Boolean is_deleted) {
-        this.is_deleted = is_deleted;
-    }
-
-    public Date getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
-    }
-
-    public Date getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(Date updated_at) {
-        this.updated_at = updated_at;
-    }
-
-    public Boolean getGrant_market() {
-        return grant_market;
-    }
-
-    public void setGrant_market(Boolean grant_market) {
-        this.grant_market = grant_market;
-    }
-
-    public Boolean getGrant_circle() {
-        return grant_circle;
-    }
-
-    public void setGrant_circle(Boolean grant_circle) {
-        this.grant_circle = grant_circle;
-    }
-
-    public Boolean getGrant_lost() {
-        return grant_lost;
-    }
-
-    public void setGrant_lost(Boolean grant_lost) {
-        this.grant_lost = grant_lost;
-    }
-
-    public Boolean getGrant_survey() {
-        return grant_survey;
-    }
-
-    public void setGrant_survey(Boolean grant_survey) {
-        this.grant_survey = grant_survey;
-    }
-
-    public Boolean getGrant_bcsdlab() { return grant_bcsdlab; }
-
-    public void setGrant_bcsdlab(Boolean grant_bcsdlab) { this.grant_bcsdlab = grant_bcsdlab; }
-
-    public Boolean getGrant_event() {
-        return grant_event;
-    }
-
-    public void setGrant_event(Boolean grant_event) {
-        this.grant_event = grant_event;
-    }
+    private Boolean is_deleted;
+    private Date created_at;
+    private Date updated_at;
 
     @Override
     public String toString() {

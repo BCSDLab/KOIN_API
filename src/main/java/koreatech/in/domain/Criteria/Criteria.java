@@ -1,6 +1,8 @@
 package koreatech.in.domain.Criteria;
 
 import io.swagger.annotations.ApiParam;
+import koreatech.in.domain.ErrorMessage;
+import koreatech.in.exception.PreconditionFailedException;
 import lombok.Getter;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -26,6 +28,16 @@ public class Criteria {
 
     public Integer getCursor() {
         return (page - 1) * limit;
+    }
+
+    public Integer calcTotalPage(Integer totalCount) {
+        double countByLimit = (double) totalCount / this.limit;
+        int totalPage = countByLimit == Double.POSITIVE_INFINITY || countByLimit == Double.NEGATIVE_INFINITY ? 0 : (int) Math.ceil(totalCount / this.limit);
+
+        if (totalPage < 0)
+            throw new PreconditionFailedException(new ErrorMessage("invalid page number", 2));
+
+        return totalPage;
     }
 
     public Integer extractTotalPage(Integer totalCount) {
