@@ -294,7 +294,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public void withdraw() throws Exception {
+    public void withdraw() {
         User user = jwtValidator.validate();
 
         userMapper.deleteUser(user.getId(), false);

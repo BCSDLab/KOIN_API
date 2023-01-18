@@ -122,7 +122,7 @@ public class UserController {
     })
     @RequestMapping(value = "/user", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> withdraw() throws Exception {
+    ResponseEntity<EmptyResponse> withdraw() {
         userService.withdraw();
         return new ResponseEntity<>(HttpStatus.OK);
     }
