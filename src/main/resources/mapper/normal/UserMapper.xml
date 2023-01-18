@@ -216,19 +216,10 @@
             AND `is_deleted` = 0
     </update>
 
-    <delete id="deleteUser">
-        <choose>
-            <when test="isHard">
-                DELETE
-                FROM `koin`.`users`
-                WHERE `id` = #{id};
-            </when>
-            <otherwise>
-                UPDATE `koin`.`users`
-                SET `is_deleted` = 1
-                WHERE `id` = #{id}
-            </otherwise>
-        </choose>
+    <delete id="deleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
     </delete>
 
     <select id="getUserById" resultMap="UserDiscriminator">

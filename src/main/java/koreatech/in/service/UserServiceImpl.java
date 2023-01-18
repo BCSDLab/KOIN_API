@@ -297,7 +297,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void withdraw() {
         User user = jwtValidator.validate();
 
-        userMapper.deleteUser(user.getId(), false);
+        userMapper.deleteUserLogicallyById(user.getId());
         deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeWithdraw(NotiSlack.builder()

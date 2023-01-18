@@ -14,7 +14,7 @@ public interface UserMapper {
     User getAuthedUserById(@Param("id") Integer id);
     User getAuthedUserByAccount(@Param("account") String account);
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
-    void deleteUser(@Param("id") Integer id, @Param("isHard") boolean isHard);
+    void deleteUserLogicallyById(@Param("id") Integer id);
 
 
     Integer isAccountAlreadyUsed(String account);
