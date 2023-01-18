@@ -216,6 +216,21 @@
             AND `is_deleted` = 0
     </update>
 
+    <delete id="deleteUser">
+        <choose>
+            <when test="isHard">
+                DELETE
+                FROM `koin`.`users`
+                WHERE `id` = #{id};
+            </when>
+            <otherwise>
+                UPDATE `koin`.`users`
+                SET `is_deleted` = 1
+                WHERE `id` = #{id}
+            </otherwise>
+        </choose>
+    </delete>
+
     <select id="getUserById" resultMap="UserDiscriminator">
         SELECT * FROM koin.users WHERE ID = #{id};
     </select>
@@ -337,8 +352,4 @@
             PROFILE_IMAGE_URL = #{profileImageUrl}
         WHERE ID = #{id}
     </update>
-
-    <delete id="deleteUser">
-        DELETE FROM koin.users WHERE ID = #{id};
-    </delete>
 </mapper>

@@ -14,7 +14,7 @@ public interface UserMapper {
     User getAuthedUserById(@Param("id") Integer id);
     User getAuthedUserByAccount(@Param("account") String account);
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
-
+    void deleteUser(@Param("id") Integer id, @Param("isHard") boolean isHard);
 
 
     Integer isAccountAlreadyUsed(String account);
@@ -27,7 +27,6 @@ public interface UserMapper {
     @Select("SELECT * FROM koin.admins WHERE USER_ID = #{id}")
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
     void insertUser(User user) throws SQLException;
-    void deleteUser(@Param("id") int id);
     User getUserById(@Param("id") int id);
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
