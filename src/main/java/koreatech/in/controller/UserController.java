@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -127,11 +128,21 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation(value = "닉네임 중복 체크", notes = "닉네임 중복시 http status 409, 중복이 아닐시 http status 200을 응답합니다.")
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "- 닉네임이 중복될 때 (code: 101002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity checkUserNickName(@PathVariable(value = "nickname") String nickname) throws Exception {
-
-        return new ResponseEntity<Map<String, Object>>(userService.checkUserNickName(nickname), HttpStatus.OK);
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> checkUserNickName(
+            @ApiParam(value = "닉네임 \n " +
+                              "- not null \n " +
+                              "- 1자 이상 10자 이하 \n " +
+                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("nickname") String nickname) throws Exception {
+        userService.checkUserNickName(nickname);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @AuthExcept

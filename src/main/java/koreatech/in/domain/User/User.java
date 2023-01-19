@@ -101,6 +101,21 @@ public abstract class User {
         return this.authority != null;
     }
 
+    public boolean isEmailAuthenticationCompleted() {
+        return this.is_authed.equals(true);
+    }
+
+    public boolean isAuthTokenExpired() {
+        return auth_expired_at != null && (auth_expired_at.getTime() < (new Date()).getTime());
+    }
+
+    public boolean isAwaitingEmailAuthentication() {
+        return !isEmailAuthenticationCompleted()
+                && this.auth_token != null
+                && this.auth_expired_at != null
+                && !isAuthTokenExpired();
+    }
+
     public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
         this.auth_token = authToken;
         this.auth_expired_at = authExpiredAt;
@@ -110,13 +125,7 @@ public abstract class User {
         this.password = password;
     }
 
-    public boolean isAwaitingEmailAuthenticate(){
-        return !isUserAuthed() && !isAuthTokenExpired();
-    }
     public boolean isUserAuthed() { return is_authed == null ? false : is_authed; }
-    public boolean isAuthTokenExpired(){
-        return auth_expired_at == null ? false : auth_expired_at.getTime() - (new Date()).getTime() < 0;
-    }
 
     public boolean equals(User user){
         return user.id != null && this.id != null && this.id.equals(user.id);
