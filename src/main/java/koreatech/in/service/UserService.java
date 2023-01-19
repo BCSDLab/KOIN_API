@@ -33,5 +33,5 @@ public interface UserService {
 
     Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 
-    Map<String, Object> checkUserNickName(String nickname) throws Exception;
+    void checkUserNickName(String nickname);
 }

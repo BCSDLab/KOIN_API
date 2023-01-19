@@ -18,6 +18,7 @@ import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
-import org.springframework.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void checkNicknameDuplicationWithoutSameUser(Student student) {
         if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(student.getNickname());
+            User selectUser = userMapper.getUserByNickname(student.getNickname());
             if (selectUser != null && !student.equals(selectUser)) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void checkAccountDuplication(Student student) {
         User selectUser = userMapper.getUserByAccount(student.getAccount());
         if (selectUser != null) {
-            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthenticate()) {
+            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthentication()) {
                 throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
@@ -361,7 +361,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // 닉네임 중복 체크
         if (owner.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickName(owner.getNickname());
+            User selectUser = userMapper.getUserByNickname(owner.getNickname());
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -380,25 +380,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Map<String, Object> checkUserNickName(String nickname) {
-        checkNicknameValidAndNotUsed(nickname);
-
-        return new HashMap<String, Object>() {{
-            put("success", "사용 가능한 닉네임입니다.");
-        }};
+    public void checkUserNickName(String nickname) {
+        checkNicknameValid(nickname);
+        checkNicknameDuplicated(nickname);
     }
 
-    private void checkNicknameValidAndNotUsed(String nickname){
-        if (StringUtils.isEmpty(nickname) || nickname.length() > 10)
-            throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 닉네임 형식입니다.", 0));
-
-        if (isNicknameAlreadyUsed(nickname)) {
-            throw new ConflictException(new ErrorMessage("사용할 수 없는 닉네임입니다.", 0));
+    private void checkNicknameValid(String nickname) {
+        if (StringUtils.isBlank(nickname)) {
+            throw new BaseException("nickname은 null이거나 길이가 0이거나 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
+        }
+        if (nickname.length() > 10) {
+            throw new BaseException("nickname은 최대 10자입니다.", REQUEST_DATA_INVALID);
         }
     }
 
-    private boolean isNicknameAlreadyUsed(String nickname){
-        return userMapper.isNicknameAlreadyUsed(nickname) > 0;
+    private void checkNicknameDuplicated(String nickname) {
+        User user = userMapper.getUserByNickname(nickname);
+
+        if (user != null && (user.isEmailAuthenticationCompleted() || user.isAwaitingEmailAuthentication())) {
+            throw new BaseException(NICKNAME_DUPLICATE);
+        }
     }
 
     @Override

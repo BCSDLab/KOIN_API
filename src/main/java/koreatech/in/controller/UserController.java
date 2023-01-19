@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -129,9 +130,10 @@ public class UserController {
 
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity checkUserNickName(@PathVariable(value = "nickname") String nickname) throws Exception {
-
-        return new ResponseEntity<Map<String, Object>>(userService.checkUserNickName(nickname), HttpStatus.OK);
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> checkUserNickName(@PathVariable("nickname") String nickname) throws Exception {
+        userService.checkUserNickName(nickname);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @AuthExcept

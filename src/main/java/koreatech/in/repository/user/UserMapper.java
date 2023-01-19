@@ -15,6 +15,7 @@ public interface UserMapper {
     User getAuthedUserByAccount(@Param("account") String account);
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
     void deleteUserLogicallyById(@Param("id") Integer id);
+    User getUserByNickname(@Param("nickname") String nickname);
 
 
     Integer isAccountAlreadyUsed(String account);
@@ -33,7 +34,6 @@ public interface UserMapper {
     void updateUser(User user);
     Integer getTotalCount();
     User getUserByAccount(String account);
-    User getUserByNickName(String nickname);
     User getUserByAuthToken(String authToken);
     User getUserByResetToken(String resetToken);
 

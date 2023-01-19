@@ -187,7 +187,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickName(student.getNickname());
+            User selectUser2 = userMapper.getUserByNickname(student.getNickname());
             if (selectUser2 != null && !selectUser.getId().equals(selectUser2.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
