@@ -380,6 +380,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void checkUserNickName(String nickname) {
         checkNicknameValid(nickname);
         checkNicknameDuplicated(nickname);
