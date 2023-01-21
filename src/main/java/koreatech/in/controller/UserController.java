@@ -150,13 +150,8 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
     public String authenticate(@RequestParam("auth_token") String authToken) {
-        boolean result = userService.authenticate(authToken);
-
-        if (!result) {
-            return "mail/error_config";
-        }
-
-        return "mail/success_register_config";
+        boolean success = userService.authenticate(authToken);
+        return success ? "mail/success_register_config" : "mail/error_config";
     }
 
     @AuthExcept
