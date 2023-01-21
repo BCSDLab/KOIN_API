@@ -213,11 +213,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean authenticate(String authToken) {
         User user = userMapper.getUserByAuthToken(authToken);
 
-        if (user == null || user.isUserAuthed() || user.isAuthTokenExpired()) {
+        if (user == null || !user.isAwaitingEmailAuthentication()) {
             return false;
         }
 
-        userMapper.updateUserIsAuthed(user.getId(), true);
+        userMapper.updateUserToEmailAuthedById(user.getId());
 
         slackNotiSender.noticeRegister(NotiSlack.builder()
                 .color("good")

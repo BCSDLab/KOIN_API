@@ -16,11 +16,12 @@ public interface UserMapper {
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
     void deleteUserLogicallyById(@Param("id") Integer id);
     User getUserByNickname(@Param("nickname") String nickname);
+    User getUserByAuthToken(@Param("authToken") String authToken);
+    void updateUserToEmailAuthedById(@Param("id") Integer id);
 
 
     Integer isAccountAlreadyUsed(String account);
     Integer isNicknameAlreadyUsed(String nickname);
-    void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
@@ -34,7 +35,6 @@ public interface UserMapper {
     void updateUser(User user);
     Integer getTotalCount();
     User getUserByAccount(String account);
-    User getUserByAuthToken(String authToken);
     User getUserByResetToken(String resetToken);
 
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
