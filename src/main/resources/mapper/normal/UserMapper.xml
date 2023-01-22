@@ -311,7 +311,7 @@
             `auth_expired_at` = #{user.auth_expired_at},
             `reset_token` = #{user.reset_token},
             `reset_expired_at` = #{user.reset_expired_at}
-        WHERE `id` = #{id}
+        WHERE `id` = #{user.id}
     </update>
 
     <update id="updateResetTokenAndResetTokenExpiredTimeById">
