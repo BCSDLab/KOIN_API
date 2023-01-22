@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -158,6 +157,12 @@ public class UserController {
         return "mail/success_register_config";
     }
 
+    @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "회원이 조회되지 않을 때 (code: 101000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @AuthExcept
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
