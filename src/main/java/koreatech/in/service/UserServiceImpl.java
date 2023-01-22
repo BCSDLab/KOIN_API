@@ -228,7 +228,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Map<String, Object> changePasswordConfig(String account, String host) {
+    public void changePasswordConfig(String account, String host) {
         if (account == null) {
             throw new ValidationException(new ErrorMessage("account is required", 0));
         }
@@ -243,10 +243,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateResetTokenAndResetTokenExpiredTime(selectUser.getId(), resetToken, resetExpiredAt);
 
         sendResetTokenByEmailForAuthenticate(resetToken, host, selectUser.getEmail());
-
-        return new HashMap<String, Object>() {{
-            put("success", "send authenticate mail to your account email");
-        }};
     }
 
     private void sendResetTokenByEmailForAuthenticate(String resetToken, String contextPath, String email) {

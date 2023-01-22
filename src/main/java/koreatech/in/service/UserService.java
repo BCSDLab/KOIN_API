@@ -19,7 +19,7 @@ public interface UserService {
 
     Boolean authenticate(String authToken);
 
-    Map<String, Object> changePasswordConfig(String account, String host);
+    void changePasswordConfig(String account, String host);
 
     Boolean changePasswordInput(String resetToken);
 
