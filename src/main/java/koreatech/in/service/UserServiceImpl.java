@@ -99,30 +99,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return LoginResponse.from(accessToken);
     }
 
-    private String getAccessTokenFromRedis(User user) throws Exception {
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
-    }
-
-    private boolean isTokenNotExistOrExpired(String getToken) {
-        return getToken == null || jwtTokenGenerator.isExpired(getToken);
-    }
-
-    private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
-        return accessToken;
-    }
-
     @Override
     public void logout() {
         jwtValidator.validate(); // access token 인증이 잘 되는지 확인
     }
 
-
-
     @Transactional
     @Override
-    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) throws Exception {
+    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
         checkInputDataDuplicationAndValidation(student);
 
@@ -152,6 +136,170 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new HashMap<String, Object>() {{
             put("success", "send mail for student authentication to entered email address");
         }};
+    }
+
+    @Override
+    public Student getStudent() {
+        User user = jwtValidator.validate();
+
+        Student student = studentMapper.getStudentById(user.getId());
+        if(student == null){
+            throw new NotFoundException(new ErrorMessage("No User", 0));
+        }
+        return student;
+    }
+
+    @Override
+    @Transactional
+    public StudentResponse updateStudentInformation(UpdateUserRequest request) {
+        Student student = request.toEntity();
+
+        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
+        if (student_old == null) {
+            throw new ValidationException(new ErrorMessage("token not validate", 402));
+        }
+        student.changeIdentity(student_old.getIdentity());
+
+        if (!student_old.isUserAuthed()) {
+            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
+        }
+        checkNicknameDuplicationWithoutSameUser(student);
+        if (student.getStudent_number() != null) {
+            checkStudentNumberValidation(student);
+        }
+        if (student.getMajor() != null) {
+            checkMajorValidation(student);
+        }
+        if (student.getPassword() != null) {
+            student.setPassword(passwordEncoder.encode(student.getPassword()));
+        }
+
+        student_old.update(student);
+        userMapper.updateUser(student_old);
+        studentMapper.updateStudent(student_old);
+
+        return new StudentResponse(student_old);
+    }
+
+    // TODO owner 정보 업데이트
+    @Override
+    @Transactional
+    public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
+        Owner user_old;
+        try {
+            user_old = (Owner) jwtValidator.validate();
+        } catch (ClassCastException e) {
+            throw new ForbiddenException(new ErrorMessage("점주가 아닙니다.", 0));
+        }
+
+        // 인증받은 유저인지 체크
+        if (!user_old.getIs_authed()) {
+            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
+        }
+
+        // 닉네임 중복 체크
+        if (owner.getNickname() != null) {
+            User selectUser = userMapper.getUserByNickname(owner.getNickname());
+            if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+
+        // TODO: hashing passowrd
+        if (owner.getPassword() != null) {
+            owner.setPassword(passwordEncoder.encode(owner.getPassword()));
+        }
+
+        user_old.update(owner);
+        userMapper.updateUser(user_old);
+        ownerMapper.updateOwner(user_old);
+
+        return domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
+    }
+
+    @Override
+    @Transactional
+    public void withdraw() {
+        User user = jwtValidator.validate();
+
+        userMapper.deleteUserLogicallyById(user.getId());
+        deleteAccessTokenFromRedis(user.getId());
+
+        slackNotiSender.noticeWithdraw(NotiSlack.builder()
+                .color("good")
+                .text(user.getAccount() + "님이 탈퇴하셨습니다.")
+                .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void checkUserNickname(String nickname) {
+        checkNicknameValid(nickname);
+        checkNicknameDuplicated(nickname);
+    }
+
+    @Override
+    public void changePasswordConfig(FindPasswordRequest request, String host) {
+        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+
+        if (user == null) {
+            throw new BaseException(USER_NOT_FOUND);
+        }
+
+        user.generateDataForFindPassword();
+        userMapper.updateUser(user);
+
+        sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
+    }
+
+    @Override
+    public Boolean authenticate(String authToken) {
+        User user = userMapper.getUserByAuthToken(authToken);
+
+        if (user == null || !user.isAwaitingEmailAuthentication()) {
+            return false;
+        }
+
+        user.changeEmailAuthenticationStatusToComplete();
+        userMapper.updateUser(user);
+
+        slackNotiSender.noticeRegister(
+                NotiSlack.builder()
+                        .color("good")
+                        .text(user.getAccount() + "님이 가입하셨습니다.")
+                        .build()
+        );
+
+        return true;
+    }
+
+    @Override
+    public Boolean changePasswordInput(String resetToken) {
+        User user = userMapper.getUserByResetToken(resetToken);
+
+        if ((user == null) || isTokenExpired(user.getReset_expired_at())) {
+            return false;
+
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public Boolean changePasswordAuthenticate(String password, String resetToken) {
+        User selectUser = userMapper.getUserByResetToken(resetToken);
+
+        if ((selectUser == null) || isTokenExpired(selectUser.getReset_expired_at())) {
+            return false;
+        }
+
+        // TODO: password hashing
+        selectUser.setPassword(passwordEncoder.encode(password));
+        selectUser.setReset_expired_at(new Date());
+
+        userMapper.updateUser(selectUser);
+
+        return true;
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
@@ -210,38 +358,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         studentMapper.insertStudent(student);
     }
 
-    @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
-
-        if (user == null || user.isUserAuthed() || user.isAuthTokenExpired()) {
-            return false;
-        }
-
-        userMapper.updateUserIsAuthed(user.getId(), true);
-
-        slackNotiSender.noticeRegister(NotiSlack.builder()
-                .color("good")
-                .text(user.getAccount() + "님이 가입하셨습니다.")
-                .build());
-
-        return true;
-    }
-
-    @Override
-    public void changePasswordConfig(FindPasswordRequest request, String host) {
-        User user = userMapper.getAuthedUserByAccount(request.getAccount());
-
-        if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
-        }
-
-        user.generateNewResetInformation();
-        userMapper.updateUser(user);
-
-        sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
-    }
-
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
         Map<String, Object> model = new HashMap<>();
         model.put("resetToken", resetToken);
@@ -252,132 +368,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
     }
 
-    @Override
-    public Boolean changePasswordInput(String resetToken) {
-        User user = userMapper.getUserByResetToken(resetToken);
-
-        if ((user == null) || isTokenExpired(user.getReset_expired_at())) {
-            return false;
-
-        } else {
-            return true;
-        }
-    }
-
     private boolean isTokenExpired(Date expiredAt) {
         return expiredAt.getTime() - (new Date()).getTime() < 0;
-    }
-
-    @Override
-    public Boolean changePasswordAuthenticate(String password, String resetToken) {
-        User selectUser = userMapper.getUserByResetToken(resetToken);
-
-        if ((selectUser == null) || isTokenExpired(selectUser.getReset_expired_at())) {
-            return false;
-        }
-
-        // TODO: password hashing
-        selectUser.setPassword(passwordEncoder.encode(password));
-        selectUser.setReset_expired_at(new Date());
-
-        userMapper.updateUser(selectUser);
-
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public void withdraw() {
-        User user = jwtValidator.validate();
-
-        userMapper.deleteUserLogicallyById(user.getId());
-        deleteAccessTokenFromRedis(user.getId());
-
-        slackNotiSender.noticeWithdraw(NotiSlack.builder()
-                .color("good")
-                .text(user.getAccount() + "님이 탈퇴하셨습니다.")
-                .build());
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
 
-
-    @Override
-    @Transactional
-    public StudentResponse updateStudentInformation(UpdateUserRequest request) throws Exception {
-        Student student = request.toEntity();
-
-        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if (student_old == null) {
-            throw new ValidationException(new ErrorMessage("token not validate", 402));
-        }
-        student.changeIdentity(student_old.getIdentity());
-
-        if (!student_old.isUserAuthed()) {
-            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
-        }
-        checkNicknameDuplicationWithoutSameUser(student);
-        if (student.getStudent_number() != null) {
-            checkStudentNumberValidation(student);
-        }
-        if (student.getMajor() != null) {
-            checkMajorValidation(student);
-        }
-        if (student.getPassword() != null) {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-        }
-
-        student_old.update(student);
-        userMapper.updateUser(student_old);
-        studentMapper.updateStudent(student_old);
-
-        return new StudentResponse(student_old);
-    }
-
-    // TODO owner 정보 업데이트 
-    @Override
-    @Transactional
-    public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
-        Owner user_old;
-        try {
-            user_old = (Owner) jwtValidator.validate();
-        } catch (ClassCastException e) {
-            throw new ForbiddenException(new ErrorMessage("점주가 아닙니다.", 0));
-        }
-
-        // 인증받은 유저인지 체크
-        if (!user_old.getIs_authed()) {
-            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
-        }
-
-        // 닉네임 중복 체크
-        if (owner.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickname(owner.getNickname());
-            if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-
-        // TODO: hashing passowrd
-        if (owner.getPassword() != null) {
-            owner.setPassword(passwordEncoder.encode(owner.getPassword()));
-        }
-
-        user_old.update(owner);
-        userMapper.updateUser(user_old);
-        ownerMapper.updateOwner(user_old);
-
-        return domainToMapWithExcept(user_old, UserResponseType.getArray(), false);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void checkUserNickName(String nickname) {
-        checkNicknameValid(nickname);
-        checkNicknameDuplicated(nickname);
-    }
 
     private void checkNicknameValid(String nickname) {
         if (StringUtils.isBlank(nickname)) {
@@ -401,14 +399,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
-    @Override
-    public Student getStudent() {
-        User user = jwtValidator.validate();
+    private String getAccessTokenFromRedis(User user) throws Exception {
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
 
-        Student student = studentMapper.getStudentById(user.getId());
-        if(student == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
-        return student;
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String regenerateAccessTokenAndSetRedis(Integer userId) {
+        String accessToken = jwtTokenGenerator.generate(userId);
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
+        return accessToken;
     }
 }

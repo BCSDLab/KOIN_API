@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -136,25 +137,13 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> checkUserNickName(
+    ResponseEntity<EmptyResponse> checkUserNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
                               "- 1자 이상 10자 이하 \n " +
                               "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("nickname") String nickname) throws Exception {
-        userService.checkUserNickName(nickname);
+        userService.checkUserNickname(nickname);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @AuthExcept
-    @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
-    public String authenticate(@RequestParam(value = "auth_token") String auth_token) {
-        boolean result = userService.authenticate(auth_token);
-
-        if (!result) {
-            return "mail/error_config";
-        }
-
-        return "mail/success_register_config";
     }
 
     @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
@@ -176,20 +165,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    private String getHost(HttpServletRequest request) {
-        String schema = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-
-        StringBuilder url = new StringBuilder();
-        url.append(schema).append("://");
-        url.append(serverName);
-
-        if (serverPort != 80 && serverPort != 443) {
-            url.append(":").append(serverPort);
-        }
-
-        return url.toString();
+    @ApiIgnore
+    @AuthExcept
+    @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
+    public String authenticate(@RequestParam("auth_token") String authToken) {
+        boolean success = userService.authenticate(authToken);
+        return success ? "mail/success_register_config" : "mail/error_config";
     }
 
     @AuthExcept
@@ -217,5 +198,21 @@ public class UserController {
         }
 
         return "mail/success_change_password_config";
+    }
+
+    private String getHost(HttpServletRequest request) {
+        String schema = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+
+        StringBuilder url = new StringBuilder();
+        url.append(schema).append("://");
+        url.append(serverName);
+
+        if (serverPort != 80 && serverPort != 443) {
+            url.append(":").append(serverPort);
+        }
+
+        return url.toString();
     }
 }

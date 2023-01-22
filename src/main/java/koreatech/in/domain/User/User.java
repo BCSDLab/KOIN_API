@@ -118,12 +118,16 @@ public abstract class User {
                 && !isAuthTokenExpired();
     }
 
+    public void changeEmailAuthenticationStatusToComplete() {
+        this.is_authed = true;
+    }
+
     public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
         this.auth_token = authToken;
         this.auth_expired_at = authExpiredAt;
     }
 
-    public void generateNewResetInformation() {
+    public void generateDataForFindPassword() {
         this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
     }
