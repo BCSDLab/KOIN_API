@@ -7,6 +7,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
@@ -161,12 +162,12 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> changePasswordConfig(@ApiParam(value = "(required: account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
+    ResponseEntity<EmptyResponse> changePasswordConfig(@RequestBody @Valid FindPasswordRequest request, BindingResult bindingResult, HttpServletRequest servletRequest) {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        userService.changePasswordConfig(account, getHost(request));
+        userService.changePasswordConfig(request, getHost(servletRequest));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

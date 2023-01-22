@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
@@ -228,24 +229,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void changePasswordConfig(String account, String host) {
-        if (account == null) {
-            throw new ValidationException(new ErrorMessage("account is required", 0));
+    public void changePasswordConfig(FindPasswordRequest request, String host) {
+        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+
+        if (user == null) {
+            throw new BaseException(USER_NOT_FOUND);
         }
 
-        User selectUser = userMapper.getUserByAccount(account);
-        if(selectUser == null){
-            throw new NotFoundException(new ErrorMessage("invalid authenticate", 0));
-        }
+        user.generateNewResetInformation();
+        userMapper.updateUser(user);
 
-        Date resetExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        final String resetToken = SHA256Util.getEncrypt(account, resetExpiredAt.toString());
-        userMapper.updateResetTokenAndResetTokenExpiredTime(selectUser.getId(), resetToken, resetExpiredAt);
-
-        sendResetTokenByEmailForAuthenticate(resetToken, host, selectUser.getEmail());
+        sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
     }
 
-    private void sendResetTokenByEmailForAuthenticate(String resetToken, String contextPath, String email) {
+    private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
         Map<String, Object> model = new HashMap<>();
         model.put("resetToken", resetToken);
         model.put("contextPath", contextPath);

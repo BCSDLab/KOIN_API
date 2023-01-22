@@ -3,6 +3,8 @@ package koreatech.in.domain.User;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.util.DateUtil;
+import koreatech.in.util.SHA256Util;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -119,6 +121,11 @@ public abstract class User {
     public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
         this.auth_token = authToken;
         this.auth_expired_at = authExpiredAt;
+    }
+
+    public void generateNewResetInformation() {
+        this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
+        this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
     }
 
     public void changePassword(String password){

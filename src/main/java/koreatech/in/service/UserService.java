@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
@@ -19,7 +20,7 @@ public interface UserService {
 
     Boolean authenticate(String authToken);
 
-    void changePasswordConfig(String account, String host);
+    void changePasswordConfig(FindPasswordRequest request, String host);
 
     Boolean changePasswordInput(String resetToken);
 
