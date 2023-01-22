@@ -23,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -145,16 +146,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
-    public String authenticate(@RequestParam(value = "auth_token") String auth_token) {
-        boolean result = userService.authenticate(auth_token);
-
-        if (!result) {
-            return "mail/error_config";
-        }
-
-        return "mail/success_register_config";
+    public String authenticate(@RequestParam("auth_token") String authToken) {
+        boolean success = userService.authenticate(authToken);
+        return success ? "mail/success_register_config" : "mail/error_config";
     }
 
     @AuthExcept
