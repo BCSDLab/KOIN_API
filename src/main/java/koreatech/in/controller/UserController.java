@@ -187,6 +187,7 @@ public class UserController {
         return "mail/change_password_config";
     }
 
+    @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/submit", method = RequestMethod.POST)
     public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam String reset_token) {
