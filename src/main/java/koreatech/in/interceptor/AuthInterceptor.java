@@ -75,6 +75,10 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
         User user = jwtValidator.validate(request.getHeader("Authorization"));
 
+        if (user == null) {
+            throw new BaseException(BAD_ACCESS);
+        }
+
         // 어드민용 controller
         if (auth.role() == Auth.Role.ADMIN) {
             // 어드민 유저가 아니라면
