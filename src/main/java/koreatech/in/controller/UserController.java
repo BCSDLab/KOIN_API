@@ -176,15 +176,14 @@ public class UserController {
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/config", method = RequestMethod.GET)
-    public String changePasswordInput(@RequestParam(value = "reset_token") String resetToken, Model model) {
-        boolean result = userService.changePasswordInput(resetToken);
+    public String changePasswordInput(@RequestParam("reset_token") String resetToken, Model model) {
+        boolean isAwaitingUserFindPassword = userService.changePasswordInput(resetToken);
 
-        if (!result) {
+        if (!isAwaitingUserFindPassword) {
             return "mail/error_config";
         }
 
         model.addAttribute("resetToken", resetToken);
-
         return "mail/change_password_config";
     }
 
