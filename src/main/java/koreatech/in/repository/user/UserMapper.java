@@ -16,12 +16,13 @@ public interface UserMapper {
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
     void deleteUserLogicallyById(@Param("id") Integer id);
     User getUserByNickname(@Param("nickname") String nickname);
+    void updateUser(@Param("user") User user);
     User getUserByAuthToken(@Param("authToken") String authToken);
-    void updateUserToEmailAuthedById(@Param("id") Integer id);
 
 
     Integer isAccountAlreadyUsed(String account);
     Integer isNicknameAlreadyUsed(String nickname);
+    void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
     User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
@@ -32,7 +33,6 @@ public interface UserMapper {
     User getUserById(@Param("id") int id);
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
-    void updateUser(User user);
     Integer getTotalCount();
     User getUserByAccount(String account);
     User getUserByResetToken(String resetToken);

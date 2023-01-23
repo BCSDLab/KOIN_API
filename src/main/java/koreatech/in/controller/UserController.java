@@ -7,6 +7,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
@@ -28,7 +29,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -137,13 +137,32 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> checkUserNickName(
+    ResponseEntity<EmptyResponse> checkUserNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
                               "- 1자 이상 10자 이하 \n " +
                               "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("nickname") String nickname) throws Exception {
-        userService.checkUserNickName(nickname);
+        userService.checkUserNickname(nickname);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "회원이 조회되지 않을 때 (code: 101000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
+    @AuthExcept
+    @ParamValid
+    @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> changePasswordConfig(@RequestBody @Valid FindPasswordRequest request, BindingResult bindingResult, HttpServletRequest servletRequest) {
+
+        // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
+        // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
+
+        userService.changePasswordConfig(request, getHost(servletRequest));
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @ApiIgnore
@@ -152,34 +171,6 @@ public class UserController {
     public String authenticate(@RequestParam("auth_token") String authToken) {
         boolean success = userService.authenticate(authToken);
         return success ? "mail/success_register_config" : "mail/error_config";
-    }
-
-    @AuthExcept
-    @ParamValid
-    @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
-    public @ResponseBody
-    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
-
-        // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
-        // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
-
-        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(account, getHost(request)), HttpStatus.CREATED);
-    }
-
-    private String getHost(HttpServletRequest request) {
-        String schema = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-
-        StringBuilder url = new StringBuilder();
-        url.append(schema).append("://");
-        url.append(serverName);
-
-        if (serverPort != 80 && serverPort != 443) {
-            url.append(":").append(serverPort);
-        }
-
-        return url.toString();
     }
 
     @AuthExcept
@@ -207,5 +198,21 @@ public class UserController {
         }
 
         return "mail/success_change_password_config";
+    }
+
+    private String getHost(HttpServletRequest request) {
+        String schema = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+
+        StringBuilder url = new StringBuilder();
+        url.append(schema).append("://");
+        url.append(serverName);
+
+        if (serverPort != 80 && serverPort != 443) {
+            url.append(":").append(serverPort);
+        }
+
+        return url.toString();
     }
 }

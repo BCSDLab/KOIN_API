@@ -293,6 +293,27 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
+    <update id="updateUser">
+        UPDATE `koin`.`users`
+        SET
+            `account` = #{user.account},
+            `password` = #{user.password},
+            `nickname` = #{user.nickname},
+            `name` = #{user.name},
+            `phone_number` = #{user.phone_number},
+            `user_type` = #{user.user_type},
+            `email` = #{user.email},
+            `gender` = #{user.gender},
+            `is_authed` = #{user.is_authed},
+            `last_logged_at` = #{user.last_logged_at},
+            `profile_image_url` = #{user.profile_image_url},
+            `auth_token` = #{user.auth_token},
+            `auth_expired_at` = #{user.auth_expired_at},
+            `reset_token` = #{user.reset_token},
+            `reset_expired_at` = #{user.reset_expired_at}
+        WHERE `id` = #{user.id}
+    </update>
+
     <select id="getUserByAuthToken" parameterType="string" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
@@ -364,11 +385,8 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
-    <update id="updateUserToEmailAuthedById">
-        UPDATE `koin`.`users`
-        SET `is_authed` = 1
-        WHERE `id` = #{id}
-    </update>
+
+
 
 
     <select id="getUserById" resultMap="UserDiscriminator">
@@ -456,30 +474,17 @@
         </selectKey>
     </insert>
 
+    <update id="updateUserIsAuthed">
+        update koin.users
+        set is_authed=#{isAuth}
+        where id=#{id}
+    </update>
+
     <update id="updateResetTokenAndResetTokenExpiredTime">
         update koin.users
         set
             reset_token=#{resetToken},
             reset_expired_at=#{resetTokenExpiredTime}
         where id=#{id}
-    </update>
-
-    <update id="updateUser">
-        UPDATE koin.users
-        SET
-            ACCOUNT = #{account},
-            PASSWORD = #{password},
-            NAME = #{name},
-            NICKNAME = #{nickname},
-            GENDER = #{gender},
-            USER_TYPE = #{userType},
-            PHONE_NUMBER = #{phoneNumber},
-            AUTH_TOKEN = #{authToken},
-            AUTH_EXPIRED_AT = #{authExpiredAt},
-            IS_AUTHED = #{isAuthed},
-            RESET_TOKEN = #{resetToken},
-            RESET_EXPIRED_AT = #{resetExpiredAt},
-            PROFILE_IMAGE_URL = #{profileImageUrl}
-        WHERE ID = #{id}
     </update>
 </mapper>
