@@ -32,20 +32,16 @@ public class JwtValidator {
 
     public User validate(String header) {
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new BaseException(BAD_ACCESS);
+            return null;
         }
 
         String accessToken = header.substring(7);
         if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
-            throw new BaseException(BAD_ACCESS);
+            return null;
         }
 
         Integer userId = jwtTokenGenerator.me(accessToken);
         User user = userMapper.getAuthedUserById(userId);
-
-        if (user == null) {
-            throw new BaseException(BAD_ACCESS);
-        }
 
         return user;
     }
