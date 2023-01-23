@@ -190,15 +190,11 @@ public class UserController {
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/submit", method = RequestMethod.POST)
-    public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam String reset_token) {
+    public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam("reset_token") String resetToken) {
         String password = params.get("password").toString();
-        boolean result = userService.changePasswordAuthenticate(password, reset_token);
 
-        if (!result) {
-            return "mail/error_config";
-        }
-
-        return "mail/success_change_password_config";
+        boolean success = userService.changePasswordAuthenticate(password, resetToken);
+        return success ? "mail/success_change_password_config" : "mail/error_config";
     }
 
     private String getHost(HttpServletRequest request) {

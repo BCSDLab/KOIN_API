@@ -283,17 +283,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Boolean changePasswordAuthenticate(String password, String resetToken) {
-        User selectUser = userMapper.getAuthedUserByResetToken(resetToken);
+        User user = userMapper.getAuthedUserByResetToken(resetToken);
 
-        if ((selectUser == null) || isTokenExpired(selectUser.getReset_expired_at())) {
+        if (user == null || !user.isAwaitingToFindPassword()) {
             return false;
         }
 
-        // TODO: password hashing
-        selectUser.setPassword(passwordEncoder.encode(password));
-        selectUser.setReset_expired_at(new Date());
+        String encodedPassword = passwordEncoder.encode(password);
+        user.changeToNewPassword(encodedPassword);
 
-        userMapper.updateUser(selectUser);
+        userMapper.updateUser(user);
 
         return true;
     }

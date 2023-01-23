@@ -123,9 +123,6 @@ public abstract class User {
     }
 
     public boolean isAwaitingToFindPassword() {
-        System.out.println(this.reset_token);
-        System.out.println(this.reset_expired_at);
-
         return this.reset_token != null
                 && this.reset_expired_at != null
                 && !isResetTokenExpired();
@@ -143,6 +140,11 @@ public abstract class User {
     public void generateDataForFindPassword() {
         this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
+    }
+
+    public void changeToNewPassword(String password) {
+        this.password = password;
+        this.reset_expired_at = new Date();
     }
 
     public void changePassword(String password){
