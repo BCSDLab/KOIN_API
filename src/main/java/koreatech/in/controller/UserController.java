@@ -173,6 +173,7 @@ public class UserController {
         return success ? "mail/success_register_config" : "mail/error_config";
     }
 
+    @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/config", method = RequestMethod.GET)
     public String changePasswordInput(@RequestParam(value = "reset_token") String resetToken, Model model) {
