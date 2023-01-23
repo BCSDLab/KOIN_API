@@ -118,6 +118,19 @@ public abstract class User {
                 && !isAuthTokenExpired();
     }
 
+    public boolean isResetTokenExpired() {
+        return this.reset_expired_at != null && (this.reset_expired_at.getTime() < (new Date()).getTime());
+    }
+
+    public boolean isAwaitingToFindPassword() {
+        System.out.println(this.reset_token);
+        System.out.println(this.reset_expired_at);
+
+        return this.reset_token != null
+                && this.reset_expired_at != null
+                && !isResetTokenExpired();
+    }
+
     public void changeEmailAuthenticationStatusToComplete() {
         this.is_authed = true;
     }
