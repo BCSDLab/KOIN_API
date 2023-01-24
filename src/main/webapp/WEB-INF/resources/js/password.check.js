@@ -27,8 +27,14 @@ $("#submitButton").click(function () {
         type: 'post',
         contentType:'application/json; charset=utf-8',
         data: JSON.stringify({password: sha256(userPw)}),
-        success: function (html) {
-            alert('비밀번호 변경 성공!\n변경된 비밀번호로 로그인해주세요.');
+        success: function (response) {
+            if (response.success) {
+                alert('비밀번호 변경 성공!\n변경된 비밀번호로 로그인해주세요.');
+            }
+            else {
+                alert('유효시간이 만료되었습니다.\n메일 재발송 후 다시 진행해주세요.');
+            }
+
             location.href = '//koreatech.in';
         },
         error: function (a, b, c) {
