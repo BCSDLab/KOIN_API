@@ -28,7 +28,7 @@ $("#submitButton").click(function () {
         contentType:'application/json; charset=utf-8',
         data: JSON.stringify({password: sha256(userPw)}),
         success: function (response) {
-            if (response.success) {
+            if (response.success === true) {
                 alert('비밀번호 변경 성공!\n변경된 비밀번호로 로그인해주세요.');
             }
             else {
