@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Map;
 
 @Auth(role = Auth.Role.USER)
@@ -152,15 +153,21 @@ public class UserController {
 
     @AuthExcept
     @RequestMapping(value = "/user/change/password/submit", method = RequestMethod.POST)
-    public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam String reset_token) {
+    public @ResponseBody
+    Map<String, Object> changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam String reset_token) {
         String password = params.get("password").toString();
         boolean result = userService.changePasswordAuthenticate(password, reset_token);
 
-        if (!result) {
+        /*if (!result) {
             return "mail/error_config";
         }
 
-        return "mail/success_change_password_config";
+        return "mail/success_change_password_config";*/
+
+        // hotfix
+        return new HashMap<String, Object>() {{
+            put("success", result);
+        }};
     }
 
     @AuthExcept
