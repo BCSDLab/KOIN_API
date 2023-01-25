@@ -118,6 +118,16 @@ public abstract class User {
                 && !isAuthTokenExpired();
     }
 
+    public boolean isResetTokenExpired() {
+        return this.reset_expired_at != null && (this.reset_expired_at.getTime() < (new Date()).getTime());
+    }
+
+    public boolean isAwaitingToFindPassword() {
+        return this.reset_token != null
+                && this.reset_expired_at != null
+                && !isResetTokenExpired();
+    }
+
     public void changeEmailAuthenticationStatusToComplete() {
         this.is_authed = true;
     }
@@ -130,6 +140,11 @@ public abstract class User {
     public void generateDataForFindPassword() {
         this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
+    }
+
+    public void changeToNewPassword(String password) {
+        this.password = password;
+        this.reset_expired_at = new Date();
     }
 
     public void changePassword(String password){

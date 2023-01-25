@@ -18,6 +18,7 @@ public interface UserMapper {
     User getUserByNickname(@Param("nickname") String nickname);
     void updateUser(@Param("user") User user);
     User getUserByAuthToken(@Param("authToken") String authToken);
+    User getAuthedUserByResetToken(@Param("resetToken") String resetToken);
 
 
     Integer isAccountAlreadyUsed(String account);
@@ -35,7 +36,6 @@ public interface UserMapper {
     String getUserEmail(@Param("id") int id);
     Integer getTotalCount();
     User getUserByAccount(String account);
-    User getUserByResetToken(String resetToken);
 
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
 //    @Select("SELECT * FROM koin.users u INNER JOIN koin.admins a ON u.id = a.user_id WHERE u.id = #{id}")

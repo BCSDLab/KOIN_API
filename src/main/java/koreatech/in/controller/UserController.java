@@ -29,6 +29,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -173,31 +174,31 @@ public class UserController {
         return success ? "mail/success_register_config" : "mail/error_config";
     }
 
+    @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/config", method = RequestMethod.GET)
-    public String changePasswordInput(@RequestParam(value = "reset_token") String resetToken, Model model) {
-        boolean result = userService.changePasswordInput(resetToken);
+    public String changePasswordInput(@RequestParam("reset_token") String resetToken, Model model) {
+        boolean isAwaitingUserFindPassword = userService.changePasswordInput(resetToken);
 
-        if (!result) {
+        if (!isAwaitingUserFindPassword) {
             return "mail/error_config";
         }
 
         model.addAttribute("resetToken", resetToken);
-
         return "mail/change_password_config";
     }
 
+    @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/submit", method = RequestMethod.POST)
-    public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam String reset_token) {
+    public @ResponseBody
+    Map<String, Object> changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam("reset_token") String resetToken) {
         String password = params.get("password").toString();
-        boolean result = userService.changePasswordAuthenticate(password, reset_token);
+        boolean success = userService.changePasswordAuthenticate(password, resetToken);
 
-        if (!result) {
-            return "mail/error_config";
-        }
-
-        return "mail/success_change_password_config";
+        return new HashMap<String, Object>() {{
+            put("success", success);
+        }};
     }
 
     private String getHost(HttpServletRequest request) {
