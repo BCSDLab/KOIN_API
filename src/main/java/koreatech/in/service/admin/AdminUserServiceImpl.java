@@ -237,7 +237,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Transactional
     @Override
-    public Authority createPermissionForAdmin(Authority authority, int userId) {
+    public void createPermissionForAdmin(Authority authority, int userId) {
         User selectUser = userMapper.getUserById(userId);
         if(selectUser == null){
             throw new NotFoundException(new ErrorMessage("No User", 0));
@@ -252,8 +252,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
 
         authorityMapper.createAuthority(authority);
-
-        return authority;
     }
 
     @Override

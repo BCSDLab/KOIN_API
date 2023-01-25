@@ -107,6 +107,14 @@ public class AdminUserController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> createPermission(@ApiParam(value = "(optional: grant_callvan, grant_user, grant_shop, grant_community, grant_version, grant_land, grant_market, is_deleted)", required = false) @RequestBody Authority authority, @ApiParam(required = true) @PathVariable("userId") int userId) throws Exception {
+        adminUserService.createPermissionForAdmin(authority, userId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getPermission(@ApiParam(required = true) @PathVariable("userId") int userId) throws Exception {
@@ -118,13 +126,6 @@ public class AdminUserController {
     public @ResponseBody
     ResponseEntity updatePermission(@ApiParam(value = "(optional: grant_callvan, grant_user, grant_shop, grant_community, grant_version, grant_land, grant_market, is_deleted)", required = false) @RequestBody Authority authority, @ApiParam(required = true) @PathVariable("userId") int userId) throws Exception {
         return new ResponseEntity<Authority>(adminUserService.updatePermissionForAdmin(authority, userId), HttpStatus.CREATED);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.POST)
-    public @ResponseBody
-    ResponseEntity createPermission(@ApiParam(value = "(optional: grant_callvan, grant_user, grant_shop, grant_community, grant_version, grant_land, grant_market, is_deleted)", required = false) @RequestBody Authority authority, @ApiParam(required = true) @PathVariable("userId") int userId) throws Exception {
-        return new ResponseEntity<Authority>(adminUserService.createPermissionForAdmin(authority, userId), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

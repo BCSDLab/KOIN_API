@@ -24,7 +24,7 @@ public interface AdminUserService {
 
     Map<String, Object> deleteUserForAdmin(int id);
 
-    Authority createPermissionForAdmin(Authority authority, int userId);
+    void createPermissionForAdmin(Authority authority, int userId);
 
     Authority getPermissionForAdmin(int userId);
 
