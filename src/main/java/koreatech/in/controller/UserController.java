@@ -29,6 +29,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
@@ -190,11 +191,14 @@ public class UserController {
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/change/password/submit", method = RequestMethod.POST)
-    public String changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam("reset_token") String resetToken) {
+    public @ResponseBody
+    Map<String, Object> changePasswordAuthenticate(@RequestBody Map<String, Object> params, @RequestParam("reset_token") String resetToken) {
         String password = params.get("password").toString();
-
         boolean success = userService.changePasswordAuthenticate(password, resetToken);
-        return success ? "mail/success_change_password_config" : "mail/error_config";
+
+        return new HashMap<String, Object>() {{
+            put("success", success);
+        }};
     }
 
     private String getHost(HttpServletRequest request) {
