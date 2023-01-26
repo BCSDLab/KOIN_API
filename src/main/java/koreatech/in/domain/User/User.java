@@ -147,6 +147,10 @@ public abstract class User {
         this.reset_expired_at = new Date();
     }
 
+    public boolean hasWithdrawn() {
+        return this.is_deleted;
+    }
+
     public void changePassword(String password){
         this.password = password;
     }

@@ -1,13 +1,15 @@
 package koreatech.in.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Date;
 
-@Getter @Setter
+@Getter @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Authority {
     private Integer id;
     private Integer user_id;
@@ -27,69 +29,8 @@ public class Authority {
     private Date created_at;
     private Date updated_at;
 
-    @Override
-    public String toString() {
-        return "Authority{" +
-                "id=" + id +
-                ", user_id=" + user_id +
-                ", grant_user=" + grant_user +
-                ", grant_callvan=" + grant_callvan +
-                ", grant_land=" + grant_land +
-                ", grant_community=" + grant_community +
-                ", grant_shop=" + grant_shop +
-                ", grant_version=" + grant_version +
-                ", is_deleted=" + is_deleted +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
-                ", grant_market=" + grant_market +
-                ", grant_circle=" + grant_circle +
-                ", grant_lost=" + grant_lost +
-                ", grant_survey=" + grant_survey +
-                ", grant_bcsdlab=" + grant_bcsdlab +
-                ", grant_event=" + grant_event +
-                '}';
-    }
-
-    public void init() {
-        if (this.grant_user == null) {
-            this.grant_user = false;
-        }
-        if (this.grant_callvan == null) {
-            this.grant_callvan = false;
-        }
-        if (this.grant_land == null) {
-            this.grant_land = false;
-        }
-        if (this.grant_community == null) {
-            this.grant_community = false;
-        }
-        if (this.grant_shop == null) {
-            this.grant_shop = false;
-        }
-        if (this.grant_version == null) {
-            this.grant_version = false;
-        }
-        if (this.grant_market == null) {
-            this.grant_market = false;
-        }
-        if (this.grant_circle == null) {
-            this.grant_circle = false;
-        }
-        if (this.grant_lost == null) {
-            this.grant_lost = false;
-        }
-        if (this.grant_survey == null) {
-            this.grant_survey = false;
-        }
-        if (this.grant_bcsdlab == null) {
-            this.grant_bcsdlab = false;
-        }
-        if (this.grant_event == null) {
-            this.grant_event = false;
-        }
-        if (this.is_deleted == null) {
-            this.is_deleted = false;
-        }
+    public void changeUserId(Integer userId) {
+        this.user_id = userId;
     }
 
     public void update(Authority authority) {

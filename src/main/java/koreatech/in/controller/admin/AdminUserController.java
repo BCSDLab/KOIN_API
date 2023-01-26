@@ -11,6 +11,7 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.admin.user.request.CreateAuthorityRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.service.admin.AdminUserService;
@@ -106,11 +107,14 @@ public class AdminUserController {
         return new ResponseEntity<Map<String, Object>>(adminUserService.deleteUserForAdmin(id), HttpStatus.OK);
     }
 
+
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/users/{id}/permission", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> createPermission(@ApiParam(value = "(optional: grant_callvan, grant_user, grant_shop, grant_community, grant_version, grant_land, grant_market, is_deleted)", required = false) @RequestBody Authority authority, @ApiParam(required = true) @PathVariable("userId") int userId) throws Exception {
-        adminUserService.createPermissionForAdmin(authority, userId);
+    ResponseEntity<EmptyResponse> createAuthority(
+            @ApiParam(required = true) @PathVariable("id") Integer userId,
+            @RequestBody(required = false) @Valid CreateAuthorityRequest request, BindingResult bindingResult) throws Exception {
+        adminUserService.createAuthority(request, userId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

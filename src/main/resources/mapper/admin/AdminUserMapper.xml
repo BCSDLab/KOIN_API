@@ -72,6 +72,39 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
+    <insert id="createAdmin">
+        INSERT INTO `koin`.`admins` (
+            `user_id`,
+            `grant_user`,
+            `grant_callvan`,
+            `grant_land`,
+            `grant_community`,
+            `grant_shop`,
+            `grant_version`,
+            `grant_market`,
+            `grant_circle`,
+            `grant_lost`,
+            `grant_survey`,
+            `grant_bcsdlab`,
+            `grant_event`
+        )
+        VALUES (
+            #{admin.user_id},
+            #{admin.grant_user},
+            #{admin.grant_callvan},
+            #{admin.grant_land},
+            #{admin.grant_community},
+            #{admin.grant_shop},
+            #{admin.grant_version},
+            #{admin.grant_market},
+            #{admin.grant_circle},
+            #{admin.grant_lost},
+            #{admin.grant_survey},
+            #{admin.grant_bcsdlab},
+            #{admin.grant_event}
+        )
+    </insert>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>

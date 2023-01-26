@@ -4,6 +4,7 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.CreateAuthorityRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 
@@ -24,7 +25,7 @@ public interface AdminUserService {
 
     Map<String, Object> deleteUserForAdmin(int id);
 
-    void createPermissionForAdmin(Authority authority, int userId);
+    void createAuthority(CreateAuthorityRequest request, Integer userId);
 
     Authority getPermissionForAdmin(int userId);
 

@@ -7,10 +7,13 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.CreateAuthorityRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.exception.*;
+import koreatech.in.mapstruct.admin.user.AdminAuthorityConverter;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -35,6 +38,9 @@ import static koreatech.in.exception.ExceptionInformation.*;
 public class AdminUserServiceImpl implements AdminUserService {
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AdminUserMapper adminUserMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -235,23 +241,35 @@ public class AdminUserServiceImpl implements AdminUserService {
         }};
     }
 
-    @Transactional
     @Override
-    public void createPermissionForAdmin(Authority authority, int userId) {
-        User selectUser = userMapper.getUserById(userId);
-        if(selectUser == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+    public void createAuthority(CreateAuthorityRequest request, Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+
+        if (user == null) {
+            throw new BaseException(USER_NOT_FOUND);
         }
 
-        authority.init();
-        authority.setUser_id(userId);
+        checkPossibilityOfGrantAuthority(user);
 
-        Authority selectAuthority = authorityMapper.getAuthorityByUserId(userId);
-        if (selectAuthority != null) {
-            throw new PreconditionFailedException(new ErrorMessage("already have authority", 0));
+        Authority authority = AdminAuthorityConverter.INSTANCE.toAuthority(request);
+        authority.changeUserId(userId);
+
+        adminUserMapper.createAdmin(authority);
+    }
+
+    private void checkPossibilityOfGrantAuthority(User user) {
+        if (user.hasWithdrawn()) {
+            throw new BaseException(USER_HAS_WITHDRAWN);
         }
-
-        authorityMapper.createAuthority(authority);
+        if (user.hasAuthority()) {
+            throw new BaseException(USER_ALREADY_HAS_ADMIN_AUTHORITY);
+        }
+        if (!user.isStudent()) {
+            throw new BaseException(USER_IS_NOT_STUDENT);
+        }
+        if (!user.isEmailAuthenticationCompleted()) {
+            throw new BaseException(USER_HAS_NOT_COMPLETED_EMAIL_AUTHENTICATION);
+        }
     }
 
     @Override
