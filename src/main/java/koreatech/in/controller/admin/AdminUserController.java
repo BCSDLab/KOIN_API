@@ -87,8 +87,9 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteUser(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(adminUserService.deleteUserForAdmin(id), HttpStatus.OK);
+    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
+        adminUserService.deleteUserForAdmin(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOff @ApiIgnore @Deprecated

@@ -22,7 +22,7 @@ public interface AdminUserService {
 
     Student updateStudentForAdmin(Student user, int id);
 
-    Map<String, Object> deleteUserForAdmin(int id);
+    void deleteUserForAdmin(int id);
 
     Authority createPermissionForAdmin(Authority authority, int userId);
 

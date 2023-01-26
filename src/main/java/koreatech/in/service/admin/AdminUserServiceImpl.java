@@ -215,7 +215,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public Map<String, Object> deleteUserForAdmin(int id) {
+    public void deleteUserForAdmin(int id) {
         User selectUser = userMapper.getUserById(id);
 
         if(selectUser == null) {
@@ -229,10 +229,6 @@ public class AdminUserServiceImpl implements AdminUserService {
             ownerMapper.deleteOwner(id);
         }
         userMapper.deleteUserLogicallyById(id);
-
-        return new HashMap<String, Object>() {{
-            put("success", "delete student");
-        }};
     }
 
     @Transactional
