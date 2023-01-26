@@ -109,6 +109,7 @@ public class AdminUserController {
 
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ParamValid
     @RequestMapping(value = "/admin/users/{id}/permission", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> createAuthority(
