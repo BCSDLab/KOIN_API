@@ -1,10 +1,7 @@
 package koreatech.in.controller.admin;
 
 import io.swagger.annotations.*;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.annotation.*;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -62,30 +60,17 @@ public class AdminUserController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getUser(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<User>(adminUserService.getUserForAdmin(id), HttpStatus.OK);
     }
 
-    @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/student/users", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity createUser(
-            @ApiParam(value = "(required: portal_account, password), " +
-                    "(optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true)
-            @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Student student,
-            BindingResult bindingResult) throws Exception {
-
-        return new ResponseEntity<User>(adminUserService.createStudentForAdmin(student), HttpStatus.CREATED);
+    ResponseEntity getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
+        return new ResponseEntity<Map<String, Object>>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
     }
 
     @ParamValid
@@ -106,6 +91,21 @@ public class AdminUserController {
         return new ResponseEntity<Map<String, Object>>(adminUserService.deleteUserForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
+    @ParamValid
+    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/admin/student/users", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity createUser(
+            @ApiParam(value = "(required: portal_account, password), " +
+                    "(optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true)
+            @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Student student,
+            BindingResult bindingResult) throws Exception {
+
+        return new ResponseEntity<User>(adminUserService.createStudentForAdmin(student), HttpStatus.CREATED);
+    }
+
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.GET)
     public @ResponseBody
@@ -113,6 +113,7 @@ public class AdminUserController {
         return new ResponseEntity<Authority>(adminUserService.getPermissionForAdmin(userId), HttpStatus.OK);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.PUT)
     public @ResponseBody
@@ -120,6 +121,7 @@ public class AdminUserController {
         return new ResponseEntity<Authority>(adminUserService.updatePermissionForAdmin(authority, userId), HttpStatus.CREATED);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.POST)
     public @ResponseBody
@@ -127,6 +129,7 @@ public class AdminUserController {
         return new ResponseEntity<Authority>(adminUserService.createPermissionForAdmin(authority, userId), HttpStatus.CREATED);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{userId}/permission", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -134,6 +137,7 @@ public class AdminUserController {
         return new ResponseEntity<Map<String, Object>>(adminUserService.deletePermissionForAdmin(userId), HttpStatus.OK);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/permissions", method = RequestMethod.GET)
     public @ResponseBody
