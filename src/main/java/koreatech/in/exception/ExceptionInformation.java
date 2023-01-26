@@ -20,8 +20,9 @@ public enum ExceptionInformation {
     USER_IS_NOT_STUDENT("회원의 신원이 학생이 아닙니다.", 101003, HttpStatus.CONFLICT),
     USER_IS_NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101004, HttpStatus.CONFLICT),
     USER_HAS_WITHDRAWN("탈퇴한 회원입니다.", 101005, HttpStatus.CONFLICT),
-    USER_ALREADY_HAS_ADMIN_AUTHORITY("회원의 권한이 이미 존재합니다.", 101006, HttpStatus.CONFLICT),
+    USER_ALREADY_HAS_ADMIN_AUTHORITY("회원의 어드민 권한이 이미 존재합니다.", 101006, HttpStatus.CONFLICT),
     USER_HAS_NOT_COMPLETED_EMAIL_AUTHENTICATION("회원이 아직 이메일 인증을 완료하지 않았습니다.",101007, HttpStatus.CONFLICT),
+    INQUIRED_USER_NOT_FOUND("조회한 회원이 존재하지 않습니다.", 101008, HttpStatus.NOT_FOUND),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),

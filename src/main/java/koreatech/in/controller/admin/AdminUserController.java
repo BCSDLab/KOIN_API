@@ -107,8 +107,25 @@ public class AdminUserController {
         return new ResponseEntity<Map<String, Object>>(adminUserService.deleteUserForAdmin(id), HttpStatus.OK);
     }
 
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(
+            value = "특정 회원에 대한 어드민 권한 생성",
+            notes = "다음의 경우 회원에 대한 어드민 권한 부여가 불가능합니다. \n" +
+                    "- 회원의 신원이 학생이 아닐 때 \n" +
+                    "- 탈퇴한(soft delete된) 회원일 때 \n" +
+                    "- 회원의 어드민 권한이 이미 존재할 때 \n" +
+                    "- 회원이 아직 이메일 인증을 완료하지 않았을 때 \n",
+            authorizations = {@Authorization("Authorization")}
+    )
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 조회되지 않을 때 (code: 101008)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 회원의 신원이 학생이 아닐 때 (code: 101003) \n\n" +
+                                               "- 탈퇴한 회원일 때 (code: 101005) \n\n" +
+                                               "- 회원의 어드민 권한이 이미 존재할 때 (code: 101006) \n\n" +
+                                               "- 회원이 아직 이메일 인증을 완료하지 않았을 때 (code: 101007)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
     @RequestMapping(value = "/admin/users/{id}/permission", method = RequestMethod.POST)
     public @ResponseBody
