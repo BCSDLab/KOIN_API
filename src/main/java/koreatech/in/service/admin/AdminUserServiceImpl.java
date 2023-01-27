@@ -5,7 +5,6 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -227,7 +226,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         user.checkPossibilityOfDeletion();
 
-        userMapper.deleteUserLogicallyById(userId);
+        adminUserMapper.deleteUserLogicallyById(userId);
     }
 
     @Override
@@ -241,7 +240,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         User undeletedAndSameEmailUser = adminUserMapper.getUndeletedUserByEmail(user.getEmail());
         user.checkPossibilityOfUndeletion(undeletedAndSameAccountUser, undeletedAndSameEmailUser);
 
-        userMapper.undeleteUserLogicallyById(userId);
+        adminUserMapper.undeleteUserLogicallyById(userId);
     }
 
     @Transactional

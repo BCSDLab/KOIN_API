@@ -214,6 +214,18 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
+    <delete id="deleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </delete>
+
+    <delete id="undeleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 0
+        WHERE `id` = #{id}
+    </delete>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
