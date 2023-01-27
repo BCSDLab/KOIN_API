@@ -98,7 +98,15 @@ public class AdminUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "회원 삭제 해제 (탈퇴 상태를 해제 처리)", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 경우 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 경우 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 경우 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 탈퇴한 회원이 아닐 경우 (code: 101005) \n\n" +
+                                               "- 탈퇴하지 않은 회원 중, 같은 아이디를 가지고 있는 회원이 있어서 탈퇴를 해제할 수 없는 경우 (code: 101006) \n\n" +
+                                               "- 탈퇴하지 않은 회원 중, 같은 이메일을 가지고 있는 회원이 있어서 탈퇴를 해제할 수 없는 경우 (code: 101007)", response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "/admin/users/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
