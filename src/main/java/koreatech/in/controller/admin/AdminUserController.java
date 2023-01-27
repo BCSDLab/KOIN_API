@@ -84,7 +84,13 @@ public class AdminUserController {
         return new ResponseEntity<User>(adminUserService.updateStudentForAdmin(student, id), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "회원 삭제(탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 경우 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 경우 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "조회한 회원이 존재하지 않을 경우 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "이미 삭제된(탈퇴한) 회원일 경우 (code: 101004)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
