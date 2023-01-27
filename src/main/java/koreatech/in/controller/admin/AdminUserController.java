@@ -84,7 +84,7 @@ public class AdminUserController {
         return new ResponseEntity<User>(adminUserService.updateStudentForAdmin(student, id), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "회원 삭제(탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "회원 삭제 (탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "잘못된 접근일 경우 (code: 100001)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "권한이 없을 경우 (code: 100003)", response = ExceptionResponse.class),
@@ -93,12 +93,12 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "회원 삭제 해제 (탈퇴 상태를 해제 처리)", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "회원 삭제 해제 (탈퇴 상태를 해제 처리)", notes = "회원의 soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 경우 (code: 100001)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 경우 (code: 100003)", response = ExceptionResponse.class),
@@ -109,7 +109,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.undeleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
