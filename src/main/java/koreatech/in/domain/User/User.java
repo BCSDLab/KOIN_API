@@ -106,6 +106,10 @@ public abstract class User {
         return this.authority != null;
     }
 
+    public boolean hasSameId(Integer id) {
+        return this.id.equals(id);
+    }
+
     public boolean isEmailAuthenticationCompleted() {
         return this.is_authed.equals(true);
     }
@@ -131,7 +135,7 @@ public abstract class User {
                 && !isResetTokenExpired();
     }
 
-    private boolean hasWithdrawn() {
+    public boolean isWithdrawn() {
         return this.is_deleted;
     }
 
@@ -154,6 +158,24 @@ public abstract class User {
         this.reset_expired_at = new Date();
     }
 
+    public void checkPossibilityOfDeletion() {
+        if (isWithdrawn()) {
+            throw new BaseException(USER_HAS_WITHDRAWN);
+        }
+    }
+
+    public void checkPossibilityOfUndeletion(User undeletedAndSameAccountUser, User undeletedAndSameEmailUser) {
+        if (!isWithdrawn()) {
+            throw new BaseException(USER_HAS_NOT_WITHDRAWN);
+        }
+        if (undeletedAndSameAccountUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST);
+        }
+        if (undeletedAndSameEmailUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST);
+        }
+    }
+
     public void changePassword(String password){
         this.password = password;
     }
@@ -162,17 +184,5 @@ public abstract class User {
 
     public boolean equals(User user){
         return user.id != null && this.id != null && this.id.equals(user.id);
-    }
-
-    public void checkPossibilityOfDelete() {
-        if (hasWithdrawn()) {
-            throw new BaseException(USER_HAS_WITHDRAWN);
-        }
-    }
-
-    public void checkPossibilityOfUndelete() {
-        if (!hasWithdrawn()) {
-            throw new BaseException(USER_HAS_NOT_WITHDRAWN);
-        }
     }
 }

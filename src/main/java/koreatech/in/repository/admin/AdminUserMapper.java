@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AdminUserMapper {
     User getUserById(@Param("id") Integer id);
-
-
+    User getUndeletedUserByAccount(@Param("account") String account);
+    User getUndeletedUserByEmail(@Param("email") String email);
 }

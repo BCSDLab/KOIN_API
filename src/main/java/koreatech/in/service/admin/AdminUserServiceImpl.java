@@ -225,7 +225,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.checkPossibilityOfDelete();
+        user.checkPossibilityOfDeletion();
 
         userMapper.deleteUserLogicallyById(userId);
     }
@@ -237,7 +237,9 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.checkPossibilityOfUndelete();
+        User undeletedAndSameAccountUser = adminUserMapper.getUndeletedUserByAccount(user.getAccount());
+        User undeletedAndSameEmailUser = adminUserMapper.getUndeletedUserByEmail(user.getEmail());
+        user.checkPossibilityOfUndeletion(undeletedAndSameAccountUser, undeletedAndSameEmailUser);
 
         userMapper.undeleteUserLogicallyById(userId);
     }

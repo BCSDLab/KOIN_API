@@ -20,6 +20,8 @@ public enum ExceptionInformation {
     INQUIRED_USER_NOT_FOUND("조회한 회원이 존재하지 않습니다.", 101003, HttpStatus.NOT_FOUND),
     USER_HAS_WITHDRAWN("이미 탈퇴한 회원입니다.", 101004, HttpStatus.CONFLICT),
     USER_HAS_NOT_WITHDRAWN("탈퇴한 회원이 아닙니다.", 101005, HttpStatus.CONFLICT),
+    IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST("탈퇴하지 않은 회원 중 같은 ID를 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101006, HttpStatus.CONFLICT),
+    IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST("탈퇴하지 않은 회원 중 같은 이메일을 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101007, HttpStatus.CONFLICT),
 
 
     // ======= 상점 ========
