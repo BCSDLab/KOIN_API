@@ -11,6 +11,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -35,6 +36,9 @@ import static koreatech.in.exception.ExceptionInformation.*;
 public class AdminUserServiceImpl implements AdminUserService {
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AdminUserMapper adminUserMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -215,20 +219,15 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void deleteUserForAdmin(int id) {
-        User selectUser = userMapper.getUserById(id);
-
-        if(selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+    public void deleteUser(Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+        if (user == null) {
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        if (selectUser.getUser_type().equals(UserType.STUDENT)){
-            studentMapper.deleteStudent(id);
+        user.checkDeletability();
 
-        } else {
-            ownerMapper.deleteOwner(id);
-        }
-        userMapper.deleteUserLogicallyById(id);
+        userMapper.deleteUserLogicallyById(userId);
     }
 
     @Transactional

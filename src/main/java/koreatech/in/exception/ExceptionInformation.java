@@ -17,6 +17,9 @@ public enum ExceptionInformation {
     USER_NOT_FOUND("회원이 존재하지 않습니다.", 101000, HttpStatus.UNAUTHORIZED),
     PASSWORD_DIFFERENT("비밀번호가 일치하지 않습니다.", 101001, HttpStatus.UNAUTHORIZED),
     NICKNAME_DUPLICATE("이미 존재하는 닉네임입니다.", 101002, HttpStatus.CONFLICT),
+    INQUIRED_USER_NOT_FOUND("조회한 회원이 존재하지 않습니다.", 101003, HttpStatus.NOT_FOUND),
+    USER_HAS_WITHDRAWN("탈퇴한 회원입니다.", 101004, HttpStatus.CONFLICT),
+
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),

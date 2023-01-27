@@ -87,8 +87,8 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        adminUserService.deleteUserForAdmin(id);
+    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
+        adminUserService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

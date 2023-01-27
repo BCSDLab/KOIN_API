@@ -3,6 +3,7 @@ package koreatech.in.domain.User;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.exception.BaseException;
 import koreatech.in.util.DateUtil;
 import koreatech.in.util.SHA256Util;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -128,6 +131,10 @@ public abstract class User {
                 && !isResetTokenExpired();
     }
 
+    private boolean hasWithdrawn() {
+        return this.is_deleted;
+    }
+
     public void changeEmailAuthenticationStatusToComplete() {
         this.is_authed = true;
     }
@@ -155,5 +162,11 @@ public abstract class User {
 
     public boolean equals(User user){
         return user.id != null && this.id != null && this.id.equals(user.id);
+    }
+
+    public void checkDeletability() {
+        if (hasWithdrawn()) {
+            throw new BaseException(USER_HAS_WITHDRAWN);
+        }
     }
 }
