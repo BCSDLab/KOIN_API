@@ -225,9 +225,21 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.checkDeletability();
+        user.checkPossibilityOfDelete();
 
         userMapper.deleteUserLogicallyById(userId);
+    }
+
+    @Override
+    public void undeleteUser(Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+        if (user == null) {
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
+        }
+
+        user.checkPossibilityOfUndelete();
+
+        userMapper.undeleteUserLogicallyById(userId);
     }
 
     @Transactional

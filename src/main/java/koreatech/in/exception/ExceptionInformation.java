@@ -19,6 +19,7 @@ public enum ExceptionInformation {
     NICKNAME_DUPLICATE("이미 존재하는 닉네임입니다.", 101002, HttpStatus.CONFLICT),
     INQUIRED_USER_NOT_FOUND("조회한 회원이 존재하지 않습니다.", 101003, HttpStatus.NOT_FOUND),
     USER_HAS_WITHDRAWN("이미 탈퇴한 회원입니다.", 101004, HttpStatus.CONFLICT),
+    USER_HAS_NOT_WITHDRAWN("탈퇴한 회원이 아닙니다.", 101005, HttpStatus.CONFLICT),
 
 
     // ======= 상점 ========

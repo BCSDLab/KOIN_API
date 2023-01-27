@@ -222,6 +222,12 @@
         WHERE `id` = #{id}
     </delete>
 
+    <delete id="undeleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 0
+        WHERE `id` = #{id}
+    </delete>
+
     <select id="getUserByNickname" parameterType="string" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,

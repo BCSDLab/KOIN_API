@@ -24,6 +24,8 @@ public interface AdminUserService {
 
     void deleteUser(Integer userId);
 
+    void undeleteUser(Integer userId);
+
     Authority createPermissionForAdmin(Authority authority, int userId);
 
     Authority getPermissionForAdmin(int userId);

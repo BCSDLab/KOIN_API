@@ -98,6 +98,15 @@ public class AdminUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
+    @RequestMapping(value = "/admin/users/{id}/undelete", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(required = true) @PathVariable("id") Integer userId) throws Exception {
+        adminUserService.undeleteUser(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
     @ApiOff @ApiIgnore @Deprecated
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

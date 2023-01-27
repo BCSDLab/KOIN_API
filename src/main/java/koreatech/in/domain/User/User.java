@@ -164,9 +164,15 @@ public abstract class User {
         return user.id != null && this.id != null && this.id.equals(user.id);
     }
 
-    public void checkDeletability() {
+    public void checkPossibilityOfDelete() {
         if (hasWithdrawn()) {
             throw new BaseException(USER_HAS_WITHDRAWN);
+        }
+    }
+
+    public void checkPossibilityOfUndelete() {
+        if (!hasWithdrawn()) {
+            throw new BaseException(USER_HAS_NOT_WITHDRAWN);
         }
     }
 }
