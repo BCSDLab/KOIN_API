@@ -1,5 +1,6 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -19,10 +20,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) Community", description = "커뮤니티")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.COMMUNITY)
 @Controller
 public class AdminCommunityController {
@@ -76,6 +80,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.deleteBoardForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles", method = RequestMethod.POST)
@@ -85,6 +90,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Article>(communityService.createArticleForAdmin((Article) StringXssChecker.xssCheck(article, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles", method = RequestMethod.GET)
     public @ResponseBody
@@ -94,6 +100,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.getArticlesForAdmin(boardId, criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -102,6 +109,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.getArticleForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{id}", method = RequestMethod.PUT)
@@ -111,6 +119,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Article>(communityService.updateArticleForAdmin((Article) StringXssChecker.xssCheck(article, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -119,6 +128,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Map<String, Object>>(communityService.deleteArticleForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{articleId}/comments", method = RequestMethod.POST)
@@ -137,6 +147,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Comment>(communityService.getCommentForAdmin(articleId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{articleId}/comments/{commentId}", method = RequestMethod.PUT)
@@ -146,6 +157,7 @@ public class AdminCommunityController {
         return new ResponseEntity<Comment>(communityService.updateCommentForAdmin((Comment)StringXssChecker.xssCheck(comment,clear), articleId, commentId), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/articles/{articleId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody

@@ -18,6 +18,11 @@ public class ShopMenuDetail {
     private Date created_at;
     private Date updated_at;
 
+    // single menu용 shopMenuDetail 객체 생성 메소드
+    public static ShopMenuDetail singleOf(Integer shopMenuId, Integer price) {
+        return new ShopMenuDetail(shopMenuId, null, price);
+    }
+
     public static ShopMenuDetail of(Integer shopMenuId, String option, Integer price) {
         return new ShopMenuDetail(shopMenuId, option, price);
     }

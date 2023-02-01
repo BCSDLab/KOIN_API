@@ -23,7 +23,7 @@ public class ShopResponse {
     private List<MenuCategory> menu_categories;
 
     @Getter @Builder
-    public static final class Open {
+    public static class Open {
         private DayOfWeek day_of_week;
         private Boolean closed;
         private String open_time;
@@ -31,13 +31,13 @@ public class ShopResponse {
     }
 
     @Getter @Builder
-    public static final class ShopCategory {
+    public static class ShopCategory {
         private Integer id;
         private String name;
     }
 
     @Getter @Builder
-    public static final class MenuCategory {
+    public static class MenuCategory {
         private Integer id;
         private String name;
     }

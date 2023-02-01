@@ -9,6 +9,7 @@ import koreatech.in.domain.Shop.Shop;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.SearchMapper;
 import koreatech.in.util.BeanUtil;
+import koreatech.in.util.JsonConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -24,9 +25,6 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 public class SearchServiceImpl implements SearchService {
     @Autowired
     private SearchMapper searchMapper;
-
-    @Autowired
-    private JsonConstructor con;
 
     public Map<String, Object> searchShop(SearchCriteria searchCriteria) throws Exception {
         if (!StringUtils.hasText(searchCriteria.getQuery()))
@@ -53,8 +51,8 @@ public class SearchServiceImpl implements SearchService {
                 /*for (Shop shop : shops) {
                     shop.setPermalink(shop.getInternal_name());
                     Map<String, Object> shopMap = domainToMap(shop);
-                    if (shopMap.get("image_urls") != null && con.isJsonArrayWithOnlyString(shop.getImage_urls())) {
-                        shopMap.replace("image_urls", con.parseJsonArrayWithOnlyString(shop.getImage_urls()));
+                    if (shopMap.get("image_urls") != null && JsonConstructor.isJsonArrayWithOnlyString(shop.getImage_urls())) {
+                        shopMap.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(shop.getImage_urls()));
                     }
                     shopsMapList.add(shopMap);
                 }*/
@@ -73,8 +71,8 @@ public class SearchServiceImpl implements SearchService {
                 List<Map<String, Object>> menusMapList = new ArrayList<>();
                 for (Menu menu : menus) {
                     Map<String, Object> menuMap = domainToMap(menu);
-                    if (menuMap.get("price_type") != null && con.isJsonArrayWithOnlyObject(menu.getPrice_type())) {
-                        menuMap.replace("price_type", con.parseJsonArrayWithObject(menu.getPrice_type()));
+                    if (menuMap.get("price_type") != null && JsonConstructor.isJsonArrayWithOnlyObject(menu.getPrice_type())) {
+                        menuMap.replace("price_type", JsonConstructor.parseJsonArrayWithObject(menu.getPrice_type()));
                     }
                     menusMapList.add(menuMap);
                 }

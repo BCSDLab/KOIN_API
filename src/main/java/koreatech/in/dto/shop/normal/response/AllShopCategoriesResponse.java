@@ -1,7 +1,6 @@
 package koreatech.in.dto.shop.normal.response;
 
 import koreatech.in.domain.Shop.ShopCategory;
-import koreatech.in.mapstruct.shop.normal.ShopCategoryMapper;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,10 +13,16 @@ public class AllShopCategoriesResponse {
     private List<Category> shop_categories;
 
     @Getter @Builder
-    public static final class Category {
+    private static class Category {
         private Integer id;
         private String name;
         private String image_url;
+
+        public Category(Integer id, String name, String imageUrl) {
+            this.id = id;
+            this.name = name;
+            this.image_url = imageUrl;
+        }
     }
 
     public static AllShopCategoriesResponse from(List<ShopCategory> shopCategories) {
@@ -25,7 +30,7 @@ public class AllShopCategoriesResponse {
                 .total_count(shopCategories.size())
                 .shop_categories(
                         shopCategories.stream()
-                                .map(ShopCategoryMapper.INSTANCE::toAllShopCategoriesResponse$Category)
+                                .map(shopCategory -> new Category(shopCategory.getId(), shopCategory.getName(), shopCategory.getImage_url()))
                                 .collect(Collectors.toList())
                 )
                 .build();

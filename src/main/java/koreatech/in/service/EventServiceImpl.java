@@ -5,7 +5,6 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Event.EventArticleViewLog;
 import koreatech.in.domain.Event.EventComment;
-import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;

@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Version.Version;
 import koreatech.in.service.VersionService;
@@ -9,10 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+@Api(tags = "(Normal) Version", description = "버전")
 @Controller
 public class VersionController {
     @Inject

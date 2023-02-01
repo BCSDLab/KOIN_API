@@ -1,14 +1,19 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
+import koreatech.in.dto.EmptyResponse;
+import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.request.LoginRequest;
+import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -24,50 +29,76 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
+@Api(tags = "(Normal) User", description = "회원")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
     @Inject
     private UserService userService;
 
+    @ApiOperation("로그인")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
+                                               "비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
     @AuthExcept
     @ParamValid
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public @ResponseBody
-    ResponseEntity register(@ApiParam(value = "(required: portal_account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) User user, BindingResult bindingResult, HttpServletRequest request) throws Exception {
-        // TODO: default로 셋팅할 수 있는 방법 알아보기
-        if (user.getIs_graduated() == null) {
-            user.setIs_graduated(false);
-        }
+    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) throws Exception {
+        LoginResponse response = userService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-        if (user.getIs_authed() == null) {
-            user.setIs_authed(false);
-        }
+    @ApiOperation(value = "로그아웃", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "토큰의 유효시간이 만료되었을 때 (code: 100004) \n\n" +
+                                               "토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/user/logout", method = RequestMethod.POST)
+    public ResponseEntity<EmptyResponse> logout() {
+        userService.logout();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @AuthExcept
+    @ParamValid
+    @ApiOperation(value = "(required: account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
+    @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity studentRegister(
+            @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
+            BindingResult bindingResult,
+            HttpServletRequest httpServletRequest) throws Exception {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        User clear = new User();
+        StudentRegisterRequest clear = new StudentRegisterRequest();
 
-        return new ResponseEntity<Map<String, Object>>(userService.register((User)StringXssChecker.xssCheck(user, clear), getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
+    @Auth(role = Auth.Role.STUDENT)
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity me() throws Exception {
-        return new ResponseEntity<Object>(userService.me(), HttpStatus.OK);
+    ResponseEntity getStudent() throws Exception {
+        Student student = userService.getStudent();
+        StudentResponse response = new StudentResponse(student);
+        return new ResponseEntity<Object>(response, HttpStatus.OK);
     }
 
+    @Auth(role = Auth.Role.STUDENT)
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/me", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUserInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) User user, BindingResult bindingResult) throws Exception {
-
-        User clear = new User();
-
-        return new ResponseEntity<>(userService.updateUserInformation((User) StringXssChecker.xssCheck(user, clear)), HttpStatus.CREATED);
+    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
+        UpdateUserRequest clear = new UpdateUserRequest();
+        return new ResponseEntity<>(userService.updateStudentInformation((UpdateUserRequest) StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -86,6 +117,7 @@ public class UserController {
     @RequestMapping(value = "/user/me", method = RequestMethod.DELETE)
     public @ResponseBody ResponseEntity withdraw() throws Exception {
 
+        // TODO soft delete 방식으로 변경? yes.
         return new ResponseEntity<Map<String, Object>>(userService.withdraw(), HttpStatus.OK);
     }
 
@@ -112,12 +144,12 @@ public class UserController {
     @ParamValid
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: portal_account)", required = true) @RequestBody @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
+    ResponseEntity changePasswordConfig(@ApiParam(value = "(required: account)", required = true) @RequestBody @Valid String account, BindingResult bindingResult, HttpServletRequest request) {
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(user, getHost(request)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.changePasswordConfig(account, getHost(request)), HttpStatus.CREATED);
     }
 
     private String getHost(HttpServletRequest request) {
@@ -161,18 +193,5 @@ public class UserController {
         }
 
         return "mail/success_change_password_config";
-    }
-
-    @AuthExcept
-    @ParamValid
-    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
-    public ResponseEntity login(@ApiParam(value = "(required: portal_account, password)", required = true) @RequestBody @Validated(ValidationGroups.Create.class) User user, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(userService.login(user), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/user/logout", method = RequestMethod.POST)
-    public ResponseEntity logout() {
-        return new ResponseEntity<Map<String, Object>>(userService.logout(), HttpStatus.OK);
     }
 }

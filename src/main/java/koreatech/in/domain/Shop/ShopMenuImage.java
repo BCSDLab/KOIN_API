@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -22,5 +23,21 @@ public class ShopMenuImage {
     private ShopMenuImage(Integer shopMenuId, String imageUrl) {
         this.shop_menu_id = shopMenuId;
         this.image_url = imageUrl;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof ShopMenuImage)) {
+            return false;
+        }
+
+        return Objects.equals(this.shop_menu_id, ((ShopMenuImage) obj).getShop_menu_id())
+                && Objects.equals(this.image_url, ((ShopMenuImage) obj).getImage_url());
     }
 }

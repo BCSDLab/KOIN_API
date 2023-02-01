@@ -5,9 +5,8 @@ import koreatech.in.domain.Homepage.Activity;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.ActivityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import koreatech.in.util.JsonConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -23,15 +22,12 @@ public class ActivityServiceImpl implements ActivityService {
     @Resource(name = "activityMapper")
     private ActivityMapper activityMapper;
 
-    @Autowired
-    private JsonConstructor con;
-
     @Override
     public Map<String, Object> getActivities(String year) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         List<Activity> activities;
-        if(year == null) {
+        if (year == null) {
             activities = activityMapper.getActivityList();
         } else {
             activities = activityMapper.getActivityListByYear(year);
@@ -39,9 +35,9 @@ public class ActivityServiceImpl implements ActivityService {
         List<Map<String, Object>> appendActivities = new ArrayList<Map<String, Object>>();
 
         Map<String, Object> convertActivity;
-        for(Activity activity : activities) {
+        for (Activity activity : activities) {
             convertActivity = domainToMap(activity);
-            convertActivity.replace("image_urls", con.parseJsonArrayWithOnlyString(activity.getImage_urls()));
+            convertActivity.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(activity.getImage_urls()));
 
             appendActivities.add(convertActivity);
         }
@@ -54,10 +50,10 @@ public class ActivityServiceImpl implements ActivityService {
     // ===== ADMIN APIs =====
     @Override
     public Map<String, Object> getActivitiesForAdmin(String year) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         List<Activity> activities;
-        if(year == null) {
+        if (year == null) {
             activities = activityMapper.getActivityListForAdmin();
         } else {
             activities = activityMapper.getActivityListByYearForAdmin(year);
@@ -65,9 +61,9 @@ public class ActivityServiceImpl implements ActivityService {
         List<Map<String, Object>> appendActivities = new ArrayList<Map<String, Object>>();
 
         Map<String, Object> convertActivity;
-        for(Activity activity : activities) {
+        for (Activity activity : activities) {
             convertActivity = domainToMap(activity);
-            convertActivity.replace("image_urls", con.parseJsonArrayWithOnlyString(activity.getImage_urls()));
+            convertActivity.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(activity.getImage_urls()));
 
             appendActivities.add(convertActivity);
         }
@@ -80,7 +76,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Activity getActivityForAdmin(int id) throws Exception {
         Activity activity = activityMapper.getActivityForAdmin(id);
-        if(activity == null) {
+        if (activity == null) {
             throw new NotFoundException(new ErrorMessage("Activity not found", 0));
         }
 
@@ -89,7 +85,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Activity createActivityForAdmin(Activity activity) throws Exception {
-        if(activity.getIs_deleted() == null)
+        if (activity.getIs_deleted() == null)
             activity.setIs_deleted(false);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -108,7 +104,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Activity updateActivityForAdmin(Activity activity, int id) throws Exception {
         Activity activity_old = activityMapper.getActivityForAdmin(id);
-        if(activity_old == null) {
+        if (activity_old == null) {
             throw new NotFoundException(new ErrorMessage("Activity not found", 0));
         }
 
@@ -129,7 +125,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Map<String, Object> deleteActivityForAdmin(int id) throws Exception {
         Activity selectActivity = activityMapper.getActivityForAdmin(id);
-        if(selectActivity == null) {
+        if (selectActivity == null) {
             throw new NotFoundException(new ErrorMessage("Activity not found", 0));
         }
 

@@ -1,5 +1,6 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -14,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) PageResource", description = "페이지 리소스")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.COMMUNITY)
 @Controller
 public class AdminPageResourceController {

@@ -1,6 +1,8 @@
 package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -77,7 +79,13 @@ public class CreateShopRequest {
         private String close_time;
     }
 
-    public boolean isOpenValid() {
+    public void checkDataConstraintViolation() {
+        if (!isOpenValid()) {
+            throw new BaseException("open에 올바르지 않은 값이 들어있습니다.", ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+    }
+
+    private boolean isOpenValid() {
         if (this.open.size() != 7) {
             return false;
         }

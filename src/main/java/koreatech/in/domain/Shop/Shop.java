@@ -63,15 +63,11 @@ public class Shop {
         this.chosung = this.internal_name.substring(0, 1);
     }
 
-    public void matchOwnerId(Integer ownerId) {
-        this.owner_id = ownerId;
-    }
-
-    public boolean isSoftDeleted() {
+    public boolean isDeleted() {
         if (this.is_deleted == null) {
             return false;
         }
 
-        return this.is_deleted.equals(true);
+        return this.is_deleted;
     }
 }

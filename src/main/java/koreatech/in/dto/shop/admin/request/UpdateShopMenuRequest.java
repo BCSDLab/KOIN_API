@@ -1,6 +1,7 @@
 package koreatech.in.dto.shop.admin.request;
 
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.exception.BaseException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
 
 @Getter @Setter
 public class UpdateShopMenuRequest {
@@ -58,7 +61,26 @@ public class UpdateShopMenuRequest {
         private Integer price;
     }
 
-    public boolean hasDuplicatedOption() {
+    public void checkDataConstraintViolation() {
+        if (this.is_single) {
+            if (this.single_price == null) {
+                throw new BaseException("is_single이 true이면 single_price는 필수입니다.", REQUEST_DATA_INVALID);
+            }
+        } else {
+            if (this.option_prices.isEmpty()) {
+                throw new BaseException("is_single이 false이면 option_prices는 필수이며, 리스트의 최소 길이는 1입니다.", REQUEST_DATA_INVALID);
+            }
+            if (hasDuplicationOfOptions()) {
+                throw new BaseException("option_prices에서 중복되는 option이 있습니다.", REQUEST_DATA_INVALID);
+            }
+        }
+    }
+
+    public boolean isSingleMenu() {
+        return this.is_single;
+    }
+
+    private boolean hasDuplicationOfOptions() {
         if (this.option_prices.isEmpty() || this.option_prices.size() == 1) {
             return false;
         }
@@ -67,7 +89,7 @@ public class UpdateShopMenuRequest {
                 .map(OptionPrice::getOption)
                 .collect(Collectors.toSet());
 
-        // 요청된 개수와 Set에 담긴 개수가 다르면 중복이 있다는 것
+        // 요청된 개수와 Set에 담긴 개수가 다르면 옵션명의 중복이 있다는 것
         return option_prices.size() != optionSet.size();
     }
 }

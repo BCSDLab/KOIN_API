@@ -1,8 +1,7 @@
 package koreatech.in.dto.shop.normal.response;
 
-import koreatech.in.domain.Shop.RelatedToShop;
-import koreatech.in.mapstruct.shop.admin.AdminShopMapper;
-import koreatech.in.mapstruct.shop.normal.ShopMapper;
+import koreatech.in.domain.Shop.ShopProfile;
+import koreatech.in.mapstruct.shop.normal.ShopConverter;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +15,7 @@ public class AllShopsResponse {
     private List<Shop> shops;
 
     @Getter @Builder
-    public static final class Shop {
+    public static class Shop {
         private Integer id;
         private String name;
         private String phone;
@@ -27,7 +26,7 @@ public class AllShopsResponse {
         private List<Integer> category_ids;
 
         @Getter @Builder
-        public static final class Open {
+        public static class Open {
             private DayOfWeek day_of_week;
             private Boolean closed;
             private String open_time;
@@ -35,12 +34,12 @@ public class AllShopsResponse {
         }
     }
 
-    public static AllShopsResponse from(List<RelatedToShop> shops) {
+    public static AllShopsResponse from(List<ShopProfile> shopProfiles) {
         return AllShopsResponse.builder()
-                .count(shops.size())
+                .count(shopProfiles.size())
                 .shops(
-                        shops.stream()
-                                .map(ShopMapper.INSTANCE::toAllShopsResponse$Shop)
+                        shopProfiles.stream()
+                                .map(ShopConverter.INSTANCE::toAllShopsResponse$Shop)
                                 .collect(Collectors.toList())
                 )
                 .build();

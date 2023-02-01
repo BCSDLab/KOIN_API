@@ -1,10 +1,10 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
+import koreatech.in.exception.BaseException;
 import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.UserMapper;
+import koreatech.in.repository.user.OwnerMapper;
+import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 
 @Service
 public class JwtValidator {
@@ -21,9 +23,6 @@ public class JwtValidator {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private AuthorityMapper authorityMapper;
-
     public User validate() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String header = request.getHeader("Authorization");
@@ -32,29 +31,17 @@ public class JwtValidator {
     }
 
     public User validate(String header) {
-        if (header == null || !header.startsWith("Bearer "))
+        if (header == null || !header.startsWith("Bearer ")) {
             return null;
-
-        String authToken = header.substring(7);
-        if (authToken.equals("undefined")) // 추후 프론트엔드 측에서 변경
-            return null;
-
-        int userId = jwtTokenGenerator.me(authToken);
-
-        User user;
-        Integer identity = userMapper.getUserIdentity(userId);
-        if (identity == null) return null;
-        if (identity == UserCode.UserIdentity.OWNER.getIdentityType())
-            user = userMapper.getOwner(userId);
-        else {
-            user = userMapper.getUser(userId);
         }
 
-        if (user == null) return null;
+        String accessToken = header.substring(7);
+        if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
+            return null;
+        }
 
-        Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
-
-        user.setAuthority(authority);
+        Integer userId = jwtTokenGenerator.me(accessToken);
+        User user = userMapper.getAuthedUserById(userId);
 
         return user;
     }

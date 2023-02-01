@@ -5,8 +5,16 @@ import koreatech.in.domain.BokDuck.LandComment;
 import koreatech.in.domain.BokDuck.LandResponseType;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
+import koreatech.in.dto.admin.land.request.CreateLandRequest;
+import koreatech.in.dto.admin.land.request.LandsCondition;
+import koreatech.in.dto.admin.land.request.UpdateLandRequest;
+import koreatech.in.dto.admin.land.response.LandsResponse;
+import koreatech.in.dto.admin.land.response.LandResponse;
 import koreatech.in.exception.*;
+import koreatech.in.mapstruct.admin.AdminLandConverter;
 import koreatech.in.repository.LandMapper;
+import koreatech.in.util.JsonConstructor;
+import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +22,14 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("landService")
+@Transactional
 public class LandServiceImpl implements LandService {
     @Resource(name="landMapper")
     private LandMapper landMapper;
@@ -31,64 +38,84 @@ public class LandServiceImpl implements LandService {
     JwtValidator jwtValidator;
 
     @Autowired
-    private JsonConstructor con;
+    UploadFileUtils uploadFileUtils;
 
-    @Transactional
     @Override
-    public Land createLandForAdmin(Land land) throws Exception {
-        Land selectLand = landMapper.getLandByNameForAdmin(land.getName());
-        if (selectLand != null) {
-            throw new ConflictException(new ErrorMessage("exists land name", 0));
+    public void createLandForAdmin(CreateLandRequest request) throws Exception {
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null) {
+            throw new BaseException(LAND_NAME_DUPLICATE);
         }
 
-        land.init();
-        land.setInternal_name(land.getName().replace(" ","").toLowerCase());
-
-        //image_urls 체크
-        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
-
+        Land land = AdminLandConverter.INSTANCE.toLand(request);
         landMapper.createLandForAdmin(land);
-
-        return land;
     }
 
-    @Transactional
     @Override
-    public Land updateLandForAdmin(Land land, int id) throws Exception {
-        Land land_old = landMapper.getLandForAdmin(id);
-        if (land_old == null)
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
+    @Transactional(readOnly = true)
+    public LandResponse getLandForAdmin(Integer landId) throws Exception {
+        Land land = getLandById(landId);
 
-        if (land.getName() != null) {
-            land.setInternal_name(land.getName().replace(" ", "").toLowerCase());
+        return AdminLandConverter.INSTANCE.toLandResponse(land);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LandsResponse getLandsForAdmin(LandsCondition condition) throws Exception {
+        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
+            throw new BaseException("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
         }
 
-        //image_urls 체크
-        if (land.getImage_urls() != null && !con.isJsonArrayWithOnlyString(land.getImage_urls()))
-            throw new PreconditionFailedException(new ErrorMessage("Image_urls are not valid", 0));
+        Integer totalCount = landMapper.getTotalCountByConditionForAdmin(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
 
-        land_old.update(land);
-        landMapper.updateLandForAdmin(land_old);
-        return land_old;
-    }
+        if (currentPage > totalPage) {
+            throw new BaseException(PAGE_NOT_FOUND);
+        }
 
-    @Transactional
-    @Override
-    public Map<String, Object> deleteLandForAdmin(int id) throws Exception {
-        Land land = landMapper.getLandForAdmin(id);
+        List<Land> lands = landMapper.getLandsByConditionForAdmin(condition.getCursor(), condition);
 
-        if (land == null)
-            throw new NotFoundException(new ErrorMessage("There is no item", 0));
-
-        landMapper.deleteLandForAdmin(id);
-
-        return new HashMap<String, Object>() {{
-            put("success", true);
-        }};
+        return LandsResponse.of(totalCount, totalPage, currentPage, lands);
     }
 
     @Override
+    public void updateLandForAdmin(UpdateLandRequest request, Integer landId) throws Exception {
+        Land existingLand = getLandById(landId);
+
+        Land sameNameLand = landMapper.getLandByNameForAdmin(request.getName());
+        if (sameNameLand != null && !sameNameLand.hasSameId(landId)) {
+            throw new BaseException(LAND_NAME_DUPLICATE);
+        }
+
+        existingLand.update(request);
+        landMapper.updateLandForAdmin(existingLand);
+    }
+
+    @Override
+    public void deleteLandForAdmin(Integer landId) throws Exception {
+        Land land = getLandById(landId);
+
+        if (land.isSoftDeleted()) {
+            throw new BaseException(LAND_ALREADY_DELETED);
+        }
+
+        landMapper.deleteLandForAdmin(landId);
+    }
+
+    @Override
+    public void undeleteLandForAdmin(Integer landId) throws Exception {
+        Land land = getLandById(landId);
+
+        if (!land.isSoftDeleted()) {
+            throw new BaseException(LAND_NOT_DELETED);
+        }
+
+        landMapper.undeleteLandForAdmin(landId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLands() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -107,6 +134,7 @@ public class LandServiceImpl implements LandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getLand(int id) throws Exception {
         User user = jwtValidator.validate();
 
@@ -128,14 +156,13 @@ public class LandServiceImpl implements LandService {
         }
         Map<String, Object> convertLand = domainToMap(land);
 
-        convertLand.replace("image_urls", con.parseJsonArrayWithOnlyString(land.getImage_urls()));
+        convertLand.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()));
         convertLand.put("permalink", URLEncoder.encode(land.getInternal_name(), "UTF-8"));
         convertLand.put("comments", landComments);
 
         return convertLand;
     }
 
-    @Transactional
     @Override
     public LandComment createLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -164,7 +191,6 @@ public class LandServiceImpl implements LandService {
         return landComment;
     }
 
-    @Transactional
     @Override
     public LandComment updateLandComment(LandComment landComment, int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -194,7 +220,6 @@ public class LandServiceImpl implements LandService {
         return landComment_old;
     }
 
-    @Transactional
     @Override
     public Map<String, Object> deleteLandComment(int land_id) throws Exception {
         User user = jwtValidator.validate();
@@ -218,5 +243,10 @@ public class LandServiceImpl implements LandService {
         return new HashMap<String, Object>() {{
             put("success", true);
         }};
+    }
+
+    private Land getLandById(Integer landId) throws Exception {
+        return Optional.ofNullable(landMapper.getLandByIdForAdmin(landId))
+                .orElseThrow(() -> new BaseException(LAND_NOT_FOUND));
     }
 }

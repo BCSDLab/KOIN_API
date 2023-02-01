@@ -1,8 +1,10 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -14,18 +16,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) Version", description = "버전")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.VERSION)
 @Controller
 public class AdminVersionController {
     @Inject
     private VersionService versionService;
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/versions", method = RequestMethod.GET)
     public @ResponseBody
@@ -34,6 +39,7 @@ public class AdminVersionController {
         return new ResponseEntity<List<Version>>(versionService.getVersionsForAdmin(), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/versions", method = RequestMethod.POST)
@@ -43,6 +49,7 @@ public class AdminVersionController {
         return new ResponseEntity<Version>(versionService.createVersionForAdmin(version), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/versions/{type}", method = RequestMethod.PUT)
@@ -52,6 +59,7 @@ public class AdminVersionController {
         return new ResponseEntity<Version>(versionService.updateVersionForAdmin(version, type), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/versions/{type}", method = RequestMethod.DELETE)
     public @ResponseBody

@@ -1,8 +1,10 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -14,16 +16,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) Faq", description = "질문")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.COMMUNITY)
 @Controller
 public class AdminFaqController {
     @Inject
     private FaqService faqService;
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/faqs", method = RequestMethod.POST)
@@ -32,6 +38,7 @@ public class AdminFaqController {
         return new ResponseEntity<Faq>(faqService.createFaqForAdmin(faq), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/faqs/{id}", method = RequestMethod.PUT)
@@ -40,11 +47,11 @@ public class AdminFaqController {
         return new ResponseEntity<Faq>(faqService.updateFaqForAdmin(faq, id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/faqs/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity deleteFaq(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
         return new ResponseEntity<Map<String, Object>>(faqService.deleteFaqForAdmin(id), HttpStatus.OK);
     }
-
 }

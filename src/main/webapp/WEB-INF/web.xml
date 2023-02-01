@@ -13,16 +13,6 @@
         <param-value>
             /WEB-INF/root-context.xml
             classpath*:common/*.xml
-<!--            classpath*:common/application_context_provider.xml-->
-<!--            classpath*:common/config.xml-->
-<!--            classpath*:common/context-*.xml-->
-<!--            classpath*:common/mailSend.xml-->
-<!--            classpath*:common/jwt.xml-->
-<!--            classpath*:common/redis.xml-->
-<!--            classpath*:common/s3.xml-->
-<!--            classpath*:common/security.xml-->
-<!--            classpath*:common/slack_noti.xml-->
-<!--            classpath*:common/search.xml-->
         </param-value>
     </context-param>
 

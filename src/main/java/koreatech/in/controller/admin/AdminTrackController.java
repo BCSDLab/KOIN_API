@@ -1,5 +1,6 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+@Api(tags = "(Admin) Track", description = "BCSDLab 트랙")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminTrackController {

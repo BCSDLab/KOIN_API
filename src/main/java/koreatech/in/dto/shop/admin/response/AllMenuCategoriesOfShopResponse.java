@@ -21,11 +21,9 @@ public class AllMenuCategoriesOfShopResponse {
         private Integer id;
         private String name;
 
-        public static Category of(Integer id, String name) {
-            return Category.builder()
-                    .id(id)
-                    .name(name)
-                    .build();
+        public Category(Integer id, String name) {
+            this.id = id;
+            this.name = name;
         }
     }
 
@@ -34,7 +32,7 @@ public class AllMenuCategoriesOfShopResponse {
                 .count(shopMenuCategories.size())
                 .menu_categories(
                         shopMenuCategories.stream()
-                                .map(shopMenuCategory -> Category.of(shopMenuCategory.getId(), shopMenuCategory.getName()))
+                                .map(shopMenuCategory -> new Category(shopMenuCategory.getId(), shopMenuCategory.getName()))
                                 .collect(Collectors.toList())
                 )
                 .build();

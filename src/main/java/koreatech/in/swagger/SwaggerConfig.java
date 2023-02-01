@@ -33,8 +33,12 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("KOIN API DOCUMENT")
-                .description("API 설명")
+                .title("KOIN API Document")
+                .description("사용중인 서비스 \n" +
+                             "- [koreatech.in](https://koreatech.in) \n" +
+                             "- [bcsdlab.com](https://bcsdlab.com) \n" +
+                             "- [Kakao 코인 - 한기대사람들 채널](https://pf.kakao.com/_twMBd)\n" +
+                             "- BCSDLab Slack 질의응답 채널")
                 .version("1.0.0")
                 .build();
     }

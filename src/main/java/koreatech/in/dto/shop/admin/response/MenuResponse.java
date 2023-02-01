@@ -19,7 +19,7 @@ public class MenuResponse {
     private List<String> image_urls;
 
     @Getter @Builder
-    public static final class OptionPrice {
+    public static class OptionPrice {
         private String option;
         private Integer price;
     }

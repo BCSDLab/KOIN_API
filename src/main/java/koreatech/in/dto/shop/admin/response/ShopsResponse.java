@@ -1,7 +1,7 @@
 package koreatech.in.dto.shop.admin.response;
 
-import koreatech.in.domain.Shop.RelatedToShop;
-import koreatech.in.mapstruct.shop.admin.AdminShopMapper;
+import koreatech.in.domain.Shop.ShopProfile;
+import koreatech.in.mapstruct.shop.admin.AdminShopConverter;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class ShopsResponse {
     private List<Shop> shops;
 
     @Getter @Builder
-    public static final class Shop {
+    public static class Shop {
         private Integer id;
         private String name;
         private String phone;
@@ -25,15 +25,15 @@ public class ShopsResponse {
         private Boolean is_deleted;
     }
 
-    public static ShopsResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<RelatedToShop> relatedToShops) {
+    public static ShopsResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<ShopProfile> shopProfiles) {
         return ShopsResponse.builder()
                 .total_count(totalCount)
-                .current_count(relatedToShops.size())
+                .current_count(shopProfiles.size())
                 .total_page(totalPage)
                 .current_page(currentPage)
                 .shops(
-                        relatedToShops.stream()
-                                .map(AdminShopMapper.INSTANCE::toShopsResponse$Shop)
+                        shopProfiles.stream()
+                                .map(AdminShopConverter.INSTANCE::toShopsResponse$Shop)
                                 .collect(Collectors.toList())
                 )
                 .build();

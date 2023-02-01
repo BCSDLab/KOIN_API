@@ -1,7 +1,7 @@
 package koreatech.in.dto.shop.admin.response;
 
-import koreatech.in.domain.Shop.RelatedToShopMenu;
-import koreatech.in.mapstruct.shop.admin.AdminShopMenuMapper;
+import koreatech.in.domain.Shop.ShopMenuProfile;
+import koreatech.in.mapstruct.shop.admin.AdminShopMenuConverter;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ public class AllMenusOfShopResponse {
     private List<Menu> menus;
 
     @Getter @Builder
-    public static final class Menu {
+    public static class Menu {
         private Integer id;
         private String name;
         private Boolean is_hidden;
@@ -28,18 +28,18 @@ public class AllMenusOfShopResponse {
         private List<Integer> category_ids;
 
         @Getter @Builder
-        public static final class OptionPrice {
+        public static class OptionPrice {
             private String option;
             private Integer price;
         }
     }
 
-    public static AllMenusOfShopResponse from(List<RelatedToShopMenu> relatedToShopMenus) {
+    public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles) {
         return AllMenusOfShopResponse.builder()
-                .count(relatedToShopMenus.size())
+                .count(shopMenuProfiles.size())
                 .menus(
-                        relatedToShopMenus.stream()
-                                .map(AdminShopMenuMapper.INSTANCE::toAllMenusOfShopResponse$Menu)
+                        shopMenuProfiles.stream()
+                                .map(AdminShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
                                 .collect(Collectors.toList())
                 )
                 .build();

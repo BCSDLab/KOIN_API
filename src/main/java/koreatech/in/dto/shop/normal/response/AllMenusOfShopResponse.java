@@ -1,11 +1,10 @@
 package koreatech.in.dto.shop.normal.response;
 
-import koreatech.in.domain.Shop.RelatedToShopMenu;
-import koreatech.in.mapstruct.shop.normal.ShopMenuMapper;
+import koreatech.in.domain.Shop.ShopMenuProfile;
+import koreatech.in.mapstruct.shop.normal.ShopMenuConverter;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +14,7 @@ public class AllMenusOfShopResponse {
     private List<Menu> menus;
 
     @Getter @Builder
-    public static final class Menu {
+    public static class Menu {
         private Integer id;
         private String name;
         private Boolean is_hidden;
@@ -27,22 +26,22 @@ public class AllMenusOfShopResponse {
         private List<String> image_urls;
 
         @Getter @Builder
-        public static final class OptionPrice {
+        public static class OptionPrice {
             private String option;
             private Integer price;
         }
     }
 
-    public static AllMenusOfShopResponse from(List<RelatedToShopMenu> relatedToShopMenus) {
-        List<RelatedToShopMenu> noHiddenMenus = relatedToShopMenus.stream()
+    public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles) {
+        List<ShopMenuProfile> unhiddenMenus = shopMenuProfiles.stream()
                 .filter(menu -> !menu.isHidden())
                 .collect(Collectors.toList());
 
         return AllMenusOfShopResponse.builder()
-                .count(noHiddenMenus.size())
+                .count(unhiddenMenus.size())
                 .menus(
-                        noHiddenMenus.stream()
-                                .map(ShopMenuMapper.INSTANCE::toAllMenusOfShopResponse$Menu)
+                        unhiddenMenus.stream()
+                                .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
                                 .collect(Collectors.toList())
                 )
                 .build();
