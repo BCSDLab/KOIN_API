@@ -5,12 +5,12 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.exception.*;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -35,6 +35,9 @@ import static koreatech.in.exception.ExceptionInformation.*;
 public class AdminUserServiceImpl implements AdminUserService {
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AdminUserMapper adminUserMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -215,24 +218,29 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public Map<String, Object> deleteUserForAdmin(int id) {
-        User selectUser = userMapper.getUserById(id);
-
-        if(selectUser == null) {
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+    public void deleteUser(Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+        if (user == null) {
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        if (selectUser.getUser_type().equals(UserType.STUDENT)){
-            studentMapper.deleteStudent(id);
+        user.checkPossibilityOfDeletion();
 
-        } else {
-            ownerMapper.deleteOwner(id);
+        adminUserMapper.deleteUserLogicallyById(userId);
+    }
+
+    @Override
+    public void undeleteUser(Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+        if (user == null) {
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
-        userMapper.deleteUserLogicallyById(id);
 
-        return new HashMap<String, Object>() {{
-            put("success", "delete student");
-        }};
+        User undeletedAndSameAccountUser = adminUserMapper.getUndeletedUserByAccount(user.getAccount());
+        User undeletedAndSameEmailUser = adminUserMapper.getUndeletedUserByEmail(user.getEmail());
+        user.checkPossibilityOfUndeletion(undeletedAndSameAccountUser, undeletedAndSameEmailUser);
+
+        adminUserMapper.undeleteUserLogicallyById(userId);
     }
 
     @Transactional

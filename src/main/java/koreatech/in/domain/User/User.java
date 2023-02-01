@@ -3,6 +3,7 @@ package koreatech.in.domain.User;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.exception.BaseException;
 import koreatech.in.util.DateUtil;
 import koreatech.in.util.SHA256Util;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -103,6 +106,10 @@ public abstract class User {
         return this.authority != null;
     }
 
+    public boolean hasSameId(Integer id) {
+        return this.id.equals(id);
+    }
+
     public boolean isEmailAuthenticationCompleted() {
         return this.is_authed.equals(true);
     }
@@ -128,6 +135,10 @@ public abstract class User {
                 && !isResetTokenExpired();
     }
 
+    public boolean isWithdrawn() {
+        return this.is_deleted;
+    }
+
     public void changeEmailAuthenticationStatusToComplete() {
         this.is_authed = true;
     }
@@ -145,6 +156,24 @@ public abstract class User {
     public void changeToNewPassword(String password) {
         this.password = password;
         this.reset_expired_at = new Date();
+    }
+
+    public void checkPossibilityOfDeletion() {
+        if (isWithdrawn()) {
+            throw new BaseException(USER_HAS_WITHDRAWN);
+        }
+    }
+
+    public void checkPossibilityOfUndeletion(User undeletedAndSameAccountUser, User undeletedAndSameEmailUser) {
+        if (!isWithdrawn()) {
+            throw new BaseException(USER_HAS_NOT_WITHDRAWN);
+        }
+        if (undeletedAndSameAccountUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST);
+        }
+        if (undeletedAndSameEmailUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST);
+        }
     }
 
     public void changePassword(String password){
