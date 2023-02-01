@@ -1,13 +1,13 @@
 package koreatech.in.service.admin;
 
 import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.shop.admin.request.*;
-import koreatech.in.dto.shop.admin.response.*;
+import koreatech.in.dto.admin.shop.request.*;
+import koreatech.in.dto.admin.shop.response.*;
 import koreatech.in.exception.*;
-import koreatech.in.mapstruct.shop.admin.AdminShopCategoryConverter;
-import koreatech.in.mapstruct.shop.admin.AdminShopConverter;
-import koreatech.in.mapstruct.shop.admin.AdminShopMenuConverter;
-import koreatech.in.mapstruct.shop.admin.AdminShopOpenConverter;
+import koreatech.in.mapstruct.admin.shop.AdminShopCategoryConverter;
+import koreatech.in.mapstruct.admin.shop.AdminShopConverter;
+import koreatech.in.mapstruct.admin.shop.AdminShopMenuConverter;
+import koreatech.in.mapstruct.admin.shop.AdminShopOpenConverter;
 import koreatech.in.repository.admin.AdminShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

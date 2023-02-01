@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import koreatech.in.domain.NotiSlack;
-import koreatech.in.mapstruct.IntercityBusTimetableMapper;
+import koreatech.in.mapstruct.normal.bus.IntercityBusTimetableConverter;
 import koreatech.in.util.SlackNotiSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -153,7 +153,7 @@ public class IntercityBus extends Bus {
                                                                 @NotNull BusTerminalEnum arrivalTerminal) {
         try {
             String arrivalTimes = getBusResult(departTerminal.getTerminalID(), arrivalTerminal.getTerminalID());
-            List<IntercityBusTimetable> timetables = IntercityBusTimetableMapper.INSTANCE.toIntercityBusTimetable(extractBusArrivalInfo(arrivalTimes))
+            List<IntercityBusTimetable> timetables = IntercityBusTimetableConverter.INSTANCE.toIntercityBusTimetable(extractBusArrivalInfo(arrivalTimes))
                     .stream()
                     .sorted()
                     .collect(Collectors.toList());

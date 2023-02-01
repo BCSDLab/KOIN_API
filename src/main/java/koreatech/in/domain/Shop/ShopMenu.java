@@ -1,7 +1,7 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.admin.request.CreateShopMenuRequest;
-import koreatech.in.dto.shop.admin.request.UpdateShopMenuRequest;
+import koreatech.in.dto.admin.shop.request.CreateShopMenuRequest;
+import koreatech.in.dto.admin.shop.request.UpdateShopMenuRequest;
 import koreatech.in.exception.BaseException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

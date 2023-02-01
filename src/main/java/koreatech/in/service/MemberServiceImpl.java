@@ -10,7 +10,7 @@ import koreatech.in.dto.admin.member.response.MemberResponse;
 import koreatech.in.dto.admin.member.response.MembersResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.mapstruct.admin.AdminMemberConverter;
+import koreatech.in.mapstruct.admin.member.AdminMemberConverter;
 import koreatech.in.repository.MemberMapper;
 import koreatech.in.repository.TrackMapper;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package koreatech.in.service.admin;
 
-import koreatech.in.dto.shop.admin.request.*;
-import koreatech.in.dto.shop.admin.response.*;
+import koreatech.in.dto.admin.shop.request.*;
+import koreatech.in.dto.admin.shop.response.*;
 
 public interface AdminShopService {
     void createShopCategory(CreateShopCategoryRequest request);

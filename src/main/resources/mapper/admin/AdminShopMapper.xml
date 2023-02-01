@@ -29,7 +29,7 @@
             AND `is_deleted` = 0
     </select>
 
-    <select id="getTotalCountOfShopCategoriesByCondition" parameterType="koreatech.in.dto.shop.admin.request.ShopCategoriesCondition" resultType="integer">
+    <select id="getTotalCountOfShopCategoriesByCondition" parameterType="koreatech.in.dto.admin.shop.request.ShopCategoriesCondition" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`shop_categories`
         WHERE
@@ -44,7 +44,7 @@
         </if>
     </select>
 
-    <select id="getShopCategoriesByCondition" parameterType="koreatech.in.dto.shop.admin.request.ShopCategoriesCondition" resultType="koreatech.in.domain.Shop.ShopCategory">
+    <select id="getShopCategoriesByCondition" parameterType="koreatech.in.dto.admin.shop.request.ShopCategoriesCondition" resultType="koreatech.in.domain.Shop.ShopCategory">
         SELECT *
         FROM `koin`.`shop_categories`
         WHERE
@@ -268,7 +268,7 @@
                 AND `t6`.`is_deleted` = 0
     </select>
 
-    <select id="getTotalCountOfShopsByCondition" parameterType="koreatech.in.dto.shop.admin.request.ShopsCondition" resultType="integer">
+    <select id="getTotalCountOfShopsByCondition" parameterType="koreatech.in.dto.admin.shop.request.ShopsCondition" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`shops`
 

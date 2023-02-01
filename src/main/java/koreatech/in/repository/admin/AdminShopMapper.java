@@ -1,8 +1,8 @@
 package koreatech.in.repository.admin;
 
 import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.shop.admin.request.ShopCategoriesCondition;
-import koreatech.in.dto.shop.admin.request.ShopsCondition;
+import koreatech.in.dto.admin.shop.request.ShopCategoriesCondition;
+import koreatech.in.dto.admin.shop.request.ShopsCondition;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

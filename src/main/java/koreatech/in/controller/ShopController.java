@@ -1,9 +1,9 @@
 package koreatech.in.controller;
 
-import koreatech.in.dto.shop.normal.response.AllMenusOfShopResponse;
-import koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse;
-import koreatech.in.dto.shop.normal.response.AllShopsResponse;
-import koreatech.in.dto.shop.normal.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllShopCategoriesResponse;
+import koreatech.in.dto.normal.shop.response.AllShopsResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import io.swagger.annotations.Api;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;

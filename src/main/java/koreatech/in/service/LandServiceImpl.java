@@ -11,7 +11,7 @@ import koreatech.in.dto.admin.land.request.UpdateLandRequest;
 import koreatech.in.dto.admin.land.response.LandsResponse;
 import koreatech.in.dto.admin.land.response.LandResponse;
 import koreatech.in.exception.*;
-import koreatech.in.mapstruct.admin.AdminLandConverter;
+import koreatech.in.mapstruct.admin.land.AdminLandConverter;
 import koreatech.in.repository.LandMapper;
 import koreatech.in.util.JsonConstructor;
 import koreatech.in.util.UploadFileUtils;

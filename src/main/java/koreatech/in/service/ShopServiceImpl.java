@@ -1,12 +1,12 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.shop.normal.response.AllMenusOfShopResponse;
-import koreatech.in.dto.shop.normal.response.AllShopCategoriesResponse;
-import koreatech.in.dto.shop.normal.response.AllShopsResponse;
-import koreatech.in.dto.shop.normal.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllShopCategoriesResponse;
+import koreatech.in.dto.normal.shop.response.AllShopsResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.exception.BaseException;
-import koreatech.in.mapstruct.shop.normal.ShopConverter;
+import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.repository.ShopMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

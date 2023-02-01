@@ -1,6 +1,6 @@
 package koreatech.in.domain.Shop;
 
-import koreatech.in.dto.shop.admin.request.UpdateShopRequest;
+import koreatech.in.dto.admin.shop.request.UpdateShopRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

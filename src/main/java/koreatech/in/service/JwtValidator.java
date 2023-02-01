@@ -1,9 +1,6 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.User.User;
-import koreatech.in.exception.BaseException;
-import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 
 @Service
 public class JwtValidator {
