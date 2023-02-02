@@ -10,7 +10,7 @@
             AND `is_deleted` = 0
     </select>
 
-    <insert id="createShopCategory" parameterType="koreatech.in.domain.Shop.ShopCategory" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createShopCategory" parameterType="koreatech.in.domain.Shop.ShopCategory" keyProperty="id">
         INSERT INTO `koin`.`shop_categories` (
             `name`,
             `image_url`
@@ -87,7 +87,6 @@
             FROM `koin`.`shop_category_map`
             WHERE
                 `shop_category_id` = #{shopCategoryId}
-                AND `is_deleted` = 0
         )
     </select>
 

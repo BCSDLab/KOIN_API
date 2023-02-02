@@ -80,7 +80,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
     @Override
     public void deleteShopCategory(Integer shopCategoryId) {
-        getShopCategory(shopCategoryId); // 카테고리 존재 여부 체크
+        getShopCategoryById(shopCategoryId); // 카테고리 존재 여부 체크
 
         // 카테고리를 사용하고 있는 상점 리스트
         List<Shop> shopsUsingCategory = adminShopMapper.getShopsUsingCategoryByShopCategoryId(shopCategoryId);

@@ -1,11 +1,10 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
+import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.admin.shop.request.*;
 import koreatech.in.dto.admin.shop.response.*;
 import koreatech.in.service.admin.AdminShopService;
@@ -28,45 +27,78 @@ public class AdminShopController {
 
     // ======================================= 상점 카테고리 ============================================
 
+    @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "중복되는 이름의 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 412, message = "요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
-    @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> createShopCategory(@RequestBody @Valid CreateShopCategoryRequest request, BindingResult bindingResult) {
+    ResponseEntity<EmptyResponse> createShopCategory(@ApiParam(name = "상점 카테고리 정보 JSON", required = true) @RequestBody @Valid CreateShopCategoryRequest request, BindingResult bindingResult) {
         shopService.createShopCategory(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "상점 카테고리 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopCategoryResponse> getShopCategory(@PathVariable("id") Integer shopCategoryId) {
+    ResponseEntity<ShopCategoryResponse> getShopCategory(@ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId) {
         ShopCategoryResponse response = shopService.getShopCategory(shopCategoryId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // TODO: 카테고리 순서 확정 후에 마이그레이션 SQL 변경
-    @ApiOperation(value = "상점 카테고리 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 카테고리 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ShopCategoriesResponse> getShopCategories(ShopCategoriesCondition condition) {
+        condition.checkDataConstraintViolation();
+
         ShopCategoriesResponse response = shopService.getShopCategories(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "이름이 중복되는 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 412, message = "요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> updateShopCategory(@PathVariable("id") Integer shopCategoryId, @RequestBody @Valid UpdateShopCategoryRequest request, BindingResult bindingResult) {
+    ResponseEntity<EmptyResponse> updateShopCategory(
+            @ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId,
+            @ApiParam(name = "상점 카테고리 정보 JSON", required = true) @RequestBody @Valid UpdateShopCategoryRequest request, BindingResult bindingResult) {
         shopService.updateShopCategory(shopCategoryId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "해당 카테고리를 사용하고 있는 상점이 존재하여 삭제할 수 없는 경우 (code: 104006)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteShopCategory(@PathVariable("id") Integer shopCategoryId) {
+    ResponseEntity<EmptyResponse> deleteShopCategory(@ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId) {
         shopService.deleteShopCategory(shopCategoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
