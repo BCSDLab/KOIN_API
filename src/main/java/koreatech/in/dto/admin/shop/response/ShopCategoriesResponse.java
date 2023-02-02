@@ -1,5 +1,6 @@
 package koreatech.in.dto.admin.shop.response;
 
+import io.swagger.annotations.ApiModel;
 import koreatech.in.domain.Shop.ShopCategory;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class ShopCategoriesResponse {
     private List<Category> categories;
 
     @Getter
+    @ApiModel("Category_1")
     private static class Category {
         private Integer id;
         private String name;

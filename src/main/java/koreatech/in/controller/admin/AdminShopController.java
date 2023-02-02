@@ -162,27 +162,53 @@ public class AdminShopController {
 
     // ============================================= 메뉴 카테고리 =============================================
 
+    @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 중복되는 이름의 카테고리가 이미 존재할 때 (code: 104011) \n" +
+                                               "- 한 상점당 등록할 수 있는 메뉴 카테고리의 최대 개수(20개)를 초과하였을 때 (code: 104013)", response = ExceptionResponse.class),
+            @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
-    @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> createMenuCategory(@PathVariable("id") Integer shopId, @RequestBody @Valid CreateShopMenuCategoryRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<EmptyResponse> createMenuCategory(
+            @ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid CreateShopMenuCategoryRequest request, BindingResult bindingResult) {
         shopService.createMenuCategory(shopId, request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = shopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n" +
+                                               "  - 만약 categoryId에 대한 카테고리가, shopId에 대한 상점에 속해있는 카테고리가 아닌 경우도 포함", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 메뉴가 존재하여 삭제할 수 없는 경우 (code: 104012)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteMenuCategory(@PathVariable("shopId") Integer shopId, @PathVariable("categoryId") Integer menuCategoryId) throws Exception {
+    ResponseEntity<EmptyResponse> deleteMenuCategory(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 카테고리 고유 id", required = true) @PathVariable("categoryId") Integer menuCategoryId) {
         shopService.deleteMenuCategory(shopId, menuCategoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

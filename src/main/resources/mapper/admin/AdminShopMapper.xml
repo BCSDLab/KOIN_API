@@ -510,7 +510,7 @@
             AND `is_deleted` = 0
     </select>
 
-    <insert id="createMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory" keyProperty="id">
         INSERT INTO `koin`.`shop_menu_categories` (
             `shop_id`,
             `name`

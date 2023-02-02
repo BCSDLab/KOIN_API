@@ -1,5 +1,7 @@
 package koreatech.in.dto.admin.shop.response;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.Shop.ShopMenuCategory;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +15,19 @@ import java.util.stream.Collectors;
 
 @Getter @Builder
 public class AllMenuCategoriesOfShopResponse {
+    @ApiModelProperty(notes = "개수", example = "4", required = true)
     private Integer count;
+
+    @ApiModelProperty(notes = "메뉴 카테고리 리스트", required = true)
     private List<Category> menu_categories;
 
     @Getter @Builder
+    @ApiModel("Category_2")
     private static class Category {
+        @ApiModelProperty(notes = "카테고리 고유 id", required = true)
         private Integer id;
+
+        @ApiModelProperty(notes = "카테고리 이름", required = true)
         private String name;
 
         public Category(Integer id, String name) {
