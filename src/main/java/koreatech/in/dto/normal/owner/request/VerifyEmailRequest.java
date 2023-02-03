@@ -1,0 +1,13 @@
+package koreatech.in.dto.normal.owner.request;
+
+import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
+public class VerifyEmailRequest {
+
+    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @NotNull(message = "이메일은 필수입니다.")
+    @ApiModelProperty(notes = "이메일 주소", required = true)
+    private String email;
+}
