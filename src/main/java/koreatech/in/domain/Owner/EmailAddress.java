@@ -31,7 +31,7 @@ public class EmailAddress {
     }
 
     private static void validates(String fullAddress) {
-        if (isValidEmailForm(getSeparateIndex(fullAddress))) {
+        if (!isValidEmailForm(getSeparateIndex(fullAddress))) {
             // 이메일 형식 X
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
