@@ -52,6 +52,10 @@ public enum ExceptionInformation {
     FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
 
+    // ======= 사장님 =======
+    EMAIL_ADDRESS_INVALID("유효하지 않는 이메일 주소입니다.", 122000, HttpStatus.UNPROCESSABLE_ENTITY),
+    EMAIL_DOMAIN_INVALID("유효하지 않는 이메일 도메인입니다.", 122001, HttpStatus.UNPROCESSABLE_ENTITY),
+
 
     // ======= BCSDLab 트랙 =======
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201000, HttpStatus.NOT_FOUND),
