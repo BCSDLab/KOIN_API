@@ -60,15 +60,15 @@ public class OwnerController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 409, message = "- 요청받지 않은 이메일일 경우 (code: 101010) \n\n",
-                    response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
+            @ApiResponse(code = 409, message = "- 요청받지 않은 이메일일 경우 (code: 101010) \n\n"+
+                    "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
                     response = ExceptionResponse.class),
             @ApiResponse(code = 410, message = "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" +
-                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
-                    response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message =
+                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n" +
+                    "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" ,
+                    response = ExceptionResponse.class)
     })
     @ApiOperation(value = "인증번호 입력")
     @AuthExcept
