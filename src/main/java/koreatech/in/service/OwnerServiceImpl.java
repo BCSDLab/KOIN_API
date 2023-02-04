@@ -44,7 +44,7 @@ public class OwnerServiceImpl implements OwnerService {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
 
-        putRedisFor(emailAddress, ownerInVerification);
+        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
     }
@@ -54,7 +54,7 @@ public class OwnerServiceImpl implements OwnerService {
 
     }
 
-    private void putRedisFor(EmailAddress emailAddress, OwnerInVerification ownerInVerification) {
+    private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
         stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress.getEmailAddress(),
