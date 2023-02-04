@@ -29,22 +29,19 @@ public class OwnerInVerification extends Owner {
 
     private void validateDuplication() {
         if(this.getIs_authed().equals(true)) {
-            //TODO DuplicatedCertification
-            throw  new BaseException(ExceptionInformation.FORBIDDEN);
+            throw  new BaseException(ExceptionInformation.CERTIFICATION_CODE_ALREADY_COMPLETED);
         }
     }
 
     private void validateExpiration() {
         if (DateUtil.isExpired(this.auth_expired_at, new Date())) {
-            //TODO ExpiredCertification
-            throw new BaseException(ExceptionInformation.FORBIDDEN);
+            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_EXPIRED);
         }
     }
 
     private void validateCode(String certificationCode) {
         if (!this.getCertificationCode().equals(certificationCode)) {
-            //TODO InvalidCertificationCode
-            throw new BaseException(ExceptionInformation.FORBIDDEN);
+            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_INVALID);
         }
     }
 }
