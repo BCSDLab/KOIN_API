@@ -3,6 +3,8 @@ package koreatech.in.mapstruct;
 import koreatech.in.domain.User.owner.Domain;
 import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.LocalParts;
+import koreatech.in.domain.User.owner.OwnerInCertification;
+import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -30,4 +32,16 @@ public interface OwnerConverter {
     default Domain convertDomain(String address) {
         return Domain.from(address);
     }
+
+    @Mappings({
+            @Mapping(source = "address", target = "email", qualifiedByName = "convertEmail"),
+            @Mapping(source = "certificationCode", target = "certificationCode")
+    })
+    OwnerInCertification toOwnerInCertification(VerifyCodeRequest verifyCodeRequest);
+
+    @Named("convertEmail")
+    default String convertEmail(String address) {
+        return EmailAddress.from(address).getEmailAddress();
+    }
+
 }
