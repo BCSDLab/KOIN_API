@@ -9,10 +9,10 @@ public class OwnerInVerification extends Owner {
 
     private final String certificationCode;
 
-    private OwnerInVerification(String certificationCode, Boolean is_authed, Date auth_expired_at) {
+    private OwnerInVerification(String certificationCode, Boolean isAuthed, Date authExpiredAt) {
         this.certificationCode = certificationCode;
-        this.is_authed = is_authed;
-        this.auth_expired_at = auth_expired_at;
+        this.is_authed = isAuthed;
+        this.auth_expired_at = authExpiredAt;
     }
 
     public static OwnerInVerification from(CertificationCode certificationCode) {
