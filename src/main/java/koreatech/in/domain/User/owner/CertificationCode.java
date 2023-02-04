@@ -1,4 +1,4 @@
-package koreatech.in.domain.Owner;
+package koreatech.in.domain.User.owner;
 
 import lombok.Getter;
 
@@ -9,10 +9,6 @@ public class CertificationCode {
 
     private CertificationCode(String value) {
         this.value = value;
-    }
-
-    public String getCode() {
-        return value;
     }
 
     public static CertificationCode from(String value) {
