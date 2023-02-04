@@ -44,8 +44,8 @@ public class OwnerController {
     @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request, BindingResult bindingResult) {
-        //TODO 23.02.04. request body안에 있는 이메일, XSS 검증 필요한지
+    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request,
+                                              BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, new VerifyEmailRequest());
         } catch (Exception exception) {
