@@ -66,7 +66,10 @@ public class OwnerServiceImpl implements OwnerService {
         Gson gson = new GsonBuilder().create();
         String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + ownerInCertification.getEmail());
 
-        return gson.fromJson(json, OwnerInVerification.class);
+        OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
+        ownerInRedis.validateForRedis();
+
+        return ownerInRedis;
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
