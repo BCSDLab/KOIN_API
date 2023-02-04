@@ -76,7 +76,7 @@ public class OwnerServiceImpl implements OwnerService {
 
     private static void validateRedis(OwnerInVerification ownerInRedis) {
         if(ownerInRedis == null) {
-            throw  new BaseException(ExceptionInformation.EMAIL_ADDRESS_NOT_REQUESTED);
+            throw  new BaseException(ExceptionInformation.EMAIL_ADDRESS_EXPIRED_OR_NOT_REQUESTED);
         }
         ownerInRedis.validateFields();
     }
