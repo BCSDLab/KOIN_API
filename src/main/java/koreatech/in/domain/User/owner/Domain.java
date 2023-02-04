@@ -20,8 +20,7 @@ public class Domain {
 
     private static void validates(String domainAddress) {
         if(!isExist(domainAddress)) {
-            // 도메인 존재 X
-            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
         }
     }
 
@@ -50,7 +49,7 @@ public class Domain {
             return attribute != null;
 
         } catch (NamingException exception) {
-            return false;
+            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
         }
     }
 }
