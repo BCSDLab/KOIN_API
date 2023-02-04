@@ -36,9 +36,8 @@ public class OwnerController {
 
     @AuthExcept
     @ApiResponses({
-            @ApiResponse(code = 422, message = "- 이메일 주소가 올바르지 않을 경우 (code: 122000) \n\n" +
-                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 122001) \n\n" +
-                    "- 탈퇴하지 않은 회원 중, 같은 이메일을 가지고 있는 회원이 있어서 탈퇴를 해제할 수 없는 경우 (code: 101007)\n\n",
+            @ApiResponse(code = 422, message = "- 이메일 주소가 올바르지 않을 경우 (code: 101008) \n\n" +
+                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
                     response = ExceptionResponse.class),
     })
     @ApiOperation(value = "인증번호 전송 요청", authorizations = {@Authorization("Authorization")})

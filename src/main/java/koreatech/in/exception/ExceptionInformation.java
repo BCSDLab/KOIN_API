@@ -22,7 +22,8 @@ public enum ExceptionInformation {
     USER_HAS_NOT_WITHDRAWN("탈퇴한 회원이 아닙니다.", 101005, HttpStatus.CONFLICT),
     IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST("탈퇴하지 않은 회원 중 같은 ID를 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101006, HttpStatus.CONFLICT),
     IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST("탈퇴하지 않은 회원 중 같은 이메일을 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101007, HttpStatus.CONFLICT),
-
+    EMAIL_ADDRESS_INVALID("유효하지 않는 이메일 주소입니다.", 101008, HttpStatus.UNPROCESSABLE_ENTITY),
+    EMAIL_DOMAIN_INVALID("유효하지 않는 이메일 도메인입니다.", 101009, HttpStatus.UNPROCESSABLE_ENTITY),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
@@ -53,9 +54,6 @@ public enum ExceptionInformation {
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
 
     // ======= 사장님 =======
-    EMAIL_ADDRESS_INVALID("유효하지 않는 이메일 주소입니다.", 122000, HttpStatus.UNPROCESSABLE_ENTITY),
-    EMAIL_DOMAIN_INVALID("유효하지 않는 이메일 도메인입니다.", 122001, HttpStatus.UNPROCESSABLE_ENTITY),
-
 
     // ======= BCSDLab 트랙 =======
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201000, HttpStatus.NOT_FOUND),
