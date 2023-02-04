@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
@@ -51,13 +52,27 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public void certificate(VerifyCodeRequest verifyCodeRequest) {
+        OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
 
+        OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification);
+
+        ownerInRedis.validateFor(ownerInCertification);
+        ownerInRedis.setIs_authed(true);
+
+        putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+    }
+
+    private OwnerInVerification getOwnerInRedis(OwnerInCertification ownerInCertification) {
+        Gson gson = new GsonBuilder().create();
+        String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + ownerInCertification.getEmail());
+
+        return gson.fromJson(json, OwnerInVerification.class);
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
-        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress.getEmailAddress(),
+        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress,
                 gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 
