@@ -24,6 +24,7 @@ public enum ExceptionInformation {
     IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST("탈퇴하지 않은 회원 중 같은 이메일을 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101007, HttpStatus.CONFLICT),
     EMAIL_ADDRESS_INVALID("유효하지 않는 이메일 주소입니다.", 101008, HttpStatus.UNPROCESSABLE_ENTITY),
     EMAIL_DOMAIN_INVALID("유효하지 않는 이메일 도메인입니다.", 101009, HttpStatus.UNPROCESSABLE_ENTITY),
+    EMAIL_ADDRESS_NOT_REQUESTED("요청받지 않은 이메일 주소입니다.", 101010, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
