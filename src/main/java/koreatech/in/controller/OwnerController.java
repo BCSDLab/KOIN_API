@@ -14,8 +14,12 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.OwnerService;
+import koreatech.in.util.StringXssChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +57,21 @@ public class OwnerController {
         }
 
         ownerService.requestVerification(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @AuthExcept@RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
+                                              BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, new VerifyCodeRequest());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        ownerService.certificate(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
