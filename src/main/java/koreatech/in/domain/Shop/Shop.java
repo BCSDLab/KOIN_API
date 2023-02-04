@@ -31,14 +31,6 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public boolean hasSameId(Integer id) {
-        if (this.id == null || id == null) {
-            return false;
-        }
-
-        return this.id.equals(id);
-    }
-
     public boolean needToUpdate(UpdateShopRequest request) {
         return !Objects.equals(this.name, request.getName())
                 || !Objects.equals(this.phone, request.getPhone())

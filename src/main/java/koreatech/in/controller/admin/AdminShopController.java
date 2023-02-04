@@ -105,57 +105,96 @@ public class AdminShopController {
 
     // ============================================ 상점 ================================================
 
+    @ApiOperation(value = "상점 생성", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
-    @ApiOperation(value = "상점 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> createShop(@RequestBody @Valid CreateShopRequest request, BindingResult bindingResult) {
+    ResponseEntity<EmptyResponse> createShop(@ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid CreateShopRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
 
         shopService.createShop(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "상점 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) {
+    ResponseEntity<ShopResponse> getShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
         ShopResponse response = shopService.getShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ParamValid
-    @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<ShopsResponse> getShops(ShopsCondition condition) {
+        condition.checkDataConstraintViolation();
+
         ShopsResponse response = shopService.getShops(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "상점 수정", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "상점 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> updateShop(@PathVariable("id") Integer shopId, @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) throws Exception {
+    ResponseEntity<EmptyResponse> updateShop(
+            @ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
 
         shopService.updateShop(shopId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 삭제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 삭제", notes = "상점을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 상점이 이미 삭제(soft delete) 되어있을 경우 (code: 104002)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteShop(@PathVariable("id") Integer shopId) {
+    ResponseEntity<EmptyResponse> deleteShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
         shopService.deleteShop(shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 삭제 해제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "상점 삭제 해제", notes = "상점의 soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 삭제되어 있는 상점이 아닐 경우 (code: 104003)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> undeleteShop(@PathVariable("id") Integer shopId) {
+    ResponseEntity<EmptyResponse> undeleteShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
         shopService.undeleteOfShop(shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

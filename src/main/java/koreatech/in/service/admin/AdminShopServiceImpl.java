@@ -141,16 +141,9 @@ public class AdminShopServiceImpl implements AdminShopService {
     }
 
     private List<ShopOpen> generateShopOpensAndGet(List<CreateShopRequest.Open> opens, Integer shopId) {
-        List<ShopOpen> shopOpens = new ArrayList<>();
-
-        opens.stream()
-                .map(AdminShopOpenConverter.INSTANCE::toShopOpen)
-                .forEach(shopOpen -> {
-                    shopOpen.matchShopId(shopId);
-                    shopOpens.add(shopOpen);
-                });
-
-        return shopOpens;
+        return opens.stream()
+                .map(open -> AdminShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .collect(Collectors.toList());
     }
 
     private String[] getDefaultMenuCategoryNames() {
@@ -246,16 +239,9 @@ public class AdminShopServiceImpl implements AdminShopService {
     }
 
     private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
-        List<ShopOpen> shopOpens = new ArrayList<>();
-
-        opens.stream()
-                .map(AdminShopOpenConverter.INSTANCE::toShopOpen)
-                .forEach(shopOpen -> {
-                    shopOpen.matchShopId(shopId);
-                    shopOpens.add(shopOpen);
-                });
-
-        return shopOpens;
+        return opens.stream()
+                .map(open -> AdminShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .collect(Collectors.toList());
     }
 
     private List<ShopCategoryMap> getToBeDeletedShopCategoryMaps(List<ShopCategoryMap> existingShopCategoryMaps, List<ShopCategoryMap> requestedShopCategoryMaps) {

@@ -96,9 +96,8 @@
         WHERE `id` = #{id}
     </update>
 
-    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop" useGeneratedKeys="true" keyProperty="shop.id">
         INSERT INTO `koin`.`shops` (
-            `owner_id`,
             `name`,
             `internal_name`,
             `chosung`,
@@ -111,7 +110,6 @@
             `pay_bank`
         )
         VALUES (
-            #{shop.owner_id},
             #{shop.name},
             #{shop.internal_name},
             #{shop.chosung},
@@ -395,7 +393,6 @@
     <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
         UPDATE `koin`.`shops`
         SET
-            `owner_id` = #{shop.owner_id},
             `name` = #{shop.name},
             `internal_name` = #{shop.internal_name},
             `chosung` = #{shop.chosung},
@@ -405,10 +402,7 @@
             `delivery` = #{shop.delivery},
             `delivery_price` = #{shop.delivery_price},
             `pay_card` = #{shop.pay_card},
-            `pay_bank` = #{shop.pay_bank},
-            `is_event` = #{shop.is_event},
-            `remarks` = #{shop.remarks},
-            `hit` = #{shop.hit}
+            `pay_bank` = #{shop.pay_bank}
         WHERE
             `id` = #{shop.id}
     </update>
