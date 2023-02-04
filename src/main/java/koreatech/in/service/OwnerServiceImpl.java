@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
 import koreatech.in.mapstruct.OwnerConverter;
 import koreatech.in.util.RandomGenerator;
@@ -45,6 +46,11 @@ public class OwnerServiceImpl implements OwnerService {
 
         putRedisFor(emailAddress, ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
+
+    }
+
+    @Override
+    public void certificate(VerifyCodeRequest verifyCodeRequest) {
 
     }
 
