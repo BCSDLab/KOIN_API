@@ -4,8 +4,10 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class VerifyEmailRequest {
 
     @Email(message = "이메일 형식이 올바르지 않습니다.")
