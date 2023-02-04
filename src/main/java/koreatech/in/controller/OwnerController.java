@@ -42,7 +42,7 @@ public class OwnerController {
                     response = ExceptionResponse.class),
     })
     @ApiOperation(value = "인증번호 전송 요청", authorizations = {@Authorization("Authorization")})
-    @RequestMapping(value = "/owners/verficitation/email", method = RequestMethod.POST)
+    @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request, BindingResult bindingResult) {
