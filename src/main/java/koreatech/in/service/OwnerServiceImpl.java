@@ -12,6 +12,8 @@ import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
@@ -67,9 +69,16 @@ public class OwnerServiceImpl implements OwnerService {
         String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + ownerInCertification.getEmail());
 
         OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
-        ownerInRedis.validateForRedis();
+        validateRedis(ownerInRedis);
 
         return ownerInRedis;
+    }
+
+    private static void validateRedis(OwnerInVerification ownerInRedis) {
+        if(ownerInRedis == null) {
+            throw  new BaseException(ExceptionInformation.EMAIL_ADDRESS_NOT_REQUESTED);
+        }
+        ownerInRedis.validateFields();
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {

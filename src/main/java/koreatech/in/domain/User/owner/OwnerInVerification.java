@@ -21,6 +21,18 @@ public class OwnerInVerification extends Owner {
         return new OwnerInVerification(certificationCode.getValue(), false, DateUtil.addMinute(new Date(), 5));
     }
 
+    public void validateFields() {
+        if (this.certificationCode == null) {
+            throw new NullPointerException("Redis에 있는 OwnerInVerification 객체의 certificationCode 필드가 비어있습니다.");
+        }
+        if (this.is_authed == null) {
+            throw new NullPointerException("Redis에 있는 OwnerInVerification 객체의 is_authed 필드가 비어있습니다.");
+        }
+        if (this.auth_expired_at == null) {
+            throw new NullPointerException("Redis에 있는 OwnerInVerification 객체의 auth_expired_at 필드가 비어있습니다.");
+        }
+    }
+
     public void validateFor(OwnerInCertification ownerInCertification) {
         validateDuplication();
         validateExpiration();
