@@ -60,7 +60,8 @@ public class OwnerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @AuthExcept@RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
+    @AuthExcept
+    @RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
