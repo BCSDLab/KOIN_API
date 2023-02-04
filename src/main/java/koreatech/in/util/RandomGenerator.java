@@ -1,7 +1,7 @@
 package koreatech.in.util;
 
 import java.util.concurrent.ThreadLocalRandom;
-import koreatech.in.domain.Owner.CertificationCode;
+import koreatech.in.domain.User.owner.CertificationCode;
 
 public class RandomGenerator {
     public static final int CERTIFICATION_NUMBER_ORIGIN = 0;
