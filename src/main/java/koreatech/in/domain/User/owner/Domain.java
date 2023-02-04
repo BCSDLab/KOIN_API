@@ -24,9 +24,17 @@ public class Domain {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
     }
-    public static Domain from(String domainAddress) {
-        validates(domainAddress);
-        return new Domain(domainAddress);
+
+    private static String domainFrom(String fullAddress) {
+        return fullAddress.substring(EmailAddress.getSeparateIndex(fullAddress) + EmailAddress.domainSeparator.length());
+    }
+
+    public static Domain from(String fullAddress) {
+
+        EmailAddress.validates(fullAddress);
+        validates(domainFrom(fullAddress));
+
+        return new Domain(domainFrom(fullAddress));
     }
 
     private static boolean isExist(String domain) {
