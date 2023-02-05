@@ -2,6 +2,7 @@ package koreatech.in.domain.Shop;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
 import java.util.Objects;
@@ -12,7 +13,6 @@ public class ShopMenuImage {
     private Integer id;
     private Integer shop_menu_id;
     private String image_url;
-    private Boolean is_deleted;
     private Date created_at;
     private Date updated_at;
 
@@ -39,5 +39,13 @@ public class ShopMenuImage {
 
         return Objects.equals(this.shop_menu_id, ((ShopMenuImage) obj).getShop_menu_id())
                 && Objects.equals(this.image_url, ((ShopMenuImage) obj).getImage_url());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(this.shop_menu_id)
+                .append(this.image_url)
+                .toHashCode();
     }
 }

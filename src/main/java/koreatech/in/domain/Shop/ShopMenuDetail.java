@@ -14,7 +14,6 @@ public class ShopMenuDetail {
     private Integer shop_menu_id;
     private String option;
     private Integer price;
-    private Boolean is_deleted;
     private Date created_at;
     private Date updated_at;
 

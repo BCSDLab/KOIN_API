@@ -254,63 +254,128 @@ public class AdminShopController {
 
     // =============================================== 메뉴 =================================================
 
+    @ApiOperation(value = "특정 상점의 메뉴 생성", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
-    @ApiOperation(value = "특정 상점의 메뉴 생성", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> createMenu(@PathVariable("id") Integer shopId, @RequestBody @Valid CreateShopMenuRequest request, BindingResult bindingResult) throws Exception {
-        request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
+    ResponseEntity<EmptyResponse> createMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid CreateShopMenuRequest request, BindingResult bindingResult) {
+        request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
 
         shopService.createMenu(shopId, request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MenuResponse> getMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) throws Exception {
+    ResponseEntity<MenuResponse> getMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
         MenuResponse response = shopService.getMenu(shopId, menuId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) throws Exception {
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
         AllMenusOfShopResponse response = shopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함 \n" +
+                                               "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)
-    ResponseEntity<EmptyResponse> updateMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId, @RequestBody @Valid UpdateShopMenuRequest request, BindingResult bindingResult) throws Exception {
-        request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
+    ResponseEntity<EmptyResponse> updateMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId,
+            @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid UpdateShopMenuRequest request, BindingResult bindingResult) {
+        request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
 
         shopService.updateMenu(shopId, menuId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함", response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) {
+    ResponseEntity<EmptyResponse> deleteMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
         shopService.deleteMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 숨김", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 숨김", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이미 숨김 처리 되어있을 때 (code: 104008)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> hideMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) {
+    ResponseEntity<EmptyResponse> hideMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
         shopService.hideMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 숨김 처리되어있는 메뉴가 아닐 때 (code: 104009)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "{shopId}/menus/{menuId}/reveal", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> revealMenu(@PathVariable("shopId") Integer shopId, @PathVariable("menuId") Integer menuId) {
+    ResponseEntity<EmptyResponse> revealMenu(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
         shopService.revealMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

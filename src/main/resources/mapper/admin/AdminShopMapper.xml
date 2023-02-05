@@ -550,7 +550,7 @@
         WHERE `id` = #{id}
     </update>
 
-    <insert id="createMenu" parameterType="koreatech.in.domain.Shop.ShopMenu" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenu" parameterType="koreatech.in.domain.Shop.ShopMenu" useGeneratedKeys="true" keyProperty="menu.id">
         INSERT INTO `koin`.`shop_menus` (
             `shop_id`,
             `name`,
@@ -565,7 +565,7 @@
         )
     </insert>
 
-    <insert id="createMenuDetail" parameterType="koreatech.in.domain.Shop.ShopMenuDetail" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenuDetail" parameterType="koreatech.in.domain.Shop.ShopMenuDetail" useGeneratedKeys="true" keyProperty="menuDetail.id">
         INSERT IGNORE INTO `koin`.`shop_menu_details` (
             `shop_menu_id`,
             `option`,

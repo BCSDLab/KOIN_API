@@ -28,7 +28,7 @@ public class ShopMenuCategory {
     }
 
     public boolean hasSameShopId(Integer shopId) {
-        if (this.shop_id == null || shopId == null) {
+        if (this.shop_id == null) {
             return false;
         }
 
