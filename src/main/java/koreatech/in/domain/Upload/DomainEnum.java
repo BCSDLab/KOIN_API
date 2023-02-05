@@ -6,7 +6,7 @@ import java.util.Arrays;
 import koreatech.in.exception.BaseException;
 
 public enum DomainEnum {
-    ITEMS, LANDS, CIRCLES, MARKET, SHOPS, MEMBERS;
+    ITEMS, LANDS, CIRCLES, MARKET, SHOPS, MEMBERS, OWNERS;
 
     public static void validate(String pathDomain) {
         Arrays.stream(DomainEnum.values()).filter(domain -> domain.name().equalsIgnoreCase(pathDomain))
