@@ -40,8 +40,8 @@ public class OwnerInVerification extends Owner {
     }
 
     private void validateDuplication() {
-        if(this.getIs_authed().equals(true)) {
-            throw  new BaseException(ExceptionInformation.CERTIFICATION_CODE_ALREADY_COMPLETED);
+        if (this.getIs_authed().equals(true)) {
+            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_ALREADY_COMPLETED);
         }
     }
 
