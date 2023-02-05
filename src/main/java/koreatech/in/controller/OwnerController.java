@@ -60,10 +60,10 @@ public class OwnerController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 409, message = "- 저장이 만료되었거나(`2시간`), 이메일 인증을 요청받지 않은 이메일일 경우 (code: 101010) \n\n"+
-                    "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
+            @ApiResponse(code = 409, message = "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 410, message = "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
+            @ApiResponse(code = 410, message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"+
+                    "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
                     response = ExceptionResponse.class),
             @ApiResponse(code = 422, message =
                     "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n" +
