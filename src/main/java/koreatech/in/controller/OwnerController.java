@@ -99,9 +99,9 @@ public class OwnerController {
                             "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" ,
                     response = ExceptionResponse.class)
     })
-    @ApiOperation(value = "인증번호 입력")
+    @ApiOperation(value = "회원가입 요청")
     @AuthExcept
-    @RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
+    @RequestMapping(value = "/owners/register", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> register(@RequestBody @Valid OwnerRegisterRequest request,
@@ -114,5 +114,6 @@ public class OwnerController {
 
         ownerService.register(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
+        //TODO 23.02.05 수많은 예외들 어떻게 할 것인지 특히 Valid 쪽
     }
 }
