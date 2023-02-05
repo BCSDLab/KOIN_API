@@ -13,6 +13,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.exception.BaseException;
@@ -85,5 +86,33 @@ public class OwnerController {
 
         ownerService.certificate(request);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(code = 410, message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"+
+                    "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message =
+                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n" +
+                            "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" ,
+                    response = ExceptionResponse.class)
+    })
+    @ApiOperation(value = "인증번호 입력")
+    @AuthExcept
+    @RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> register(@RequestBody @Valid OwnerRegisterRequest request,
+                                           BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        ownerService.register(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
