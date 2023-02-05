@@ -57,7 +57,7 @@ public class OwnerServiceImpl implements OwnerService {
     public void certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
 
-        OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification);
+        OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification.getEmail());
 
         ownerInRedis.validateFor(ownerInCertification);
         ownerInRedis.setIs_authed(true);
@@ -70,9 +70,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     }
 
-    private OwnerInVerification getOwnerInRedis(OwnerInCertification ownerInCertification) {
+    private OwnerInVerification getOwnerInRedis(String emailAddress) {
         Gson gson = new GsonBuilder().create();
-        String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + ownerInCertification.getEmail());
+        String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + emailAddress);
 
         OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
         validateRedis(ownerInRedis);
