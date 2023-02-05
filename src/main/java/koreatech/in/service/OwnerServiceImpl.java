@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
@@ -22,6 +23,7 @@ import koreatech.in.util.StringRedisUtilStr;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 @Service
@@ -66,8 +68,17 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
+    @Transactional
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
+        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
 
+        validateInRedis(owner);
+    }
+
+    private void validateInRedis(Owner owner) {
+        OwnerInVerification ownerInRedis = getOwnerInRedis(owner.getEmail());
+
+        ownerInRedis.validateCertificationComplete();
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
