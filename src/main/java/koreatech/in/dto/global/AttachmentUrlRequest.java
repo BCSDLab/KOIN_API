@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
-public class FileUrlRequest {
+public class AttachmentUrlRequest {
     @NotBlank
     @URL(protocol = "https", host = "static.koreatech.in"
             , message = "코인 파일 저장 형식이 아닙니다.")

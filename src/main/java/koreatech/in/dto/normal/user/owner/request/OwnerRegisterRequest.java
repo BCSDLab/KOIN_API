@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import koreatech.in.dto.global.FileUrlRequest;
+import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.request.UserRegisterRequest;
 
 
@@ -34,5 +34,5 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             , required = true
     )
     @Valid
-    private List<FileUrlRequest> companyCertificateFileUrls;
+    private List<AttachmentUrlRequest> companyCertificateAttachmentUrls;
 }
