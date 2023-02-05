@@ -10,6 +10,7 @@ import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.exception.BaseException;
@@ -62,6 +63,11 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.setIs_authed(true);
 
         putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+    }
+
+    @Override
+    public void register(OwnerRegisterRequest ownerRegisterRequest) {
+
     }
 
     private OwnerInVerification getOwnerInRedis(OwnerInCertification ownerInCertification) {
