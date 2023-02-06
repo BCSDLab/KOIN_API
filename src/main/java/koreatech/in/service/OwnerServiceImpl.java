@@ -73,6 +73,14 @@ public class OwnerServiceImpl implements OwnerService {
         Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
 
         validateInRedis(owner);
+        removeRedisFrom(owner.getEmail());
+
+
+        //TODO 23.02.05. 박한수 DB쪽 작업 추가하기
+    }
+
+    private void removeRedisFrom(String emailAddress) {
+        stringRedisUtilStr.deleteData(emailAddress);
     }
 
     private void validateInRedis(Owner owner) {
