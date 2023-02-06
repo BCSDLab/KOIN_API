@@ -1,15 +1,21 @@
 package koreatech.in.dto.normal.user.request;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = OwnerRegisterRequest.class)
+})
+
 public class UserRegisterRequest {
 
     @NotNull(message = "아이디는 비워둘 수 없습니다.")
