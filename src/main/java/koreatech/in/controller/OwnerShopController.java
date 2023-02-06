@@ -6,6 +6,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
+import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.service.OwnerShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,5 +45,20 @@ public class OwnerShopController {
             @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid CreateMenuCategoryRequest request, BindingResult bindingResult) {
         ownerShopService.createMenuCategory(shopId, request);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
+        AllMenuCategoriesOfShopResponse response = ownerShopService.getAllMenuCategoriesOfShop(shopId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

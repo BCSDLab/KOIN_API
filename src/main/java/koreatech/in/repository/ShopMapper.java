@@ -24,4 +24,6 @@ public interface ShopMapper {
     Integer getCountOfMenuCategoriesByShopId(@Param("shopId") Integer shopId);
 
     void createMenuCategory(@Param("menuCategory") ShopMenuCategory menuCategory);
+
+    List<ShopMenuCategory> getMenuCategoriesByShopId(@Param("shopId") Integer shopId);
 }

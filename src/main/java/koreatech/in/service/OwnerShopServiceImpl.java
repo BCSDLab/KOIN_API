@@ -4,16 +4,20 @@ import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopMenuCategory;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
+import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.repository.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
+@Transactional(readOnly = true)
 public class OwnerShopServiceImpl implements OwnerShopService {
     @Autowired
     private JwtValidator jwtValidator;
@@ -23,15 +27,22 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Override
     public void createMenuCategory(Integer shopId, CreateMenuCategoryRequest request) {
-        Shop shop = getShopById(shopId);
-        
-        checkAuthorityAboutShop(shop);
+        checkAuthorityAboutShop(getShopById(shopId));
 
         checkMenuCategoryNameDuplicationAtSameShop(shopId, request.getName());
         checkExceedsMaximumCountOfMenuCategoriesAtShop(shopId);
 
         ShopMenuCategory menuCategory = ShopMenuCategory.of(shopId, request.getName());
         shopMapper.createMenuCategory(menuCategory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId) {
+        checkAuthorityAboutShop(getShopById(shopId));
+
+        List<ShopMenuCategory> allMenuCategoriesOfShop = shopMapper.getMenuCategoriesByShopId(shopId);
+        return AllMenuCategoriesOfShopResponse.from(allMenuCategoriesOfShop);
     }
 
     private void checkExceedsMaximumCountOfMenuCategoriesAtShop(Integer shopId) {

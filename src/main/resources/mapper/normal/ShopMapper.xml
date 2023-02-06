@@ -232,6 +232,14 @@
         )
     </insert>
 
+    <select id="getMenuCategoriesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
+        SELECT *
+        FROM `koin`.`shop_menu_categories`
+        WHERE
+            `shop_id` = #{shopId}
+            AND `is_deleted` = 0
+    </select>
+
 
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>
