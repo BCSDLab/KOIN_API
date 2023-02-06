@@ -7,4 +7,6 @@ public interface OwnerShopService {
     void createMenuCategory(Integer shopId, CreateMenuCategoryRequest request);
 
     AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
+
+    void deleteMenuCategory(Integer shopId, Integer menuCategoryId);
 }

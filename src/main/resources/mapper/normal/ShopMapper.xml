@@ -240,6 +240,33 @@
             AND `is_deleted` = 0
     </select>
 
+    <select id="getMenuCategoryById" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
+        SELECT *
+        FROM `koin`.`shop_menu_categories`
+        WHERE
+            `id` = #{id}
+            AND `is_deleted` = 0
+    </select>
+
+    <select id="getMenusUsingCategoryByMenuCategoryId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenu">
+        SELECT *
+        FROM `koin`.`shop_menus`
+        WHERE
+            `id` IN (
+                SELECT `shop_menu_id`
+                FROM `koin`.`shop_menu_category_map`
+                WHERE
+                    `shop_menu_category_id` = #{menuCategoryId}
+            )
+            AND `is_deleted` = 0
+    </select>
+
+    <update id="deleteMenuCategoryById" parameterType="integer">
+        UPDATE `koin`.`shop_menu_categories`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </update>
+
 
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>

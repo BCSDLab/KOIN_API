@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @Auth(role = Auth.Role.OWNER, authority = Auth.Authority.SHOP)
-@Api(tags = "(Normal) Owner's Shop", description = "상점 (사장님 전용)")
+@Api(tags = "(Normal) Owner Shop", description = "상점 (사장님 전용)")
 @Controller
 @RequestMapping("/owner/shops")
 public class OwnerShopController {
@@ -47,7 +47,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -60,5 +60,25 @@ public class OwnerShopController {
     ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = ownerShopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상점의 메뉴 카테고리 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n" +
+                                               "  - 만약 categoryId에 대한 카테고리가, shopId에 대한 상점에 속해있는 카테고리가 아닌 경우도 포함", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 메뉴가 존재하여 삭제할 수 없는 경우 (code: 104012)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> deleteMenuCategory(
+            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 카테고리 고유 id", required = true) @PathVariable("categoryId") Integer menuCategoryId) {
+        ownerShopService.deleteMenuCategory(shopId, menuCategoryId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
