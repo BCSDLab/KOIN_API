@@ -29,7 +29,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 중복되는 이름의 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
             @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
@@ -45,9 +47,11 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 카테고리 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 상점 카테고리가 조회되지 않을 때 (code: 104004)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -58,7 +62,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 카테고리 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
     })
@@ -73,9 +79,11 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점 카테고리가 조회되지 않을 때 (code: 104004)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 이름이 중복되는 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
             @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
     })
@@ -91,10 +99,12 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 존재하지 않을 때 (code: 104004)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 상점이 존재하여 삭제할 수 없는 경우 (code: 104006)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 상점 카테고리가 조회되지 않을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 상점이 존재하여 삭제할 수 없을 때 (code: 104006)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -107,7 +117,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 생성", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
             @ApiResponse(code = 412, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
@@ -125,7 +137,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
@@ -138,7 +152,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
     })
@@ -153,7 +169,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 수정", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
@@ -173,7 +191,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 삭제", notes = "상점을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 상점이 이미 삭제(soft delete) 되어있을 경우 (code: 104002)", response = ExceptionResponse.class)
@@ -187,7 +207,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "상점 삭제 해제", notes = "상점의 soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 삭제되어 있는 상점이 아닐 경우 (code: 104003)", response = ExceptionResponse.class)
@@ -203,7 +225,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 중복되는 이름의 카테고리가 이미 존재할 때 (code: 104011) \n" +
@@ -223,7 +247,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
@@ -236,7 +262,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000) \n" +
                                                "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n" +
@@ -256,7 +284,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 생성", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
@@ -277,7 +307,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
@@ -294,7 +326,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
@@ -307,7 +341,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
@@ -329,7 +365,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
@@ -346,7 +384,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 숨김", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
@@ -364,7 +404,9 @@ public class AdminShopController {
 
     @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +

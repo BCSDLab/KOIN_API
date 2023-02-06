@@ -35,7 +35,7 @@ public class UpdateShopRequest {
     @Valid
     @NotNull(message = "open은 필수입니다.")
     @ApiModelProperty(notes = "요일별 장사 시간과 휴무 여부 \n" +
-                              "- not null" +
+                              "- not null \n" +
                               "- 리스트의 길이는 7(1주일 요일 개수) 이어야 함 \n" +
                               "- day_of_week은 각각 `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` 이어야 함", required = true)
     private List<Open> open = new ArrayList<>();
@@ -49,7 +49,7 @@ public class UpdateShopRequest {
 
     @PositiveOrZero(message = "delivery_price는 0 이상 2147483647 이하입니다.")
     @ApiModelProperty(notes = "배달 금액 \n" +
-                              "- 0 이상 2147483647 이하" +
+                              "- 0 이상 2147483647 이하 \n" +
                               "- null일 경우 0으로 저장됨", example = "1000")
     private Integer delivery_price = 0;
 
