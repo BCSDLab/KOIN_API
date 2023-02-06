@@ -195,6 +195,44 @@
                 AND `t5`.`is_deleted` = 0
     </select>
 
+
+    <select id="getShopById" parameterType="integer" resultType="koreatech.in.domain.Shop.Shop">
+        SELECT *
+        FROM `koin`.`shops`
+        WHERE
+            `id` = #{id}
+            AND `is_deleted` = 0
+    </select>
+
+    <select id="getMenuCategoryByShopIdAndName" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
+        SELECT *
+        FROM `koin`.`shop_menu_categories`
+        WHERE
+            `shop_id` = #{shopId}
+            AND `name` = #{name}
+            AND `is_deleted` = 0
+    </select>
+
+    <select id="getCountOfMenuCategoriesByShopId" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`shop_menu_categories`
+        WHERE
+            `shop_id` = #{shopId}
+             AND `is_deleted` = 0
+    </select>
+
+    <insert id="createMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory" keyProperty="menuCategory.id">
+        INSERT INTO `koin`.`shop_menu_categories` (
+            `shop_id`,
+            `name`
+        )
+        VALUES (
+            #{menuCategory.shop_id},
+            #{menuCategory.name}
+        )
+    </insert>
+
+
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>
         <result property="name" column="shops.name"/>

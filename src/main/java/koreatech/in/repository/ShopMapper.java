@@ -15,4 +15,13 @@ public interface ShopMapper {
     List<ShopProfile> getAllShopProfiles();
 
     List<ShopMenuProfile> getMenuProfilesByShopId(@Param("shopId") Integer shopId);
+
+
+    Shop getShopById(@Param("id") Integer id);
+
+    ShopMenuCategory getMenuCategoryByShopIdAndName(@Param("shopId") Integer shopId, @Param("name") String name);
+
+    Integer getCountOfMenuCategoriesByShopId(@Param("shopId") Integer shopId);
+
+    void createMenuCategory(@Param("menuCategory") ShopMenuCategory menuCategory);
 }
