@@ -50,14 +50,6 @@ public class ShopProfile {
         private String name;
     }
 
-    public boolean isSoftDeleted() {
-        if (this.is_deleted == null) {
-            return false;
-        }
-
-        return this.is_deleted.equals(true);
-    }
-
     public List<Integer> getShopCategoryIds() {
         if (this.shop_categories == null) {
             return new ArrayList<>();

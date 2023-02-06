@@ -50,10 +50,6 @@ public class ShopMenu {
         return this.shop_id.equals(shopId);
     }
 
-    public void matchShopId(Integer shopId) {
-        this.shop_id = shopId;
-    }
-
     public boolean needToUpdate(UpdateShopMenuRequest request) {
         return !Objects.equals(this.name, request.getName())
                 || !Objects.equals(this.description, request.getDescription());
@@ -77,5 +73,9 @@ public class ShopMenu {
         }
 
         return this.is_hidden.equals(true);
+    }
+
+    public boolean isDeleted() {
+        return this.is_deleted;
     }
 }

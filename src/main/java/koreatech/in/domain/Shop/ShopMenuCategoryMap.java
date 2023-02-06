@@ -2,6 +2,7 @@ package koreatech.in.domain.Shop;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
 import java.util.Objects;
@@ -38,5 +39,13 @@ public class ShopMenuCategoryMap {
 
         return Objects.equals(shop_menu_id, ((ShopMenuCategoryMap) obj).getShop_menu_id())
                 && Objects.equals(shop_menu_category_id, ((ShopMenuCategoryMap) obj).getShop_menu_category_id());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(this.shop_menu_id)
+                .append(this.shop_menu_category_id)
+                .toHashCode();
     }
 }

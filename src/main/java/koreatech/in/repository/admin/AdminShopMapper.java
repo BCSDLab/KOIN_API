@@ -18,7 +18,7 @@ public interface AdminShopMapper {
 
     Integer getTotalCountOfShopCategoriesByCondition(@Param("condition") ShopCategoriesCondition condition);
 
-    List<ShopCategory> getShopCategoriesByCondition(@Param("cursor") Integer cursor, @Param("condition") ShopCategoriesCondition condition);
+    List<ShopCategory> getShopCategoriesByCondition(@Param("begin") Integer begin, @Param("condition") ShopCategoriesCondition condition);
 
     void updateShopCategory(@Param("shopCategory") ShopCategory shopCategory);
 

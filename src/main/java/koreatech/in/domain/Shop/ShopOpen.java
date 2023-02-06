@@ -22,10 +22,6 @@ public class ShopOpen {
     private Date created_at;
     private Date updated_at;
 
-    public void matchShopId(Integer shopId) {
-        this.shop_id = shopId;
-    }
-
     public static ShopOpen of(Integer shopId, DayOfWeek dayOfWeek, Boolean closed, String openTime, String closeTime) {
         return new ShopOpen(shopId, dayOfWeek, closed, openTime, closeTime);
     }

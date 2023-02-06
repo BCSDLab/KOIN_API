@@ -80,7 +80,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
     @Override
     public void deleteShopCategory(Integer shopCategoryId) {
-        getShopCategory(shopCategoryId); // 카테고리 존재 여부 체크
+        getShopCategoryById(shopCategoryId); // 카테고리 존재 여부 체크
 
         // 카테고리를 사용하고 있는 상점 리스트
         List<Shop> shopsUsingCategory = adminShopMapper.getShopsUsingCategoryByShopCategoryId(shopCategoryId);
@@ -141,16 +141,9 @@ public class AdminShopServiceImpl implements AdminShopService {
     }
 
     private List<ShopOpen> generateShopOpensAndGet(List<CreateShopRequest.Open> opens, Integer shopId) {
-        List<ShopOpen> shopOpens = new ArrayList<>();
-
-        opens.stream()
-                .map(AdminShopOpenConverter.INSTANCE::toShopOpen)
-                .forEach(shopOpen -> {
-                    shopOpen.matchShopId(shopId);
-                    shopOpens.add(shopOpen);
-                });
-
-        return shopOpens;
+        return opens.stream()
+                .map(open -> AdminShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .collect(Collectors.toList());
     }
 
     private String[] getDefaultMenuCategoryNames() {
@@ -246,16 +239,9 @@ public class AdminShopServiceImpl implements AdminShopService {
     }
 
     private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
-        List<ShopOpen> shopOpens = new ArrayList<>();
-
-        opens.stream()
-                .map(AdminShopOpenConverter.INSTANCE::toShopOpen)
-                .forEach(shopOpen -> {
-                    shopOpen.matchShopId(shopId);
-                    shopOpens.add(shopOpen);
-                });
-
-        return shopOpens;
+        return opens.stream()
+                .map(open -> AdminShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .collect(Collectors.toList());
     }
 
     private List<ShopCategoryMap> getToBeDeletedShopCategoryMaps(List<ShopCategoryMap> existingShopCategoryMaps, List<ShopCategoryMap> requestedShopCategoryMaps) {
@@ -343,15 +329,13 @@ public class AdminShopServiceImpl implements AdminShopService {
         adminShopMapper.deleteMenuCategoryById(menuCategoryId);
     }
 
-    private ShopMenuCategory checkMenuCategoryExistIdAndShopId(Integer menuCategoryId, Integer shopId) {
+    private void checkMenuCategoryExistIdAndShopId(Integer menuCategoryId, Integer shopId) {
         ShopMenuCategory menuCategory = Optional.ofNullable(adminShopMapper.getMenuCategoryById(menuCategoryId))
                 .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
 
         if (!menuCategory.hasSameShopId(shopId)) {
             throw new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND);
         }
-
-        return menuCategory;
     }
 
     @Override
@@ -367,8 +351,7 @@ public class AdminShopServiceImpl implements AdminShopService {
         getShopById(shopId); // 상점 존재 여부 체크
 
         // ======= shop_menus 테이블 =======
-        ShopMenu menu = AdminShopMenuConverter.INSTANCE.toShopMenu(request);
-        menu.matchShopId(shopId);
+        ShopMenu menu = AdminShopMenuConverter.INSTANCE.toShopMenu(request, shopId);
         adminShopMapper.createMenu(menu);
 
 
@@ -377,27 +360,22 @@ public class AdminShopServiceImpl implements AdminShopService {
         if (request.isSingleMenu()) {
             ShopMenuDetail menuDetail = ShopMenuDetail.singleOf(menu.getId(), request.getSingle_price());
             adminShopMapper.createMenuDetail(menuDetail);
-        }
-        else {
+        } else {
             List<ShopMenuDetail> menuDetails = generateMenuDetailsAndGet(menu.getId(), request.getOption_prices());
             adminShopMapper.createMenuDetails(menuDetails);
         }
 
 
         // ======= shop_menu_category_map 테이블 =======
-        List<Integer> menuCategoryIds = request.getCategory_ids();
+        checkMenuCategoriesExistInDatabase(shopId, request.getCategory_ids());
 
-        checkMenuCategoriesExistInDatabase(shopId, menuCategoryIds);
-
-        List<ShopMenuCategoryMap> menuCategoryMaps = generateMenuCategoryMapsAndGet(menu.getId(), menuCategoryIds);
+        List<ShopMenuCategoryMap> menuCategoryMaps = generateMenuCategoryMapsAndGet(menu.getId(), request.getCategory_ids());
         adminShopMapper.createMenuCategoryMaps(menuCategoryMaps);
 
 
         // ======= shop_menu_images 테이블 =======
-        List<String> imageUrls = request.getImage_urls();
-
-        if (!imageUrls.isEmpty()) {
-            List<ShopMenuImage> menuImages = generateMenuImagesAndGet(menu.getId(), imageUrls);
+        if (request.isImageUrlsExist()) {
+            List<ShopMenuImage> menuImages = generateMenuImagesAndGet(menu.getId(), request.getImage_urls());
             adminShopMapper.createMenuImages(menuImages);
         }
     }
@@ -447,8 +425,8 @@ public class AdminShopServiceImpl implements AdminShopService {
              UPDATE 대상 테이블
              - shop_menus
              - shop_menu_details
-             - shop_menu_images
              - shop_menu_category_map
+             - shop_menu_images
          */
 
         getShopById(shopId); // 상점 존재 여부 체크
@@ -481,7 +459,7 @@ public class AdminShopServiceImpl implements AdminShopService {
         // 단일 메뉴가 아닐때
         else {
             List<ShopMenuDetail> requestedMenuDetails = generateMenuDetailsAndGetForUpdate(existingMenu.getId(), request.getOption_prices());
-            adminShopMapper.createMenuDetails(requestedMenuDetails);
+            adminShopMapper.createMenuDetails(requestedMenuDetails); // 중복되는 (shop_menu_id, option, price)는 IGNORE에 의해 INSERT가 무시됨
 
             List<ShopMenuDetail> toBeDeletedMenuDetails = getToBeDeletedMenuDetails(existingMenuDetails, requestedMenuDetails);
             if (!toBeDeletedMenuDetails.isEmpty()) {
@@ -496,7 +474,7 @@ public class AdminShopServiceImpl implements AdminShopService {
         List<ShopMenuCategoryMap> existingMenuCategoryMaps = adminShopMapper.getMenuCategoryMapsByMenuId(existingMenu.getId());
 
         List<ShopMenuCategoryMap> requestedMenuCategoryMaps = generateMenuCategoryMapsAndGet(existingMenu.getId(), request.getCategory_ids());
-        adminShopMapper.createMenuCategoryMaps(requestedMenuCategoryMaps);
+        adminShopMapper.createMenuCategoryMaps(requestedMenuCategoryMaps); // 중복되는 (shop_menu_id, shop_menu_category_id)는 IGNORE에 의해 INSERT가 무시됨
 
         List<ShopMenuCategoryMap> toBeDeletedMenuCategoryMaps = getToBeDeletedMenuCategoryMaps(existingMenuCategoryMaps, requestedMenuCategoryMaps);
         if (!toBeDeletedMenuCategoryMaps.isEmpty()) {
@@ -509,6 +487,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
         List<ShopMenuImage> requestedMenuImages = generateMenuImagesAndGet(existingMenu.getId(), request.getImage_urls());
         if (!requestedMenuImages.isEmpty()) {
+            // 중복되는 (shop_menu_id, image_url)은 IGNORE에 의해 INSERT가 무시됨
             adminShopMapper.createMenuImages(requestedMenuImages);
         }
 
@@ -534,6 +513,7 @@ public class AdminShopServiceImpl implements AdminShopService {
         return existingMenuCategoryMaps;
     }
 
+    // (기존에 존재하던 menu image 리스트에서 요청된 menu image들을 제거 --> 삭제할 menu image 리스트를 얻어낼 수 있다.)
     private List<ShopMenuImage> getToBeDeletedMenuImages(List<ShopMenuImage> existingMenuImages, List<ShopMenuImage> requestedMenuImages) {
         existingMenuImages.removeAll(requestedMenuImages);
         return existingMenuImages;

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -27,11 +26,11 @@ public class ShopMenuProfile {
     }
 
     public boolean hasSameShopId(Integer shopId) {
-        if (this.shop_id == null || shopId == null) {
+        if (this.shop_id == null) {
             return false;
         }
 
-        return Objects.equals(this.shop_id, shopId);
+        return this.shop_id.equals(shopId);
     }
 
     public void decideWhetherSingleOrNot() {

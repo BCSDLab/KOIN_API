@@ -10,7 +10,7 @@
             AND `is_deleted` = 0
     </select>
 
-    <insert id="createShopCategory" parameterType="koreatech.in.domain.Shop.ShopCategory" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createShopCategory" parameterType="koreatech.in.domain.Shop.ShopCategory" keyProperty="id">
         INSERT INTO `koin`.`shop_categories` (
             `name`,
             `image_url`
@@ -87,7 +87,6 @@
             FROM `koin`.`shop_category_map`
             WHERE
                 `shop_category_id` = #{shopCategoryId}
-                AND `is_deleted` = 0
         )
     </select>
 
@@ -97,9 +96,8 @@
         WHERE `id` = #{id}
     </update>
 
-    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop" useGeneratedKeys="true" keyProperty="shop.id">
         INSERT INTO `koin`.`shops` (
-            `owner_id`,
             `name`,
             `internal_name`,
             `chosung`,
@@ -112,7 +110,6 @@
             `pay_bank`
         )
         VALUES (
-            #{shop.owner_id},
             #{shop.name},
             #{shop.internal_name},
             #{shop.chosung},
@@ -396,7 +393,6 @@
     <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
         UPDATE `koin`.`shops`
         SET
-            `owner_id` = #{shop.owner_id},
             `name` = #{shop.name},
             `internal_name` = #{shop.internal_name},
             `chosung` = #{shop.chosung},
@@ -406,10 +402,7 @@
             `delivery` = #{shop.delivery},
             `delivery_price` = #{shop.delivery_price},
             `pay_card` = #{shop.pay_card},
-            `pay_bank` = #{shop.pay_bank},
-            `is_event` = #{shop.is_event},
-            `remarks` = #{shop.remarks},
-            `hit` = #{shop.hit}
+            `pay_bank` = #{shop.pay_bank}
         WHERE
             `id` = #{shop.id}
     </update>
@@ -511,7 +504,7 @@
             AND `is_deleted` = 0
     </select>
 
-    <insert id="createMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory" keyProperty="id">
         INSERT INTO `koin`.`shop_menu_categories` (
             `shop_id`,
             `name`
@@ -557,7 +550,7 @@
         WHERE `id` = #{id}
     </update>
 
-    <insert id="createMenu" parameterType="koreatech.in.domain.Shop.ShopMenu" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenu" parameterType="koreatech.in.domain.Shop.ShopMenu" useGeneratedKeys="true" keyProperty="menu.id">
         INSERT INTO `koin`.`shop_menus` (
             `shop_id`,
             `name`,
@@ -572,7 +565,7 @@
         )
     </insert>
 
-    <insert id="createMenuDetail" parameterType="koreatech.in.domain.Shop.ShopMenuDetail" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createMenuDetail" parameterType="koreatech.in.domain.Shop.ShopMenuDetail" useGeneratedKeys="true" keyProperty="menuDetail.id">
         INSERT IGNORE INTO `koin`.`shop_menu_details` (
             `shop_menu_id`,
             `option`,
