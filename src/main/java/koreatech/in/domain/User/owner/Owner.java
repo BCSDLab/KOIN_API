@@ -4,9 +4,11 @@ import java.util.List;
 import koreatech.in.domain.User.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-@Getter @ToString
+@Getter @Setter
+@ToString
 @NoArgsConstructor
 public class Owner extends User {
     private String company_registration_number;
