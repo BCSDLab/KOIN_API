@@ -2,6 +2,7 @@ package koreatech.in.mapstruct;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Domain;
 import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.LocalParts;
@@ -11,10 +12,12 @@ import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.request.UserRegisterRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.mapstruct.SubclassMapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -49,19 +52,26 @@ public interface OwnerConverter {
         return EmailAddress.from(address).getEmailAddress();
     }
 
+
     @Mappings({
-            @Mapping(source = "companyCertificateAttachmentUrls", target = "email", qualifiedByName = "convertAttachments"),
-            @Mapping(source = "companyNumber", target = "company_registration_number"),
             @Mapping(source = "account", target = "account"),
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "name", target = "name")
     })
+    @SubclassMapping(source = OwnerRegisterRequest.class, target = Owner.class)
+    User toUser(UserRegisterRequest userRegisterRequest);
+
+    @Mappings({
+            @Mapping(source = "companyCertificateAttachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
+            @Mapping(source = "companyNumber", target = "company_registration_number"),
+    })
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
     default List<String> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
-        return companyCertificateAttachmentUrls.stream().map(AttachmentUrlRequest::getFileUrl).collect(Collectors.toList());
+        return companyCertificateAttachmentUrls.stream().map(AttachmentUrlRequest::getFileUrl)
+                .collect(Collectors.toList());
     }
 
 }
