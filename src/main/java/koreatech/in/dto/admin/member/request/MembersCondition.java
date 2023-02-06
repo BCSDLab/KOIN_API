@@ -5,9 +5,6 @@ import koreatech.in.domain.Criteria.Criteria;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter @Setter
 public class MembersCondition extends Criteria {
     @ApiParam(value = "정렬 기준 \n" +
@@ -33,10 +30,8 @@ public class MembersCondition extends Criteria {
                       "   - REGULAR")
     private Position position;
 
-    @ApiParam(value = "필터링 기준 (리스트)\n" +
-                      "- 다음 중 선택하여 요청 가능 \n" +
-                      "   - IS_DELETED")
-    private List<Filter> filter = new ArrayList<>();
+    @ApiParam(value = "삭제(soft delete) 여부")
+    private Boolean is_deleted;
 
     @ApiParam(value = "검색 대상 \n" +
                       "- null일 경우 기본값: NAME \n" +
@@ -67,10 +62,6 @@ public class MembersCondition extends Criteria {
     private enum Position {
         MENTOR,
         REGULAR
-    }
-
-    private enum Filter {
-        IS_DELETED
     }
 
     private enum SearchType {

@@ -58,32 +58,32 @@
                </trim>
             </if>
 
-            <!-- 필터링 -->
-            <if test="!condition.filter.isEmpty()">
-                <trim prefix="AND">
-                    <foreach collection="condition.filter" item="item" separator="AND">
-                        <if test='"item.name().equals("IS_DELETED")'>`m`.`is_deleted` = 1</if>
-                    </foreach>
-                </trim>
-            </if>
-
             <!-- 필터링 (트랙) -->
             <if test="condition.track != null">
                 <trim prefix="AND `t`.`name` = ">
                     <if test='condition.track.name().equals("ANDROID")'> 'Android' </if>
-                    <if test='condition.track.name().equals("BACKEND")'>'BackEnd'</if>
-                    <if test='condition.track.name().equals("FRONTEND")'>'FrontEnd'</if>
-                    <if test='condition.track.name().equals("GAME")'>'Game'</if>
-                    <if test='condition.track.name().equals("HR")'>'HR'</if>
-                    <if test='condition.track.name().equals("UI_UX")'>'UI/UX'</if>
+                    <if test='condition.track.name().equals("BACKEND")'> 'BackEnd' </if>
+                    <if test='condition.track.name().equals("FRONTEND")'> 'FrontEnd' </if>
+                    <if test='condition.track.name().equals("GAME")'> 'Game' </if>
+                    <if test='condition.track.name().equals("HR")'> 'HR' </if>
+                    <if test='condition.track.name().equals("UI_UX")'> 'UI/UX' </if>
                 </trim>
             </if>
 
             <!-- 필터링 (직책) -->
             <if test="condition.position != null">
                 <trim prefix="AND `m`.`position` = ">
-                    <if test='condition.position.name().equals("MENTOR")'>'Mentor'</if>
-                    <if test='condition.position.name().equals("REGULAR")'>'Regular'</if>
+                    <if test='condition.position.name().equals("MENTOR")'> 'Mentor' </if>
+                    <if test='condition.position.name().equals("REGULAR")'> 'Regular' </if>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `m`.`is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
                 </trim>
             </if>
         </trim>
@@ -117,15 +117,6 @@
                 </trim>
             </if>
 
-            <!-- 필터링 -->
-            <if test="!condition.filter.isEmpty()">
-                <trim prefix="AND">
-                    <foreach collection="condition.filter" item="item" separator="AND">
-                        <if test='"item.name().equals("IS_DELETED")'>`m`.`is_deleted` = 1</if>
-                    </foreach>
-                </trim>
-            </if>
-
             <!-- 필터링 (트랙) -->
             <if test="condition.track != null">
                 <trim prefix="AND `t`.`name` = ">
@@ -143,6 +134,15 @@
                 <trim prefix="AND `m`.`position` = ">
                     <if test='condition.position.name().equals("MENTOR")'>'Mentor'</if>
                     <if test='condition.position.name().equals("REGULAR")'>'Regular'</if>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `m`.`is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
                 </trim>
             </if>
         </trim>

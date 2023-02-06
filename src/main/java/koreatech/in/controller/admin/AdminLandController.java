@@ -51,7 +51,11 @@ public class AdminLandController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "페이지별 집 리스트 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(
+            value = "페이지별 집 리스트 조회",
+            notes = "Swagger에서 인식이 안되는 query parameter \n ![설명](https://static.koreatech.in/lands/queryparameter-filter.png)",
+            authorizations = {@Authorization("Authorization")}
+    )
     @ApiResponses({
             @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)

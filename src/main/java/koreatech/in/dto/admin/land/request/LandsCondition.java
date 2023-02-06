@@ -18,9 +18,11 @@ public class LandsCondition extends Criteria {
             "   - CREATED_AT_DESC: 최신순(등록순의 반대) \n")
     private Sort sort;
 
+    @ApiParam(value = "삭제(soft delete) 여부")
+    private Boolean is_deleted;
+
     @ApiParam(value = "필터링 기준 (리스트)\n" +
             "- 다음 중 선택하여 요청 가능 \n" +
-            "   - IS_DELETED \n" +
             "   - REFRIGERATOR \n" +
             "   - CLOSET \n" +
             "   - TV \n" +
@@ -57,7 +59,6 @@ public class LandsCondition extends Criteria {
     }
 
     private enum Filter {
-        IS_DELETED, // 삭제 여부
         REFRIGERATOR, // 냉장고
         CLOSET, // 옷장
         TV, // TV
