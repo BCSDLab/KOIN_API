@@ -8,6 +8,8 @@ import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.LocalParts;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
+import koreatech.in.domain.User.owner.OwnerShopAttachment;
+import koreatech.in.domain.User.owner.OwnerShopAttachments;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -74,4 +76,14 @@ public interface OwnerConverter {
                 .collect(Collectors.toList());
     }
 
+    @Mappings({
+            @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachment")
+    })
+    OwnerShopAttachments toOwnerShopAttachments(Owner owner);
+
+    @Named("convertAttachment")
+    default List<OwnerShopAttachment> convertAttachment(Owner owner) {
+        return owner.getAttachments().stream().map(url -> OwnerShopAttachment.of(owner.getId(), url))
+                .collect(Collectors.toList());
+    }
 }
