@@ -29,8 +29,12 @@ public class AdminLandController {
     @ApiOperation(value = "집 생성", authorizations = {@Authorization("Authorization")})
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
-            @ApiResponse(code = 409, message = "이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/lands", method = RequestMethod.POST)
@@ -42,7 +46,11 @@ public class AdminLandController {
 
     @ApiOperation(value = "집 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -57,8 +65,12 @@ public class AdminLandController {
             authorizations = {@Authorization("Authorization")}
     )
     @ApiResponses({
-            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
@@ -71,9 +83,13 @@ public class AdminLandController {
 
     @ApiOperation(value = "집 수정", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.PUT)
@@ -87,8 +103,12 @@ public class AdminLandController {
 
     @ApiOperation(value = "집 삭제", notes = "soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "이미 soft delete 되어있는 집일 때 (error code: 107002)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이미 soft delete 되어있는 집일 때 (error code: 107002)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -99,8 +119,12 @@ public class AdminLandController {
 
     @ApiOperation(value = "집 삭제 해제", notes = "soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "soft delete 되어있는 집이 아닐 때 (error code: 107003)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- soft delete 되어있는 집이 아닐 때 (error code: 107003)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody

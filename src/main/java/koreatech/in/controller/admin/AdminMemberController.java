@@ -30,8 +30,12 @@ public class AdminMemberController {
     @ApiOperation(value = "BCSDLab 회원 생성", authorizations = {@Authorization("Authorization")})
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
-            @ApiResponse(code = 404, message = "요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
@@ -43,7 +47,11 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -54,8 +62,12 @@ public class AdminMemberController {
 
     @ApiOperation(value = "페이지별 BCSDLab 회원 리스트 조회", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "유효하지 않은 페이지일 때 (error code: 100002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (error code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
@@ -68,9 +80,13 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 수정", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 202000) \n\n" +
-                                               "요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000) \n\n" +
+                                               "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
@@ -84,8 +100,12 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 삭제", notes = "soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "이미 soft delete 되어있을 때 (error code: 202001)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이미 soft delete 되어있을 때 (error code: 202001)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -96,8 +116,12 @@ public class AdminMemberController {
 
     @ApiOperation(value = "BCSDLab 회원 삭제 해제", notes = "soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
-            @ApiResponse(code = 404, message = "회원이 존재하지 않을 때 (error code: 200000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "회원이 삭제되어 있는 상태가 아닐 때 (error code: 202002)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 200000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 회원이 삭제되어 있는 상태가 아닐 때 (error code: 202002)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
