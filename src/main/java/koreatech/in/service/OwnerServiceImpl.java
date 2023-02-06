@@ -3,20 +3,26 @@ package koreatech.in.service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.domain.User.owner.OwnerShopAttachments;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
+import koreatech.in.repository.user.OwnerMapper;
+import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.StringRedisUtilStr;
@@ -46,6 +52,13 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+
+    private UserMapper userMapper;
+
+    @Autowired
+    private OwnerMapper ownerMapper;
+
     @Override
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
 
@@ -71,18 +84,48 @@ public class OwnerServiceImpl implements OwnerService {
         putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
     }
 
-    @Override
     @Transactional
+    @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
+        Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
 
         validationAndDeleteInRedis(owner);
 
         encodePassword(owner);
 
-
+        createInDB(owner);
 
         //TODO 23.02.05. 박한수 DB쪽 작업 추가하기
+    }
+
+    private static Owner downcastFrom(User user) {
+        if(!(user instanceof Owner)) {
+            throw new ClassCastException("OwnerConverter에서 User -> Owner로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
+        }
+        return (Owner) user;
+    }
+
+    private void createInDB(Owner owner) {
+
+        owner.setUser_type(UserType.OWNER);
+        owner.setIs_authed(true);
+
+        try {
+            insertUserAndUpdateId(owner);
+            ownerMapper.insertOwner(owner);
+
+            OwnerShopAttachments ownerShopAttachments = OwnerConverter.INSTANCE.toOwnerShopAttachments(owner);
+
+            ownerMapper.insertOwnerShopAttachment(ownerShopAttachments);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+//TODO 23.02.06. 컨버터에서 Attachments 안에 뭐있고 뭐있고 이런식으로 하기
+            
+        }
+    }
+
+    private void insertUserAndUpdateId(Owner owner) throws SQLException {
+        userMapper.insertUser(owner);
     }
 
     private void encodePassword(Owner owner) {
