@@ -9,8 +9,12 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.request.UserRegisterRequest;
+import lombok.Getter;
+import lombok.Setter;
 
 
+@Getter
+@Setter
 public class OwnerRegisterRequest extends UserRegisterRequest {
 
     @NotBlank(message = "사업자 등록 번호는 필수입니다.")

@@ -5,7 +5,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class UserRegisterRequest {
 
     @NotNull(message = "아이디는 비워둘 수 없습니다.")
@@ -32,7 +36,7 @@ public class UserRegisterRequest {
             + "- not null \n"
             + "- 이메일 형식이어야 함"
             , required = true
-            , example = "hansupark2858@gmail.com"
+            , example = "abcd@gmail.com"
     )
     private String email;
 
