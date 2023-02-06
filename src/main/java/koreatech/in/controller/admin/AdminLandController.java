@@ -63,6 +63,8 @@ public class AdminLandController {
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<LandsResponse> getLands(LandsCondition condition) throws Exception {
+        condition.checkDataConstraintViolation();
+
         LandsResponse response = landService.getLandsForAdmin(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

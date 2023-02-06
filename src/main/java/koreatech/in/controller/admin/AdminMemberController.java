@@ -60,6 +60,8 @@ public class AdminMemberController {
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<MembersResponse> getMembers(MembersCondition condition) throws Exception {
+        condition.checkDataConstraintViolation();
+
         MembersResponse response = memberService.getMembersForAdmin(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
