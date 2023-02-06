@@ -22,6 +22,7 @@ import koreatech.in.util.SesMailSender;
 import koreatech.in.util.StringRedisUtilStr;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
@@ -41,6 +42,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private VelocityEngine velocityEngine;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
@@ -74,9 +78,15 @@ public class OwnerServiceImpl implements OwnerService {
 
         validationAndDeleteInRedis(owner);
 
+        encodePassword(owner);
+
 
 
         //TODO 23.02.05. 박한수 DB쪽 작업 추가하기
+    }
+
+    private void encodePassword(Owner owner) {
+        owner.setPassword(passwordEncoder.encode(owner.getPassword()));
     }
 
     private void removeRedisFrom(String emailAddress) {
