@@ -17,6 +17,7 @@ import java.util.*;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("shopService")
+@Transactional
 public class ShopServiceImpl implements ShopService {
     @Resource(name = "shopMapper")
     private ShopMapper shopMapper;

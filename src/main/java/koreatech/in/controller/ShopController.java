@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.ApiOperation;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllShopCategoriesResponse;
 import koreatech.in.dto.normal.shop.response.AllShopsResponse;
@@ -20,6 +21,7 @@ public class ShopController {
     @Inject
     private ShopService shopService;
 
+    @ApiOperation(value = "모든 상점 카테고리 조회")
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() {
