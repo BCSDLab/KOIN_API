@@ -40,6 +40,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "모든 상점 조회")
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopsResponse> getAllShops() {
