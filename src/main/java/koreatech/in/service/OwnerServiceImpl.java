@@ -8,8 +8,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.dto.normal.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.owner.request.VerifyEmailRequest;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
@@ -43,15 +47,44 @@ public class OwnerServiceImpl implements OwnerService {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
 
-        putRedisFor(emailAddress, ownerInVerification);
+        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
     }
 
-    private void putRedisFor(EmailAddress emailAddress, OwnerInVerification ownerInVerification) {
+    @Override
+    public void certificate(VerifyCodeRequest verifyCodeRequest) {
+        OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
+
+        OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification);
+
+        ownerInRedis.validateFor(ownerInCertification);
+        ownerInRedis.setIs_authed(true);
+
+        putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+    }
+
+    private OwnerInVerification getOwnerInRedis(OwnerInCertification ownerInCertification) {
+        Gson gson = new GsonBuilder().create();
+        String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + ownerInCertification.getEmail());
+
+        OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
+        validateRedis(ownerInRedis);
+
+        return ownerInRedis;
+    }
+
+    private static void validateRedis(OwnerInVerification ownerInRedis) {
+        if(ownerInRedis == null) {
+            throw  new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
+        }
+        ownerInRedis.validateFields();
+    }
+
+    private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
-        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress.getEmailAddress(),
+        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress,
                 gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 

@@ -17,6 +17,10 @@ public class EmailAddress {
         return localParts.getValue() + domainSeparator + domain.getValue();
     }
 
+    public static EmailAddress from(String fullAddress) {
+        return new EmailAddress(LocalParts.from(fullAddress), Domain.from(fullAddress));
+    }
+
     static void validates(String fullAddress) {
         if (!isValidEmailForm(getSeparateIndex(fullAddress))) {
             throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_INVALID);
