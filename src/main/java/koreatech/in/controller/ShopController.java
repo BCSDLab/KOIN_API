@@ -31,7 +31,7 @@ public class ShopController {
 
     @ApiOperation(value = "특정 상점 조회")
     @ApiResponses({
-            @ApiResponse(code = 404, message = "상점이 조회되지 않을 때", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
