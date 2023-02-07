@@ -14,7 +14,6 @@ import koreatech.in.domain.User.owner.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
-import koreatech.in.domain.User.owner.OwnerShopAttachments;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
@@ -54,7 +53,9 @@ public class OwnerServiceImpl implements OwnerService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private SlackNotiSender slackNotiSender;
 
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -71,6 +72,7 @@ public class OwnerServiceImpl implements OwnerService {
         putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
+        slackNotiSender.noticeEmailVerification(emailAddress);
     }
 
     @Override
@@ -88,40 +90,35 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
+        //TODO 23.02.07. 이메일 unique 검사가 필요.
         Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
 
         validationAndDeleteInRedis(owner);
 
         encodePassword(owner);
 
-        createInDB(owner);
+        createInDBFor(owner);
 
         slackNotiSender.noticeRegisterComplete(owner);
     }
 
     private static Owner downcastFrom(User user) {
-        if(!(user instanceof Owner)) {
+        if (!(user instanceof Owner)) {
             throw new ClassCastException("OwnerConverter에서 User -> Owner로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
         }
         return (Owner) user;
     }
 
-    private void createInDB(Owner owner) {
+    private void createInDBFor(Owner owner) {
 
-        owner.setUser_type(UserType.OWNER);
-        owner.setIs_authed(true);
+        enrichAuthComplete(owner);
 
         try {
             insertUserAndUpdateId(owner);
             ownerMapper.insertOwner(owner);
-
-            OwnerShopAttachments ownerShopAttachments = OwnerConverter.INSTANCE.toOwnerShopAttachments(owner);
-
-            ownerMapper.insertOwnerShopAttachment(ownerShopAttachments);
+            ownerMapper.insertOwnerShopAttachment(OwnerConverter.INSTANCE.toOwnerShopAttachments(owner));
         } catch (SQLException e) {
             throw new RuntimeException(e);
-//TODO 23.02.06. 컨버터에서 Attachments 안에 뭐있고 뭐있고 이런식으로 하기
-            
         }
     }
 
@@ -161,8 +158,8 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private static void validateRedis(OwnerInVerification ownerInRedis) {
-        if(ownerInRedis == null) {
-            throw  new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
+        if (ownerInRedis == null) {
+            throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
         }
         ownerInRedis.validateFields();
     }
