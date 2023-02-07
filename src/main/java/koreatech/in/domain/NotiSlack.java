@@ -1,5 +1,7 @@
 package koreatech.in.domain;
 
+import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.owner.Owner;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,4 +23,19 @@ public class NotiSlack {
     private String title_link;
 
     private String text;
+
+
+    public static NotiSlack emailVerificationNotiSlack(EmailAddress emailAddress) {
+        return NotiSlack.builder()
+                .color(NotiSlack.COLOR_GOOD)
+                .text(emailAddress.getEmailAddress() + NotiSlack.EMAIL_VERIFICATION_REQUEST_SUFFIX)
+                .build();
+    }
+
+    public static NotiSlack registerCompleteNotiSlack(Owner owner) {
+        return NotiSlack.builder()
+                .color(NotiSlack.COLOR_GOOD)
+                .text(owner.getEmail() + NotiSlack.REGISTER_COMPLETE_SUFFIX)
+                .build();
+    }
 }
