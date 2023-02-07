@@ -25,6 +25,7 @@ import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
+import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         createInDB(owner);
 
-        //TODO 23.02.05. 박한수 DB쪽 작업 추가하기
+        slackNotiSender.noticeRegisterComplete(owner);
     }
 
     private static Owner downcastFrom(User user) {
@@ -122,6 +123,11 @@ public class OwnerServiceImpl implements OwnerService {
 //TODO 23.02.06. 컨버터에서 Attachments 안에 뭐있고 뭐있고 이런식으로 하기
             
         }
+    }
+
+    private static void enrichAuthComplete(Owner owner) {
+        owner.setUser_type(UserType.OWNER);
+        owner.setIs_authed(true);
     }
 
     private void insertUserAndUpdateId(Owner owner) throws SQLException {
