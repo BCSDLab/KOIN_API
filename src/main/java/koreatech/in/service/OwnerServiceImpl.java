@@ -96,47 +96,15 @@ public class OwnerServiceImpl implements OwnerService {
         validationAndDeleteInRedis(owner);
 
         encodePassword(owner);
-
         createInDBFor(owner);
-
         slackNotiSender.noticeRegisterComplete(owner);
     }
 
-    private static Owner downcastFrom(User user) {
-        if (!(user instanceof Owner)) {
-            throw new ClassCastException("OwnerConverter에서 User -> Owner로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
+    private static void validateRedis(OwnerInVerification ownerInRedis) {
+        if (ownerInRedis == null) {
+            throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
         }
-        return (Owner) user;
-    }
-
-    private void createInDBFor(Owner owner) {
-
-        enrichAuthComplete(owner);
-
-        try {
-            insertUserAndUpdateId(owner);
-            ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerShopAttachment(OwnerConverter.INSTANCE.toOwnerShopAttachments(owner));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void enrichAuthComplete(Owner owner) {
-        owner.setUser_type(UserType.OWNER);
-        owner.setIs_authed(true);
-    }
-
-    private void insertUserAndUpdateId(Owner owner) throws SQLException {
-        userMapper.insertUser(owner);
-    }
-
-    private void encodePassword(Owner owner) {
-        owner.setPassword(passwordEncoder.encode(owner.getPassword()));
-    }
-
-    private void removeRedisFrom(String emailAddress) {
-        stringRedisUtilStr.deleteData(emailAddress);
+        ownerInRedis.validateFields();
     }
 
     private void validationAndDeleteInRedis(Owner owner) {
@@ -147,6 +115,17 @@ public class OwnerServiceImpl implements OwnerService {
         removeRedisFrom(owner.getEmail());
     }
 
+    private void removeRedisFrom(String emailAddress) {
+        stringRedisUtilStr.deleteData(emailAddress);
+    }
+
+    private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
+        Gson gson = new GsonBuilder().create();
+
+        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress,
+                gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
+    }
+
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
         Gson gson = new GsonBuilder().create();
         String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + emailAddress);
@@ -155,20 +134,6 @@ public class OwnerServiceImpl implements OwnerService {
         validateRedis(ownerInRedis);
 
         return ownerInRedis;
-    }
-
-    private static void validateRedis(OwnerInVerification ownerInRedis) {
-        if (ownerInRedis == null) {
-            throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
-        }
-        ownerInRedis.validateFields();
-    }
-
-    private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
-        Gson gson = new GsonBuilder().create();
-
-        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress,
-                gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
@@ -184,5 +149,38 @@ public class OwnerServiceImpl implements OwnerService {
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
                 StandardCharsets.UTF_8.name(), model);
+    }
+
+    private static Owner downcastFrom(User user) {
+        if (!(user instanceof Owner)) {
+            throw new ClassCastException("OwnerConverter에서 User -> Owner로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
+        }
+        return (Owner) user;
+    }
+
+    private void encodePassword(Owner owner) {
+        owner.setPassword(passwordEncoder.encode(owner.getPassword()));
+    }
+
+    private static void enrichAuthComplete(Owner owner) {
+        owner.setUser_type(UserType.OWNER);
+        owner.setIs_authed(true);
+    }
+
+    private void createInDBFor(Owner owner) {
+        enrichAuthComplete(owner);
+
+        try {
+            insertUserAndUpdateId(owner);
+
+            ownerMapper.insertOwner(owner);
+            ownerMapper.insertOwnerShopAttachment(OwnerConverter.INSTANCE.toOwnerShopAttachments(owner));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void insertUserAndUpdateId(Owner owner) throws SQLException {
+        userMapper.insertUser(owner);
     }
 }
