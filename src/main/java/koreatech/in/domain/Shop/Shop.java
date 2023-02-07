@@ -55,6 +55,14 @@ public class Shop {
         this.chosung = this.internal_name.substring(0, 1);
     }
 
+    public boolean hasSameOwnerId(Integer ownerId) {
+        if (this.owner_id == null) {
+            return false;
+        }
+
+        return this.owner_id.equals(ownerId);
+    }
+
     public boolean isDeleted() {
         if (this.is_deleted == null) {
             return false;

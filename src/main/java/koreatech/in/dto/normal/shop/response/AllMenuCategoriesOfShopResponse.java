@@ -1,4 +1,4 @@
-package koreatech.in.dto.admin.shop.response;
+package koreatech.in.dto.normal.shop.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,12 +9,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- *   특정 상점의 모든 메뉴 카테고리를 응답
- */
-
 @Getter @Builder
-@ApiModel("AdminAllMenuCategoriesOfShopResponse")
 public class AllMenuCategoriesOfShopResponse {
     @ApiModelProperty(notes = "개수", example = "4", required = true)
     private Integer count;
@@ -22,8 +17,8 @@ public class AllMenuCategoriesOfShopResponse {
     @ApiModelProperty(notes = "메뉴 카테고리 리스트", required = true)
     private List<Category> menu_categories;
 
-    @Getter @Builder
-    @ApiModel("Category_2")
+    @Getter
+    @ApiModel("Category_3")
     private static class Category {
         @ApiModelProperty(notes = "카테고리 고유 id", required = true)
         private Integer id;
