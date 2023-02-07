@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter @Builder
+@ApiModel("AdminAllMenusOfShopResponse")
 public class AllMenusOfShopResponse {
     @ApiModelProperty(notes = "개수", example = "20", required = true)
     private Integer count;

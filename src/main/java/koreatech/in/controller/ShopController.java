@@ -48,9 +48,13 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "특정 상점의 모든 메뉴 조회")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@PathVariable("id") Integer shopId) {
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenusOfShopResponse response = shopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
