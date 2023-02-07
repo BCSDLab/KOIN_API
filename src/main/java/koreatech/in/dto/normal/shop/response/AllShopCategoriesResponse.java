@@ -1,6 +1,9 @@
 package koreatech.in.dto.normal.shop.response;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.Shop.ShopCategory;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,20 +12,24 @@ import java.util.stream.Collectors;
 
 @Getter @Builder
 public class AllShopCategoriesResponse {
+    @ApiModelProperty(notes = "개수", example = "10", required = true)
     private Integer total_count;
+
+    @ApiModelProperty(notes = "모든 상점 카테고리 리스트", required = true)
     private List<Category> shop_categories;
 
-    @Getter @Builder
+    @Getter
+    @AllArgsConstructor
+    @ApiModel("Category_4")
     private static class Category {
-        private Integer id;
-        private String name;
-        private String image_url;
+        @ApiModelProperty(notes = "고유 id", example = "2", required = true)
+        private final Integer id;
 
-        public Category(Integer id, String name, String imageUrl) {
-            this.id = id;
-            this.name = name;
-            this.image_url = imageUrl;
-        }
+        @ApiModelProperty(notes = "이름", example = "치킨", required = true)
+        private final String name;
+
+        @ApiModelProperty(notes = "이미지 URL", example = "https://static.koreatech.in/test.png", required = true)
+        private final String image_url;
     }
 
     public static AllShopCategoriesResponse from(List<ShopCategory> shopCategories) {

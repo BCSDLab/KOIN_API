@@ -17,6 +17,7 @@ import java.util.*;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("shopService")
+@Transactional
 public class ShopServiceImpl implements ShopService {
     @Resource(name = "shopMapper")
     private ShopMapper shopMapper;
@@ -51,10 +52,16 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public AllMenusOfShopResponse getAllMenusOfShop(Integer shopId) {
-        List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
+        checkShopExistById(shopId);
 
+        List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
         menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
 
         return AllMenusOfShopResponse.from(menuProfiles);
+    }
+
+    private void checkShopExistById(Integer id) {
+        Optional.ofNullable(shopMapper.getShopById(id))
+                .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
     }
 }
