@@ -1,14 +1,20 @@
 package koreatech.in.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import static koreatech.in.domain.NotiSlack.emailVerificationNotiSlack;
+import static koreatech.in.domain.NotiSlack.registerCompleteNotiSlack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import koreatech.in.domain.NotiSlack;
+import koreatech.in.domain.Notice;
+import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.owner.Owner;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 public class SlackNotiSender {
 
@@ -100,6 +106,32 @@ public class SlackNotiSender {
 
     public void noticeRegister(Object data) {
         noticeWithdraw(data);
+    }
+
+    public void noticeEmailVerification(EmailAddress emailAddress) {
+        NotiSlack notiSlack = emailVerificationNotiSlack(emailAddress);
+        Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
+
+        noticeFor(notice);
+    }
+
+    public void noticeRegisterComplete(Owner owner) {
+        NotiSlack notiSlack = registerCompleteNotiSlack(owner);
+        Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
+
+        noticeFor(notice);
+    }
+
+    private void noticeFor(Notice notice) {
+        if (!isProduction()) {
+            return;
+        }
+
+        try {
+            restTemplate.postForObject(notice.getUrl(), notice.getParams(), String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
     }
 
     public void noticeItem(Object data) {
