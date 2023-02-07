@@ -1,11 +1,11 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllShopCategoriesResponse;
 import koreatech.in.dto.normal.shop.response.AllShopsResponse;
 import koreatech.in.dto.normal.shop.response.ShopResponse;
-import io.swagger.annotations.Api;
 import koreatech.in.service.ShopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +29,13 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "특정 상점 조회")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "상점이 조회되지 않을 때", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopResponse> getShop(@PathVariable("id") Integer shopId) {
+    ResponseEntity<ShopResponse> getShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         ShopResponse response = shopService.getShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
