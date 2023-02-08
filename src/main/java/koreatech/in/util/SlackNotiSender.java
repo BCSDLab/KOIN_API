@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.Notice;
-import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
-import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;

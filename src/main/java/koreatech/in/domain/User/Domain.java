@@ -1,4 +1,4 @@
-package koreatech.in.domain.User.owner;
+package koreatech.in.domain.User;
 
 import java.util.Hashtable;
 import javax.naming.NamingException;

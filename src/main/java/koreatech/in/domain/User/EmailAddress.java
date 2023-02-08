@@ -1,4 +1,4 @@
-package koreatech.in.domain.User.owner;
+package koreatech.in.domain.User;
 
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;

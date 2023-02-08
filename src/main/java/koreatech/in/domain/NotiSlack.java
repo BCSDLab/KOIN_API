@@ -1,6 +1,6 @@
 package koreatech.in.domain;
 
-import koreatech.in.domain.User.owner.EmailAddress;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import lombok.Builder;
 import lombok.Getter;
