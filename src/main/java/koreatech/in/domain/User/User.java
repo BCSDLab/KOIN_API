@@ -3,11 +3,16 @@ package koreatech.in.domain.User;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.exception.BaseException;
+import koreatech.in.util.DateUtil;
+import koreatech.in.util.SHA256Util;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -101,22 +106,81 @@ public abstract class User {
         return this.authority != null;
     }
 
+    public boolean hasSameId(Integer id) {
+        return this.id.equals(id);
+    }
+
+    public boolean isEmailAuthenticationCompleted() {
+        return this.is_authed.equals(true);
+    }
+
+    public boolean isAuthTokenExpired() {
+        return auth_expired_at != null && (auth_expired_at.getTime() < (new Date()).getTime());
+    }
+
+    public boolean isAwaitingEmailAuthentication() {
+        return !isEmailAuthenticationCompleted()
+                && this.auth_token != null
+                && this.auth_expired_at != null
+                && !isAuthTokenExpired();
+    }
+
+    public boolean isResetTokenExpired() {
+        return this.reset_expired_at != null && (this.reset_expired_at.getTime() < (new Date()).getTime());
+    }
+
+    public boolean isAwaitingToFindPassword() {
+        return this.reset_token != null
+                && this.reset_expired_at != null
+                && !isResetTokenExpired();
+    }
+
+    public boolean isWithdrawn() {
+        return this.is_deleted;
+    }
+
+    public void changeEmailAuthenticationStatusToComplete() {
+        this.is_authed = true;
+    }
+
     public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
         this.auth_token = authToken;
         this.auth_expired_at = authExpiredAt;
+    }
+
+    public void generateDataForFindPassword() {
+        this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
+        this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
+    }
+
+    public void changeToNewPassword(String password) {
+        this.password = password;
+        this.reset_expired_at = new Date();
+    }
+
+    public void checkPossibilityOfDeletion() {
+        if (isWithdrawn()) {
+            throw new BaseException(USER_HAS_WITHDRAWN);
+        }
+    }
+
+    public void checkPossibilityOfUndeletion(User undeletedAndSameAccountUser, User undeletedAndSameEmailUser) {
+        if (!isWithdrawn()) {
+            throw new BaseException(USER_HAS_NOT_WITHDRAWN);
+        }
+        if (undeletedAndSameAccountUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST);
+        }
+        if (undeletedAndSameEmailUser != null) {
+            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST);
+        }
     }
 
     public void changePassword(String password){
         this.password = password;
     }
 
-    public boolean isAwaitingEmailAuthenticate(){
-        return !isUserAuthed() && !isAuthTokenExpired();
-    }
     public boolean isUserAuthed() { return is_authed == null ? false : is_authed; }
-    public boolean isAuthTokenExpired(){
-        return auth_expired_at == null ? false : auth_expired_at.getTime() - (new Date()).getTime() < 0;
-    }
 
     public boolean equals(User user){
         return user.id != null && this.id != null && this.id.equals(user.id);
