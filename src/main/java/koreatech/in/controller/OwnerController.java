@@ -39,9 +39,14 @@ public class OwnerController {
     private OwnerService ownerService;
 
     @ApiResponses({
-            @ApiResponse(code = 422, message = "- 이메일 주소가 올바르지 않을 경우 (code: 101008) \n\n" +
-                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
-                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                            + "- 이메일 주소가 올바르지 않을 경우 (code: 101008) \n\n"
+                            + "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
+                    response = ExceptionResponse.class
+
+            )
     })
     @ApiOperation(value = "인증번호 전송 요청")
     @AuthExcept
@@ -51,7 +56,7 @@ public class OwnerController {
     ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request,
                                               BindingResult bindingResult) {
         try {
-            request = StringXssChecker.xssCheck(request, new VerifyEmailRequest());
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
@@ -61,14 +66,20 @@ public class OwnerController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 409, message = "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
+            @ApiResponse(
+                    code = 409,
+                    message = "- 이미 인증이 완료된 이메일일 경우 (code: 101011) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 410, message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"+
-                    "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
+            @ApiResponse(
+                    code = 410,
+                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"
+                            + "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message =
-                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n" +
-                    "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" ,
+            @ApiResponse(
+                    code = 422,
+                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                            + "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n"
+                            + "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n",
                     response = ExceptionResponse.class)
     })
     @ApiOperation(value = "인증번호 입력")
@@ -79,7 +90,7 @@ public class OwnerController {
     ResponseEntity<EmptyResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
                                              BindingResult bindingResult) {
         try {
-            request = StringXssChecker.xssCheck(request, new VerifyCodeRequest());
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
@@ -89,14 +100,17 @@ public class OwnerController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 409, message = "- 이미 인증이 완료된 이메일일 경우 (code: 121000) \n\n",
+            @ApiResponse(
+                    code = 409,
+                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 410, message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"+
-                    "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
+            @ApiResponse(
+                    code = 410,
+                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n",
                     response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message =
-                    "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n" +
-                            "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n" ,
+            @ApiResponse(
+                    code = 422,
+                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
                     response = ExceptionResponse.class)
     })
     @ApiOperation(value = "회원가입 요청")
@@ -113,7 +127,7 @@ public class OwnerController {
         }
 
         ownerService.register(request);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
-        //TODO 23.02.05 수많은 예외들 어떻게 할 것인지 특히 Valid 쪽
     }
 }
