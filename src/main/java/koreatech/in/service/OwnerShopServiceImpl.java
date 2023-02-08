@@ -2,10 +2,10 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Shop.*;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.dto.admin.shop.response.ShopMenuResponse;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
@@ -179,6 +179,17 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         }
 
         return menuProfile;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AllMenusOfShopResponse getAllMenusOfShop(Integer shopId) {
+        checkAuthorityAboutShop(getShopById(shopId));
+
+        List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
+        menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
+
+        return AllMenusOfShopResponse.from(menuProfiles);
     }
 
     private Shop getShopById(Integer id) {
