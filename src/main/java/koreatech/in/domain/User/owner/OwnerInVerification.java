@@ -41,7 +41,7 @@ public class OwnerInVerification extends Owner {
 
     public void validateCertificationComplete() {
         if (this.getIs_authed().equals(false)) {
-            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_ALREADY_COMPLETED);
+            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_NOT_COMPLETED);
         }
     }
 
