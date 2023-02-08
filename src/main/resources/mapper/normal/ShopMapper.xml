@@ -267,6 +267,77 @@
         WHERE `id` = #{id}
     </update>
 
+    <insert id="createMenu" parameterType="koreatech.in.domain.Shop.ShopMenu" useGeneratedKeys="true" keyProperty="menu.id">
+        INSERT INTO `koin`.`shop_menus` (
+            `shop_id`,
+            `name`,
+            `description`,
+            `is_hidden`
+        )
+        VALUES (
+            #{menu.shop_id},
+            #{menu.name},
+            #{menu.description},
+            #{menu.is_hidden}
+        )
+    </insert>
+
+    <insert id="createMenuDetail" parameterType="koreatech.in.domain.Shop.ShopMenuDetail" useGeneratedKeys="true" keyProperty="menuDetail.id">
+        INSERT IGNORE INTO `koin`.`shop_menu_details` (
+            `shop_menu_id`,
+            `option`,
+            `price`
+        )
+        VALUES (
+            #{menuDetail.shop_menu_id},
+            #{menuDetail.option},
+            #{menuDetail.price}
+        )
+    </insert>
+
+    <insert id="createMenuDetails" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_menu_details` (
+            `shop_menu_id`,
+            `option`,
+            `price`
+        )
+        VALUES
+        <foreach collection="menuDetails" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.option},
+                #{item.price}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="createMenuCategoryMaps" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_menu_category_map` (
+            `shop_menu_id`,
+            `shop_menu_category_id`
+        )
+        VALUES
+        <foreach collection="menuCategoryMaps" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.shop_menu_category_id}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="createMenuImages" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_menu_images` (
+            `shop_menu_id`,
+            `image_url`
+        )
+        VALUES
+        <foreach collection="menuImages" item="item" separator=",">
+            (
+                #{item.shop_menu_id},
+                #{item.image_url}
+            )
+        </foreach>
+    </insert>
 
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>

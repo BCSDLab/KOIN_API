@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
+import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 
 public interface OwnerShopService {
@@ -9,4 +10,6 @@ public interface OwnerShopService {
     AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
 
     void deleteMenuCategory(Integer shopId, Integer menuCategoryId);
+
+    void createMenu(Integer shopId, CreateMenuRequest request);
 }
