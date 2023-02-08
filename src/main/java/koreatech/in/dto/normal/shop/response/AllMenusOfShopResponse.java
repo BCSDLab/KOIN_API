@@ -62,14 +62,10 @@ public class AllMenusOfShopResponse {
     }
 
     public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles) {
-        List<ShopMenuProfile> unhiddenMenus = shopMenuProfiles.stream()
-                .filter(menu -> !menu.isHidden())
-                .collect(Collectors.toList());
-
         return AllMenusOfShopResponse.builder()
-                .count(unhiddenMenus.size())
+                .count(shopMenuProfiles.size())
                 .menus(
-                        unhiddenMenus.stream()
+                        shopMenuProfiles.stream()
                                 .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
                                 .collect(Collectors.toList())
                 )
