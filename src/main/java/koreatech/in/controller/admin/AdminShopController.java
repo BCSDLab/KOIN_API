@@ -55,7 +55,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopCategoryResponse> getShopCategory(@ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId) {
+    ResponseEntity<ShopCategoryResponse> getShopCategory(@ApiParam(required = true) @PathVariable("id") Integer shopCategoryId) {
         ShopCategoryResponse response = shopService.getShopCategory(shopCategoryId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -91,7 +91,7 @@ public class AdminShopController {
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<EmptyResponse> updateShopCategory(
-            @ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId,
+            @ApiParam(required = true) @PathVariable("id") Integer shopCategoryId,
             @ApiParam(name = "상점 카테고리 정보 JSON", required = true) @RequestBody @Valid UpdateShopCategoryRequest request, BindingResult bindingResult) {
         shopService.updateShopCategory(shopCategoryId, request);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -108,7 +108,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteShopCategory(@ApiParam(name = "상점 카테고리 고유 id", required = true) @PathVariable("id") Integer shopCategoryId) {
+    ResponseEntity<EmptyResponse> deleteShopCategory(@ApiParam(required = true) @PathVariable("id") Integer shopCategoryId) {
         shopService.deleteShopCategory(shopCategoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -145,7 +145,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<ShopResponse> getShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<ShopResponse> getShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         ShopResponse response = shopService.getShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -181,7 +181,7 @@ public class AdminShopController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<EmptyResponse> updateShop(
-            @ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(required = true) @PathVariable("id") Integer shopId,
             @ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
 
@@ -200,7 +200,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<EmptyResponse> deleteShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         shopService.deleteShop(shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -216,7 +216,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> undeleteShop(@ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<EmptyResponse> undeleteShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         shopService.undeleteOfShop(shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -239,7 +239,7 @@ public class AdminShopController {
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> createMenuCategory(
-            @ApiParam(name = "고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(required = true) @PathVariable("id") Integer shopId,
             @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid CreateShopMenuCategoryRequest request, BindingResult bindingResult) {
         shopService.createMenuCategory(shopId, request);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -255,7 +255,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "{id}/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = shopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -274,8 +274,8 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteMenuCategory(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 카테고리 고유 id", required = true) @PathVariable("categoryId") Integer menuCategoryId) {
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("categoryId") Integer menuCategoryId) {
         shopService.deleteMenuCategory(shopId, menuCategoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -297,7 +297,7 @@ public class AdminShopController {
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> createMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(required = true) @PathVariable("id") Integer shopId,
             @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid CreateShopMenuRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
 
@@ -318,8 +318,8 @@ public class AdminShopController {
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<MenuResponse> getMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
         MenuResponse response = shopService.getMenu(shopId, menuId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -334,7 +334,7 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(name = "상점 고유 id", required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenusOfShopResponse response = shopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -354,8 +354,8 @@ public class AdminShopController {
     @ParamValid
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)
     ResponseEntity<EmptyResponse> updateMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId,
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId,
             @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid UpdateShopMenuRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
 
@@ -376,8 +376,8 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
         shopService.deleteMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -396,8 +396,8 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/{menuId}/hide", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> hideMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
         shopService.hideMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -416,8 +416,8 @@ public class AdminShopController {
     @RequestMapping(value = "{shopId}/menus/{menuId}/reveal", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> revealMenu(
-            @ApiParam(name = "상점 고유 id", required = true) @PathVariable("shopId") Integer shopId,
-            @ApiParam(name = "메뉴 고유 id", required = true) @PathVariable("menuId") Integer menuId) {
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
         shopService.revealMenu(shopId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
