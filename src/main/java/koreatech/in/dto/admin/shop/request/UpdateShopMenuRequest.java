@@ -1,5 +1,6 @@
 package koreatech.in.dto.admin.shop.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.exception.BaseException;
@@ -111,18 +112,22 @@ public class UpdateShopMenuRequest {
         }
     }
 
+    @JsonIgnore
     public boolean isSingleMenu() {
         return this.is_single;
     }
 
+    @JsonIgnore
     private boolean isSinglePriceNull() {
         return this.single_price == null;
     }
 
+    @JsonIgnore
     private boolean isOptionPricesEmpty() {
         return this.option_prices.isEmpty();
     }
 
+    @JsonIgnore
     private int getOptionPricesSize() {
         return this.option_prices.size();
     }
