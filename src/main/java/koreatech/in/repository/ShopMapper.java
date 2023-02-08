@@ -41,4 +41,6 @@ public interface ShopMapper {
     void createMenuCategoryMaps(@Param("menuCategoryMaps") List<ShopMenuCategoryMap> menuCategoryMaps);
 
     void createMenuImages(@Param("menuImages") List<ShopMenuImage> menuImages);
+
+    ShopMenuProfile getMenuProfileByMenuId(@Param("menuId") Integer menuId);
 }

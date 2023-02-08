@@ -4,6 +4,7 @@ import koreatech.in.domain.Shop.ShopMenu;
 import koreatech.in.domain.Shop.ShopMenuProfile;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.normal.shop.response.MenuResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -20,4 +21,6 @@ public interface ShopMenuConverter {
             @Mapping(source = "shopId", target = "shop_id")
     })
     ShopMenu toShopMenu(CreateMenuRequest request, Integer shopId);
+
+    MenuResponse toMenuResponse(ShopMenuProfile shopMenuProfile);
 }

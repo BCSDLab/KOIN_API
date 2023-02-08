@@ -4,7 +4,7 @@ import koreatech.in.domain.Shop.ShopMenuProfile;
 import koreatech.in.domain.Shop.ShopMenu;
 import koreatech.in.dto.admin.shop.request.CreateShopMenuRequest;
 import koreatech.in.dto.admin.shop.response.AllMenusOfShopResponse;
-import koreatech.in.dto.admin.shop.response.MenuResponse;
+import koreatech.in.dto.admin.shop.response.ShopMenuResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -20,7 +20,7 @@ public interface AdminShopMenuConverter {
     })
     ShopMenu toShopMenu(CreateShopMenuRequest request, Integer shopId);
 
-    MenuResponse toMenuResponse(ShopMenuProfile shopMenuProfile);
+    ShopMenuResponse toMenuResponse(ShopMenuProfile shopMenuProfile);
 
     AllMenusOfShopResponse.Menu toAllMenusOfShopResponse$Menu(ShopMenuProfile shopMenuProfile);
 }

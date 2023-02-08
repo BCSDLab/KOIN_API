@@ -2,12 +2,12 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Shop.*;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.dto.admin.shop.request.CreateShopMenuRequest;
+import koreatech.in.dto.admin.shop.response.ShopMenuResponse;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
+import koreatech.in.dto.normal.shop.response.MenuResponse;
 import koreatech.in.exception.BaseException;
-import koreatech.in.mapstruct.admin.shop.AdminShopMenuConverter;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
 import koreatech.in.repository.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +157,28 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         return imageUrls.stream()
                 .map(imageUrl -> ShopMenuImage.of(menuId, imageUrl))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MenuResponse getMenu(Integer shopId, Integer menuId) {
+        checkAuthorityAboutShop(getShopById(shopId));
+
+        ShopMenuProfile menuProfile = getMenuProfileByMenuIdAndShopId(menuId, shopId);
+        menuProfile.decideWhetherSingleOrNot();
+
+        return ShopMenuConverter.INSTANCE.toMenuResponse(menuProfile);
+    }
+
+    private ShopMenuProfile getMenuProfileByMenuIdAndShopId(Integer menuId, Integer shopId) {
+        ShopMenuProfile menuProfile = Optional.ofNullable(shopMapper.getMenuProfileByMenuId(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+
+        if (!menuProfile.hasSameShopId(shopId)) {
+            throw new BaseException(SHOP_MENU_NOT_FOUND);
+        }
+
+        return menuProfile;
     }
 
     private Shop getShopById(Integer id) {
