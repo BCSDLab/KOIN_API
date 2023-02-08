@@ -137,6 +137,8 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
+        emailAddress.validateSendable();
+
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
                 SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT,
                 mailFormFor(certificationCode));

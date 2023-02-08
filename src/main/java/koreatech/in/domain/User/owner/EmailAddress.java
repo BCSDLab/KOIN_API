@@ -21,6 +21,12 @@ public class EmailAddress {
         return new EmailAddress(LocalParts.from(fullAddress), Domain.from(fullAddress));
     }
 
+    public void validateSendable() {
+        if(!domain.canSend()) {
+            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
+        }
+    }
+
     static void validates(String fullAddress) {
         if (!isValidEmailForm(getSeparateIndex(fullAddress))) {
             throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_INVALID);

@@ -18,32 +18,24 @@ public class Domain {
         this.value = value;
     }
 
-    private static void validates(String domainAddress) {
-        if(!isExist(domainAddress)) {
-            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
-        }
-    }
-
     private static String domainFrom(String fullAddress) {
         return fullAddress.substring(EmailAddress.getSeparateIndex(fullAddress) + EmailAddress.domainSeparator.length());
     }
 
     public static Domain from(String fullAddress) {
-
         EmailAddress.validates(fullAddress);
-        validates(domainFrom(fullAddress));
 
         return new Domain(domainFrom(fullAddress));
     }
 
-    private static boolean isExist(String domain) {
+    boolean canSend() {
         try {
             Hashtable<String, String> environmentSetting = new Hashtable<>();
 
             environmentSetting.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
             //DNS Lookup By MX
             //https://www.rgagnon.com/javadetails/java-0452.html
-            Attribute attribute = ((DirContext) new InitialDirContext(environmentSetting)).getAttributes(domain,
+            Attribute attribute = ((DirContext) new InitialDirContext(environmentSetting)).getAttributes(value,
                     new String[]{"MX"}).get("MX");
 
             return attribute != null;
