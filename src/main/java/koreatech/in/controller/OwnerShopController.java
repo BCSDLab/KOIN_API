@@ -7,6 +7,7 @@ import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
+import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
@@ -28,7 +29,7 @@ public class OwnerShopController {
     @Autowired
     private OwnerShopService ownerShopService;
 
-    @ApiOperation(value = "상점에 메뉴 카테고리 생성", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 메뉴 카테고리 생성", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -142,6 +143,30 @@ public class OwnerShopController {
     ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenusOfShopResponse response = ownerShopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
+                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함 \n" +
+                                               "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ParamValid
+    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)
+    ResponseEntity<EmptyResponse> updateMenu(
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("menuId") Integer menuId,
+            @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid UpdateMenuRequest request, BindingResult bindingResult) {
+        request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
+
+        ownerShopService.updateMenu(shopId, menuId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})

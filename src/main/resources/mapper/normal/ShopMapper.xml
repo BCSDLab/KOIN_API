@@ -367,27 +367,84 @@
                 AND `is_deleted` = 0
         ) `t1`
 
-        # shop_menus : shop_menu_details (1:N)
-        LEFT JOIN `koin`.`shop_menu_details` `t2`
-        ON
-            `t1`.`id` = `t2`.`shop_menu_id`
+            # shop_menus : shop_menu_details (1:N)
+            LEFT JOIN `koin`.`shop_menu_details` `t2`
+            ON
+                `t1`.`id` = `t2`.`shop_menu_id`
 
-        # shop_menus : shop_menu_images (1:N)
-        LEFT JOIN `koin`.`shop_menu_images` `t3`
-        ON
-            `t1`.`id` = `t3`.`shop_menu_id`
+            # shop_menus : shop_menu_images (1:N)
+            LEFT JOIN `koin`.`shop_menu_images` `t3`
+            ON
+                `t1`.`id` = `t3`.`shop_menu_id`
 
-        # relation table between shop_menus and shop_menu_categories
-        LEFT JOIN `koin`.`shop_menu_category_map` `t4`
-        ON
-            `t1`.`id` = `t4`.`shop_menu_id`
+            # relation table between shop_menus and shop_menu_categories
+            LEFT JOIN `koin`.`shop_menu_category_map` `t4`
+            ON
+                `t1`.`id` = `t4`.`shop_menu_id`
 
-        # shop_menus : shop_menu_categories (N:M)
-        LEFT JOIN `koin`.`shop_menu_categories` `t5`
-        ON
-            `t4`.`shop_menu_category_id` = `t5`.`id`
-            AND `t5`.`is_deleted` = 0
+            # shop_menus : shop_menu_categories (N:M)
+            LEFT JOIN `koin`.`shop_menu_categories` `t5`
+            ON
+                `t4`.`shop_menu_category_id` = `t5`.`id`
+                AND `t5`.`is_deleted` = 0
     </select>
+
+    <update id="updateMenu" parameterType="koreatech.in.domain.Shop.ShopMenu">
+        UPDATE `koin`.`shop_menus`
+        SET
+            `name` = #{menu.name},
+            `description` = #{menu.description}
+        WHERE `id` = #{menu.id}
+    </update>
+
+    <select id="getMenuDetailsByMenuId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuDetail">
+        SELECT *
+        FROM `koin`.`shop_menu_details`
+        WHERE
+            `shop_menu_id` = #{menuId}
+    </select>
+
+    <update id="deleteMenuDetails" parameterType="list">
+        <foreach collection="menuDetails" item="item" separator=";">
+            DELETE
+            FROM `koin`.`shop_menu_details`
+            WHERE `id` = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="deleteMenuDetailsByMenuId" parameterType="integer">
+        DELETE
+        FROM `koin`.`shop_menu_details`
+        WHERE `shop_menu_id` = #{menuId}
+    </update>
+
+    <select id="getMenuCategoryMapsByMenuId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuCategoryMap">
+        SELECT *
+        FROM `koin`.`shop_menu_category_map`
+        WHERE `shop_menu_id` = #{menuId}
+    </select>
+
+    <delete id="deleteMenuCategoryMaps" parameterType="list">
+        <foreach collection="menuCategoryMaps" item="item" separator=";">
+            DELETE
+            FROM `koin`.`shop_menu_category_map`
+            WHERE `id` = #{item.id}
+        </foreach>
+    </delete>
+
+    <select id="getMenuImagesByMenuId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuImage">
+        SELECT *
+        FROM `koin`.`shop_menu_images`
+        WHERE `shop_menu_id` = #{menuId}
+    </select>
+
+    <delete id="deleteMenuImages" parameterType="list">
+        <foreach collection="menuImages" item="item" separator=";">
+            DELETE
+            FROM `koin`.`shop_menu_images`
+            WHERE `id` = #{item.id}
+        </foreach>
+    </delete>
 
     <select id="getMenuById" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenu">
         SELECT *

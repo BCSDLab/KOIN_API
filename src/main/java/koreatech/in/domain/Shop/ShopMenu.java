@@ -2,6 +2,7 @@ package koreatech.in.domain.Shop;
 
 import koreatech.in.dto.admin.shop.request.CreateShopMenuRequest;
 import koreatech.in.dto.admin.shop.request.UpdateShopMenuRequest;
+import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.exception.BaseException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,11 +38,6 @@ public class ShopMenu {
         this.is_hidden = false;
     }
 
-    public void update(UpdateShopMenuRequest request) {
-        this.name = request.getName();
-        this.description = request.getDescription();
-    }
-
     public boolean hasSameShopId(Integer shopId) {
         if (this.shop_id == null || shopId == null) {
             return false;
@@ -50,7 +46,22 @@ public class ShopMenu {
         return this.shop_id.equals(shopId);
     }
 
-    public boolean needToUpdate(UpdateShopMenuRequest request) {
+    public void update(UpdateShopMenuRequest request) { // admin menu request dto
+        this.name = request.getName();
+        this.description = request.getDescription();
+    }
+
+    public void update(UpdateMenuRequest request) { // normal menu request dto
+        this.name = request.getName();
+        this.description = request.getDescription();
+    }
+
+    public boolean needToUpdate(UpdateShopMenuRequest request) { // admin menu request dto
+        return !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.description, request.getDescription());
+    }
+
+    public boolean needToUpdate(UpdateMenuRequest request) { // normal menu request dto
         return !Objects.equals(this.name, request.getName())
                 || !Objects.equals(this.description, request.getDescription());
     }
@@ -73,9 +84,5 @@ public class ShopMenu {
         }
 
         return this.is_hidden.equals(true);
-    }
-
-    public boolean isDeleted() {
-        return this.is_deleted;
     }
 }
