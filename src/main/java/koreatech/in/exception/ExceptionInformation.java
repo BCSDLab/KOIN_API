@@ -27,6 +27,7 @@ public enum ExceptionInformation {
     EMAIL_ADDRESS_SAVE_EXPIRED("저장기간이 만료된 이메일 주소입니다. 다시 회원가입을 시도해주세요.", 101010, HttpStatus.GONE),
     CERTIFICATION_CODE_ALREADY_COMPLETED("해당 이메일은 이미 인증 완료되었습니다.", 101011, HttpStatus.CONFLICT),
     CERTIFICATION_CODE_NOT_COMPLETED("해당 이메일은 인증되지 않았습니다.", 101012, HttpStatus.CONFLICT),
+    EMAIL_DUPLICATED("이미 존재하는 이메일 주소입니다. 다른 이메일 주소를 사용해주세요.", 101013, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
