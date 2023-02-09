@@ -1,24 +1,48 @@
 package koreatech.in.service;
 
+import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.NotiSlack;
+import koreatech.in.domain.User.EmailAddress;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserCode;
+import koreatech.in.domain.User.UserResponseType;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.NotiSlack;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.UserResponseType;
-import koreatech.in.domain.User.student.Student;
-import koreatech.in.exception.*;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.exception.ValidationException;
+import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.*;
+import koreatech.in.util.DateUtil;
+import koreatech.in.util.JwtTokenGenerator;
+import koreatech.in.util.SHA256Util;
+import koreatech.in.util.SesMailSender;
+import koreatech.in.util.SlackNotiSender;
+import koreatech.in.util.StringRedisUtilStr;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +54,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service("userService")
 @Transactional
@@ -295,6 +312,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(user);
 
         return true;
+    }
+
+    @Override
+    public void checkExists(CheckExistsEmailRequest checkExistsEmailRequest) {
+        EmailAddress emailAddress = UserConverter.INSTANCE.toEmailAddress(checkExistsEmailRequest);
+
+        Boolean isEmailAlreadyExist = userMapper.isEmailAlreadyExist(emailAddress);
+
+        if(isEmailAlreadyExist.equals(true)) {
+            throw new BaseException(NICKNAME_DUPLICATE);
+        }
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
