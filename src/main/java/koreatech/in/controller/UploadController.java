@@ -92,15 +92,32 @@ public class UploadController {
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
-                    + "(error code: 110001)", response = ExceptionResponse.class)
+                    + "(error code: 110001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
+                    + "(error code: 110004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 415, message = "도메인이 허용하는 콘텐츠 타입이 아닐 때 \n"
+                    + "(error code: 110005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{domain}/upload/file", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<UploadFileResponse> upload(@ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
-                                              @ApiParam(value = "도메인 이름 \n"
-                                                      + "`{items, lands, circles, market, shops, members, owners}`", example = "items", required = true) @PathVariable String domain) {
-        DomainEnum.validate(domain);
+    ResponseEntity<UploadFileResponse> upload(
+            @ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
+            @ApiParam(value = "도메인 이름 \n\n"
+                    + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
+                    + "- `items`\n"
+                    + "- `lands`\n"
+                    + "- `circles`\n"
+                    + "- `market`\n"
+                    + "- `shops`\n"
+                    + "- `members`\n"
+                    + "- `owners`\n"
+                    + "  - ContentType: `image/*`\n"
+                    + "  - MaxSize: `10mb`\n"
+                    , example = "items", required = true) @PathVariable String domain) {
+
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        domainEnum.validateFor(multipartFile);
 
         UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain), multipartFile);
 
@@ -121,20 +138,36 @@ public class UploadController {
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
-                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
+                    + "(error code: 110001) \n" + "- 파일목록이 비어있을 때 \n"
                     + "(error code: 110002)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
-                    + "(error code: 110003)", response = ExceptionResponse.class)
+                    + "(error code: 110003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
+                    + "(error code: 110004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 415, message = "도메인이 허용하는 콘텐츠 타입이 아닐 때 \n"
+                    + "(error code: 110005)", response = ExceptionResponse.class),
     })
     @RequestMapping(value = "/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFilesResponse> uploadFiles(
             @ApiParam(required = true) @RequestPart List<MultipartFile> files,
-            @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain) {
+            @ApiParam(value = "도메인 이름 \n\n"
+                    + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
+                    + "- `items`\n"
+                    + "- `lands`\n"
+                    + "- `circles`\n"
+                    + "- `market`\n"
+                    + "- `shops`\n"
+                    + "- `members`\n"
+                    + "- `owners`\n"
+                    + "  - ContentType: `image/*`\n"
+                    + "  - MaxSize: `10mb`\n"
+                    , required = true) @PathVariable String domain) {
 
-        DomainEnum.validate(domain);
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        files.forEach(multipartFile -> domainEnum.validateFor(multipartFile));
+
         UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
 
         UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
@@ -159,20 +192,33 @@ public class UploadController {
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
-                    + "(error code: 110001) \n" +  "- 파일목록이 비어있을 때 \n"
                     + "(error code: 110002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
-                    + "(error code: 110003)", response = ExceptionResponse.class)
+            @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
+                    + "(error code: 110004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 415, message = "도메인이 허용하는 콘텐츠 타입이 아닐 때 \n"
+                    + "(error code: 110005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/{domain}/upload/file", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     ResponseEntity<UploadFileResponse> uploadFileAdminForAdmin(
             @ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
-            @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain)
+            @ApiParam(value = "도메인 이름 \n\n"
+                    + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
+                    + "- `items`\n"
+                    + "- `lands`\n"
+                    + "- `circles`\n"
+                    + "- `market`\n"
+                    + "- `shops`\n"
+                    + "- `members`\n"
+                    + "- `owners`\n"
+                    + "  - ContentType: `image/*`\n"
+                    + "  - MaxSize: `10mb`\n"
+                    , required = true) @PathVariable String domain)
             throws Exception {
-        DomainEnum.validate(domain);
+
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        domainEnum.validateFor(multipartFile);
 
         String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
                 multipartFile.getOriginalFilename(),
@@ -200,7 +246,11 @@ public class UploadController {
             @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 (error code: 110001)\n"
                     + "파일목록이 비어있을 때(error code: 110002)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
-                    + "(error code: 110003)", response = ExceptionResponse.class)
+                    + "(error code: 110003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
+                    + "(error code: 110004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 415, message = "도메인이 허용하는 콘텐츠 타입이 아닐 때 \n"
+                    + "(error code: 110005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/{domain}/upload/files", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
@@ -208,11 +258,22 @@ public class UploadController {
     ResponseEntity<UploadFilesResponse> uploadFilesForAdmin(
             @ApiParam(required = true) @RequestPart
             List<MultipartFile> files,
-            @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain)
+            @ApiParam(value = "도메인 이름 \n\n"
+                    + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
+                    + "- `items`\n"
+                    + "- `lands`\n"
+                    + "- `circles`\n"
+                    + "- `market`\n"
+                    + "- `shops`\n"
+                    + "- `members`\n"
+                    + "- `owners`\n"
+                    + "  - ContentType: `image/*`\n"
+                    + "  - MaxSize: `10mb`\n"
+                    , required = true) @PathVariable String domain)
             throws Exception {
 
-        DomainEnum.validate(domain);
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        files.forEach(multipartFile -> domainEnum.validateFor(multipartFile));
 
         List<String> fileUrls = new ArrayList<>();
 
