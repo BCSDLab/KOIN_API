@@ -12,9 +12,8 @@ import lombok.Getter;
 @Builder
 public class Notice {
     public static final String CHANNEL = "channel";
-    //#hansupark_slack_test
-    //#코인_이벤트알림
-    public static final String CHANNEL_EVENT_NOTIFICATION = "#hansupark_slack_test";
+
+    public static final String CHANNEL_EVENT_NOTIFICATION = "#코인_이벤트알림";
 
     public static final String USERNAME = "username";
     public static final String USERNAME_MEMBER_PLATFORM = "회원 플랫폼";
