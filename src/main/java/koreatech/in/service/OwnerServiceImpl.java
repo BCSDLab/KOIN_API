@@ -69,6 +69,8 @@ public class OwnerServiceImpl implements OwnerService {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
 
+        emailAddress.validateSendable();
+
         putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
@@ -137,7 +139,6 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
-        emailAddress.validateSendable();
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
                 SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT,
