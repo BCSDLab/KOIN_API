@@ -55,6 +55,8 @@ public enum ExceptionInformation {
     FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
+    UNEXPECTED_FILE_CONTENT_TYPE("도메인이 허용하지 않는 콘텐츠 타입입니다.", 110004, HttpStatus.UNSUPPORTED_MEDIA_TYPE),
+    FILE_SIZE_OVER("파일의 크기가 도메인의 허용 크기보다 큽니다.", 110005, HttpStatus.REQUEST_ENTITY_TOO_LARGE),
 
     // ======= 사장님 =======
     CERTIFICATION_CODE_EXPIRED("코드 인증 기한이 경과되었습니다.", 121001, HttpStatus.GONE),
