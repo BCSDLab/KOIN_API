@@ -192,6 +192,25 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         return AllMenusOfShopResponse.from(menuProfiles);
     }
 
+    @Override
+    public void deleteMenu(Integer shopId, Integer menuId) {
+        checkAuthorityAboutShop(getShopById(shopId));
+        getMenuByIdAndShopId(menuId, shopId); // 메뉴 존재 여부 체크
+
+        shopMapper.deleteMenuById(menuId);
+    }
+
+    private ShopMenu getMenuByIdAndShopId(Integer menuId, Integer shopId) {
+        ShopMenu menu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+
+        if (!menu.hasSameShopId(shopId)) {
+            throw new BaseException(SHOP_MENU_NOT_FOUND);
+        }
+
+        return menu;
+    }
+
     private Shop getShopById(Integer id) {
         return Optional.ofNullable(shopMapper.getShopById(id))
                 .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));

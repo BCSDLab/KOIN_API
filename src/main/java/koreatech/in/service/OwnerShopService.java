@@ -18,4 +18,6 @@ public interface OwnerShopService {
     MenuResponse getMenu(Integer shopId, Integer menuId);
 
     AllMenusOfShopResponse getAllMenusOfShop(Integer shopId);
+
+    void deleteMenu(Integer shopId, Integer menuId);
 }

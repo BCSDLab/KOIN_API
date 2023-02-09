@@ -389,6 +389,20 @@
             AND `t5`.`is_deleted` = 0
     </select>
 
+    <select id="getMenuById" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenu">
+        SELECT *
+        FROM `koin`.`shop_menus`
+        WHERE
+            `id` = #{id}
+            AND `is_deleted` = 0
+    </select>
+
+    <update id="deleteMenuById" parameterType="integer">
+        UPDATE `koin`.`shop_menus`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </update>
+
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>
         <result property="name" column="shops.name"/>
