@@ -166,7 +166,7 @@ public class UploadController {
                     , required = true) @PathVariable String domain) {
 
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        files.forEach(multipartFile -> domainEnum.validateFor(multipartFile));
+        files.forEach(domainEnum::validateFor);
 
         UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
 
@@ -273,7 +273,7 @@ public class UploadController {
             throws Exception {
 
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        files.forEach(multipartFile -> domainEnum.validateFor(multipartFile));
+        files.forEach(domainEnum::validateFor);
 
         List<String> fileUrls = new ArrayList<>();
 
