@@ -2,15 +2,13 @@ package koreatech.in.dto.admin.land.request;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.exception.BaseException;
+import koreatech.in.exception.RequestDataInvalidException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
 
 @Getter @Setter
 public class LandsCondition extends Criteria {
@@ -96,13 +94,13 @@ public class LandsCondition extends Criteria {
 
     private void checkQueryIsEmpty() {
         if (this.query.length() == 0) {
-            throw new BaseException("query의 길이는 1 이상이어야 합니다.", REQUEST_DATA_INVALID);
+            throw new RequestDataInvalidException("검색 내용의 길이는 한글자 이상이어야 합니다.");
         }
     }
 
     private void checkQueryIsBlank() {
         if (StringUtils.isBlank(this.query)) {
-            throw new BaseException("query가 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
+            throw new RequestDataInvalidException("검색 내용이 공백 문자로만 이루어져 있으면 안됩니다.");
         }
     }
 }

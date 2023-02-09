@@ -1,6 +1,7 @@
 package koreatech.in.controller;
 
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,9 +61,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ExceptionResponse.of(e.getErrorCode(), e.getMessage()), e.getHttpStatus());
     }
 
-//    @ExceptionHandler(value = Exception.class)
-//    public String handleException(Exception e){
-//        System.out.println("global server error except handle");
-//        return e.getMessage();
-//    }
+    @ExceptionHandler(RequestDataInvalidException.class)
+    public @ResponseBody
+    ResponseEntity<RequestDataInvalidResponse> RequestDataInvalidException(RequestDataInvalidException e) {
+        return new ResponseEntity<>(RequestDataInvalidResponse.of(e.getErrorCode(), e.getMessage(), e.getViolations()), e.getHttpStatus());
+    }
 }

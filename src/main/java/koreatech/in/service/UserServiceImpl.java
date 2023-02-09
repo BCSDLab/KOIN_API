@@ -374,10 +374,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void checkNicknameValid(String nickname) {
         if (StringUtils.isBlank(nickname)) {
-            throw new BaseException("nickname은 null이거나 길이가 0이거나 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
+            throw new RequestDataInvalidException("닉네임은 필수이며, 한글자 이상이어야하고 공백 문자로만 이루어져 있으면 안됩니다.");
         }
         if (nickname.length() > 10) {
-            throw new BaseException("nickname은 최대 10자입니다.", REQUEST_DATA_INVALID);
+            throw new RequestDataInvalidException("닉네임은 최대 10글자 입니다.");
         }
     }
 

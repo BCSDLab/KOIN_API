@@ -13,15 +13,4 @@ public class BaseException extends ParentException {
         this.errorCode = exceptionInformation.getCode();
         this.httpStatus = exceptionInformation.getHttpStatus();
     }
-
-    /**
-     *
-     * @param message ExceptionInformation Enum에 저장된 message가 아닌, 직접 입력하여 적용할 message
-     * @param exceptionInformation ExceptionInformation Enum
-     */
-    public BaseException(String message, ExceptionInformation exceptionInformation) {
-        super(message);
-        this.errorCode = exceptionInformation.getCode();
-        this.httpStatus = exceptionInformation.getHttpStatus();
-    }
 }
