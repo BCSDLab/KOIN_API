@@ -102,7 +102,6 @@
             <if test="!condition.filter.isEmpty()">
                 <trim prefix="AND">
                     <foreach collection="condition.filter" item="item" separator="AND">
-                        <if test='item.name().equals("IS_DELETED")'> `is_deleted` = 1 </if>
                         <if test='item.name().equals("REFRIGERATOR")'> `opt_refrigerator` = 1 </if>
                         <if test='item.name().equals("CLOSET")'> `opt_closet` = 1 </if>
                         <if test='item.name().equals("TV")'> `opt_tv` = 1 </if>
@@ -120,6 +119,15 @@
                         <if test='item.name().equals("VERANDA")'> `opt_veranda` = 1 </if>
                         <if test='item.name().equals("ELEVATOR")'> `opt_elevator` = 1 </if>
                     </foreach>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
                 </trim>
             </if>
         </trim>
@@ -144,7 +152,6 @@
             <if test="!condition.filter.isEmpty()">
                 <trim prefix="AND">
                     <foreach collection="condition.filter" item="item" separator="AND">
-                        <if test='item.name().equals("IS_DELETED")'> `is_deleted` = 1 </if>
                         <if test='item.name().equals("REFRIGERATOR")'> `opt_refrigerator` = 1 </if>
                         <if test='item.name().equals("CLOSET")'> `opt_closet` = 1 </if>
                         <if test='item.name().equals("TV")'> `opt_tv` = 1 </if>
@@ -162,6 +169,15 @@
                         <if test='item.name().equals("VERANDA")'> `opt_veranda` = 1 </if>
                         <if test='item.name().equals("ELEVATOR")'> `opt_elevator` = 1 </if>
                     </foreach>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
                 </trim>
             </if>
         </trim>

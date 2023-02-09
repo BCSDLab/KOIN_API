@@ -130,9 +130,7 @@ public class Land {
         this.latitude = request.getLatitude();
         this.longitude = request.getLongitude();
         this.phone = request.getPhone();
-        if (!request.getImage_urls().isEmpty()) {
-            this.image_urls = new Gson().toJson(request.getImage_urls());
-        }
+        this.image_urls = new Gson().toJson(request.getImage_urls());
         this.address = request.getAddress();
         this.description = request.getDescription();
         this.floor = request.getFloor();

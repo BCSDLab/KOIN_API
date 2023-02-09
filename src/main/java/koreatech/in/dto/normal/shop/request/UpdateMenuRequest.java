@@ -1,4 +1,4 @@
-package koreatech.in.dto.admin.shop.request;
+package koreatech.in.dto.normal.shop.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +20,7 @@ import java.util.stream.Collectors;
 import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
 
 @Getter @Setter
-public class UpdateShopMenuRequest {
+public class UpdateMenuRequest {
     @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
     @NotNull(message = "name은 필수입니다.")
     @ApiModelProperty(notes = "메뉴명 \n" +
@@ -66,7 +69,7 @@ public class UpdateShopMenuRequest {
     private List<String> image_urls = new ArrayList<>();
 
     @Getter @Setter
-    @ApiModel("OptionPrice_4")
+    @ApiModel("OptionPrice_8")
     public static class OptionPrice {
         @Size(min = 1, max = 50, message = "option_prices의 option은 1자 이상 50자 이하입니다.")
         @NotNull(message = "option_prices의 option은 필수입니다.")

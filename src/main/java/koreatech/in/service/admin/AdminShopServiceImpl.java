@@ -388,7 +388,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public MenuResponse getMenu(Integer shopId, Integer menuId) {
+    public ShopMenuResponse getMenu(Integer shopId, Integer menuId) {
         getShopById(shopId); // 상점 존재 여부 체크
 
         ShopMenuProfile menuProfile = getMenuProfileByMenuIdAndShopId(menuId, shopId);

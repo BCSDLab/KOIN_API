@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter @Builder
-public class MenuResponse {
+public class ShopMenuResponse {
     @ApiModelProperty(notes = "고유 id", example = "1", required = true)
     private Integer id;
 

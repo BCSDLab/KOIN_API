@@ -51,10 +51,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional(readOnly = true)
     public MembersResponse getMembersForAdmin(MembersCondition condition) throws Exception {
-        if (condition.getQuery() != null && !StringUtils.hasText(condition.getQuery())) {
-            throw new BaseException("검색 문자열은 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
-        }
-
         Integer totalCount = memberMapper.getTotalCountByConditionForAdmin(condition);
         Integer totalPage = condition.extractTotalPage(totalCount);
         Integer currentPage = condition.getPage();

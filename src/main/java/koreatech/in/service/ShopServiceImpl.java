@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static koreatech.in.exception.ExceptionInformation.*;
 
@@ -57,11 +58,19 @@ public class ShopServiceImpl implements ShopService {
         List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
         menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
 
-        return AllMenusOfShopResponse.from(menuProfiles);
+        List<ShopMenuProfile> unhiddenMenuProfiles = getUnhiddenMenuProfilesBy(menuProfiles);
+
+        return AllMenusOfShopResponse.from(unhiddenMenuProfiles);
     }
 
     private void checkShopExistById(Integer id) {
         Optional.ofNullable(shopMapper.getShopById(id))
                 .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+    }
+
+    private List<ShopMenuProfile> getUnhiddenMenuProfilesBy(List<ShopMenuProfile> menuProfiles) {
+        return menuProfiles.stream()
+                .filter(menuProfile -> !menuProfile.isHidden())
+                .collect(Collectors.toList());
     }
 }

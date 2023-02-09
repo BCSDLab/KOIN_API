@@ -14,7 +14,13 @@ public interface UserMapper {
     User getAuthedUserById(@Param("id") Integer id);
     User getAuthedUserByAccount(@Param("account") String account);
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
+    void deleteUserLogicallyById(@Param("id") Integer id);
+    void undeleteUserLogicallyById(@Param("id") Integer id);
 
+    User getUserByNickname(@Param("nickname") String nickname);
+    void updateUser(@Param("user") User user);
+    User getUserByAuthToken(@Param("authToken") String authToken);
+    User getAuthedUserByResetToken(@Param("resetToken") String resetToken);
 
 
     Integer isAccountAlreadyUsed(String account);
@@ -27,16 +33,11 @@ public interface UserMapper {
     @Select("SELECT * FROM koin.admins WHERE USER_ID = #{id}")
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
     void insertUser(User user) throws SQLException;
-    void deleteUser(@Param("id") int id);
     User getUserById(@Param("id") int id);
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
-    void updateUser(User user);
     Integer getTotalCount();
     User getUserByAccount(String account);
-    User getUserByNickName(String nickname);
-    User getUserByAuthToken(String authToken);
-    User getUserByResetToken(String resetToken);
 
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
 //    @Select("SELECT * FROM koin.users u INNER JOIN koin.admins a ON u.id = a.user_id WHERE u.id = #{id}")

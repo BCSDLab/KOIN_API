@@ -2,11 +2,12 @@ package koreatech.in.dto.admin.member.request;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.exception.BaseException;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
 
 @Getter @Setter
 public class MembersCondition extends Criteria {
@@ -33,10 +34,8 @@ public class MembersCondition extends Criteria {
                       "   - REGULAR")
     private Position position;
 
-    @ApiParam(value = "필터링 기준 (리스트)\n" +
-                      "- 다음 중 선택하여 요청 가능 \n" +
-                      "   - IS_DELETED")
-    private List<Filter> filter = new ArrayList<>();
+    @ApiParam(value = "삭제(soft delete) 여부")
+    private Boolean is_deleted;
 
     @ApiParam(value = "검색 대상 \n" +
                       "- null일 경우 기본값: NAME \n" +
@@ -45,7 +44,9 @@ public class MembersCondition extends Criteria {
     private SearchType searchType = SearchType.NAME;
 
     @ApiParam(value = "검색 문자열 \n" +
-                      "- null이 아닐 경우에는 문자열이 공백 문자로만 구성되어 있으면 안됨")
+                      "- null이 아닐 경우에는 다음의 조건들을 만족해야함 \n" +
+                      "  - 길이는 1 이상 \n" +
+                      "  - 공백문자로만 이루어져 있으면 안됨")
     private String query;
 
     private enum Sort {
@@ -69,11 +70,26 @@ public class MembersCondition extends Criteria {
         REGULAR
     }
 
-    private enum Filter {
-        IS_DELETED
-    }
-
     private enum SearchType {
         NAME
+    }
+
+    public void checkDataConstraintViolation() {
+        if (this.query != null) {
+            checkQueryIsEmpty();
+            checkQueryIsBlank();
+        }
+    }
+
+    private void checkQueryIsEmpty() {
+        if (this.query.length() == 0) {
+            throw new BaseException("query의 길이는 1 이상이어야 합니다.", REQUEST_DATA_INVALID);
+        }
+    }
+
+    private void checkQueryIsBlank() {
+        if (StringUtils.isBlank(this.query)) {
+            throw new BaseException("query가 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
+        }
     }
 }

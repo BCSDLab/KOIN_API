@@ -317,10 +317,10 @@ public class AdminShopController {
     })
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<MenuResponse> getMenu(
+    ResponseEntity<ShopMenuResponse> getMenu(
             @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
             @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
-        MenuResponse response = shopService.getMenu(shopId, menuId);
+        ShopMenuResponse response = shopService.getMenu(shopId, menuId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
