@@ -3,7 +3,6 @@ package koreatech.in.domain.Upload;
 import static koreatech.in.exception.ExceptionInformation.DOMAIN_NOT_FOUND;
 
 import java.util.Arrays;
-import javax.mail.internet.ContentType;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 public enum DomainEnum {
 
 
-    ITEMS, LANDS, CIRCLES, MARKET, SHOPS, MEMBERS, OWNERS(ContentTypes.IMAGE_ALL.getContentType(), ByteSize.OWNER_ATTACHMENT_MAX_SIZE);
-    public static final int RIGHT_IS_BIGGER = 1;
+    ITEMS(), LANDS(), CIRCLES(), MARKET(), SHOPS(), MEMBERS(), OWNERS(ContentType.IMAGE_ALL, ByteSize.OWNER_MAX_SIZE);
+
     private final ContentType expectContentType;
-    private final Long expectSize;
+    private final ByteSize expectSize;
+
 
     DomainEnum() {
-        expectContentType = ContentTypes.ALL.getContentType();
+        expectContentType = ContentType.ALL;
         expectSize = ByteSize.BASE_SIZE;
     }
 
@@ -32,25 +32,13 @@ public enum DomainEnum {
     public void validateFor(MultipartFile multipartFile) {
         validates(multipartFile);
 
-        if(!expectContentType.match(ContentTypes.from(multipartFile.getContentType()))) {
-            throw new BaseException(ExceptionInformation.UNEXPECTED_FILE_CONTENT_TYPE);
-        }
-
-        if(expectSize.compareTo(multipartFile.getSize()) == RIGHT_IS_BIGGER) {
-            throw new BaseException(ExceptionInformation.FILE_SIZE_OVER);
-        }
+        expectContentType.validateAcceptable(ContentType.from(multipartFile.getContentType()));
+        expectSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
     }
 
     private static void validates(MultipartFile multipartFile) {
         if(multipartFile == null  || multipartFile.isEmpty()) {
             throw new BaseException(ExceptionInformation.FILE_INVALID);
         }
-    }
-
-    private static class ByteSize {
-        public static final Long _10_MB = 10_000_000L;
-
-        public static final Long OWNER_ATTACHMENT_MAX_SIZE = _10_MB;
-        public static final Long BASE_SIZE = _10_MB;
     }
 }
