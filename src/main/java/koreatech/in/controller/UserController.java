@@ -7,6 +7,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
@@ -15,6 +16,8 @@ import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -200,6 +203,31 @@ public class UserController {
             put("success", success);
         }};
     }
+
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- email의 제약 조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+    })
+    @ApiOperation(value = "이메일 중복 체크")
+    @AuthExcept
+    @RequestMapping(value = "/user/check/email/{address:.+}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> checkUserNickname(
+            @ApiParam(value = "이메일 \n " +
+                    "- not null \n " +
+                    "- 1자 이상 10자 이하 \n " +
+                    "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("address") CheckExistsEmailRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        userService.checkExists(request);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     private String getHost(HttpServletRequest request) {
         String schema = request.getScheme();
