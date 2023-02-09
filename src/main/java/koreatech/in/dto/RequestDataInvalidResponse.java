@@ -1,20 +1,19 @@
 package koreatech.in.dto;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
-public class RequestDataInvalidResponse {
-    @ApiModelProperty(notes = "에러 코드", required = true)
-    private Integer code;
-    @ApiModelProperty(notes = "에러 메시지", required = true)
-    private List<String> message;
+public class RequestDataInvalidResponse extends ExceptionResponse {
+    private final List<String> violations;
 
-    public RequestDataInvalidResponse of(Integer code, List<String> message) {
-        return new RequestDataInvalidResponse(code, message);
+    private RequestDataInvalidResponse(Integer code, String message, List<String> violations) {
+        super(code, message);
+        this.violations = violations;
+    }
+
+    public static RequestDataInvalidResponse of(Integer code, String message, List<String> violations) {
+        return new RequestDataInvalidResponse(code, message, violations);
     }
 }
