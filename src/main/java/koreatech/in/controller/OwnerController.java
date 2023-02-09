@@ -41,7 +41,7 @@ public class OwnerController {
     @ApiResponses({
             @ApiResponse(
                     code = 422,
-                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
                             + "- 이메일 주소가 올바르지 않을 경우 (code: 101008) \n\n"
                             + "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
                     response = ExceptionResponse.class
@@ -77,8 +77,7 @@ public class OwnerController {
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
-                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
-                            + "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n"
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
                             + "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n",
                     response = ExceptionResponse.class)
     })
@@ -110,7 +109,7 @@ public class OwnerController {
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
-                    message = "요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
                     response = ExceptionResponse.class)
     })
     @ApiOperation(value = "회원가입 요청")
