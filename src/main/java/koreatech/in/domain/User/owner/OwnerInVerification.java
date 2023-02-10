@@ -39,6 +39,12 @@ public class OwnerInVerification extends Owner {
         validateCode(ownerInCertification.getCertificationCode());
     }
 
+    public void validateCertificationComplete() {
+        if (this.getIs_authed().equals(false)) {
+            throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_NOT_COMPLETED);
+        }
+    }
+
     private void validateDuplication() {
         if (this.getIs_authed().equals(true)) {
             throw new BaseException(ExceptionInformation.CERTIFICATION_CODE_ALREADY_COMPLETED);

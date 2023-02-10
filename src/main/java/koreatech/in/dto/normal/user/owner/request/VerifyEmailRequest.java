@@ -1,4 +1,4 @@
-package koreatech.in.dto.normal.owner.request;
+package koreatech.in.dto.normal.user.owner.request;
 
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Email;

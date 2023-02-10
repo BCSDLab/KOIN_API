@@ -1,4 +1,4 @@
-package koreatech.in.domain.User.owner;
+package koreatech.in.domain.User;
 
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
@@ -19,6 +19,12 @@ public class EmailAddress {
 
     public static EmailAddress from(String fullAddress) {
         return new EmailAddress(LocalParts.from(fullAddress), Domain.from(fullAddress));
+    }
+
+    public void validateSendable() {
+        if(!domain.canSend()) {
+            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
+        }
     }
 
     static void validates(String fullAddress) {
