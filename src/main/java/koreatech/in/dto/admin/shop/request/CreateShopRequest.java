@@ -11,72 +11,72 @@ import javax.validation.constraints.*;
 import java.time.DayOfWeek;
 import java.util.*;
 
-import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 public class CreateShopRequest {
-    @Size(min = 1, max = 15, message = "name은 1자 이상 15자 이하입니다.")
-    @NotNull(message = "name은 필수입니다.")
-    @ApiModelProperty(notes = "상점명 \n" +
+    @Size(min = 1, max = 15, message = "가게명의 길이는 1자 이상 15자 이하입니다.")
+    @NotNull(message = "가게명은 필수입니다.")
+    @ApiModelProperty(notes = "가게명 \n" +
                               "- not null \n" +
                               "- 1자 이상 15자 이하", example = "써니 숯불 도시락", required = true)
     private String name;
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "phone 형식이 올바르지 않습니다.")
-    @NotNull(message = "phone은 필수입니다.")
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
+    @NotNull(message = "전화번호는 필수입니다.")
     @ApiModelProperty(notes = "전화번호 \n" +
                               "- not null \n" +
                               "- 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$`을 만족해야함", example = "041-123-4567", required = true)
     private String phone;
 
     @Valid
-    @NotNull(message = "open은 필수입니다.")
-    @ApiModelProperty(notes = "요일별 장사 시간과 휴무 여부 \n" +
+    @NotNull(message = "운영 시간 정보는 필수입니다.")
+    @ApiModelProperty(notes = "요일별 운영 시간과 휴무 여부 \n" +
                               "- not null \n" +
                               "- 리스트의 길이는 7(1주일 요일 개수) 이어야 함 \n" +
                               "- day_of_week은 각각 `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` 이어야 함", required = true)
     private List<Open> open = new ArrayList<>();
 
-    @Size(min = 1, max = 100, message = "address는 1자 이상 100자 이하입니다.")
-    @NotNull(message = "address는 필수입니다.")
+    @Size(min = 1, max = 100, message = "주소의 길이는 1자 이상 100자 이하입니다.")
+    @NotNull(message = "주소는 필수입니다.")
     @ApiModelProperty(notes = "주소 \n" +
                               "- not null \n" +
                               "- 1자 이상 100자 이하", example = "충청남도 천안시 동남구 병천면 충절로 1600", required = true)
     private String address;
 
-    @PositiveOrZero(message = "delivery_price는 0 이상 2147483647 이하입니다.")
+    @PositiveOrZero(message = "배달 금액은 0원 이상 2147483647원 이하여야합니다.")
     @ApiModelProperty(notes = "배달 금액 \n" +
                               "- 0 이상 2147483647 이하 \n" +
                               "- null일 경우 0으로 저장됨", example = "1000")
     private Integer delivery_price = 0;
 
-    @Size(min = 1, max = 50, message = "description은 1자 이상 50자 이하입니다.")
+    @Size(min = 1, max = 50, message = "기타정보의 길이는 1자 이상 50자 이하입니다.")
     @ApiModelProperty(notes = "기타정보 \n" +
                               "- 1자 이상 50자 이하", example = "이번주 전 메뉴 10% 할인 이벤트합니다.")
     private String description;
 
-    @NotNull(message = "delivery는 필수입니다.")
+    @NotNull(message = "배달 가능 여부는 필수입니다.")
     @ApiModelProperty(notes = "배달 가능 여부 \n" +
                               "- not null", example = "false", required = true)
     private Boolean delivery;
 
-    @NotNull(message = "pay_card는 필수입니다.")
+    @NotNull(message = "카드 가능 여부는 필수입니다.")
     @ApiModelProperty(notes = "카드 가능 여부 \n" +
                               "- not null", example = "true", required = true)
     private Boolean pay_card;
 
-    @NotNull(message = "pay_bank는 필수입니다.")
+    @NotNull(message = "계좌 이체 가능 여부는 필수입니다.")
     @ApiModelProperty(notes = "계좌 이체 가능 여부 \n" +
                               "- not null", example = "true", required = true)
     private Boolean pay_bank;
 
-    @NotEmpty(message = "category_ids의 길이는 1 이상입니다.")
+    @NotEmpty(message = "소속시킬 상점 카테고리는 최소 1개 선택하여야합니다.")
     @ApiModelProperty(notes = "상점 카테고리 고유 id 리스트 \n" +
                               "- not null \n" +
                               "- 최소 1개", example = "[1, 4]", required = true)
     private List<Integer> category_ids = new ArrayList<>();
 
-    @Size(max = 10, message = "image_urls의 size는 최대 10입니다.")
+    @Size(max = 10, message = "상점 이미지 개수 제한은 최대 10개입니다.")
     @ApiModelProperty(notes = "이미지 URL 리스트 \n" +
                               "- 최대 10개")
     private List<String> image_urls = new ArrayList<>();
@@ -84,18 +84,19 @@ public class CreateShopRequest {
     @Getter @Setter
     @ApiModel("Open_2")
     public static class Open {
-        @NotNull(message = "open의 day_of_week는 필수입니다.")
+        @NotNull(message = "운영 시간의 요일 정보는 필수입니다.")
+        @Pattern(regexp = "^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$", message = "운영 시간의 요일 정보 형식이 올바르지 않습니다.")
         @ApiModelProperty(notes = "요일 \n" +
                                   "- not null \n" +
                                   "- `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` 중 택1 (중복되면 안됨)", example = "MONDAY", required = true)
         private DayOfWeek day_of_week;
 
-        @NotNull(message = "open의 closed는 필수입니다.")
+        @NotNull(message = "운영 시간의 휴무 여부는 필수입니다.")
         @ApiModelProperty(notes = "휴무 여부 \n" +
                                   "- not null", example = "false", required = true)
         private Boolean closed;
 
-        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "open의 open_time은 시간 형식입니다.")
+        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "운영 시간의 여는 시간 정보 형식이 올바르지 않습니다.")
         @ApiModelProperty(notes = "여는 시간 \n" +
                                   "- closed가 false일 때 \n" +
                                   "  - not null \n" +
@@ -104,7 +105,7 @@ public class CreateShopRequest {
                                   "  - 어떤 값이 요청되던 null로 저장됨", example = "10:00")
         private String open_time;
 
-        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "open의 closed_time은 시간 형식입니다.")
+        @Pattern(regexp = "^([01][0-9]|2[0-3]):([0-5][0-9])$", message = "운영 시간의 닫는 시간 정보 형식이 올바르지 않습니다.")
         @ApiModelProperty(notes = "닫는 시간 \n" +
                                   "- closed가 false일때 \n" +
                                   "  - not null \n" +
@@ -120,7 +121,7 @@ public class CreateShopRequest {
 
     private void checkOpenConstraintViolation() {
         if (this.open.size() != 7) {
-            throw new BaseException("open의 size는 7이어야 합니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(LENGTH_OF_OPENS_MUST_BE_7);
         }
 
         Set<DayOfWeek> dayOfWeeksWithoutDuplication = new HashSet<>();
@@ -133,7 +134,7 @@ public class CreateShopRequest {
 
             if (!closed) {
                 if (openTime == null || closeTime == null) {
-                    throw new BaseException("closed가 false이면 open_time과 close_time은 필수입니다.", REQUEST_DATA_INVALID);
+                    throw new BaseException(TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED);
                 }
             }
 
@@ -141,7 +142,7 @@ public class CreateShopRequest {
         }
 
         if (dayOfWeeksWithoutDuplication.size() != 7) {
-            throw new BaseException("중복되는 day_of_week가 존재합니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(DUPLICATE_DAY_OF_WEEK_INFORMATION_EXISTS);
         }
     }
 }
