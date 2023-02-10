@@ -373,11 +373,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     private void checkNicknameValid(String nickname) {
+        if (nickname == null) {
+            throw new BaseException(NICKNAME_SHOULD_NOT_BE_NULL);
+        }
+        if (nickname.length() == 0) {
+            throw new BaseException(NICKNAME_LENGTH_AT_LEAST_1);
+        }
         if (StringUtils.isBlank(nickname)) {
-            throw new BaseException("nickname은 null이거나 길이가 0이거나 공백 문자로만 이루어져 있으면 안됩니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(NICKNAME_MUST_NOT_BE_BLANK);
         }
         if (nickname.length() > 10) {
-            throw new BaseException("nickname은 최대 10자입니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(NICKNAME_MAXIMUM_LENGTH_IS_10);
         }
     }
 

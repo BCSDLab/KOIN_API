@@ -34,7 +34,7 @@ public class AdminLandController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/lands", method = RequestMethod.POST)
@@ -70,7 +70,7 @@ public class AdminLandController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
     public @ResponseBody
@@ -89,7 +89,7 @@ public class AdminLandController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.PUT)
