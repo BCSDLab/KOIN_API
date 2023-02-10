@@ -5,6 +5,7 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.member.request.CreateMemberRequest;
 import koreatech.in.dto.admin.member.request.MembersCondition;
 import koreatech.in.dto.admin.member.request.UpdateMemberRequest;
@@ -35,7 +36,7 @@ public class AdminMemberController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
@@ -67,7 +68,7 @@ public class AdminMemberController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (error code: 100002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
     public @ResponseBody
@@ -86,7 +87,7 @@ public class AdminMemberController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000) \n\n" +
                                                "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
