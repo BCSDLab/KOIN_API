@@ -13,8 +13,8 @@ import java.util.List;
 
 @Getter @Setter
 public class CreateLandRequest {
-    @NotNull(message = "name은 필수입니다.")
-    @Size(max = 255, message = "name의 최대 길이는 255자 입니다.")
+    @NotNull(message = "방이름은 필수입니다.")
+    @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
     @ApiModelProperty(notes = "이름 \n" +
                               "- not null \n" +
                               "- 최대 255자", example = "금실타운", required = true)
@@ -23,7 +23,7 @@ public class CreateLandRequest {
     @ApiModelProperty(notes = "크기", example = "9.0")
     private Double size;
 
-    @Size(max = 20, message = "room_type의 최대 길이는 20자 입니다.")
+    @Size(max = 20, message = "방종류의 최대 길이는 20자입니다.")
     @ApiModelProperty(notes = "종류 \n" +
                               "- 최대 20자", example = "원룸")
     private String room_type;
@@ -34,7 +34,7 @@ public class CreateLandRequest {
     @ApiModelProperty(notes = "경도", example = "127.284638")
     private Double longitude;
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "phone의 정규식은 ^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$ 입니다.")
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "전화번호 \n" +
                               "- 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$` 을 만족해야함", example = "041-111-1111")
     private String phone;
@@ -42,37 +42,37 @@ public class CreateLandRequest {
     @ApiModelProperty(notes = "이미지 url 리스트")
     private List<String> image_urls = new ArrayList<>();
 
-    @Size(max = 65535, message = "address의 최대 길이는 65535자 입니다.")
+    @Size(max = 65535, message = "주소의 최대 길이는 65535자입니다.")
     @ApiModelProperty(notes = "주소 \n" +
                               "- 최대 65535자", example = "충청남도 천안시 동남구 병천면")
     private String address;
 
-    @Size(max = 65535, message = "description의 최대 길이는 65535자 입니다.")
+    @Size(max = 65535, message = "설명의 최대 길이는 65535자입니다.")
     @ApiModelProperty(notes = "설명 \n" +
                               "- 최대 65535자", example = "1년 계약시 20만원 할인")
     private String description;
 
-    @PositiveOrZero(message = "floor은 0 이상이어야 합니다.")
+    @PositiveOrZero(message = "층수는 0 이상이어야합니다.")
     @ApiModelProperty(notes = "층수 \n" +
                               "- 음수 불가능", example = "4")
     private Integer floor;
 
-    @Size(max = 255, message = "deposit의 최대 길이는 255자 입니다.")
+    @Size(max = 255, message = "보증금의 최대 길이는 255자입니다.")
     @ApiModelProperty(notes = "보증금 \n" +
                               "- 최대 255자", example = "30")
     private String deposit;
 
-    @Size(max = 255, message = "monthly_fee의 최대 길이는 255자 입니다.")
+    @Size(max = 255, message = "월세의 최대 길이는 255자입니다.")
     @ApiModelProperty(notes = "월세 \n" +
                               "- 최대 255자", example = "200만원 (6개월)")
     private String monthly_fee;
 
-    @Size(max = 20, message = "charter_fee의 최대 길이는 20자 입니다.")
+    @Size(max = 20, message = "전세의 최대 길이는 20자입니다.")
     @ApiModelProperty(notes = "전세 \n" +
                               "- 최대 20자", example = "3500")
     private String charter_fee;
 
-    @Size(max = 255, message = "management_fee의 최대 길이는 255자 입니다.")
+    @Size(max = 255, message = "관리비의 최대 길이는 255자입니다.")
     @ApiModelProperty(notes = "관리비 \n" +
                               "- 최대 255자", example = "21(1인 기준)")
     private String management_fee;

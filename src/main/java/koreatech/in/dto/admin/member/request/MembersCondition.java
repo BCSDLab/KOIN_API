@@ -3,8 +3,6 @@ package koreatech.in.dto.admin.member.request;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.exception.BaseException;
-import koreatech.in.exception.ExceptionInformation;
-import koreatech.in.exception.RequestDataInvalidException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
