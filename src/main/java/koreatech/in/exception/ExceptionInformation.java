@@ -59,7 +59,16 @@ public enum ExceptionInformation {
     // ======= BCSDLab 회원 =======
     MEMBER_NOT_FOUND("존재하지 않는 BCSDLab 회원입니다.", 202000, HttpStatus.NOT_FOUND),
     MEMBER_ALREADY_DELETED("이미 삭제되어 있는 BCSDLab 회원입니다.", 202001, HttpStatus.CONFLICT),
-    MEMBER_NOT_DELETED("삭제되어 있는 BCSDLab 회원이 아닙니다.", 202002, HttpStatus.CONFLICT);
+    MEMBER_NOT_DELETED("삭제되어 있는 BCSDLab 회원이 아닙니다.", 202002, HttpStatus.CONFLICT),
+
+
+    // ======= 422 (unprocessable entity) exception =======
+    SEARCH_QUERY_LENGTH_AT_LEAST_1("검색 내용의 최소 길이는 1입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    SEARCH_QUERY_MUST_NOT_BE_BLANK("검색 내용은 공백 문자로만 이루어져 있으면 안됩니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    NICKNAME_SHOULD_NOT_BE_NULL("닉네임은 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    NICKNAME_LENGTH_AT_LEAST_1("닉네임의 최소 길이는 1입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    NICKNAME_MUST_NOT_BE_BLANK("닉네임은 공백 문자로만 이루어져 있으면 안됩니다,", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    NICKNAME_MAXIMUM_LENGTH_IS_10("닉네임은 최대 10자입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
 
     ExceptionInformation(String message, Integer code, HttpStatus httpStatus) {
         this.message = message;

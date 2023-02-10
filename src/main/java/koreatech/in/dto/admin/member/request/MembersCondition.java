@@ -2,10 +2,15 @@ package koreatech.in.dto.admin.member.request;
 
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.RequestDataInvalidException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
+
+import static koreatech.in.exception.ExceptionInformation.SEARCH_QUERY_LENGTH_AT_LEAST_1;
+import static koreatech.in.exception.ExceptionInformation.SEARCH_QUERY_MUST_NOT_BE_BLANK;
 
 @Getter @Setter
 public class MembersCondition extends Criteria {
@@ -81,13 +86,13 @@ public class MembersCondition extends Criteria {
 
     private void checkQueryIsEmpty() {
         if (this.query.length() == 0) {
-            throw new RequestDataInvalidException("검색 내용은 한글자 이상이어야 합니다.");
+            throw new BaseException(SEARCH_QUERY_LENGTH_AT_LEAST_1);
         }
     }
 
     private void checkQueryIsBlank() {
         if (StringUtils.isBlank(this.query)) {
-            throw new RequestDataInvalidException("검색 내용은 공백 문자로만 이루어져 있으면 안됩니다.");
+            throw new BaseException(SEARCH_QUERY_MUST_NOT_BE_BLANK);
         }
     }
 }

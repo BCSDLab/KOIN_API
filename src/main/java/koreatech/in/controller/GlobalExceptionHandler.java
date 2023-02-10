@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Map;
+import java.util.*;
+
+import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -52,15 +55,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public @ResponseBody
     ResponseEntity ValidationException(ValidationException e) {
-        return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<Map<String, Object>>(e.getErrorMessage().getMap(), UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(BaseException.class)
     public @ResponseBody
     ResponseEntity<ExceptionResponse> BaseException(BaseException e) {
+        HttpStatus httpStatus = e.getHttpStatus();
+        if (httpStatus.equals(UNPROCESSABLE_ENTITY)) {
+            return new ResponseEntity<>(RequestDataInvalidResponse.of(
+                    REQUEST_DATA_INVALID.getCode(),
+                    REQUEST_DATA_INVALID.getMessage(),
+                    Collections.singletonList(e.getMessage())
+            ),
+                    REQUEST_DATA_INVALID.getHttpStatus()
+            );
+        }
+
         return new ResponseEntity<>(ExceptionResponse.of(e.getErrorCode(), e.getMessage()), e.getHttpStatus());
     }
 
+    // ValidParameters AOP에서 throw
     @ExceptionHandler(RequestDataInvalidException.class)
     public @ResponseBody
     ResponseEntity<RequestDataInvalidResponse> RequestDataInvalidException(RequestDataInvalidException e) {

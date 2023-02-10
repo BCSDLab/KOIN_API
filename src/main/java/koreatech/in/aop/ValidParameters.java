@@ -7,7 +7,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 
 import java.util.List;
 import java.util.stream.Collectors;
