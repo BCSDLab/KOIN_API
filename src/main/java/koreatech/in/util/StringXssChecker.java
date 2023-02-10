@@ -41,18 +41,27 @@ public class StringXssChecker {
         while (itr.hasNext()) {
             keyAttribute = (String) itr.next();
             methodString = setMethodString + keyAttribute.substring(0, 1).toUpperCase() + keyAttribute.substring(1);
-            Method[] methods = obj.getClass().getDeclaredMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methodString.equals(methods[i].getName())) {
-                    try {
-                        methods[i].invoke(obj, map.get(keyAttribute));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+            Class<?> objClass = obj.getClass();
+            while(objClass != null) {
+                makeObjectForMap(map, obj, keyAttribute, methodString, objClass);
+                objClass = objClass.getSuperclass();
             }
         }
         return obj;
+    }
+
+    private static void makeObjectForMap(Map<String, Object> map, Object obj, String keyAttribute, String methodString,
+                                  Class<?> objClass) {
+        Method[] methods = objClass.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methodString.equals(methods[i].getName())) {
+                try {
+                    methods[i].invoke(obj, map.get(keyAttribute));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

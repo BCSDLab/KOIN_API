@@ -1,5 +1,11 @@
 package koreatech.in.domain.User;
 
+import static koreatech.in.exception.ExceptionInformation.IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST;
+import static koreatech.in.exception.ExceptionInformation.IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST;
+import static koreatech.in.exception.ExceptionInformation.USER_HAS_NOT_WITHDRAWN;
+import static koreatech.in.exception.ExceptionInformation.USER_HAS_WITHDRAWN;
+
+import java.util.Date;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
@@ -10,13 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
-import static koreatech.in.exception.ExceptionInformation.*;
-
 @Getter @Setter
 @NoArgsConstructor
-public abstract class User {
+public class User {
     protected Integer id;
     protected String account;
     protected String password;
