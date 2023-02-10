@@ -5,6 +5,7 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.shop.request.*;
 import koreatech.in.dto.admin.shop.response.*;
 import koreatech.in.service.admin.AdminShopService;
@@ -34,7 +35,7 @@ public class AdminShopController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 중복되는 이름의 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
@@ -66,7 +67,8 @@ public class AdminShopController {
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
@@ -85,7 +87,7 @@ public class AdminShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점 카테고리가 조회되지 않을 때 (code: 104004)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 이름이 중복되는 카테고리가 이미 존재할 때 (code: 104005)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
@@ -122,7 +124,7 @@ public class AdminShopController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
@@ -156,7 +158,8 @@ public class AdminShopController {
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
@@ -175,7 +178,7 @@ public class AdminShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
@@ -232,7 +235,7 @@ public class AdminShopController {
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
             @ApiResponse(code = 409, message = "- 중복되는 이름의 카테고리가 이미 존재할 때 (code: 104011) \n" +
                                                "- 한 상점당 등록할 수 있는 메뉴 카테고리의 최대 개수(20개)를 초과하였을 때 (code: 104013)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
@@ -290,7 +293,7 @@ public class AdminShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
@@ -349,7 +352,7 @@ public class AdminShopController {
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
                                                "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함 \n" +
                                                "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)

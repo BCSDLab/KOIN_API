@@ -17,23 +17,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 public class CreateMenuRequest {
-    @Size(min = 1, max = 25, message = "name은 1자 이상 25자 이하입니다.")
-    @NotNull(message = "name은 필수입니다.")
+    @Size(min = 1, max = 25, message = "이름의 길이는 1자 이상 25자 이하입니다.")
+    @NotNull(message = "이름은 필수입니다.")
     @ApiModelProperty(notes = "메뉴명 \n" +
                               "- not null \n" +
                               "- 1자 이상 25자 이하", example = "짜장면", required = true)
     private String name;
 
-    @NotNull(message = "is_single은 필수입니다.")
+    @NotNull(message = "단일 메뉴 여부는 필수입니다.")
     @ApiModelProperty(notes = "단일 메뉴 여부 \n" +
                               "- not null", example = "true", required = true)
     private Boolean is_single;
 
-    @PositiveOrZero(message = "single_price는 0 이상 2147483647 이하입니다.")
+    @PositiveOrZero(message = "메뉴의 가격은 0원 이상 2147483647원 이하여야합니다.")
     @ApiModelProperty(notes = "단일 메뉴일때의 가격 \n" +
                               "- is_single이 true이면 \n" +
                               "  - not null \n" +
@@ -52,18 +52,18 @@ public class CreateMenuRequest {
                               "  - 리스트의 최소 길이: 1")
     private List<OptionPrice> option_prices = new ArrayList<>();
 
-    @NotEmpty(message = "category_ids는 필수이며, 리스트의 최소 길이는 1입니다.")
+    @NotEmpty(message = "소속시킬 메뉴 카테고리는 최소 1개 선택하여야 합니다.")
     @ApiModelProperty(notes = "선택된 카테고리 고유 id 리스트 \n" +
                               "- not null \n" +
                               "- 리스트의 최소 길이: 1", required = true)
     private List<Integer> category_ids = new ArrayList<>();
 
-    @Size(max = 80, message = "description의 길이는 80 이하여야합니다.")
+    @Size(max = 80, message = "메뉴 구성 설명의 길이는 최대 80자입니다.")
     @ApiModelProperty(notes = "메뉴 구성 설명 \n" +
                               "- 최대 80자", example = "저희 가게의 대표 메뉴 짜장면입니다.")
     private String description;
 
-    @Size(max = 3, message = "image_urls의 size는 최대 3입니다.")
+    @Size(max = 3, message = "메뉴 1개당 이미지는 최대 3개까지 등록할 수 있습니다.")
     @ApiModelProperty(notes = "이미지 URL 리스트 \n" +
                               "- 리스트의 최대 길이: 3")
     private List<String> image_urls = new ArrayList<>();
@@ -71,15 +71,15 @@ public class CreateMenuRequest {
     @Getter @Setter
     @ApiModel("OptionPrice_6")
     public static class OptionPrice {
-        @Size(min = 1, max = 50, message = "option_prices의 option은 1자 이상 50자 이하입니다.")
-        @NotNull(message = "option_prices의 option은 필수입니다.")
+        @Size(min = 1, max = 50, message = "옵션명의 길이는 1자 이상 50자 이하입니다.")
+        @NotNull(message = "옵션명은 필수입니다.")
         @ApiModelProperty(notes = "옵션명 \n" +
                                   "- not null \n" +
                                   "- 1자 이상 50자 이하", example = "곱빼기", required = true)
         private String option;
 
-        @PositiveOrZero(message = "option_prices의 price는 0 이상 2147483647 이하입니다.")
-        @NotNull(message = "option_prices의 price는 필수입니다.")
+        @PositiveOrZero(message = "메뉴의 가격은 0원 이상 2147483647원 이하여야합니다.")
+        @NotNull(message = "메뉴의 가격은 필수입니다.")
         @ApiModelProperty(notes = "옵션에 대한 가격 \n" +
                                   "- not null \n" +
                                   "- 0 이상 2147483647 이하", example = "12000", required = true)
@@ -93,10 +93,10 @@ public class CreateMenuRequest {
 
     private void checkPriceConstraintViolation() {
         if (isSingleMenu() && isSinglePriceNull()) {
-            throw new BaseException("is_single이 true이면 single_price는 필수입니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(PRICE_OF_MENU_IS_REQUIRED);
         }
         if (!isSingleMenu() && isOptionPricesEmpty()) {
-            throw new BaseException("is_single이 false이면 option_prices는 필수이며, 리스트의 최소 길이는 1입니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(PRICE_OF_MENU_IS_REQUIRED);
         }
     }
 
@@ -111,7 +111,7 @@ public class CreateMenuRequest {
 
         // 요청된 개수와 Set에 담긴 개수가 다르면 옵션명의 중복이 있다는 것
         if (getOptionPricesSize() != optionSet.size()) {
-            throw new BaseException("중복되는 option이 존재합니다.", REQUEST_DATA_INVALID);
+            throw new BaseException(DUPLICATE_OPTIONS_EXIST_IN_MENU);
         }
     }
 
