@@ -2,8 +2,11 @@ package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.REQUEST_DATA_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.sql.SQLException;
@@ -28,6 +31,7 @@ import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
@@ -128,6 +132,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         checkInputDataDuplicationAndValidation(student);
 
         String email = student.getAccount()+"@koreatech.ac.kr";
+
+        validateEmailUniqueness(EmailAddress.from(email));
+
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
         student.setEmail(email);
         student.setAnonymous_nickname(anonymousNickname);
@@ -318,10 +325,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void checkExists(CheckExistsEmailRequest checkExistsEmailRequest) {
         EmailAddress emailAddress = UserConverter.INSTANCE.toEmailAddress(checkExistsEmailRequest);
 
-        Boolean isEmailAlreadyExist = userMapper.isEmailAlreadyExist(emailAddress);
-
-        if(isEmailAlreadyExist.equals(true)) {
-            throw new BaseException(NICKNAME_DUPLICATE);
+        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+            throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
 
@@ -412,6 +417,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         if (nickname.length() > 10) {
             throw new BaseException(NICKNAME_MAXIMUM_LENGTH_IS_10);
+        }
+    }
+
+    private void validateEmailUniqueness(EmailAddress emailAddress) {
+        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+            throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
 
