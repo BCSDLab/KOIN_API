@@ -339,6 +339,5 @@
             <artifactId>annotations</artifactId>
             <version>23.0.0</version>
         </dependency>
-
     </dependencies>
 </project>

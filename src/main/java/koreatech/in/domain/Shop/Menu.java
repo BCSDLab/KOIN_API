@@ -8,6 +8,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 
+/**
+ *  코인 리뉴얼 전 shop_menus 테이블과 매핑되는 클래스
+ *  리뉴얼 후에는 쓰이지 않는다. (ShopMenu 클래스로 대체)
+ */
+
 public class Menu {
     @ApiModelProperty(notes = "고유 id", example = "10")
     private Integer id;

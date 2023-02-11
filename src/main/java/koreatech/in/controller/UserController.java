@@ -81,7 +81,7 @@ public class UserController {
 
         StudentRegisterRequest clear = new StudentRegisterRequest();
 
-        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister(StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
     }
 
     @Auth(role = Auth.Role.STUDENT)
@@ -101,7 +101,7 @@ public class UserController {
     public @ResponseBody
     ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
         UpdateUserRequest clear = new UpdateUserRequest();
-        return new ResponseEntity<>(userService.updateStudentInformation(StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateStudentInformation((UpdateUserRequest) StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
     }
 
     @ParamValid
@@ -113,7 +113,7 @@ public class UserController {
 
         Owner clear = new Owner();
 
-        return new ResponseEntity<>(userService.updateOwnerInformation(StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.updateOwnerInformation((Owner) StringXssChecker.xssCheck(owner, clear)), HttpStatus.CREATED);
     }
 
 

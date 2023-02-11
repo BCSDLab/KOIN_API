@@ -3,7 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Bus.*;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.mapstruct.SchoolBusCourseMapper;
+import koreatech.in.mapstruct.normal.bus.SchoolBusCourseConverter;
 import koreatech.in.repository.BusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class BusServiceImpl implements BusService {
     @Override
     public List<SchoolBusCourse> getCourses() {
 
-        return SchoolBusCourseMapper.INSTANCE.toSchoolBusCourse(busRepository.findOnlyCourses());
+        return SchoolBusCourseConverter.INSTANCE.toSchoolBusCourse(busRepository.findOnlyCourses());
     }
 
     @Override

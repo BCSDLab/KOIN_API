@@ -1,7 +1,7 @@
 package koreatech.in.dto.admin.member.response;
 
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.mapstruct.admin.AdminMemberConverter;
+import koreatech.in.mapstruct.admin.member.AdminMemberConverter;
 import lombok.Builder;
 import lombok.Getter;
 

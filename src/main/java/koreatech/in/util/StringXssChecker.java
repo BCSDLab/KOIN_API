@@ -7,9 +7,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class StringXssChecker {
     public static <T> T xssCheck(T vo, T clear) throws Exception {
@@ -51,7 +49,7 @@ public class StringXssChecker {
     }
 
     private static void makeObjectForMap(Map<String, Object> map, Object obj, String keyAttribute, String methodString,
-                                  Class<?> objClass) {
+                                         Class<?> objClass) {
         Method[] methods = objClass.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             if (methodString.equals(methods[i].getName())) {
@@ -63,5 +61,4 @@ public class StringXssChecker {
             }
         }
     }
-
 }

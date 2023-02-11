@@ -107,11 +107,11 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     public Map<String, Object> getUserListForAdmin(Criteria criteria) {
         Integer totalCount = userMapper.getTotalCount();
-        int totalPage = criteria.calcTotalPage(totalCount);
+        //int totalPage = criteria.calcTotalPage(totalCount);
         Map<String, Object> map = new HashMap<>();
 
         map.put("items", userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit()));
-        map.put("totalPage", totalPage);
+        //map.put("totalPage", totalPage);
 
         return map;
     }

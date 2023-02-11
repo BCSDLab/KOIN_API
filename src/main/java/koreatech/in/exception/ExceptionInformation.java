@@ -75,7 +75,12 @@ public enum ExceptionInformation {
     NICKNAME_SHOULD_NOT_BE_NULL("닉네임은 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     NICKNAME_LENGTH_AT_LEAST_1("닉네임의 최소 길이는 1입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     NICKNAME_MUST_NOT_BE_BLANK("닉네임은 공백 문자로만 이루어져 있으면 안됩니다,", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
-    NICKNAME_MAXIMUM_LENGTH_IS_10("닉네임은 최대 10자입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
+    NICKNAME_MAXIMUM_LENGTH_IS_10("닉네임은 최대 10자입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    LENGTH_OF_OPENS_MUST_BE_7("운영 시간 정보의 길이는 7이어야 합니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED("휴무가 아니라면 여는 시간과 닫는 시간 정보는 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    DUPLICATE_DAY_OF_WEEK_INFORMATION_EXISTS("중복되는 요일이 존재합니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    PRICE_OF_MENU_IS_REQUIRED("메뉴의 가격 정보는 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    DUPLICATE_OPTIONS_EXIST_IN_MENU("메뉴에서 중복되는 옵션명이 있습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
 
     ExceptionInformation(String message, Integer code, HttpStatus httpStatus) {
         this.message = message;

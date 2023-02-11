@@ -64,7 +64,7 @@ public class FaqServiceImpl implements FaqService {
     public Map<String, Object> getFaqList(Criteria criteria) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        Integer totalPage = criteria.calcTotalPage(faqMapper.totalCount());
+        Integer totalPage = criteria.extractTotalPage(faqMapper.totalCount());
 
         map.put("faqs", faqMapper.getFaqList(criteria.getCursor(), criteria.getLimit()));
         map.put("totalPage", totalPage);
