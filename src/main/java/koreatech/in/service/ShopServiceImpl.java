@@ -92,6 +92,15 @@ public class ShopServiceImpl implements ShopService {
         return menuProfile;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId) {
+        checkShopExistById(shopId);
+
+        List<ShopMenuCategory> allMenuCategoriesOfShop = shopMapper.getMenuCategoriesByShopId(shopId);
+        return AllMenuCategoriesOfShopResponse.from(allMenuCategoriesOfShop);
+    }
+
     private void checkShopExistById(Integer id) {
         Optional.ofNullable(shopMapper.getShopById(id))
                 .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));

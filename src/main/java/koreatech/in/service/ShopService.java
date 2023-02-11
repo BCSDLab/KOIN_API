@@ -12,4 +12,6 @@ public interface ShopService {
     AllMenusOfShopResponse getAllMenusOfShop(Integer shopId);
 
     MenuResponse getMenu(Integer shopId, Integer menuId);
+
+    AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
 }
