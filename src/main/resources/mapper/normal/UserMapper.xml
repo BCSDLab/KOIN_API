@@ -30,7 +30,6 @@
             `t2`.`is_graduated` AS `students.is_graduated`,
 
             `t3`.`company_registration_number` AS `owners.company_registration_number`,
-            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
             `t3`.`grant_shop` AS `owners.grant_shop`,
             `t3`.`grant_event` AS `owners.grant_event`,
 
@@ -102,7 +101,6 @@
             `t2`.`is_graduated` AS `students.is_graduated`,
 
             `t3`.`company_registration_number` AS `owners.company_registration_number`,
-            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
             `t3`.`grant_shop` AS `owners.grant_shop`,
             `t3`.`grant_event` AS `owners.grant_event`,
 
@@ -203,7 +201,6 @@
 
     <resultMap id="OwnerResultMap" extends="UserResultMap" type="koreatech.in.domain.User.owner.Owner">
         <result property="company_registration_number" column="owners.company_registration_number"/>
-        <result property="company_registration_certificate_image_url" column="owners.company_registration_certificate_image_url"/>
         <result property="grant_shop" column="owners.grant_shop"/>
         <result property="grant_event" column="owners.grant_event"/>
     </resultMap>
@@ -257,7 +254,6 @@
             `t2`.`is_graduated` AS `students.is_graduated`,
 
             `t3`.`company_registration_number` AS `owners.company_registration_number`,
-            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
             `t3`.`grant_shop` AS `owners.grant_shop`,
             `t3`.`grant_event` AS `owners.grant_event`,
 
@@ -349,7 +345,6 @@
             `t2`.`is_graduated` AS `students.is_graduated`,
 
             `t3`.`company_registration_number` AS `owners.company_registration_number`,
-            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
             `t3`.`grant_shop` AS `owners.grant_shop`,
             `t3`.`grant_event` AS `owners.grant_event`,
 
@@ -420,7 +415,6 @@
             `t2`.`is_graduated` AS `students.is_graduated`,
 
             `t3`.`company_registration_number` AS `owners.company_registration_number`,
-            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
             `t3`.`grant_shop` AS `owners.grant_shop`,
             `t3`.`grant_event` AS `owners.grant_event`,
 
@@ -513,9 +507,8 @@
         SELECT EMAIL FROM koin.users WHERE ID = #{id}
     </select>
 
-    <insert id="insertUser">
-        INSERT IGNORE
-        INTO koin.users (
+    <insert id="insertUser" parameterType="koreatech.in.domain.User.User">
+        INSERT INTO koin.users (
         account,
         password,
         name,
@@ -534,13 +527,13 @@
         #{name},
         #{nickname},
         #{gender},
-        #{phoneNumber},
+        #{phone_number},
         #{email},
-        #{authToken},
-        #{authExpiredAt},
-        #{isAuthed},
-        #{profileImageUrl},
-        #{userType});
+        #{auth_token},
+        #{auth_expired_at},
+        #{is_authed},
+        #{profile_image_url},
+        #{user_type});
         <selectKey keyProperty="id" resultType="Integer">
             SELECT LAST_INSERT_ID();
         </selectKey>

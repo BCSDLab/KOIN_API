@@ -99,7 +99,7 @@ public class UploadController {
     public @ResponseBody
     ResponseEntity<UploadFileResponse> upload(@ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
                                               @ApiParam(value = "도메인 이름 \n"
-                                                      + "`{items, lands, circles, market, shops, members}`", example = "items", required = true) @PathVariable String domain) {
+                                                      + "`{items, lands, circles, market, shops, members, owners}`", example = "items", required = true) @PathVariable String domain) {
         DomainEnum.validate(domain);
 
         UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain), multipartFile);
@@ -132,7 +132,7 @@ public class UploadController {
     ResponseEntity<UploadFilesResponse> uploadFiles(
             @ApiParam(required = true) @RequestPart List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain) {
+                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain) {
 
         DomainEnum.validate(domain);
         UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
@@ -170,7 +170,7 @@ public class UploadController {
     ResponseEntity<UploadFileResponse> uploadFileAdminForAdmin(
             @ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
             @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain)
+                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain)
             throws Exception {
         DomainEnum.validate(domain);
 
@@ -209,7 +209,7 @@ public class UploadController {
             @ApiParam(required = true) @RequestPart
             List<MultipartFile> files,
             @ApiParam(value = "도메인 이름 \n"
-                    + "`{items, lands, circles, market, shops, members}`", required = true) @PathVariable String domain)
+                    + "`{items, lands, circles, market, shops, members, owners}`", required = true) @PathVariable String domain)
             throws Exception {
 
         DomainEnum.validate(domain);
