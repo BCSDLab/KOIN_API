@@ -31,6 +31,8 @@ public class OwnerShopController {
     @Autowired
     private OwnerShopService ownerShopService;
 
+    // =============================================== 상점 =================================================
+
     @ApiOperation(value = "상점 조회", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
@@ -45,6 +47,8 @@ public class OwnerShopController {
         ShopResponse response = ownerShopService.getShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // =============================================== 메뉴 카테고리 =================================================
 
     @ApiOperation(value = "상점 메뉴 카테고리 생성", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
@@ -147,7 +151,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 모든 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 모든 메뉴 조회", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -162,7 +166,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 메뉴 수정", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -186,7 +190,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 메뉴 삭제", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
