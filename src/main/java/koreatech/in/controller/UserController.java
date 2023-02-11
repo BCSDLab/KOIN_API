@@ -212,7 +212,7 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/check/email/{address:.+}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> checkUserNickname(
+    ResponseEntity<EmptyResponse> checkUserEmailExist(
             @ApiParam(value = "이메일 \n " +
                     "- not null \n " +
                     "- 1자 이상 10자 이하 \n " +
