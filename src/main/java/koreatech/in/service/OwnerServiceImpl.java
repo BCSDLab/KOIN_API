@@ -65,6 +65,7 @@ public class OwnerServiceImpl implements OwnerService {
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
 
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
+        validateEmailUniqueness(emailAddress);
 
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
@@ -96,6 +97,7 @@ public class OwnerServiceImpl implements OwnerService {
         Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
+        validateEmailUniqueness(ownerEmailAddress);
         validationAndDeleteInRedis(ownerEmailAddress);
 
         encodePassword(owner);
@@ -103,6 +105,12 @@ public class OwnerServiceImpl implements OwnerService {
         createInDBFor(owner);
 
         slackNotiSender.noticeRegisterComplete(owner);
+    }
+
+    private void validateEmailUniqueness(EmailAddress emailAddress) {
+        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+            throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
+        }
     }
 
     private static void validateRedis(OwnerInVerification ownerInRedis) {
