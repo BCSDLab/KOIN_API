@@ -54,6 +54,7 @@ public enum ExceptionInformation {
     // ======= 파일 업로드 =======
     DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
     FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
+    //TODO 23.02.11. 박한수 파일목록(List<File~>) 을 멤버로 하는 객체 선언해서, 이 객체로 ResponseBody가 매핑되어 ParamValid에 걸릴 수 있는지 시도해보기.
     FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
 
