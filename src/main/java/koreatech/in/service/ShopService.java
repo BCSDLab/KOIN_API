@@ -1,9 +1,6 @@
 package koreatech.in.service;
 
-import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
-import koreatech.in.dto.normal.shop.response.AllShopCategoriesResponse;
-import koreatech.in.dto.normal.shop.response.AllShopsResponse;
-import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.*;
 
 public interface ShopService {
     AllShopCategoriesResponse getAllShopCategories();
@@ -13,4 +10,6 @@ public interface ShopService {
     AllShopsResponse getAllShops();
 
     AllMenusOfShopResponse getAllMenusOfShop(Integer shopId);
+
+    MenuResponse getMenu(Integer shopId, Integer menuId);
 }
