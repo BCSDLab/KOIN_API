@@ -15,12 +15,12 @@ public enum DomainEnum {
     ITEMS(), LANDS(), CIRCLES(), MARKET(), SHOPS(), MEMBERS(), OWNERS(ContentType.IMAGE_ALL, ByteSize.OWNER_MAX_SIZE);
 
     private final ContentType expectContentType;
-    private final ByteSize expectSize;
+    private final ByteSize limitedSize;
 
 
     DomainEnum() {
-        expectContentType = ContentType.DEFAULT;
-        expectSize = ByteSize.DEFAULT;
+        expectContentType = ContentType.DEFAULT ;
+        limitedSize = ByteSize.DEFAULT;
     }
 
     public static DomainEnum mappingFor(String pathDomain) {
@@ -33,7 +33,7 @@ public enum DomainEnum {
         validates(multipartFile);
 
         expectContentType.validateAcceptable(ContentType.from(multipartFile.getContentType()));
-        expectSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
+        limitedSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
     }
 
     private static void validates(MultipartFile multipartFile) {
