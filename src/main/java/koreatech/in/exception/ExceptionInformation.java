@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ExceptionInformation {
+    // 코인 리뉴얼 Error code 정리: https://docs.google.com/spreadsheets/d/1yWYFqGOPA_6ZQQ4Mb7bvOyUMH9NbyBnIuJ8jz6XkwUA/edit#gid=0
     // ======= 공통 =======
     REQUEST_DATA_INVALID("요청 데이터가 유효하지 않습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY), // 메시지는 ErrorMessage 객체에 상황에 맞게 넣을 것
     BAD_ACCESS("잘못된 접근입니다.", 100001, HttpStatus.UNAUTHORIZED),
