@@ -72,5 +72,6 @@ public class ContentType {
     }
 
     public static ContentType ALL = from("*/*");
+    public static ContentType DEFAULT = ALL;
     public static ContentType IMAGE_ALL = from("image/*");
 }

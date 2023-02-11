@@ -35,6 +35,6 @@ public class ByteSize {
     }
 
     public static final Long _10_MB = 10_000_000L;
-    public static ByteSize BASE_SIZE = from(_10_MB);
+    public static ByteSize DEFAULT = from(_10_MB);
     public static ByteSize OWNER_MAX_SIZE = from(_10_MB);
 }

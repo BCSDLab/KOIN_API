@@ -19,8 +19,8 @@ public enum DomainEnum {
 
 
     DomainEnum() {
-        expectContentType = ContentType.ALL;
-        expectSize = ByteSize.BASE_SIZE;
+        expectContentType = ContentType.DEFAULT;
+        expectSize = ByteSize.DEFAULT;
     }
 
     public static DomainEnum mappingFor(String pathDomain) {
