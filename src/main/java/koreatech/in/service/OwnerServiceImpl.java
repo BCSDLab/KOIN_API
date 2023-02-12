@@ -7,10 +7,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
-import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
@@ -38,7 +38,6 @@ public class OwnerServiceImpl implements OwnerService {
 
     private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
     private static final String CERTIFICATION_CODE = "certification-code";
-    private static final String redisOwnerAuthPrefix = "owner@";
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
@@ -93,18 +92,21 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-        //TODO 23.02.07. 이메일 unique 검사가 필요.
+
+        // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
         Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
-        validationAndDeleteInRedis(ownerEmailAddress);
+        validateOwnerInRedis(ownerEmailAddress);
 
         encodePassword(owner);
 
         createInDBFor(owner);
 
         slackNotiSender.noticeRegisterComplete(owner);
+
+        removeRedisFrom(ownerEmailAddress);
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
@@ -120,28 +122,25 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.validateFields();
     }
 
-    private void validationAndDeleteInRedis(EmailAddress emailAddress) {
+    private void validateOwnerInRedis(EmailAddress emailAddress) {
         OwnerInVerification ownerInRedis = getOwnerInRedis(emailAddress.getEmailAddress());
-
         ownerInRedis.validateCertificationComplete();
-
-        removeRedisFrom(emailAddress);
     }
 
     private void removeRedisFrom(EmailAddress emailAddress) {
-        stringRedisUtilStr.deleteData(emailAddress.getEmailAddress());
+        stringRedisUtilStr.deleteData(StringRedisUtilStr.makeOwnerKeyFor(emailAddress.getEmailAddress()));
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
-        stringRedisUtilStr.valOps.set(redisOwnerAuthPrefix + emailAddress,
+        stringRedisUtilStr.valOps.set(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
                 gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
         Gson gson = new GsonBuilder().create();
-        String json = stringRedisUtilStr.valOps.get(redisOwnerAuthPrefix + emailAddress);
+        String json = stringRedisUtilStr.valOps.get(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
 
         OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
         validateRedis(ownerInRedis);
