@@ -108,15 +108,15 @@ public class SlackNotiSender {
         noticeWithdraw(data);
     }
 
-    public void noticeEmailVerification(EmailAddress emailAddress) {
-        NotiSlack notiSlack = emailVerificationNotiSlack(emailAddress);
+    public void noticeEmailVerification(User user) {
+        NotiSlack notiSlack = emailVerificationNotiSlack(user);
         Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
 
         noticeFor(notice);
     }
 
-    public void noticeRegisterComplete(Owner owner) {
-        NotiSlack notiSlack = registerCompleteNotiSlack(owner);
+    public void noticeRegisterComplete(User user) {
+        NotiSlack notiSlack = registerCompleteNotiSlack(user);
         Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
 
         noticeFor(notice);
