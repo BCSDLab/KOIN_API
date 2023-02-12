@@ -8,7 +8,9 @@ import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.exception.BaseException;
+import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
 import koreatech.in.repository.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,15 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Autowired
     private ShopMapper shopMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public ShopResponse getShop(Integer shopId) {
+        checkAuthorityAboutShop(getShopById(shopId));
+
+        ShopProfile shopProfile = shopMapper.getShopProfileByShopId(shopId);
+        return ShopConverter.INSTANCE.toShopResponse(shopProfile);
+    }
 
     @Override
     public void createMenuCategory(Integer shopId, CreateMenuCategoryRequest request) {
