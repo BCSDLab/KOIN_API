@@ -85,7 +85,6 @@ public class CreateShopRequest {
     @ApiModel("Open_2")
     public static class Open {
         @NotNull(message = "운영 시간의 요일 정보는 필수입니다.")
-        @Pattern(regexp = "^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$", message = "운영 시간의 요일 정보 형식이 올바르지 않습니다.")
         @ApiModelProperty(notes = "요일 \n" +
                                   "- not null \n" +
                                   "- `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` 중 택1 (중복되면 안됨)", example = "MONDAY", required = true)
