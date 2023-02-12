@@ -1,5 +1,6 @@
 package koreatech.in.util;
 
+import static koreatech.in.domain.NotiSlack.deleteCompleteNotiSlack;
 import static koreatech.in.domain.NotiSlack.emailVerificationNotiSlack;
 import static koreatech.in.domain.NotiSlack.registerCompleteNotiSlack;
 
