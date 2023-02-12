@@ -21,7 +21,6 @@ import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,8 +83,8 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
+    ResponseEntity<Map<String, Object>> getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
+            return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
     }
 
     @ParamValid
