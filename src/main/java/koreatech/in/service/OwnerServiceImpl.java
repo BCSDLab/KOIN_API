@@ -75,7 +75,7 @@ public class OwnerServiceImpl implements OwnerService {
         putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
-        slackNotiSender.noticeEmailVerification(emailAddress);
+        slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
     @Override
