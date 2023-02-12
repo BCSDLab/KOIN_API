@@ -56,7 +56,6 @@ public interface OwnerConverter {
 
 
     @Mappings({
-            @Mapping(source = "account", target = "account"),
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "name", target = "name")
