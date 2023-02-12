@@ -122,6 +122,13 @@ public class SlackNotiSender {
         noticeFor(notice);
     }
 
+    public void noticeDelete(User user) {
+        NotiSlack notiSlack = deleteCompleteNotiSlack(user);
+        Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
+
+        noticeFor(notice);
+    }
+
     private void noticeFor(Notice notice) {
         if (!isProduction()) {
             return;
