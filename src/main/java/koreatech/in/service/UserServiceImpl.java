@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -151,11 +150,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
-
-        slackNotiSender.noticeRegister(NotiSlack.builder()
-                .color("good")
-                .text(student.getAccount() + "님이 이메일 인증을 요청하였습니다.")
-                .build());
+        slackNotiSender.noticeEmailVerification(student);
 
         return new HashMap<String, Object>() {{
             put("success", "send mail for student authentication to entered email address");
@@ -206,6 +201,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     // TODO owner 정보 업데이트
+    // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
     @Transactional
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
@@ -249,10 +245,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.deleteUserLogicallyById(user.getId());
         deleteAccessTokenFromRedis(user.getId());
 
-        slackNotiSender.noticeWithdraw(NotiSlack.builder()
-                .color("good")
-                .text(user.getAccount() + "님이 탈퇴하셨습니다.")
-                .build());
+        slackNotiSender.noticeDelete(user);
     }
 
     @Override
@@ -287,13 +280,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.changeEmailAuthenticationStatusToComplete();
         userMapper.updateUser(user);
 
-        slackNotiSender.noticeRegister(
-                NotiSlack.builder()
-                        .color("good")
-                        .text(user.getAccount() + "님이 가입하셨습니다.")
-                        .build()
-        );
-
+        slackNotiSender.noticeRegisterComplete(user);
         return true;
     }
 
