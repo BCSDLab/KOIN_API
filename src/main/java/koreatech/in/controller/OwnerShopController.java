@@ -9,9 +9,11 @@ import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
+import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.service.OwnerShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,47 @@ import javax.validation.Valid;
 public class OwnerShopController {
     @Autowired
     private OwnerShopService ownerShopService;
+
+    // =============================================== 상점 =================================================
+
+    @ApiOperation(value = "상점 조회", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<ShopResponse> getShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
+        ShopResponse response = ownerShopService.getShop(shopId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상점 수정", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- (category_ids 리스트에 있는 특정 id에 대한) 상점 카테고리가 조회되지 않는 경우가 있을 때 (code: 104004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @ParamValid
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> updateShop(
+            @ApiParam(required = true) @PathVariable("id") Integer shopId,
+            @ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid UpdateShopRequest request, BindingResult bindingResult) {
+        request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
+
+        ownerShopService.updateShop(shopId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // =============================================== 메뉴 카테고리 =================================================
 
     @ApiOperation(value = "상점 메뉴 카테고리 생성", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
@@ -131,7 +174,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 모든 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 모든 메뉴 조회", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -146,7 +189,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 메뉴 수정", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -170,7 +213,7 @@ public class OwnerShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점의 메뉴 삭제", notes = "인증 정보에 대한 신원이 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
