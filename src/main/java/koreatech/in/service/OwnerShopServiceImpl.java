@@ -5,6 +5,7 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
+import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
 import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
@@ -12,6 +13,7 @@ import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
+import koreatech.in.mapstruct.normal.shop.ShopOpenConverter;
 import koreatech.in.repository.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,96 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         ShopProfile shopProfile = shopMapper.getShopProfileByShopId(shopId);
         return ShopConverter.INSTANCE.toShopResponse(shopProfile);
+    }
+
+    @Override
+    public void updateShop(Integer shopId, UpdateShopRequest request) {
+        Shop existingShop = getShopById(shopId);
+        checkAuthorityAboutShop(existingShop);
+
+        /*
+             UPDATE 대상 테이블
+             - shops
+             - shop_opens
+             - shop_category_map
+             - shop_images
+         */
+
+        // ======= shops 테이블 =======
+        if (existingShop.needToUpdate(request)) {
+            existingShop.update(request);
+            shopMapper.updateShop(existingShop);
+        }
+
+
+        // ======= shop_opens 테이블 =======
+        List<ShopOpen> shopOpens = generateShopOpensAndGetForUpdate(request.getOpen(), existingShop.getId());
+        shopMapper.updateShopOpens(shopOpens);
+
+
+        // ======= shop_category_map 테이블 =======
+        checkShopCategoriesExistInDatabase(request.getCategory_ids());
+
+        List<ShopCategoryMap> existingShopCategoryMaps = shopMapper.getShopCategoryMapsByShopId(existingShop.getId());
+
+        // IGNORE에 의하여 (shop_id, shop_category_id)가 중복일 경우는 insert가 무시된다.
+        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMapsAndGet(existingShop.getId(), request.getCategory_ids());
+        shopMapper.createShopCategoryMaps(requestedCategoryMaps);
+
+        // 기존에 있던 관계들에서 요청된 관계들을 제거하면 삭제해야할 관계들을 알아낼 수 있다.
+        List<ShopCategoryMap> toBeDeletedShopCategoryMaps = getToBeDeletedShopCategoryMaps(existingShopCategoryMaps, requestedCategoryMaps);
+        if (!toBeDeletedShopCategoryMaps.isEmpty()) {
+            shopMapper.deleteShopCategoryMaps(toBeDeletedShopCategoryMaps);
+        }
+
+
+        // ======= shop_images 테이블 =======
+        List<ShopImage> existingShopImages = shopMapper.getShopImagesByShopId(existingShop.getId());
+
+        List<ShopImage> requestedShopImages = generateShopImagesAndGet(existingShop.getId(), request.getImage_urls());
+        if (!requestedShopImages.isEmpty()) {
+            shopMapper.createShopImages(requestedShopImages);
+        }
+
+        List<ShopImage> toBeDeletedShopImages = getToBeDeletedShopImages(existingShopImages, requestedShopImages);
+        if (!toBeDeletedShopImages.isEmpty()) {
+            shopMapper.deleteShopImages(toBeDeletedShopImages);
+        }
+    }
+
+    private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
+        return opens.stream()
+                .map(open -> ShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .collect(Collectors.toList());
+    }
+
+    private void checkShopCategoriesExistInDatabase(List<Integer> shopCategoryIds) {
+        shopCategoryIds.forEach(categoryId -> {
+            Optional.ofNullable(shopMapper.getShopCategoryById(categoryId))
+                    .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
+        });
+    }
+
+    private List<ShopCategoryMap> generateShopCategoryMapsAndGet(Integer shopId, List<Integer> shopCategoryIds) {
+        return shopCategoryIds.stream()
+                .map(shopCategoryId -> ShopCategoryMap.of(shopId, shopCategoryId))
+                .collect(Collectors.toList());
+    }
+
+    private List<ShopCategoryMap> getToBeDeletedShopCategoryMaps(List<ShopCategoryMap> existingShopCategoryMaps, List<ShopCategoryMap> requestedShopCategoryMaps) {
+        existingShopCategoryMaps.removeAll(requestedShopCategoryMaps);
+        return existingShopCategoryMaps;
+    }
+
+    private List<ShopImage> generateShopImagesAndGet(Integer shopId, List<String> imageUrls) {
+        return imageUrls.stream()
+                .map(url -> ShopImage.of(shopId, url))
+                .collect(Collectors.toList());
+    }
+
+    private List<ShopImage> getToBeDeletedShopImages(List<ShopImage> existingShopImages, List<ShopImage> requestedShopImages) {
+        existingShopImages.removeAll(requestedShopImages);
+        return existingShopImages;
     }
 
     @Override

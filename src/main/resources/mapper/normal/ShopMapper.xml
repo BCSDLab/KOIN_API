@@ -195,7 +195,6 @@
                 AND `t5`.`is_deleted` = 0
     </select>
 
-
     <select id="getShopById" parameterType="integer" resultType="koreatech.in.domain.Shop.Shop">
         SELECT *
         FROM `koin`.`shops`
@@ -203,6 +202,109 @@
             `id` = #{id}
             AND `is_deleted` = 0
     </select>
+
+    <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
+        UPDATE `koin`.`shops`
+        SET
+            `name` = #{shop.name},
+            `internal_name` = #{shop.internal_name},
+            `chosung` = #{shop.chosung},
+            `phone` = #{shop.phone},
+            `address` = #{shop.address},
+            `description` = #{shop.description},
+            `delivery` = #{shop.delivery},
+            `delivery_price` = #{shop.delivery_price},
+            `pay_card` = #{shop.pay_card},
+            `pay_bank` = #{shop.pay_bank}
+        WHERE
+            `id` = #{shop.id}
+    </update>
+
+    <update id="updateShopOpens" parameterType="list">
+        <foreach collection="shopOpens" item="item" separator=";">
+            UPDATE `koin`.`shop_opens`
+            SET
+                `closed` = #{item.closed},
+            <choose>
+                <when test="item.closed">
+                    `open_time` = null,
+                    `close_time` = null
+                </when>
+                <otherwise>
+                    `open_time` = #{item.open_time},
+                    `close_time` = #{item.close_time}
+                </otherwise>
+            </choose>
+            WHERE
+            `shop_id` = #{item.shop_id}
+            AND `day_of_week` = #{item.day_of_week}
+            AND `is_deleted` = 0
+        </foreach>
+    </update>
+
+    <select id="getShopCategoryById" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopCategory">
+        SELECT *
+        FROM `shop_categories`
+        WHERE
+            `id` = #{id}
+            AND `is_deleted` = 0
+    </select>
+
+    <select id="getShopCategoryMapsByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopCategoryMap">
+        SELECT *
+        FROM `koin`.`shop_category_map`
+        WHERE `shop_id` = #{shopId}
+    </select>
+
+    <insert id="createShopCategoryMaps" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_category_map` (
+            `shop_id`,
+            `shop_category_id`
+        )
+        VALUES
+        <foreach collection="shopCategoryMaps" item="item" separator=",">
+            (
+                #{item.shop_id},
+                #{item.shop_category_id}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteShopCategoryMaps" parameterType="list">
+        <foreach collection="shopCategoryMaps" item="item" separator=";">
+            DELETE
+            FROM `koin`.`shop_category_map`
+            WHERE `id` = #{item.id}
+        </foreach>
+    </delete>
+
+    <select id="getShopImagesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopImage">
+        SELECT *
+        FROM `koin`.`shop_images`
+        WHERE `shop_id` = #{shopId}
+    </select>
+
+    <insert id="createShopImages" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_images` (
+            `shop_id`,
+            `image_url`
+        )
+        VALUES
+        <foreach collection="shopImages" item="item" separator=",">
+            (
+                #{item.shop_id},
+                #{item.image_url}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteShopImages" parameterType="list">
+        <foreach collection="shopImages" item="item" separator=";">
+            DELETE
+            FROM `koin`.`shop_images`
+            WHERE `id` = #{item.id}
+        </foreach>
+    </delete>
 
     <select id="getMenuCategoryByShopIdAndName" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
         SELECT *
