@@ -130,7 +130,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
-        //TODO 23.02.13. 학교 폼인지 검증 추가
+        studentEmail.validatePortalEmail();
+
         checkInputDataDuplicationAndValidation(student);
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
         student.setEmail(studentEmail.getEmailAddress());

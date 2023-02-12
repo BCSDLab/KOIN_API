@@ -142,8 +142,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
-        //TODO 23.02.13. 학교 폼인지 검증 추가
-        //studentEmail.validatePortalEmail();
+        studentEmail.validatePortalEmail();
 
         if(userMapper.isEmailAlreadyExist(studentEmail).equals(true)){
             throw new NotFoundException(new ErrorMessage("already exists", 0));
