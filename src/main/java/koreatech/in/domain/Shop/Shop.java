@@ -31,7 +31,7 @@ public class Shop {
     private String remarks;
     private Integer hit;
 
-    public boolean needToUpdate(UpdateShopRequest request) {
+    public boolean needToUpdate(UpdateShopRequest request) { // admin update shop request dto
         return !Objects.equals(this.name, request.getName())
                 || !Objects.equals(this.phone, request.getPhone())
                 || !Objects.equals(this.address, request.getAddress())
@@ -42,7 +42,31 @@ public class Shop {
                 || !Objects.equals(this.pay_bank, request.getPay_bank());
     }
 
-    public void update(UpdateShopRequest request) {
+    public boolean needToUpdate(koreatech.in.dto.normal.shop.request.UpdateShopRequest request) { // normal update shop request dto
+        return !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.phone, request.getPhone())
+                || !Objects.equals(this.address, request.getAddress())
+                || !Objects.equals(this.description, request.getDescription())
+                || !Objects.equals(this.delivery, request.getDelivery())
+                || !Objects.equals(this.delivery_price, request.getDelivery_price())
+                || !Objects.equals(this.pay_card, request.getPay_card())
+                || !Objects.equals(this.pay_bank, request.getPay_bank());
+    }
+
+    public void update(UpdateShopRequest request) { // admin update shop request dto
+        this.name = request.getName();
+        this.phone = request.getPhone();
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.delivery = request.getDelivery();
+        this.delivery_price = request.getDelivery_price();
+        this.pay_card = request.getPay_card();
+        this.pay_bank = request.getPay_bank();
+        this.internal_name = this.name.replace(" ", "").toLowerCase();
+        this.chosung = this.internal_name.substring(0, 1);
+    }
+
+    public void update(koreatech.in.dto.normal.shop.request.UpdateShopRequest request) { // normal update shop request dto
         this.name = request.getName();
         this.phone = request.getPhone();
         this.address = request.getAddress();

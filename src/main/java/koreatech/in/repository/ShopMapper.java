@@ -18,6 +18,24 @@ public interface ShopMapper {
 
     Shop getShopById(@Param("id") Integer id);
 
+    void updateShop(@Param("shop") Shop shop);
+
+    void updateShopOpens(@Param("shopOpens") List<ShopOpen> shopOpens);
+
+    ShopCategory getShopCategoryById(@Param("id") Integer id);
+
+    List<ShopCategoryMap> getShopCategoryMapsByShopId(@Param("shopId") Integer shopId);
+
+    void createShopCategoryMaps(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
+
+    void deleteShopCategoryMaps(@Param("shopCategoryMaps") List<ShopCategoryMap> shopCategoryMaps);
+
+    List<ShopImage> getShopImagesByShopId(@Param("shopId") Integer shopId);
+
+    void createShopImages(@Param("shopImages") List<ShopImage> shopImages);
+
+    void deleteShopImages(@Param("shopImages") List<ShopImage> shopImages);
+
     ShopMenuCategory getMenuCategoryByShopIdAndName(@Param("shopId") Integer shopId, @Param("name") String name);
 
     Integer getCountOfMenuCategoriesByShopId(@Param("shopId") Integer shopId);
