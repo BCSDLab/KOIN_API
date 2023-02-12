@@ -68,7 +68,7 @@ public class OwnerServiceImpl implements OwnerService {
         validateEmailUniqueness(emailAddress);
 
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
-        OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
+        OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
 
         emailAddress.validateSendable();
 
