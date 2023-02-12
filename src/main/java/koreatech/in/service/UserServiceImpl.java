@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+        User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null) {
             throw new BaseException(USER_NOT_FOUND);
@@ -128,17 +128,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
+
+        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
+        //TODO 23.02.13. 학교 폼인지 검증 추가
         checkInputDataDuplicationAndValidation(student);
-
-        String email = student.getAccount()+"@koreatech.ac.kr";
-
-        validateEmailUniqueness(EmailAddress.from(email));
-
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
-        student.setEmail(email);
+        student.setEmail(studentEmail.getEmailAddress());
         student.setAnonymous_nickname(anonymousNickname);
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
+        String authToken = SHA256Util.getEncrypt(student.getEmail(), authExpiredAt.toString());
         student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
         String encodedPassword = passwordEncoder.encode(student.getPassword());
         student.changePassword(encodedPassword);
@@ -257,7 +255,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
-        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+        User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null) {
             throw new BaseException(USER_NOT_FOUND);
@@ -318,7 +316,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
-        checkAccountDuplication(student);
+        validateEmailUniqueness(EmailAddress.from(student.getEmail()));
         checkNicknameDuplicationWithoutSameUser(student);
         checkStudentNumberValidation(student);
         checkMajorValidation(student);
@@ -329,15 +327,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User selectUser = userMapper.getUserByNickname(student.getNickname());
             if (selectUser != null && !student.equals(selectUser)) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-    }
-
-    private void checkAccountDuplication(Student student) {
-        User selectUser = userMapper.getUserByAccount(student.getAccount());
-        if (selectUser != null) {
-            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthentication()) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
     }
@@ -422,7 +411,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return null;
     }
 
