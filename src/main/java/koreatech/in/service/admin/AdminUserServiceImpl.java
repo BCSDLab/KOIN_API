@@ -195,9 +195,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public Student updateStudentForAdmin(Student student, int id) {
-        Student selectUser = studentMapper.getStudentById(id);
-
+    public StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
+        User user =  userMapper.getUserById(id);
+        if (!user.isStudent()) {
+            throw new NotFoundException(new ErrorMessage("User is not Student", 0));
+        }
+        Student selectUser = (Student) user;
+        Student student = updateUserRequest.toEntity();
         if(selectUser == null){
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
@@ -230,7 +234,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return student;
+        return new StudentResponse(student);
     }
 
     @Override

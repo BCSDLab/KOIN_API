@@ -21,7 +21,7 @@ public interface AdminUserService {
 
     Student createStudentForAdmin(Student student);
 
-    Student updateStudentForAdmin(Student user, int id);
+    StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id);
 
     void deleteUser(Integer userId);
 

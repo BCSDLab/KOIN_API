@@ -91,11 +91,11 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUser(@ApiParam(value = "(optional: portal_account, password, name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = false)
-                              @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Student student,
+    ResponseEntity updateUser(@ApiParam(value = "(optional: email, password, name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = false)
+                              @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) UpdateUserRequest updateUserRequest,
                               BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
 
-        return new ResponseEntity<User>(adminUserService.updateStudentForAdmin(student, id), HttpStatus.CREATED);
+        return new ResponseEntity(adminUserService.updateStudentForAdmin(updateUserRequest, id), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "회원 삭제 (탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
