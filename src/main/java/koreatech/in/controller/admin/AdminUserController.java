@@ -21,6 +21,7 @@ import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
