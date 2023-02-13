@@ -7,6 +7,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
@@ -206,7 +207,7 @@ public class UserController {
 
     @ApiResponses({
             @ApiResponse(code = 409, message = "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- email의 제약 조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- email의 제약 조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "이메일 중복 체크")
     @AuthExcept
