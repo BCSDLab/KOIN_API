@@ -555,10 +555,10 @@
 
 
     <select id="isEmailAlreadyExist" parameterType="koreatech.in.domain.User.EmailAddress" resultType="Boolean">
-        select if (count(*) != 0, 1, 0)
-        from koin.users
+        SELECT IF (count(*) != 0, 1, 0)
+        FROM koin.users
         <bind name="emailAddress" value="_parameter.getEmailAddress()"/>
-        where email= #{emailAddress}
+        WHERE email= #{emailAddress}
     </select>
 
 </mapper>
