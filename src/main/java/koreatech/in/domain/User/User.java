@@ -187,4 +187,15 @@ public class User {
     public boolean equals(User user){
         return user.id != null && this.id != null && this.id.equals(user.id);
     }
+
+    public void enrichUserType() {
+        setUser_type(UserType.mappingFor(this));
+    }
+
+    public String getText() {
+        if(getUser_type() == null) {
+            enrichUserType();
+        }
+        return getUser_type().getText();
+    }
 }
