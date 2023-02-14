@@ -212,13 +212,13 @@ public class UserController {
     @ApiOperation(value = "이메일 중복 체크")
     @AuthExcept
     @ParamValid
-    @RequestMapping(value = "/user/check/email/{address:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/check/email", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<EmptyResponse> checkUserEmailExist(
             @ApiParam(value = "이메일 \n " +
                     "- not null \n " +
-                    "- 1자 이상 10자 이하 \n " +
-                    "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("address") @Valid CheckExistsEmailRequest request) {
+                    "- 이메일 형식이어야 함 \n " +
+                    "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("address") @Valid CheckExistsEmailRequest request) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
