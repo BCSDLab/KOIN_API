@@ -1,8 +1,6 @@
 package koreatech.in.domain;
 
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.student.Student;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,10 +12,9 @@ public class NotiSlack {
     public static final String DELETE_COMPLETE_SUFFIX = "님이 탈퇴하셨습니다.";
 
     public static final String COLOR_GOOD = "good";
-
-    public static final String STUDENT_MESSAGE = "(학생)";
-    public static final String OWNER_MESSAGE = "(사장님)";
-    public static final String MEMBER_MESSAGE = "(회원)";
+    public static final String BACKTICK = "`";
+    public static final String OPENING_BRACKET = "(";
+    public static final String CLOSING_BRACKET = ")";
 
 
     private String color;
@@ -53,18 +50,16 @@ public class NotiSlack {
     }
 
     private static String makeText(User user, String messageSuffix) {
-        return user.getEmail() + DelimitedText(user) + messageSuffix;
+        return wrapWithBacktick(user.getEmail() + DelimitedText(user))  + messageSuffix;
+    }
+
+    private static String wrapWithBacktick(String text) {
+        return BACKTICK + text + BACKTICK;
     }
 
     private static String DelimitedText(User user) {
-        if(user instanceof Student) {
-            return STUDENT_MESSAGE;
-        }
-        if(user instanceof Owner) {
-            return OWNER_MESSAGE;
-        }
-
-        return MEMBER_MESSAGE;
+        String userTypeText = user.getText(); //UserType.mappingFor(user).getText();
+        return OPENING_BRACKET + userTypeText + CLOSING_BRACKET;
     }
 
 }
