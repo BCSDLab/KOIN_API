@@ -1,5 +1,25 @@
 package koreatech.in.domain.User;
 
+import java.util.Arrays;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Getter
 public enum UserType {
-    OWNER, STUDENT;
+    OWNER(Owner.class, "사장님"),
+    STUDENT(Student.class, "학생"),
+    USER(User.class, "사용자");
+
+    private final Class<? extends User> userClass;
+    private final String text;
+
+    public static UserType mappingFor(User user) {
+        return Arrays.stream(values())
+                .filter(userType -> userType.userClass.equals(user.getClass()))
+                .findAny()
+                .orElse(USER);
+    }
 }
