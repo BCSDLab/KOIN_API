@@ -177,7 +177,6 @@ public class OwnerServiceImpl implements OwnerService {
 
     private static void enrichAuthComplete(Owner owner) {
         owner.setUser_type(UserType.OWNER);
-        owner.setIs_authed(true);
     }
 
     private void createInDBFor(Owner owner) {
