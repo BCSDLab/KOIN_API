@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ExceptionInformation {
+    // 코인 리뉴얼 Error code 정리: https://docs.google.com/spreadsheets/d/1yWYFqGOPA_6ZQQ4Mb7bvOyUMH9NbyBnIuJ8jz6XkwUA/edit#gid=0
     // ======= 공통 =======
     REQUEST_DATA_INVALID("요청 데이터가 유효하지 않습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY), // 메시지는 ErrorMessage 객체에 상황에 맞게 넣을 것
     BAD_ACCESS("잘못된 접근입니다.", 100001, HttpStatus.UNAUTHORIZED),
@@ -27,6 +28,7 @@ public enum ExceptionInformation {
     EMAIL_ADDRESS_SAVE_EXPIRED("저장기간이 만료된 이메일 주소입니다. 다시 회원가입을 시도해주세요.", 101010, HttpStatus.GONE),
     CERTIFICATION_CODE_ALREADY_COMPLETED("해당 이메일은 이미 인증 완료되었습니다.", 101011, HttpStatus.CONFLICT),
     CERTIFICATION_CODE_NOT_COMPLETED("해당 이메일은 인증되지 않았습니다.", 101012, HttpStatus.CONFLICT),
+    EMAIL_DUPLICATED("이미 존재하는 이메일 주소입니다. 다른 이메일 주소를 사용해주세요.", 101013, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
@@ -53,6 +55,7 @@ public enum ExceptionInformation {
     // ======= 파일 업로드 =======
     DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
     FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
+    //TODO 23.02.11. 박한수 파일목록(List<File~>) 을 멤버로 하는 객체 선언해서, 이 객체로 ResponseBody가 매핑되어 ParamValid에 걸릴 수 있는지 시도해보기.
     FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
     UNEXPECTED_FILE_CONTENT_TYPE("도메인이 허용하지 않는 콘텐츠 타입입니다.", 110004, HttpStatus.UNSUPPORTED_MEDIA_TYPE),

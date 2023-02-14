@@ -552,4 +552,13 @@
             reset_expired_at=#{resetTokenExpiredTime}
         where id=#{id}
     </update>
+
+
+    <select id="isEmailAlreadyExist" parameterType="koreatech.in.domain.User.EmailAddress" resultType="Boolean">
+        SELECT IF (count(*) != 0, 1, 0)
+        FROM koin.users
+        <bind name="emailAddress" value="_parameter.getEmailAddress()"/>
+        WHERE email= #{emailAddress}
+    </select>
+
 </mapper>

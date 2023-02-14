@@ -65,6 +65,7 @@ public class OwnerServiceImpl implements OwnerService {
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
 
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
+        validateEmailUniqueness(emailAddress);
 
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.from(certificationCode);
@@ -94,12 +95,22 @@ public class OwnerServiceImpl implements OwnerService {
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
         //TODO 23.02.07. 이메일 unique 검사가 필요.
         Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
+        EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
-        validationAndDeleteInRedis(owner);
+        validateEmailUniqueness(ownerEmailAddress);
+        validationAndDeleteInRedis(ownerEmailAddress);
 
         encodePassword(owner);
+
         createInDBFor(owner);
+
         slackNotiSender.noticeRegisterComplete(owner);
+    }
+
+    private void validateEmailUniqueness(EmailAddress emailAddress) {
+        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+            throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
+        }
     }
 
     private static void validateRedis(OwnerInVerification ownerInRedis) {
@@ -109,16 +120,16 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.validateFields();
     }
 
-    private void validationAndDeleteInRedis(Owner owner) {
-        OwnerInVerification ownerInRedis = getOwnerInRedis(owner.getEmail());
+    private void validationAndDeleteInRedis(EmailAddress emailAddress) {
+        OwnerInVerification ownerInRedis = getOwnerInRedis(emailAddress.getEmailAddress());
 
         ownerInRedis.validateCertificationComplete();
 
-        removeRedisFrom(owner.getEmail());
+        removeRedisFrom(emailAddress);
     }
 
-    private void removeRedisFrom(String emailAddress) {
-        stringRedisUtilStr.deleteData(emailAddress);
+    private void removeRedisFrom(EmailAddress emailAddress) {
+        stringRedisUtilStr.deleteData(emailAddress.getEmailAddress());
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {

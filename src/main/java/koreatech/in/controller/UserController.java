@@ -7,6 +7,8 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
@@ -15,6 +17,8 @@ import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -75,7 +79,7 @@ public class UserController {
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) throws Exception {
-
+        // TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
@@ -200,6 +204,32 @@ public class UserController {
             put("success", success);
         }};
     }
+
+    @ApiResponses({
+            @ApiResponse(code = 409, message = "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- email의 제약 조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "이메일 중복 체크")
+    @AuthExcept
+    @ParamValid
+    @RequestMapping(value = "/user/check/email", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> checkUserEmailExist(
+            @ApiParam(value = "이메일 \n " +
+                    "- not null \n " +
+                    "- 이메일 형식이어야 함 \n " +
+                    "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("address") @Valid CheckExistsEmailRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        userService.checkExists(request);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     private String getHost(HttpServletRequest request) {
         String schema = request.getScheme();

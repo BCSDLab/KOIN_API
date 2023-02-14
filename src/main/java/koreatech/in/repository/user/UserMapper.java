@@ -1,6 +1,7 @@
 package koreatech.in.repository.user;
 
 import koreatech.in.domain.Authority;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.User;
 import org.apache.ibatis.annotations.*;
@@ -42,4 +43,6 @@ public interface UserMapper {
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
 //    @Select("SELECT * FROM koin.users u INNER JOIN koin.admins a ON u.id = a.user_id WHERE u.id = #{id}")
 //    User findByUserWithAuthority(int id);
+
+    Boolean isEmailAlreadyExist(EmailAddress emailAddress);
 }
