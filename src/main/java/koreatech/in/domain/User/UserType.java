@@ -17,9 +17,14 @@ public enum UserType {
     private final String text;
 
     public static UserType mappingFor(User user) {
+        Class<? extends User> currClass = user.getClass();
+        return mappingFor(currClass);
+    }
+
+    private static UserType mappingFor(Class<? extends User> currClass) {
         return Arrays.stream(values())
-                .filter(userType -> userType.userClass.equals(user.getClass()))
+                .filter(userType -> userType.userClass.equals(currClass))
                 .findAny()
-                .orElse(USER);
+                .orElseGet(() -> mappingFor((Class<? extends User>) currClass.getSuperclass()));
     }
 }
