@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public LoginResponse login(LoginRequest request) throws Exception {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
+        // TODO 23.02.15. 박한수 user가 존재하지 않은 경우와 존재하되 is_authed만 false인 경우가 같이 처리됨 -> getUserByEmail (아직 sql문 작성 안됨)으로 유저를 가져와서, 1. null 체크 2. is_authed 체크로 다른 예외로 반환하기.
         if (user == null) {
             throw new BaseException(USER_NOT_FOUND);
         }
