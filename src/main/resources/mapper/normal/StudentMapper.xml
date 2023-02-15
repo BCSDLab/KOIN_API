@@ -45,25 +45,25 @@
     </delete>
 
     <resultMap id="studentResult" extends="userResultMap" type="koreatech.in.domain.User.student.Student">
-        <result property="anonymousNickname" column="anonymous_nickname"/>
-        <result property="studentNumber" column="student_number"/>
+        <result property="anonymous_nickname" column="anonymous_nickname"/>
+        <result property="student_number" column="student_number"/>
         <result property="major" column="major"/>
-        <result property="isGraduated" column="is_graduated"/>
+        <result property="is_graduated" column="is_graduated"/>
     </resultMap>
 
     <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
         <id property="id" column="id"/>
-        <result property="phoneNumber" column="phone_number"/>
-        <result property="userType" column="user_type"/>
-        <result property="isAuthed" column="is_authed"/>
-        <result property="lastLoggedAt" column="last_logged_at"/>
-        <result property="isDeleted" column="is_deleted"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-        <result property="profileImageUrl" column="profile_image_url"/>
-        <result property="authToken" column="auth_token"/>
-        <result property="authExpiredAt" column="auth_expired_at"/>
-        <result property="resetToken" column="reset_token"/>
-        <result property="resetExpiredAt" column="reset_expired_at"/>
+        <result property="phone_number" column="phone_number"/>
+        <result property="user_type" column="user_type"/>
+        <result property="is_authed" column="is_authed"/>
+        <result property="last_logged_at" column="last_logged_at"/>
+        <result property="is_deleted" column="is_deleted"/>
+        <result property="created_at" column="created_at"/>
+        <result property="updated_at" column="updated_at"/>
+        <result property="profile_image_url" column="profile_image_url"/>
+        <result property="auth_token" column="auth_token"/>
+        <result property="auth_expired_at" column="auth_expired_at"/>
+        <result property="reset_token" column="reset_token"/>
+        <result property="reset_expired_at" column="reset_expired_at"/>
     </resultMap>
 </mapper>
