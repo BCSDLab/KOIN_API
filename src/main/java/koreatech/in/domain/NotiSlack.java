@@ -1,6 +1,7 @@
 package koreatech.in.domain;
 
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -58,8 +59,7 @@ public class NotiSlack {
     }
 
     private static String DelimitedText(User user) {
-        String userTypeText = user.getText(); //UserType.mappingFor(user).getText();
+        String userTypeText = UserType.mappingFor(user).getText();
         return OPENING_BRACKET + userTypeText + CLOSING_BRACKET;
     }
-
 }
