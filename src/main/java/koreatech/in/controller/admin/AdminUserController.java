@@ -1,7 +1,18 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.*;
-import koreatech.in.annotation.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import java.util.Map;
+import javax.validation.Valid;
+import koreatech.in.annotation.ApiOff;
+import koreatech.in.annotation.Auth;
+import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.ParamValid;
+import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
@@ -10,6 +21,7 @@ import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +29,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.validation.Valid;
-import java.util.Map;
 
 @Api(tags = "(Admin) User", description = "회원")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.USER)
@@ -121,7 +136,7 @@ public class AdminUserController {
     @RequestMapping(value = "/admin/student/users", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity createUser(
-            @ApiParam(value = "(required: portal_account, password), " +
+            @ApiParam(value = "(required: email, password), " +
                     "(optional: name, nickname, student_number, major, is_graduated, phone_number, gender, identity, is_authed)", required = true)
             @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Student student,
             BindingResult bindingResult) throws Exception {

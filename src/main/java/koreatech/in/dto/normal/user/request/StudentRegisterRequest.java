@@ -4,34 +4,20 @@ package koreatech.in.dto.normal.user.request;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import koreatech.in.domain.User.student.Student;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class StudentRegisterRequest {
-    @NotNull(message = "아이디는 비워둘 수 없습니다.")
-    @Pattern(regexp = "^[a-z_0-9]{1,12}$", message = "아이디 형식이 올바르지 않습니다.")
-    @ApiModelProperty(notes = "아이디", example = "jjw266")
-    private String account;
-
-    @NotNull(message = "비밀번호는 비워둘 수 없습니다.")
-    @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
-    private String password;
-
-    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
-    @ApiModelProperty(notes = "이름", example = "정보혁")
-    private String name;
+public class StudentRegisterRequest extends UserRegisterRequest{
 
     @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
     @ApiModelProperty(notes = "닉네임", example = "bbo")
@@ -60,9 +46,9 @@ public class StudentRegisterRequest {
         }
 
         return Student.builder()
-                .account(account)
-                .password(password)
-                .name(name)
+                .email(getEmail())
+                .password(getPassword())
+                .name(getName())
                 .nickname(nickname)
                 .gender(gender)
                 .identity(identity)

@@ -4,13 +4,12 @@
     <select id="getAuthedUserById" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
-            `t1`.`account` AS `users.account`,
+            `t1`.`email` AS `users.email`,
             `t1`.`password` AS `users.password`,
             `t1`.`nickname` AS `users.nickname`,
             `t1`.`name` AS `users.name`,
             `t1`.`phone_number` AS `users.phone_number`,
             `t1`.`user_type` AS `users.user_type`,
-            `t1`.`email` AS `users.email`,
             `t1`.`gender` AS `users.gender`,
             `t1`.`is_authed` AS `users.is_authed`,
             `t1`.`last_logged_at` AS `users.last_logged_at`,
@@ -72,16 +71,15 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
-    <select id="getAuthedUserByAccount" resultMap="UserDiscriminator">
+    <select id="getAuthedUserByEmail" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
-            `t1`.`account` AS `users.account`,
+            `t1`.`email` AS `users.email`,
             `t1`.`password` AS `users.password`,
             `t1`.`nickname` AS `users.nickname`,
             `t1`.`name` AS `users.name`,
             `t1`.`phone_number` AS `users.phone_number`,
             `t1`.`user_type` AS `users.user_type`,
-            `t1`.`email` AS `users.email`,
             `t1`.`gender` AS `users.gender`,
             `t1`.`is_authed` AS `users.is_authed`,
             `t1`.`last_logged_at` AS `users.last_logged_at`,
@@ -126,7 +124,7 @@
             SELECT *
             FROM `koin`.`users`
             WHERE
-                `account` = #{account}
+                `email` = #{email}
                 AND `is_authed` = 1
                 AND `is_deleted` = 0
         ) `t1`
@@ -143,6 +141,10 @@
                 AND `t4`.`is_deleted` = 0
     </select>
 
+    <resultMap id="UsersResultMap" type="koreatech.in.domain.User.Users">
+        <collection property="users" resultMap="UserResultMap"/>
+    </resultMap>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
@@ -152,13 +154,12 @@
 
     <resultMap id="UserResultMap" type="koreatech.in.domain.User.User">
         <id property="id" column="users.id"/>
-        <result property="account" column="users.account"/>
+        <result property="email" column="users.email"/>
         <result property="password" column="users.password"/>
         <result property="nickname" column="users.nickname"/>
         <result property="name" column="users.name"/>
         <result property="phone_number" column="users.phone_number"/>
         <result property="user_type" column="users.user_type"/>
-        <result property="email" column="users.email"/>
         <result property="gender" column="users.gender"/>
         <result property="is_authed" column="users.is_authed"/>
         <result property="last_logged_at" column="users.last_logged_at"/>
@@ -228,13 +229,12 @@
     <select id="getUserByNickname" parameterType="string" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
-            `t1`.`account` AS `users.account`,
+            `t1`.`email` AS `users.email`,
             `t1`.`password` AS `users.password`,
             `t1`.`nickname` AS `users.nickname`,
             `t1`.`name` AS `users.name`,
             `t1`.`phone_number` AS `users.phone_number`,
             `t1`.`user_type` AS `users.user_type`,
-            `t1`.`email` AS `users.email`,
             `t1`.`gender` AS `users.gender`,
             `t1`.`is_authed` AS `users.is_authed`,
             `t1`.`last_logged_at` AS `users.last_logged_at`,
@@ -298,13 +298,12 @@
     <update id="updateUser">
         UPDATE `koin`.`users`
         SET
-            `account` = #{user.account},
+            `email` = #{user.email},
             `password` = #{user.password},
             `nickname` = #{user.nickname},
             `name` = #{user.name},
             `phone_number` = #{user.phone_number},
             `user_type` = #{user.user_type},
-            `email` = #{user.email},
             `gender` = #{user.gender},
             `is_authed` = #{user.is_authed},
             `last_logged_at` = #{user.last_logged_at},
@@ -319,13 +318,12 @@
     <select id="getUserByAuthToken" parameterType="string" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
-            `t1`.`account` AS `users.account`,
+            `t1`.`email` AS `users.email`,
             `t1`.`password` AS `users.password`,
             `t1`.`nickname` AS `users.nickname`,
             `t1`.`name` AS `users.name`,
             `t1`.`phone_number` AS `users.phone_number`,
             `t1`.`user_type` AS `users.user_type`,
-            `t1`.`email` AS `users.email`,
             `t1`.`gender` AS `users.gender`,
             `t1`.`is_authed` AS `users.is_authed`,
             `t1`.`last_logged_at` AS `users.last_logged_at`,
@@ -389,13 +387,12 @@
     <select id="getAuthedUserByResetToken" parameterType="string" resultMap="UserDiscriminator">
         SELECT
             `t1`.`id` AS `users.id`,
-            `t1`.`account` AS `users.account`,
+            `t1`.`email` AS `users.email`,
             `t1`.`password` AS `users.password`,
             `t1`.`nickname` AS `users.nickname`,
             `t1`.`name` AS `users.name`,
             `t1`.`phone_number` AS `users.phone_number`,
             `t1`.`user_type` AS `users.user_type`,
-            `t1`.`email` AS `users.email`,
             `t1`.`gender` AS `users.gender`,
             `t1`.`is_authed` AS `users.is_authed`,
             `t1`.`last_logged_at` AS `users.last_logged_at`,
@@ -480,6 +477,13 @@
         limit 1;
     </select>
 
+<!--    <select id="isAccountAlreadyUsed" resultType="Integer">-->
+<!--        select count(*)-->
+<!--        from koin.users-->
+<!--        where account=#{account} and is_deleted=0-->
+<!--        limit 1;-->
+<!--    </select>-->
+
     <select id="isNicknameAlreadyUsed" resultType="Integer">
         select count(*)
         from koin.users
@@ -493,10 +497,10 @@
         WHERE NICKNAME = #{nickname} AND IS_DELETED = 0;
     </select>
 
-    <select id="getUserByAccount" resultMap="UserDiscriminator">
+    <select id="getUserByEmail" resultMap="UserDiscriminator">
         SELECT *
         FROM koin.users
-        where account=#{account}
+        where email=#{email}
     </select>
 
     <select id="getUserTypeById" resultType="koreatech.in.domain.User.UserType">
@@ -509,26 +513,24 @@
 
     <insert id="insertUser" parameterType="koreatech.in.domain.User.User">
         INSERT INTO koin.users (
-        account,
+        email,
         password,
         name,
         nickname,
         gender,
         phone_number,
-        email,
         auth_token,
         auth_expired_at,
         is_authed,
         profile_image_url,
         user_type)
         VALUES (
-        #{account},
+        #{email},
         #{password},
         #{name},
         #{nickname},
         #{gender},
         #{phone_number},
-        #{email},
         #{auth_token},
         #{auth_expired_at},
         #{is_authed},

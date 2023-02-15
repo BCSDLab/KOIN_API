@@ -20,22 +20,22 @@
         )
         VALUES (
             #{id},
-            #{anonymousNickname},
-            #{studentNumber},
+            #{anonymous_nickname},
+            #{student_number},
             #{major},
             #{identity},
-            #{isGraduated}
+            #{is_graduated}
         );
     </insert>
 
     <update id="updateStudent">
         update koin.students
         set
-            anonymous_nickname=#{anonymousNickname},
-            student_number=#{studentNumber},
+            anonymous_nickname=#{anonymous_nickname},
+            student_number=#{student_number},
             major=#{major},
             identity=#{identity},
-            is_graduated=#{isGraduated}
+            is_graduated=#{is_graduated}
         where
             user_id=#{id}
     </update>
