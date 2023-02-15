@@ -120,8 +120,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void logout() {
-        jwtValidator.validate(); // access token 인증이 잘 되는지 확인
+        User user = jwtValidator.validate();
+        deleteAccessTokenFromRedis(user.getId());
     }
 
     @Transactional
