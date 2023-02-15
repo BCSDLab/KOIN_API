@@ -1,6 +1,7 @@
 package koreatech.in.domain.User.owner;
 
 import java.util.Date;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.util.DateUtil;
@@ -11,14 +12,15 @@ public class OwnerInVerification extends Owner {
 
     private final String certificationCode;
 
-    private OwnerInVerification(String certificationCode, Boolean isAuthed, Date authExpiredAt) {
+    private OwnerInVerification(String certificationCode, Boolean isAuthed, Date authExpiredAt, String emailAddress) {
         this.certificationCode = certificationCode;
         this.is_authed = isAuthed;
         this.auth_expired_at = authExpiredAt;
+        this.email = emailAddress;
     }
 
-    public static OwnerInVerification from(CertificationCode certificationCode) {
-        return new OwnerInVerification(certificationCode.getValue(), false, DateUtil.addMinute(new Date(), 5));
+    public static OwnerInVerification of(CertificationCode certificationCode, EmailAddress emailAddress) {
+        return new OwnerInVerification(certificationCode.getValue(), false, DateUtil.addMinute(new Date(), 5), emailAddress.getEmailAddress());
     }
 
     public void validateFields() {

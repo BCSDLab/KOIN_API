@@ -1,5 +1,6 @@
 package koreatech.in.util;
 
+import static koreatech.in.domain.NotiSlack.deleteCompleteNotiSlack;
 import static koreatech.in.domain.NotiSlack.emailVerificationNotiSlack;
 import static koreatech.in.domain.NotiSlack.registerCompleteNotiSlack;
 
@@ -9,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.Notice;
-import koreatech.in.domain.User.EmailAddress;
-import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
@@ -108,15 +108,22 @@ public class SlackNotiSender {
         noticeWithdraw(data);
     }
 
-    public void noticeEmailVerification(EmailAddress emailAddress) {
-        NotiSlack notiSlack = emailVerificationNotiSlack(emailAddress);
+    public void noticeEmailVerification(User user) {
+        NotiSlack notiSlack = emailVerificationNotiSlack(user);
         Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
 
         noticeFor(notice);
     }
 
-    public void noticeRegisterComplete(Owner owner) {
-        NotiSlack notiSlack = registerCompleteNotiSlack(owner);
+    public void noticeRegisterComplete(User user) {
+        NotiSlack notiSlack = registerCompleteNotiSlack(user);
+        Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
+
+        noticeFor(notice);
+    }
+
+    public void noticeDelete(User user) {
+        NotiSlack notiSlack = deleteCompleteNotiSlack(user);
         Notice notice = Notice.makeMemberPlatform(notiSlack, notify_koin_url);
 
         noticeFor(notice);

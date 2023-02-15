@@ -1,7 +1,6 @@
 package koreatech.in.domain;
 
-import koreatech.in.domain.User.EmailAddress;
-import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,8 +9,12 @@ import lombok.Getter;
 public class NotiSlack {
     public static final String EMAIL_VERIFICATION_REQUEST_SUFFIX = "님이 이메일 인증을 요청하였습니다.";
     public static final String REGISTER_COMPLETE_SUFFIX = "님이 가입하셨습니다.";
+    public static final String DELETE_COMPLETE_SUFFIX = "님이 탈퇴하셨습니다.";
 
     public static final String COLOR_GOOD = "good";
+    public static final String BACKTICK = "`";
+    public static final String OPENING_BRACKET = "(";
+    public static final String CLOSING_BRACKET = ")";
 
 
     private String color;
@@ -25,17 +28,38 @@ public class NotiSlack {
     private String text;
 
 
-    public static NotiSlack emailVerificationNotiSlack(EmailAddress emailAddress) {
+    public static NotiSlack emailVerificationNotiSlack(User user) {
         return NotiSlack.builder()
                 .color(NotiSlack.COLOR_GOOD)
-                .text(emailAddress.getEmailAddress() + NotiSlack.EMAIL_VERIFICATION_REQUEST_SUFFIX)
+                .text(makeText(user, NotiSlack.EMAIL_VERIFICATION_REQUEST_SUFFIX))
                 .build();
     }
 
-    public static NotiSlack registerCompleteNotiSlack(Owner owner) {
+    public static NotiSlack registerCompleteNotiSlack(User user) {
         return NotiSlack.builder()
                 .color(NotiSlack.COLOR_GOOD)
-                .text(owner.getEmail() + NotiSlack.REGISTER_COMPLETE_SUFFIX)
+                .text(makeText(user, NotiSlack.REGISTER_COMPLETE_SUFFIX))
                 .build();
     }
+
+    public static NotiSlack deleteCompleteNotiSlack(User user) {
+        return NotiSlack.builder()
+                .color(NotiSlack.COLOR_GOOD)
+                .text(makeText(user, NotiSlack.DELETE_COMPLETE_SUFFIX))
+                .build();
+    }
+
+    private static String makeText(User user, String messageSuffix) {
+        return wrapWithBacktick(user.getEmail() + DelimitedText(user))  + messageSuffix;
+    }
+
+    private static String wrapWithBacktick(String text) {
+        return BACKTICK + text + BACKTICK;
+    }
+
+    private static String DelimitedText(User user) {
+        String userTypeText = user.getText(); //UserType.mappingFor(user).getText();
+        return OPENING_BRACKET + userTypeText + CLOSING_BRACKET;
+    }
+
 }
