@@ -29,7 +29,7 @@ public interface UserMapper {
     Integer isNicknameAlreadyUsed(String nickname);
     void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
-    User getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
+    Users getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
 
     @Select("SELECT * FROM koin.admins WHERE USER_ID = #{id}")

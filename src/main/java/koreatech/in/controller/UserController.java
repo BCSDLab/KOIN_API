@@ -1,10 +1,22 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import java.util.HashMap;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -15,8 +27,6 @@ import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
@@ -27,14 +37,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
 @Auth(role = Auth.Role.USER)
