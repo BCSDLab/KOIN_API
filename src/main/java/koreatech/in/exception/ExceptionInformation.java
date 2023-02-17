@@ -31,7 +31,7 @@ public enum ExceptionInformation {
     EMAIL_DUPLICATED("이미 존재하는 이메일 주소입니다. 다른 이메일 주소를 사용해주세요.", 101013, HttpStatus.CONFLICT),
     EMAIL_DOMAIN_IS_NOT_PORTAL_DOMAIN("한국기술교육대학교 포탈의 이메일 형식('koreatech.ac.kr')이 아닙니다.", 101014, HttpStatus.UNPROCESSABLE_ENTITY),
     STUDENT_NUMBER_INVALID("학생의 학번 형식이 아닙니다.", 101015, HttpStatus.UNPROCESSABLE_ENTITY),
-    STUDENT_MAJOR_INVALID("학생의 전공 형식이 아닙니다.", 101015, HttpStatus.UNPROCESSABLE_ENTITY),
+    STUDENT_MAJOR_INVALID("학생의 전공 형식이 아닙니다.", 101016, HttpStatus.UNPROCESSABLE_ENTITY),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
