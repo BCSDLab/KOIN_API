@@ -16,7 +16,7 @@ public interface UserMapper {
     User getAuthedUserById(@Param("id") Integer id);
     User getAuthedUserByEmail(@Param("email") String email);
     void updateLastLoggedAt(@Param("id") Integer id, @Param("currentDate") Date currentDate);
-    void deleteUserLogicallyById(@Param("id") Integer id);
+    void deleteUser(@Param("user") User user);
     void undeleteUserLogicallyById(@Param("id") Integer id);
 
     User getUserByNickname(@Param("nickname") String nickname);

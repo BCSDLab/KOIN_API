@@ -14,6 +14,7 @@ import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
@@ -139,7 +140,7 @@ public class UploadController {
                     + "(error code: 110000)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "- 유효하지 않은 파일일 때"
                     + "(error code: 110001) \n" + "- 파일목록이 비어있을 때 \n"
-                    + "(error code: 110002)", response = ExceptionResponse.class),
+                    + "(error code: 110002)", response = RequestDataInvalidResponse.class),
             @ApiResponse(code = 409, message = "파일들의 개수가 최대 개수를 초과하였을 때 \n"
                     + "(error code: 110003)", response = ExceptionResponse.class),
             @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
