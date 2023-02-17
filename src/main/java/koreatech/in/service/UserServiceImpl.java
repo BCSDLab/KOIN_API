@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         createInDBFor(student);
 
-        sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, student.getEmail());
+        sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
 
         slackNotiSender.noticeEmailVerification(student);
     }
@@ -360,7 +360,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
+    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, EmailAddress emailAddress){
+        emailAddress.validateSendable();
+
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
                 MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
                 StandardCharsets.UTF_8.name(),
@@ -368,7 +370,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         sesMailSender.sendMail(
                 SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
-                email,
+                emailAddress.getEmailAddress(),
                 SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
                 text);
     }
