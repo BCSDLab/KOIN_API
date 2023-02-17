@@ -291,7 +291,6 @@
             FROM `koin`.`users`
             WHERE
                 `nickname` = #{nickname}
-                AND `is_deleted` = 0
         ) `t1`
 
             LEFT JOIN `koin`.`students` `t2`

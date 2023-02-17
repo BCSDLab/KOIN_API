@@ -253,7 +253,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public void checkUserNickname(String nickname) {
-        checkNicknameDuplicated(nickname);
+        if (userMapper.getUserByNickname(nickname) != null) {
+            throw new BaseException(NICKNAME_DUPLICATE);
+        }
     }
 
     @Override
@@ -395,14 +397,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
-        }
-    }
-
-    private void checkNicknameDuplicated(String nickname) {
-        User user = userMapper.getUserByNickname(nickname);
-
-        if (user != null && (user.isEmailAuthenticationCompleted() || user.isAwaitingEmailAuthentication())) {
-            throw new BaseException(NICKNAME_DUPLICATE);
         }
     }
 
