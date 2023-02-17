@@ -34,6 +34,15 @@ public class ContentType {
         }
     }
 
+    public boolean isAcceptable(ContentType candidate) {
+        try {
+            validateAcceptable(candidate);
+        } catch (BaseException exception) {
+            return false;
+        }
+        return true;
+    }
+
     private boolean isTypeWildCard() {
         return type.equals(WILD_CARD);
     }
@@ -72,6 +81,7 @@ public class ContentType {
     }
 
     public static ContentType ALL = from("*/*");
+    public static ContentType PDF = from("application/pdf");
     public static ContentType DEFAULT = ALL;
     public static ContentType IMAGE_ALL = from("image/*");
 }

@@ -113,7 +113,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public void logoutForAdmin() {
         User user = jwtValidator.validate();
-        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + user.getId().toString());
+        deleteAccessTokenFromRedis(user.getId());
     }
 
 
@@ -358,5 +358,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         map.put("totalPage", totalPage);
 
         return map;
+    }
+
+    private void deleteAccessTokenFromRedis(Integer userId) {
+        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
 }

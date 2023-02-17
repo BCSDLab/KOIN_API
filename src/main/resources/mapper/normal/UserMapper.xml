@@ -214,10 +214,21 @@
             AND `is_deleted` = 0
     </update>
 
-    <delete id="deleteUserLogicallyById">
-        UPDATE `koin`.`users`
-        SET `is_deleted` = 1
-        WHERE `id` = #{id}
+    <delete id="deleteUser" parameterType="koreatech.in.domain.User.User">
+        DELETE
+        FROM `koin`.`users`
+        WHERE `id` = #{user.id};
+
+        <if test='user.user_type.name().equals("STUDENT")'>
+            DELETE
+            FROM `koin`.`students`
+            WHERE `user_id` = #{user.id};
+        </if>
+        <if test='user.user_type.name().equals("OWNER")'>
+            DELETE
+            FROM `koin`.`owners`
+            WHERE `user_id` = #{user.id};
+        </if>
     </delete>
 
     <delete id="undeleteUserLogicallyById">
@@ -280,7 +291,6 @@
             FROM `koin`.`users`
             WHERE
                 `nickname` = #{nickname}
-                AND `is_deleted` = 0
         ) `t1`
 
             LEFT JOIN `koin`.`students` `t2`

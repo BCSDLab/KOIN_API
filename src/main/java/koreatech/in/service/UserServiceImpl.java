@@ -124,8 +124,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void logout() {
-        jwtValidator.validate(); // access token 인증이 잘 되는지 확인
+        User user = jwtValidator.validate();
+        deleteAccessTokenFromRedis(user.getId());
     }
 
     @Transactional
@@ -239,7 +241,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void withdraw() {
         User user = jwtValidator.validate();
 
-        userMapper.deleteUserLogicallyById(user.getId());
+        userMapper.deleteUser(user);
         deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeDelete(user);
@@ -248,8 +250,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public void checkUserNickname(String nickname) {
-        checkNicknameValid(nickname);
-        checkNicknameDuplicated(nickname);
+        if (userMapper.getUserByNickname(nickname) != null) {
+            throw new BaseException(NICKNAME_DUPLICATE);
+        }
     }
 
     @Override
@@ -410,33 +413,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
 
-
-    private void checkNicknameValid(String nickname) {
-        if (nickname == null) {
-            throw new BaseException(NICKNAME_SHOULD_NOT_BE_NULL);
-        }
-        if (nickname.length() == 0) {
-            throw new BaseException(NICKNAME_LENGTH_AT_LEAST_1);
-        }
-        if (StringUtils.isBlank(nickname)) {
-            throw new BaseException(NICKNAME_MUST_NOT_BE_BLANK);
-        }
-        if (nickname.length() > 10) {
-            throw new BaseException(NICKNAME_MAXIMUM_LENGTH_IS_10);
-        }
-    }
-
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
-        }
-    }
-
-    private void checkNicknameDuplicated(String nickname) {
-        User user = userMapper.getUserByNickname(nickname);
-
-        if (user != null && (user.isEmailAuthenticationCompleted() || user.isAwaitingEmailAuthentication())) {
-            throw new BaseException(NICKNAME_DUPLICATE);
         }
     }
 
