@@ -101,7 +101,7 @@ public class UserController {
     @ApiOperation(value = "회원가입 요청")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity studentRegister(
+    ResponseEntity<EmptyResponse> studentRegister(
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) throws Exception {
@@ -110,9 +110,15 @@ public class UserController {
         // TODO: velocity template 에게 인증 url host를 넣기 위해 url 데이터를 register에 넘겼는데, 이 방법 대신 하단 링크를 참고하여 plugin을 붙이는 방법으로 해결하기.
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
-        StudentRegisterRequest clear = new StudentRegisterRequest();
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
 
-        return new ResponseEntity<Map<String, Object>>(userService.StudentRegister((StudentRegisterRequest) StringXssChecker.xssCheck(request, clear), getHost(httpServletRequest)), HttpStatus.CREATED);
+        userService.StudentRegister(request, getHost(httpServletRequest));
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Auth(role = Auth.Role.STUDENT)
