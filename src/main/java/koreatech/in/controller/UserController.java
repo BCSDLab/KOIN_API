@@ -21,6 +21,7 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -145,10 +146,25 @@ public class UserController {
     ResponseEntity<EmptyResponse> checkUserNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
-                              "- 1자 이상 10자 이하 \n " +
+                              "- 10자 이하 \n " +
                               "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("nickname") String nickname) throws Exception {
+        checkNicknameConstraintViolation(nickname);
+
         userService.checkUserNickname(nickname);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // TODO: javax validation 으로 query parameter에 대한 제약조건 검사가 불가능하여 메소드로 만듬. 추후 검사 방법이 있을지 알아보기.
+    private void checkNicknameConstraintViolation(String nickname) {
+        if (nickname == null) {
+            throw new BaseException(ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL);
+        }
+        if (nickname.length() > 10) {
+            throw new BaseException(ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10);
+        }
+        if (StringUtils.isBlank(nickname)) {
+            throw new BaseException(ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK);
+        }
     }
 
     @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")

@@ -253,7 +253,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public void checkUserNickname(String nickname) {
-        checkNicknameValid(nickname);
         checkNicknameDuplicated(nickname);
     }
 
@@ -391,22 +390,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
-    }
-
-
-    private void checkNicknameValid(String nickname) {
-        if (nickname == null) {
-            throw new BaseException(NICKNAME_SHOULD_NOT_BE_NULL);
-        }
-        if (nickname.length() == 0) {
-            throw new BaseException(NICKNAME_LENGTH_AT_LEAST_1);
-        }
-        if (StringUtils.isBlank(nickname)) {
-            throw new BaseException(NICKNAME_MUST_NOT_BE_BLANK);
-        }
-        if (nickname.length() > 10) {
-            throw new BaseException(NICKNAME_MAXIMUM_LENGTH_IS_10);
-        }
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
