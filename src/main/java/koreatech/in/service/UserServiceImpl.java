@@ -61,6 +61,10 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
+    public static final String AUTH_TOKEN = "authToken";
+    public static final String CONTEXT_PATH = "contextPath";
+
     @Autowired
     private UserMapper userMapper;
 
@@ -135,7 +139,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         createInDBFor(student);
 
-        sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
+        sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, student.getEmail());
+
         slackNotiSender.noticeEmailVerification(student);
 
         return new HashMap<String, Object>() {{
@@ -360,13 +365,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
+                StandardCharsets.UTF_8.name(),
+                makeModelFor(authToken, contextPath));
+
+        sesMailSender.sendMail(
+                SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
+                email,
+                SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
+                text);
+    }
+
+    @NotNull
+    private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
         Map<String, Object> model = new HashMap<>();
-        model.put("authToken", authToken);
-        model.put("contextPath", contextPath);
-
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", "UTF-8", model);
-
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
+        model.put(AUTH_TOKEN, authToken);
+        model.put(CONTEXT_PATH, contextPath);
+        return model;
     }
 
     private void createInDBFor(Student student){
@@ -381,7 +397,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
         Map<String, Object> model = new HashMap<>();
         model.put("resetToken", resetToken);
-        model.put("contextPath", contextPath);
+        model.put(CONTEXT_PATH, contextPath);
 
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
 
