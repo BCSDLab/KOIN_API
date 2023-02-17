@@ -82,7 +82,23 @@ public class UserController {
 
     @AuthExcept
     @ParamValid
-    @ApiOperation(value = "(required: email, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
+    @ApiResponses({
+            @ApiResponse(
+                    code = 409,
+                    message = "- 이미 존재하는 닉네임일 경우 (code: 101002) \n\n"
+                            + "- 이미 사용중인 이메일일 경우 (code: 101013)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)\n\n"
+                            + "  - 한국기술교육대학교 포탈의 이메일 형식('koreatech.ac.kr')이 아닌 경우 (code: 101014)\n\n"
+                            + "  - 유효하지 않는 이메일 주소인 경우 (code: 101008)\n\n"
+                            + "  - 유효하지 않는 이메일 도메인인 경우 (code: 101009)\n\n"
+                            + "  - 학생의 학번 형식이 아닌 경우 (code: 101015)\n\n"
+                            + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)\n\n",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "회원가입 요청")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity studentRegister(
@@ -91,7 +107,7 @@ public class UserController {
             HttpServletRequest httpServletRequest) throws Exception {
         //TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
 
-        //TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
+        // TODO: velocity template 에게 인증 url host를 넣기 위해 url 데이터를 register에 넘겼는데, 이 방법 대신 하단 링크를 참고하여 plugin을 붙이는 방법으로 해결하기.
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
         StudentRegisterRequest clear = new StudentRegisterRequest();
