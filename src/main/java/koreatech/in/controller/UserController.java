@@ -143,7 +143,7 @@ public class UserController {
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> checkUserNickname(
+    ResponseEntity<EmptyResponse> checkDuplicationOfNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
                               "- 10자 이하 \n " +
