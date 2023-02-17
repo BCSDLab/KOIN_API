@@ -133,11 +133,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         enrichInRegisterFor(student);
 
-        try {
-            insertStudentToDB(student);
-        } catch (SQLException sqlException) {
-            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-        }
+        createInDBFor(student);
 
         sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
         slackNotiSender.noticeEmailVerification(student);
@@ -373,9 +369,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
     }
 
-    private void insertStudentToDB(Student student) throws SQLException{
-        userMapper.insertUser(student);
-        studentMapper.insertStudent(student);
+    private void createInDBFor(Student student){
+        try {
+            userMapper.insertUser(student);
+            studentMapper.insertStudent(student);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
