@@ -9,6 +9,7 @@ import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,21 +34,19 @@ import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.DateUtil;
 import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.SHA256Util;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -130,8 +129,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
-        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
-        studentEmail.validatePortalEmail();
+        validateInRegister(student);
 
         checkInputDataDuplicationAndValidation(student);
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
@@ -182,12 +180,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (!student_old.isUserAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
-        checkNicknameDuplicationWithoutSameUser(student);
+        validateNicknameUniqueness(student);
         if (student.getStudent_number() != null) {
-            checkStudentNumberValidation(student);
+            validateStudentNumber(student);
         }
         if (student.getMajor() != null) {
-            checkMajorValidation(student);
+            validateMajor(student);
         }
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -317,35 +315,49 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private void checkInputDataDuplicationAndValidation(Student student){
+    private void validateInRegister(Student student){
+        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
+        studentEmail.validatePortalEmail();
+
+        validateUniqueness(student);
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
+
+    private void validateUniqueness(Student student) {
         validateEmailUniqueness(EmailAddress.from(student.getEmail()));
-        checkNicknameDuplicationWithoutSameUser(student);
-        checkStudentNumberValidation(student);
-        checkMajorValidation(student);
+        validateNicknameUniqueness(student);
     }
 
-    private void checkNicknameDuplicationWithoutSameUser(Student student) {
-        if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickname(student.getNickname());
-            if (selectUser != null && !student.equals(selectUser)) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+    private void validateNicknameUniqueness(Student student) {
+        if(student.getNickname() == null) {
+            return;
+        }
+
+        if (isExistOtherUser(student, userMapper.getUserByNickname(student.getNickname()))) {
+            throw new BaseException(NICKNAME_DUPLICATE);
         }
     }
 
-    private void checkMajorValidation(Student student) {
-        if (student.getMajor() != null) {
-            if (!student.isMajorValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-            }
+    private static boolean isExistOtherUser(User registerUser, User selectUser) {
+        return selectUser != null && !registerUser.equals(selectUser);
+    }
+
+    private void validateMajor(Student student) {
+        if(student.getMajor() == null) {
+            return;
+        }
+        if (!student.isMajorValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_MAJOR_INVALID);
         }
     }
 
-    private void checkStudentNumberValidation(Student student) {
-        if (student.getStudent_number() != null) {
-            if (!student.isStudentNumberValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-            }
+    private void validateStudentNumber(Student student) {
+        if(student.getStudent_number() == null) {
+            return;
+        }
+        if (!student.isStudentNumberValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_NUMBER_INVALID);
         }
     }
 
