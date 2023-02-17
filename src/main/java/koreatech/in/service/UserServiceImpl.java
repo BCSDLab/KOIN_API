@@ -131,15 +131,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         validateInRegister(student);
 
-        checkInputDataDuplicationAndValidation(student);
-        String anonymousNickname = "익명_" + (System.currentTimeMillis());
-        student.setEmail(studentEmail.getEmailAddress());
-        student.setAnonymous_nickname(anonymousNickname);
-        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        String authToken = SHA256Util.getEncrypt(student.getEmail(), authExpiredAt.toString());
-        student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
-        String encodedPassword = passwordEncoder.encode(student.getPassword());
-        student.changePassword(encodedPassword);
+        enrichInRegisterFor(student);
 
         try {
             insertStudentToDB(student);
@@ -153,6 +145,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new HashMap<String, Object>() {{
             put("success", "send mail for student authentication to entered email address");
         }};
+    }
+
+    private void enrichInRegisterFor(Student student) {
+        student.fillAnonymousNickname();
+        student.fillAuthTokenAndTokenExpiredAt();
+        encodePasswordFor(student);
+    }
+
+    private void encodePasswordFor(Student student) {
+        student.changePassword(passwordEncoder.encode(student.getPassword()));
     }
 
     @Override
