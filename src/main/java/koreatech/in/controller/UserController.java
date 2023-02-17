@@ -140,13 +140,13 @@ public class UserController {
             @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
-    @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/check/nickname", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<EmptyResponse> checkUserNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
                               "- 1자 이상 10자 이하 \n " +
-                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("nickname") String nickname) throws Exception {
+                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("nickname") String nickname) throws Exception {
         userService.checkUserNickname(nickname);
         return new ResponseEntity<>(HttpStatus.OK);
     }
