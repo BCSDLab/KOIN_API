@@ -137,7 +137,7 @@ public class UserController {
     @ApiOperation(value = "닉네임 중복 체크", notes = "닉네임 중복시 http status 409, 중복이 아닐시 http status 200을 응답합니다.")
     @ApiResponses({
             @ApiResponse(code = 409, message = "- 닉네임이 중복될 때 (code: 101002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
     @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
