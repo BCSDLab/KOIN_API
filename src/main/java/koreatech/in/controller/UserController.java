@@ -147,7 +147,7 @@ public class UserController {
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
                               "- 10자 이하 \n " +
-                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("nickname") String nickname) throws Exception {
+                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("nickname") String nickname) {
         checkNicknameConstraintViolation(nickname);
 
         userService.checkUserNickname(nickname);
