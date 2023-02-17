@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
+    public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
 
         validateInRegister(student);
@@ -142,10 +142,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, student.getEmail());
 
         slackNotiSender.noticeEmailVerification(student);
-
-        return new HashMap<String, Object>() {{
-            put("success", "send mail for student authentication to entered email address");
-        }};
     }
 
     private void enrichInRegisterFor(Student student) {

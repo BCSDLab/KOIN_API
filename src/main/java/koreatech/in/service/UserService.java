@@ -17,7 +17,7 @@ public interface UserService {
 
     void logout();
 
-    Map<String, Object> StudentRegister(StudentRegisterRequest request, String host);
+    void StudentRegister(StudentRegisterRequest request, String host);
 
     Student getStudent();
 
