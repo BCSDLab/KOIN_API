@@ -6,10 +6,7 @@ import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
-import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
-import koreatech.in.dto.normal.shop.response.MenuResponse;
-import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.*;
 import koreatech.in.exception.BaseException;
 import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
@@ -41,6 +38,14 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         ShopProfile shopProfile = shopMapper.getShopProfileByShopId(shopId);
         return ShopConverter.INSTANCE.toShopResponse(shopProfile);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AllShopsOfOwnerResponse getAllShopsOfOwner() {
+        Owner owner = (Owner) jwtValidator.validate();
+
+        return AllShopsOfOwnerResponse.from(shopMapper.getShopProfilesByOwnerId(owner.getId()));
     }
 
     @Override
