@@ -100,8 +100,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+        User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
+        // TODO 23.02.15. 박한수 user가 존재하지 않은 경우와 존재하되 is_authed만 false인 경우가 같이 처리됨 -> getUserByEmail (아직 sql문 작성 안됨)으로 유저를 가져와서, 1. null 체크 2. is_authed 체크로 다른 예외로 반환하기.
         if (user == null) {
             throw new BaseException(USER_NOT_FOUND);
         }
@@ -130,17 +131,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
+
+        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
+        studentEmail.validatePortalEmail();
+
         checkInputDataDuplicationAndValidation(student);
-
-        String email = student.getAccount()+"@koreatech.ac.kr";
-
-        validateEmailUniqueness(EmailAddress.from(email));
-
         String anonymousNickname = "익명_" + (System.currentTimeMillis());
-        student.setEmail(email);
+        student.setEmail(studentEmail.getEmailAddress());
         student.setAnonymous_nickname(anonymousNickname);
         Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        String authToken = SHA256Util.getEncrypt(student.getAccount(), authExpiredAt.toString());
+        String authToken = SHA256Util.getEncrypt(student.getEmail(), authExpiredAt.toString());
         student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
         String encodedPassword = passwordEncoder.encode(student.getPassword());
         student.changePassword(encodedPassword);
@@ -253,13 +253,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public void checkUserNickname(String nickname) {
-        checkNicknameValid(nickname);
-        checkNicknameDuplicated(nickname);
+        if (userMapper.getUserByNickname(nickname) != null) {
+            throw new BaseException(NICKNAME_DUPLICATE);
+        }
     }
 
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
-        User user = userMapper.getAuthedUserByAccount(request.getAccount());
+        User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null) {
             throw new BaseException(USER_NOT_FOUND);
@@ -320,7 +321,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkInputDataDuplicationAndValidation(Student student){
-        checkAccountDuplication(student);
+        validateEmailUniqueness(EmailAddress.from(student.getEmail()));
         checkNicknameDuplicationWithoutSameUser(student);
         checkStudentNumberValidation(student);
         checkMajorValidation(student);
@@ -331,15 +332,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User selectUser = userMapper.getUserByNickname(student.getNickname());
             if (selectUser != null && !student.equals(selectUser)) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-    }
-
-    private void checkAccountDuplication(Student student) {
-        User selectUser = userMapper.getUserByAccount(student.getAccount());
-        if (selectUser != null) {
-            if (selectUser.isUserAuthed() || selectUser.isAwaitingEmailAuthentication()) {
-                throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
             }
         }
     }
@@ -393,38 +385,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
 
-
-    private void checkNicknameValid(String nickname) {
-        if (nickname == null) {
-            throw new BaseException(NICKNAME_SHOULD_NOT_BE_NULL);
-        }
-        if (nickname.length() == 0) {
-            throw new BaseException(NICKNAME_LENGTH_AT_LEAST_1);
-        }
-        if (StringUtils.isBlank(nickname)) {
-            throw new BaseException(NICKNAME_MUST_NOT_BE_BLANK);
-        }
-        if (nickname.length() > 10) {
-            throw new BaseException(NICKNAME_MAXIMUM_LENGTH_IS_10);
-        }
-    }
-
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
 
-    private void checkNicknameDuplicated(String nickname) {
-        User user = userMapper.getUserByNickname(nickname);
-
-        if (user != null && (user.isEmailAuthenticationCompleted() || user.isAwaitingEmailAuthentication())) {
-            throw new BaseException(NICKNAME_DUPLICATE);
-        }
-    }
-
     @Override
-    public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return null;
     }
 

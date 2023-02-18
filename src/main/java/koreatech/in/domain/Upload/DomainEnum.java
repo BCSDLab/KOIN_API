@@ -12,14 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 public enum DomainEnum {
 
 
-    ITEMS(), LANDS(), CIRCLES(), MARKET(), SHOPS(), MEMBERS(), OWNERS(ContentType.IMAGE_ALL, ByteSize.OWNER_MAX_SIZE);
+    ITEMS(), LANDS(), CIRCLES(), MARKET(), SHOPS(), MEMBERS(), OWNERS(ContentTypes.OWNER_LIMIT, ByteSize.OWNER_MAX_SIZE);
 
-    private final ContentType expectContentType;
+    private final ContentTypes expectContentTypes;
     private final ByteSize limitedSize;
 
 
     DomainEnum() {
-        expectContentType = ContentType.DEFAULT ;
+        expectContentTypes = ContentTypes.DEFAULT ;
         limitedSize = ByteSize.DEFAULT;
     }
 
@@ -32,7 +32,7 @@ public enum DomainEnum {
     public void validateFor(MultipartFile multipartFile) {
         validates(multipartFile);
 
-        expectContentType.validateAcceptable(ContentType.from(multipartFile.getContentType()));
+        expectContentTypes.validateAcceptable(ContentType.from(multipartFile.getContentType()));
         limitedSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
     }
 

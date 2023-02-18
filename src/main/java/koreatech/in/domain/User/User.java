@@ -1,6 +1,5 @@
 package koreatech.in.domain.User;
 
-import static koreatech.in.exception.ExceptionInformation.IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST;
 import static koreatech.in.exception.ExceptionInformation.IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST;
 import static koreatech.in.exception.ExceptionInformation.USER_HAS_NOT_WITHDRAWN;
 import static koreatech.in.exception.ExceptionInformation.USER_HAS_WITHDRAWN;
@@ -20,13 +19,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class User {
     protected Integer id;
-    protected String account;
+    protected String email;
     protected String password;
     protected String nickname;
     protected String name;
     protected String phone_number;
     protected UserType user_type;
-    protected String email;
     protected Integer gender;
     protected Boolean is_authed;
     protected Date last_logged_at;
@@ -40,20 +38,20 @@ public class User {
     protected Date created_at;
     protected Date updated_at;
 
-    protected User(String account, String password, String nickname, String name, String phoneNumber, String email, Integer gender, UserType userType) {
-        this.account = account;
+    protected User(String email, String password, String nickname, String name, String phoneNumber, Integer gender, UserType userType) {
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
         this.phone_number = phoneNumber;
-        this.email = email;
         this.gender = gender;
         this.user_type = userType;
+        this.is_authed = false;
     }
 
     public void update(User user) {
-        if (user.account != null) {
-            this.account = user.account;
+        if (user.email != null) {
+            this.email = user.email;
         }
         if (user.password != null) {
             this.password = user.password;
@@ -69,9 +67,6 @@ public class User {
         }
         if(user.phone_number != null) {
             this.phone_number = user.phone_number;
-        }
-        if(user.email != null) {
-            this.email = user.email;
         }
         if (user.is_authed != null) {
             this.is_authed = user.is_authed;
@@ -152,7 +147,7 @@ public class User {
 
     public void generateDataForFindPassword() {
         this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        this.reset_token = SHA256Util.getEncrypt(this.account, this.reset_expired_at.toString());
+        this.reset_token = SHA256Util.getEncrypt(this.email, this.reset_expired_at.toString());
     }
 
     public void changeToNewPassword(String password) {
@@ -166,12 +161,9 @@ public class User {
         }
     }
 
-    public void checkPossibilityOfUndeletion(User undeletedAndSameAccountUser, User undeletedAndSameEmailUser) {
+    public void checkPossibilityOfUndeletion(User undeletedAndSameEmailUser) {
         if (!isWithdrawn()) {
             throw new BaseException(USER_HAS_NOT_WITHDRAWN);
-        }
-        if (undeletedAndSameAccountUser != null) {
-            throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_ACCOUNT_EXIST);
         }
         if (undeletedAndSameEmailUser != null) {
             throw new BaseException(IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST);

@@ -51,6 +51,12 @@ public class EmailAddress {
         return domainStartIndex != NOT_FOUND_INDEX_VALUE;
     }
 
+    public void validatePortalEmail() {
+        if(domain.isStudentEmail().equals(false)) {
+            throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_IS_NOT_PORTAL_DOMAIN);
+        }
+    }
+
     static class EmailValidator {
         public static final String LOCAL_PARTS_PATTERN = "^(?=.{1,64}@)[A-Za-z0-9\\+_-]+(\\.[A-Za-z0-9\\+_-]+)*@";
         public static final String DOMAIN_PATTERN = "[^-][A-Za-z0-9\\+-]+(\\.[A-Za-z0-9\\+-]+)*(\\.[A-Za-z]{2,})$";

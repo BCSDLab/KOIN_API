@@ -14,6 +14,8 @@ public interface ShopMapper {
 
     List<ShopProfile> getAllShopProfiles();
 
+    List<ShopProfile> getShopProfilesByOwnerId(@Param("ownerId") Integer ownerId);
+
     List<ShopMenuProfile> getMenuProfilesByShopId(@Param("shopId") Integer shopId);
 
     Shop getShopById(@Param("id") Integer id);

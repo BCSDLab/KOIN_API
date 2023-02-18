@@ -13,11 +13,10 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UserResponse {
     private Integer id;
-    private String account;
+    private String email;
     private String nickname;
     private String name;
     private String phoneNumber;
-    private String email;
     private Integer gender;
     private Boolean isAuth;
     private UserType userType;
@@ -25,11 +24,10 @@ public class UserResponse {
 
     public UserResponse(User user) {
         this.id = user.getId();
-        this.account = user.getAccount();
+        this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.name = user.getName();
         this.phoneNumber = user.getPhone_number();
-        this.email = user.getEmail();
         this.gender = user.getGender();
         this.isAuth = user.getIs_authed();
         this.userType = user.getUser_type();

@@ -1,10 +1,22 @@
 package koreatech.in.controller;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import java.util.HashMap;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -15,26 +27,25 @@ import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
 import koreatech.in.util.StringXssChecker;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 @Api(tags = "(Normal) User", description = "회원")
 @Auth(role = Auth.Role.USER)
@@ -72,15 +83,16 @@ public class UserController {
 
     @AuthExcept
     @ParamValid
-    @ApiOperation(value = "(required: account, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
+    @ApiOperation(value = "(required: email, password), (optional: name, nickname, gender, identity, is_graduated, major, student_number, phone_number)")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity studentRegister(
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) throws Exception {
-        // TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
-        // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
+        //TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
+
+        //TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
 
         StudentRegisterRequest clear = new StudentRegisterRequest();
@@ -137,18 +149,33 @@ public class UserController {
     @ApiOperation(value = "닉네임 중복 체크", notes = "닉네임 중복시 http status 409, 중복이 아닐시 http status 200을 응답합니다.")
     @ApiResponses({
             @ApiResponse(code = 409, message = "- 닉네임이 중복될 때 (code: 101002)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "- nickname의 제약 조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
-    @RequestMapping(value = "/user/check/nickname/{nickname}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/check/nickname", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> checkUserNickname(
+    ResponseEntity<EmptyResponse> checkDuplicationOfNickname(
             @ApiParam(value = "닉네임 \n " +
                               "- not null \n " +
-                              "- 1자 이상 10자 이하 \n " +
-                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @PathVariable("nickname") String nickname) throws Exception {
+                              "- 10자 이하 \n " +
+                              "- 공백 문자로만 이루어져있으면 안됨", required = true) @RequestParam("nickname") String nickname) {
+        checkNicknameConstraintViolation(nickname);
+
         userService.checkUserNickname(nickname);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // TODO: javax validation 으로 query parameter에 대한 제약조건 검사가 불가능하여 메소드로 만듬. 추후 검사 방법이 있을지 알아보기.
+    private void checkNicknameConstraintViolation(String nickname) {
+        if (nickname == null) {
+            throw new BaseException(ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL);
+        }
+        if (nickname.length() > 10) {
+            throw new BaseException(ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10);
+        }
+        if (StringUtils.isBlank(nickname)) {
+            throw new BaseException(ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK);
+        }
     }
 
     @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
@@ -162,6 +189,7 @@ public class UserController {
     @RequestMapping(value = "/user/find/password", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> changePasswordConfig(@RequestBody @Valid FindPasswordRequest request, BindingResult bindingResult, HttpServletRequest servletRequest) {
+    // TODO: 23.02.12. 박한수 현재: 익명사용자가 특정 회원의 비밀번호 변경 요청을 시도할 수 있음 -> 개선안: jwt 토큰에 있는 사용자의 이메일로 비밀변경 요청을 시도하게 해야 함.
 
         // TODO: velocity template 에 인증 url에 들어갈 host를 넣기 위해 reigster에 url 데이터를 넘겼는데 추후 이 방법 없애고 plugin을 붙이는 방법으로 해결해보기
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
