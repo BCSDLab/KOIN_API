@@ -1,13 +1,14 @@
 package koreatech.in.service.admin;
 
+import java.util.Map;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
-
-import java.util.Map;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.StudentResponse;
 
 public interface AdminUserService {
     LoginResponse loginForAdmin(LoginRequest request) throws Exception;
@@ -20,7 +21,7 @@ public interface AdminUserService {
 
     Student createStudentForAdmin(Student student);
 
-    Student updateStudentForAdmin(Student user, int id);
+    StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id);
 
     void deleteUser(Integer userId);
 

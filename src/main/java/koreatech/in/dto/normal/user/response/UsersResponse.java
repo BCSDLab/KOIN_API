@@ -19,8 +19,8 @@ public class UsersResponse {
         @ApiModelProperty(notes = "고유 id", example = "1", required = true)
         private Integer id;
 
-        @ApiModelProperty(notes = "포탈 아이디", example = "asdf1234", required = true)
-        private String portal_account;
+        @ApiModelProperty(notes = "이메일", example = "asdf1234@koreatech.ac.kr", required = true)
+        private String email;
 
         @ApiModelProperty(notes = "닉네임", example = "1")
         private String nickname;

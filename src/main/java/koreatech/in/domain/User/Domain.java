@@ -12,6 +12,8 @@ import lombok.Getter;
 @Getter
 public class Domain {
 
+    private static final String PORTAL_DOMAIN = "koreatech.ac.kr";
+
     private final String value;
 
     private Domain(String value) {
@@ -44,4 +46,9 @@ public class Domain {
             throw new BaseException(ExceptionInformation.EMAIL_DOMAIN_INVALID);
         }
     }
+
+    public Boolean isStudentEmail() {
+        return getValue().equals(PORTAL_DOMAIN);
+    }
+
 }
