@@ -1,6 +1,7 @@
 package koreatech.in.controller.admin;
 
 import io.swagger.annotations.*;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -385,6 +387,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "특정 상점의 메뉴 숨김", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
@@ -405,6 +408,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOff @ApiIgnore @Deprecated
     @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
