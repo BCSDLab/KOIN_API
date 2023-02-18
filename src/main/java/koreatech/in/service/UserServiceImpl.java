@@ -259,7 +259,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.generateDataForFindPassword();
+        user.generateResetTokenForFindPassword();
         userMapper.updateUser(user);
 
         sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
