@@ -1,13 +1,7 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -261,9 +255,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
-
         if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
         user.generateDataForFindPassword();
