@@ -180,8 +180,8 @@ public class UserController {
 
     @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "회원이 조회되지 않을 때 (code: 101000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "이메일에 대한 회원이 조회되지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @AuthExcept

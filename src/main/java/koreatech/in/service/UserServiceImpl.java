@@ -1,14 +1,9 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +56,8 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
     @Autowired
     private UserMapper userMapper;
@@ -261,12 +258,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
-
         if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.generateDataForFindPassword();
+        user.generateResetTokenForFindPassword();
         userMapper.updateUser(user);
 
         sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
@@ -368,13 +364,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
-        Map<String, Object> model = new HashMap<>();
-        model.put("resetToken", resetToken);
-        model.put("contextPath", contextPath);
+        Map<String, Object> model = new HashMap<String, Object>() {{
+            put("resetToken", resetToken);
+            put("contextPath", contextPath);
+        }};
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
     private boolean isTokenExpired(Date expiredAt) {
