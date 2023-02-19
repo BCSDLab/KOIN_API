@@ -15,17 +15,11 @@ public class StudentResponse extends UserResponse {
     private String anonymousNickname;
     private String studentNumber;
     private String major;
-    private Integer identity;
-    private Boolean isGraduated;
-    private String phoneNumber;
 
     public StudentResponse(Student student) {
         super(student);
         this.anonymousNickname = student.getAnonymous_nickname();
         this.studentNumber = student.getStudent_number();
         this.major = student.getMajor();
-        this.identity = student.getIdentity();
-        this.isGraduated = student.getIs_graduated();
-        this.phoneNumber = student.getPhone_number();
     }
 }

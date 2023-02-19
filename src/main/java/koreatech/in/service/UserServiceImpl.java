@@ -24,7 +24,6 @@ import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.dto.normal.user.response.UserResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
@@ -163,16 +162,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BaseException(USER_NOT_FOUND);
         }
 
-        return downcastFor(UserConverter.INSTANCE.toUserResponse(student));
+        return UserConverter.INSTANCE.toStudentResponse(student);
     }
-
-    private static StudentResponse downcastFor(UserResponse userResponse) {
-        if (!(userResponse instanceof StudentResponse)) {
-            throw new ClassCastException("UserConverter에서 UserResponse -> StudentResponse 로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
-        }
-        return (StudentResponse) userResponse;
-    }
-
     @Override
     @Transactional
     public StudentResponse updateStudentInformation(UpdateUserRequest request) {
