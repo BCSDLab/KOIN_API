@@ -2,10 +2,6 @@ package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
@@ -32,7 +28,6 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
@@ -46,7 +41,6 @@ import koreatech.in.util.SHA256Util;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -160,14 +154,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Student getStudent() {
+    public StudentResponse getStudent() {
         User user = jwtValidator.validate();
 
         Student student = studentMapper.getStudentById(user.getId());
+
         if(student == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+            throw new BaseException(USER_NOT_FOUND);
         }
-        return student;
+
+        return new StudentResponse(student);
     }
 
     @Override
