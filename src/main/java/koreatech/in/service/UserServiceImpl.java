@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
@@ -275,15 +276,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
         User user = userMapper.getUserByAuthToken(authToken.getToken());
 
-        if (user == null || !user.isAwaitingEmailAuthentication()) {
-            return false;
+        AuthResult authResult = AuthResult.from(user);
+
+        if(authResult.isSuccess()) {
+            user.enrichForAuthed();
+            userMapper.updateUser(user);
+
+            slackNotiSender.noticeRegisterComplete(user);
         }
 
-        user.changeEmailAuthenticationStatusToComplete();
-        userMapper.updateUser(user);
-
-        slackNotiSender.noticeRegisterComplete(user);
-        return true;
+        return authResult.isSuccess();
     }
 
     @Override
