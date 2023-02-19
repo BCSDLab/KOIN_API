@@ -2,10 +2,6 @@ package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
@@ -21,6 +17,7 @@ import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
@@ -46,7 +43,6 @@ import koreatech.in.util.SHA256Util;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -273,8 +269,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+    public Boolean authenticate(AuthTokenRequest authTokenRequest) {
+        User user = userMapper.getUserByAuthToken(authTokenRequest.getToken());
 
         if (user == null || !user.isAwaitingEmailAuthentication()) {
             return false;

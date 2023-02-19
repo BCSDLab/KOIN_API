@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
@@ -31,7 +32,7 @@ public interface UserService {
 
     void changePasswordConfig(FindPasswordRequest request, String host);
 
-    Boolean authenticate(String authToken);
+    Boolean authenticate(AuthTokenRequest authTokenRequest);
 
     Boolean changePasswordInput(String resetToken);
 

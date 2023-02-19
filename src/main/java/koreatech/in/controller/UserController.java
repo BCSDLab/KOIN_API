@@ -20,6 +20,7 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
@@ -38,7 +39,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -201,8 +201,14 @@ public class UserController {
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
-    public String authenticate(@RequestParam("auth_token") String authToken) {
-        boolean success = userService.authenticate(authToken);
+    public String authenticate(@RequestParam("auth_token") AuthTokenRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        boolean success = userService.authenticate(request);
         return success ? "mail/success_register_config" : "mail/error_config";
     }
 
