@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -270,7 +271,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Boolean authenticate(AuthTokenRequest authTokenRequest) {
-        User user = userMapper.getUserByAuthToken(authTokenRequest.getToken());
+
+        AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
+        User user = userMapper.getUserByAuthToken(authToken.getToken());
 
         if (user == null || !user.isAwaitingEmailAuthentication()) {
             return false;

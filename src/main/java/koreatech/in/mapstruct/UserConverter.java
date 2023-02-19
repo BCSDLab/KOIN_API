@@ -1,8 +1,10 @@
 package koreatech.in.mapstruct;
 
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -32,4 +34,6 @@ public interface UserConverter {
         return Domain.from(address);
     }
 
+    @Mapping(source = "token", target = "token")
+    AuthToken toAuthToken(AuthTokenRequest token);
 }
