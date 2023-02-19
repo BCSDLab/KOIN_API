@@ -22,10 +22,10 @@ public class StudentUpdateRequest extends UserUpdateRequest{
     @ApiModelProperty(notes = "성별(남:0, 여:1)", example = "0")
     private Integer gender;
 
-//    private Integer identity;
+    private Integer identity;
 
-//    @ApiModelProperty(notes = "졸업 여부", example = "false")
-//    private Boolean isGraduated;
+    @ApiModelProperty(notes = "졸업 여부", example = "false")
+    private Boolean isGraduated;
 
     @ApiModelProperty(notes = "기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부", example = "컴퓨터공학부")
     private String major;
