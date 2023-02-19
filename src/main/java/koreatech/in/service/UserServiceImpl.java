@@ -2,10 +2,6 @@ package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_LENGTH_AT_LEAST_1;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MAXIMUM_LENGTH_IS_10;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_MUST_NOT_BE_BLANK;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_SHOULD_NOT_BE_NULL;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
@@ -18,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
@@ -44,7 +39,6 @@ import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +127,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
-        Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
+        Student student = downcastFrom(UserConverter.INSTANCE.toUser(request));
 
         validateInRegister(student);
 
@@ -144,6 +138,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
 
         slackNotiSender.noticeEmailVerification(student);
+    }
+
+    private static Student downcastFrom(User user) {
+        if(!(user instanceof Student)) {
+            throw new ClassCastException("UserConverter에서 User -> Student 로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
+        }
+        return (Student) user;
     }
 
     private void enrichInRegisterFor(Student student) {
