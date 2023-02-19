@@ -9,7 +9,7 @@ import lombok.Setter;
 @RequiredArgsConstructor(staticName = "of")
 public class AuthResult {
 
-    private final Boolean result;
+    private final Boolean isSuccess;
     private final String message;
 
 
@@ -36,7 +36,7 @@ public class AuthResult {
     }
 
     public Boolean isSuccess() {
-        return result;
+        return isSuccess;
     }
 
 }
