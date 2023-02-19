@@ -25,6 +25,7 @@ import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -271,7 +272,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Boolean authenticate(AuthTokenRequest authTokenRequest) {
+    public AuthResponse authenticate(AuthTokenRequest authTokenRequest) {
 
         AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
         User user = userMapper.getUserByAuthToken(authToken.getToken());
@@ -285,7 +286,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             slackNotiSender.noticeRegisterComplete(user);
         }
 
-        return authResult.isSuccess();
+        return UserConverter.INSTANCE.toAuthResponse(authResult);
     }
 
     @Override

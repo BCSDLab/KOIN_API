@@ -7,6 +7,7 @@ import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.domain.User.owner.Owner;
@@ -32,7 +33,7 @@ public interface UserService {
 
     void changePasswordConfig(FindPasswordRequest request, String host);
 
-    Boolean authenticate(AuthTokenRequest authTokenRequest);
+    AuthResponse authenticate(AuthTokenRequest authTokenRequest);
 
     Boolean changePasswordInput(String resetToken);
 

@@ -108,7 +108,7 @@ public class User {
     }
 
     public boolean isEmailAuthenticationCompleted() {
-        return this.is_authed.equals(true);
+        return is_authed != null && is_authed.equals(true);
     }
 
     public boolean isAuthTokenExpired() {
@@ -136,7 +136,7 @@ public class User {
         return this.is_deleted;
     }
 
-    public void changeEmailAuthenticationStatusToComplete() {
+    public void enrichForAuthed() {
         this.is_authed = true;
     }
 
