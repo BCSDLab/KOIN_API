@@ -10,10 +10,7 @@ import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
-import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
-import koreatech.in.dto.normal.shop.response.MenuResponse;
-import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.*;
 import koreatech.in.service.OwnerShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,6 +43,20 @@ public class OwnerShopController {
     public @ResponseBody
     ResponseEntity<ShopResponse> getShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         ShopResponse response = ownerShopService.getShop(shopId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "자신의 모든 상점 리스트 조회", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<AllShopsOfOwnerResponse> getAllShopsOfOwner() {
+        AllShopsOfOwnerResponse response = ownerShopService.getAllShopsOfOwner();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

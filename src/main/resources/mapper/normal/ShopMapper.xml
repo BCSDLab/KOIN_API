@@ -145,6 +145,75 @@
                 AND `t6`.`is_deleted` = 0
     </select>
 
+    <select id="getShopProfilesByOwnerId" resultMap="ShopProfile">
+        SELECT
+            # shops
+            `t1`.`id` AS `shops.id`,
+            `t1`.`name` AS `shops.name`,
+            `t1`.`phone` AS `shops.phone`,
+            `t1`.`address` AS `shops.address`,
+            `t1`.`description` AS `shops.description`,
+            `t1`.`delivery` AS `shops.delivery`,
+            `t1`.`delivery_price` AS `shops.delivery_price`,
+            `t1`.`pay_card` AS `shops.pay_card`,
+            `t1`.`pay_bank` AS `shops.pay_bank`,
+            `t1`.`is_deleted` AS `shops.is_deleted`,
+
+            # shop_opens
+            `t2`.`day_of_week` AS `shop_opens.day_of_week`,
+            `t2`.`closed` AS `shop_opens.closed`,
+            `t2`.`open_time` AS `shop_opens.open_time`,
+            `t2`.`close_time` AS `shop_opens.close_time`,
+
+            # shop_images
+            `t3`.`image_url` AS `shop_images.image_url`,
+
+            # shop_menu_categories
+            `t4`.`id` AS `shop_menu_categories.id`,
+            `t4`.`name` AS `shop_menu_categories.name`,
+
+            # shop_categories
+            `t6`.`id` AS `shop_categories.id`,
+            `t6`.`name` AS `shop_categories.name`
+
+        FROM (
+            # shops
+            SELECT *
+            FROM `koin`.`shops`
+            WHERE
+                `owner_id` = #{ownerId}
+                AND `is_deleted` = 0
+        ) `t1`
+
+            # shops : shop_opens (1:N)
+            LEFT JOIN `koin`.`shop_opens` `t2`
+            ON
+                `t1`.`id` = `t2`.`shop_id`
+                AND `t2`.`is_deleted` = 0
+
+            # shops : shop_images (1:N)
+            LEFT JOIN `koin`.`shop_images` `t3`
+            ON
+                `t1`.`id` = `t3`.`shop_id`
+
+            # shops : shop_menu_categories (1:N)
+            LEFT JOIN `koin`.`shop_menu_categories` `t4`
+            ON
+                `t1`.`id` = `t4`.`shop_id`
+                AND `t4`.`is_deleted` = 0
+
+            # relation table between shops and shop_categories
+            LEFT JOIN `koin`.`shop_category_map` `t5`
+            ON
+                `t1`.`id` = `t5`.`shop_id`
+
+            # shops : shop_categories (N:M)
+            LEFT JOIN `koin`.`shop_categories` `t6`
+            ON
+                `t5`.`shop_category_id` = `t6`.`id`
+                AND `t6`.`is_deleted` = 0
+    </select>
+
     <select id="getMenuProfilesByShopId" parameterType="integer" resultMap="ShopMenuProfile">
         SELECT
             # shop_menus

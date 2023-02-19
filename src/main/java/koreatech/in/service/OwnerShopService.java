@@ -4,13 +4,12 @@ import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
-import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
-import koreatech.in.dto.normal.shop.response.MenuResponse;
-import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.dto.normal.shop.response.*;
 
 public interface OwnerShopService {
     ShopResponse getShop(Integer shopId);
+
+    AllShopsOfOwnerResponse getAllShopsOfOwner();
 
     void updateShop(Integer shopId, UpdateShopRequest request);
 
