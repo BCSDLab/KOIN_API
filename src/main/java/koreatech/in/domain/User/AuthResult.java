@@ -10,7 +10,7 @@ import lombok.Setter;
 public class AuthResult {
 
     private final Boolean isSuccess;
-    private final String message;
+    private final String errorMessage;
 
 
     public static AuthResult USER_NOT_FOUND = AuthResult.of(
