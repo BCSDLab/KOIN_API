@@ -64,7 +64,7 @@ public class Student extends User {
     @Builder
     public Student(String email, String password, String name, String nickname, String anonymousNickname, Integer gender, Integer identity, Boolean isGraduated, String major, String studentNumber, String phoneNumber){
         super(email, password, nickname, name, phoneNumber, gender, UserType.STUDENT);
-        this.identity = identity;
+        this.identity = UserCode.UserIdentity.STUDENT.getIdentityType();
         this.is_graduated = isGraduated;
         this.major = major;
         this.student_number = studentNumber;
