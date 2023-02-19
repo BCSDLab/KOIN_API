@@ -179,17 +179,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (studentInToken == null) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
+        validateInUpdate(student);
 
+        encodePasswordFor(student);
+        //TODO ISAUTHED 어케되는겨;?
+        studentInToken.update(student);
+
+        updateInDBFor(studentInToken);
+
+        return new StudentResponse(studentInToken);
+    }
+
+    private void updateInDBFor(Student studentInToken) {
+        userMapper.updateUser(studentInToken);
+        studentMapper.updateStudent(studentInToken);
+    }
+
+    private void validateInUpdate(Student student) {
         validateNicknameUniqueness(student);
-        if (student.getStudent_number() != null) {
-            validateStudentNumber(student);
-        }
-        if (student.getMajor() != null) {
-            validateMajor(student);
-        }
-        if (student.getPassword() != null) {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-        }
+
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
 
     private Student getStudentInToken() {
         Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
