@@ -38,7 +38,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -105,7 +104,7 @@ public class UserController {
     ResponseEntity<EmptyResponse> studentRegister(
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
-            HttpServletRequest httpServletRequest) throws Exception {
+            HttpServletRequest httpServletRequest) {
         //TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
 
         // TODO: velocity template 에게 인증 url host를 넣기 위해 url 데이터를 register에 넘겼는데, 이 방법 대신 하단 링크를 참고하여 plugin을 붙이는 방법으로 해결하기.
