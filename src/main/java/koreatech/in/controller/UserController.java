@@ -26,6 +26,7 @@ import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -45,12 +46,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Api(tags = "(Normal) User", description = "회원")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
+    public static final String MAIL_SUCCESS_REGISTER_CONFIG = "mail/success_register_config";
+    public static final String MAIL_ERROR_CONFIG = "mail/error_config";
+    public static final String MODEL_KEY_ERROR_MESSAGE = "errorMessage";
     @Inject
     private UserService userService;
 
@@ -198,18 +203,42 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    /*
+    * 예외 목록
+    * REQUEST_DATA_INVALID
+    *
+    * */
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
-    public String authenticate(@RequestParam("auth_token") AuthTokenRequest request) {
+    public ModelAndView authenticate(@RequestParam("auth_token") AuthTokenRequest request) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        boolean success = userService.authenticate(request);
-        return success ? "mail/success_register_config" : "mail/error_config";
+        AuthResponse authResponse = userService.authenticate(request);
+
+        return makeModelAndViewFor(authResponse);
+    }
+
+    private static ModelAndView makeModelAndViewFor(AuthResponse authResponse) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName(makeViewNameFor(authResponse));
+
+        if(!authResponse.isSuccess()) {
+            modelAndView.addObject(MODEL_KEY_ERROR_MESSAGE, authResponse.getErrorMessage());
+        }
+
+        return modelAndView;
+    }
+
+    private static String makeViewNameFor(AuthResponse authResponse) {
+        if(!authResponse.isSuccess()) {
+            return MAIL_ERROR_CONFIG;
+        }
+        return MAIL_SUCCESS_REGISTER_CONFIG;
     }
 
     @ApiIgnore
@@ -219,7 +248,7 @@ public class UserController {
         boolean isAwaitingUserFindPassword = userService.changePasswordInput(resetToken);
 
         if (!isAwaitingUserFindPassword) {
-            return "mail/error_config";
+            return MAIL_ERROR_CONFIG;
         }
 
         model.addAttribute("resetToken", resetToken);
