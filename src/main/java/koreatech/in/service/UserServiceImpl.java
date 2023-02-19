@@ -20,16 +20,15 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
@@ -166,8 +165,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
     @Override
     @Transactional
-    public StudentResponse updateStudentInformation(UpdateUserRequest request) {
-        Student student = request.toEntity();
+    public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
+        Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
 
         Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
         if (student_old == null) {
