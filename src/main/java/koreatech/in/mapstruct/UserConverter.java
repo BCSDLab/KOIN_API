@@ -3,14 +3,13 @@ package koreatech.in.mapstruct;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
-import koreatech.in.dto.normal.user.student.response.StudentResponse;
-import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UserRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -55,26 +54,31 @@ public interface UserConverter {
 
             @Mapping(source = "nickname", target = "nickname"),
             @Mapping(source = "gender", target = "gender"),
-            @Mapping(source = "anonymous_nickname", target = "anonymousNickname"),
             @Mapping(source = "phone_number", target = "phoneNumber"),
+            @Mapping(source = "anonymous_nickname", target = "anonymousNickname"),
             @Mapping(source = "student_number", target = "studentNumber"),
             @Mapping(source = "major", target = "major")
     })
     StudentResponse toStudentResponse(Student student);
 
+//    @Mappings({
+//            @Mapping(source = "email", target = "email"),
+//            @Mapping(source = "name", target = "name")
+//    })
+//    @SubclassMapping(source = StudentUpdateRequest.class, target = Student.class)
+//    User toUser(UserUpdateRequest userUpdateRequest);
+
     @Mappings({
-            @Mapping(source = "email", target = "email"),
+
             @Mapping(source = "name", target = "name"),
 
             @Mapping(source = "nickname", target = "nickname"),
             @Mapping(source = "gender", target = "gender"),
-            @Mapping(source = "phoneNumber", target = "phone_number"),
-            @Mapping(source = "studentNumber", target = "student_number"),
+            @Mapping(source = "phoneNumber", target = "phoneNumber"),
+            @Mapping(source = "studentNumber", target = "studentNumber"),
             @Mapping(source = "major", target = "major")
     })
     Student toStudent(StudentUpdateRequest studentUpdateRequest);
-
-
 
     @Mappings({
             @Mapping(source = "password", target = "password"),
