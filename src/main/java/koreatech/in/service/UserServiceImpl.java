@@ -5,6 +5,7 @@ import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
@@ -28,9 +28,6 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
@@ -155,6 +152,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void encodePasswordFor(Student student) {
+        if(student.getPassword() == null) {
+            return;
+        }
+
         student.changePassword(passwordEncoder.encode(student.getPassword()));
     }
 
