@@ -167,16 +167,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
+        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
 
-        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if (student_old == null) {
-            throw new ValidationException(new ErrorMessage("token not validate", 402));
+        if (studentInToken == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
-        student.changeIdentity(student_old.getIdentity());
 
-        if (!student_old.isUserAuthed()) {
-            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
-        }
         checkNicknameDuplicationWithoutSameUser(student);
         if (student.getStudent_number() != null) {
             checkStudentNumberValidation(student);
@@ -188,11 +184,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
 
-        student_old.update(student);
-        userMapper.updateUser(student_old);
-        studentMapper.updateStudent(student_old);
+        studentInToken.update(student);
+        userMapper.updateUser(studentInToken);
+        studentMapper.updateStudent(studentInToken);
 
-        return new StudentResponse(student_old);
+        return new StudentResponse(studentInToken);
     }
 
     // TODO owner 정보 업데이트
