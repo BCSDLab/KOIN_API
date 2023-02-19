@@ -180,14 +180,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
         validateInUpdate(student);
+        enrichInUpdateFor(student);
 
-        encodePasswordFor(student);
-        //TODO ISAUTHED 어케되는겨;?
         studentInToken.update(student);
-
         updateInDBFor(studentInToken);
 
-        return new StudentResponse(studentInToken);
+        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
+    }
+
+    private void enrichInUpdateFor(Student student) {
+        encodePasswordFor(student);
+        student.setIs_authed(true);
     }
 
     private void updateInDBFor(Student studentInToken) {
