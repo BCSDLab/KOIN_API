@@ -107,10 +107,10 @@ public class UserController {
     })
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getStudent() throws Exception {
-        Student student = userService.getStudent();
-        StudentResponse response = new StudentResponse(student);
-        return new ResponseEntity<Object>(response, HttpStatus.OK);
+    ResponseEntity<StudentResponse> getStudent() {
+        StudentResponse response = userService.getStudent();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Auth(role = Auth.Role.STUDENT)
