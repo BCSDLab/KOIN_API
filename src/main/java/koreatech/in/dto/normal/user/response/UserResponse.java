@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@NoArgsConstructor
 public class UserResponse {
     private Integer id;
     private String email;
