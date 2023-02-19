@@ -22,6 +22,7 @@ public class StudentUpdateRequest extends UserUpdateRequest{
     @ApiModelProperty(notes = "성별(남:0, 여:1)", example = "0")
     private Integer gender;
 
+    //23.02.19 기준// identity, isGraduated는 값은 받아오되(기존 API와 호환 위해), DB 값 갱신에는 영향을 주지 않는다.
     private Integer identity;
 
     @ApiModelProperty(notes = "졸업 여부", example = "false")
