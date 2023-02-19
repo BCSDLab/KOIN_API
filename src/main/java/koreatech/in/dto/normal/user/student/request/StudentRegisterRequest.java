@@ -1,4 +1,4 @@
-package koreatech.in.dto.normal.user.request;
+package koreatech.in.dto.normal.user.student.request;
 
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.UserRegisterRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class StudentRegisterRequest extends UserRegisterRequest{
+public class StudentRegisterRequest extends UserRegisterRequest {
 
     @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
     @ApiModelProperty(notes = "닉네임", example = "bbo")

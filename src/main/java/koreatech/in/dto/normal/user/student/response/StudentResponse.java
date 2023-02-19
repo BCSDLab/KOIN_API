@@ -1,8 +1,9 @@
-package koreatech.in.dto.normal.user.response;
+package koreatech.in.dto.normal.user.student.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.response.UserResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

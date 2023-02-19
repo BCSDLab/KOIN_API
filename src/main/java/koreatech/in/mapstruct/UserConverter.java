@@ -5,7 +5,7 @@ import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
-import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
