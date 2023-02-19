@@ -4,12 +4,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Getter
+@Getter()
 @Setter
 @RequiredArgsConstructor(staticName = "of")
 public class AuthResult {
 
-    private final Boolean isSuccess;
+    private final boolean isSuccess;
     private final String errorMessage;
 
 
@@ -34,9 +34,4 @@ public class AuthResult {
         }
         return SUCCESS;
     }
-
-    public Boolean isSuccess() {
-        return isSuccess;
-    }
-
 }

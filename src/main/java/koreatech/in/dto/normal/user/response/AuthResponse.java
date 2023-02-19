@@ -4,8 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor(staticName = "from")
+@RequiredArgsConstructor
 public class AuthResponse {
-    private final String token;
+    private final boolean isSuccess;
+    private final String errorMessage;
 }
 
