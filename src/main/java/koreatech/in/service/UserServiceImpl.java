@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
-        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
+        Student studentInToken = getStudentInToken();
 
         if (studentInToken == null) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
@@ -191,11 +191,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
 
-        studentInToken.update(student);
-        userMapper.updateUser(studentInToken);
-        studentMapper.updateStudent(studentInToken);
+    private Student getStudentInToken() {
+        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
 
-        return new StudentResponse(studentInToken);
+        if (studentInToken == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+        return studentInToken;
     }
 
     // TODO owner 정보 업데이트
