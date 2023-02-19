@@ -16,7 +16,6 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -38,7 +37,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -101,7 +99,12 @@ public class UserController {
     }
 
     @Auth(role = Auth.Role.STUDENT)
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 정보 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message
+                    = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+                    , response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getStudent() throws Exception {
