@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @NoArgsConstructor
+@Deprecated // UserUpdateRequest , StudentUpdateRequest 등의 활용을 권장.
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateUserRequest {
     @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
