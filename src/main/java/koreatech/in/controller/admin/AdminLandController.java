@@ -26,7 +26,7 @@ public class AdminLandController {
     @Inject
     private LandService landService;
 
-    @ApiOperation(value = "집 생성", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
@@ -44,7 +44,7 @@ public class AdminLandController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "집 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -61,7 +61,7 @@ public class AdminLandController {
 
     @ApiOperation(
             value = "페이지별 집 리스트 조회",
-            notes = "Swagger에서 인식이 안되는 query parameter \n ![설명](https://static.koreatech.in/lands/queryparameter-filter.png)",
+            notes = "- 어드민 권한만 허용\n- Swagger에서 인식이 안되는 query parameter \n ![설명](https://static.koreatech.in/lands/queryparameter-filter.png)",
             authorizations = {@Authorization("Authorization")}
     )
     @ApiResponses({
@@ -81,7 +81,7 @@ public class AdminLandController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "집 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -101,7 +101,7 @@ public class AdminLandController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "집 삭제", notes = "soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 삭제", notes = "- 어드민 권한만 허용\n- soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -117,7 +117,7 @@ public class AdminLandController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "집 삭제 해제", notes = "soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "집 삭제 해제", notes = "- 어드민 권한만 허용\n- soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +

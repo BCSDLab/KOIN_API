@@ -17,6 +17,16 @@ import lombok.Setter;
 @Setter
 public class OwnerRegisterRequest extends UserRegisterRequest {
 
+    @NotBlank(message = "이름은 필수입니다.")
+    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
+    @ApiModelProperty(notes = "이름 \n"
+            + "- not null \n"
+            + "50자 이내여야 함"
+            , required = true
+            , example = "정보혁"
+    )
+    private String name;
+
     @NotBlank(message = "사업자 등록 번호는 필수입니다.")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{2}-[0-9]{5}", message = "사업자 등록 번호 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "사업자 등록 번호 \n"

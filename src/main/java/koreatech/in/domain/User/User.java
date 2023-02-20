@@ -140,12 +140,14 @@ public class User {
         this.is_authed = true;
     }
 
-    public void changeAuthTokenAndExpiredAt(String authToken, Date authExpiredAt){
-        this.auth_token = authToken;
+    public void fillAuthTokenAndTokenExpiredAt(){
+        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
+
+        this.auth_token = SHA256Util.getEncrypt(getEmail(), authExpiredAt.toString());
         this.auth_expired_at = authExpiredAt;
     }
 
-    public void generateDataForFindPassword() {
+    public void generateResetTokenForFindPassword() {
         this.reset_expired_at = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
         this.reset_token = SHA256Util.getEncrypt(this.email, this.reset_expired_at.toString());
     }
