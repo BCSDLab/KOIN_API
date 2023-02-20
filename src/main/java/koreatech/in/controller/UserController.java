@@ -149,6 +149,7 @@ public class UserController {
             @ApiResponse(
                     code = 409,
                     message = "- 이미 존재하는 닉네임일 경우 (code: 101002)",
+
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
@@ -157,10 +158,10 @@ public class UserController {
                             + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 업데이트", notes= "- X권한 필요 없음", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUser(@RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult) {
+    ResponseEntity<StudentResponse> updateUser(@RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
@@ -168,6 +169,7 @@ public class UserController {
         }
 
         StudentResponse studentResponse = userService.updateStudent(request);
+
         return new ResponseEntity<>(studentResponse, HttpStatus.CREATED);
     }
 
