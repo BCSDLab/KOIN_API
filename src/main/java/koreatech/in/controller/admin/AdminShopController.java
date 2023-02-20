@@ -1,6 +1,7 @@
 package koreatech.in.controller.admin;
 
 import io.swagger.annotations.*;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -28,7 +30,7 @@ public class AdminShopController {
 
     // ======================================= 상점 카테고리 ============================================
 
-    @ApiOperation(value = "상점 카테고리 생성", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 카테고리 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -46,7 +48,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "상점 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 카테고리 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -61,7 +63,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 카테고리 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 카테고리 리스트 조회 (페이지네이션)", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -79,7 +81,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 카테고리 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 카테고리 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -99,7 +101,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 카테고리 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 카테고리 삭제", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -117,7 +119,7 @@ public class AdminShopController {
 
     // ============================================ 상점 ================================================
 
-    @ApiOperation(value = "상점 생성", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -137,7 +139,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "상점 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -152,7 +154,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 리스트 조회 (페이지네이션)", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -170,7 +172,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -192,7 +194,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 삭제", notes = "상점을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 삭제", notes = "- 어드민 권한만 허용\n- 상점을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -208,7 +210,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "상점 삭제 해제", notes = "상점의 soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 삭제 해제", notes = "- 어드민 권한만 허용\n- 상점의 soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -226,7 +228,7 @@ public class AdminShopController {
 
     // ============================================= 메뉴 카테고리 =============================================
 
-    @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 카테고리 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -248,7 +250,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -263,7 +265,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -285,7 +287,7 @@ public class AdminShopController {
 
     // =============================================== 메뉴 =================================================
 
-    @ApiOperation(value = "특정 상점의 메뉴 생성", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -308,7 +310,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -327,7 +329,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 모든 메뉴 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -342,7 +344,7 @@ public class AdminShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 수정", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -366,7 +368,7 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 삭제", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 상점의 메뉴 삭제", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -385,7 +387,8 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 숨김", authorizations = {@Authorization("Authorization")})
+    @ApiOff @ApiIgnore @Deprecated
+    @ApiOperation(value = "특정 상점의 메뉴 숨김", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
@@ -405,7 +408,8 @@ public class AdminShopController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", authorizations = {@Authorization("Authorization")})
+    @ApiOff @ApiIgnore @Deprecated
+    @ApiOperation(value = "특정 상점의 메뉴 숨김 해제", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +

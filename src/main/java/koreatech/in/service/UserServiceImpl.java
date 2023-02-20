@@ -40,7 +40,6 @@ import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
 import org.apache.velocity.app.VelocityEngine;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,6 +53,8 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
     public static final String AUTH_TOKEN = "authToken";
@@ -259,12 +260,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
-
         if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.generateDataForFindPassword();
+        user.generateResetTokenForFindPassword();
         userMapper.updateUser(user);
 
         sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
@@ -379,7 +379,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 text);
     }
 
-    @NotNull
     private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
         Map<String, Object> model = new HashMap<>();
         model.put(AUTH_TOKEN, authToken);
@@ -401,9 +400,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         model.put("resetToken", resetToken);
         model.put(CONTEXT_PATH, contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
     private boolean isTokenExpired(Date expiredAt) {

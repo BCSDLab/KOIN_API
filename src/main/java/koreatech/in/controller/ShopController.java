@@ -18,7 +18,7 @@ public class ShopController {
     @Inject
     private ShopService shopService;
 
-    @ApiOperation(value = "모든 상점 카테고리 조회")
+    @ApiOperation(value = "모든 상점 카테고리 조회", notes = "- 권한 필요 없음")
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopCategoriesResponse> getAllShopCategories() {
@@ -26,7 +26,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점 조회")
+    @ApiOperation(value = "특정 상점 조회", notes = "- 권한 필요 없음")
     @ApiResponses({
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
@@ -37,7 +37,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "모든 상점 조회")
+    @ApiOperation(value = "모든 상점 조회", notes = "- 권한 필요 없음")
     @RequestMapping(value = "", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<AllShopsResponse> getAllShops() {
@@ -45,7 +45,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 조회")
+    @ApiOperation(value = "특정 상점의 모든 메뉴 조회", notes = "- 권한 필요 없음")
     @ApiResponses({
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
@@ -56,7 +56,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 특정 메뉴 조회")
+    @ApiOperation(value = "특정 상점의 특정 메뉴 조회", notes = "- 권한 필요 없음")
     @ApiResponses({
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
@@ -71,7 +71,7 @@ public class ShopController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회")
+    @ApiOperation(value = "특정 상점의 모든 메뉴 카테고리 조회", notes = "- 권한 필요 없음")
     @ApiResponses({
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)")
     })
