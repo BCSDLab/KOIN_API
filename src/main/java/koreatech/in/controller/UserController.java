@@ -16,7 +16,6 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -127,13 +126,18 @@ public class UserController {
     }
 
     @Auth(role = Auth.Role.STUDENT)
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 정보 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message
+                    = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+                    , response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "/user/student/me", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getStudent() throws Exception {
-        Student student = userService.getStudent();
-        StudentResponse response = new StudentResponse(student);
-        return new ResponseEntity<Object>(response, HttpStatus.OK);
+    ResponseEntity<StudentResponse> getStudent() {
+        StudentResponse response = userService.getStudent();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Auth(role = Auth.Role.STUDENT)

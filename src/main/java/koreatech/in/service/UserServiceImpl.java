@@ -31,6 +31,7 @@ import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
@@ -154,16 +155,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Student getStudent() {
-        User user = jwtValidator.validate();
+    public StudentResponse getStudent() {
+        Integer userId = jwtValidator.validate().getId();
+        Student student = studentMapper.getStudentById(userId);
 
-        Student student = studentMapper.getStudentById(user.getId());
         if(student == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+            throw new BaseException(USER_NOT_FOUND);
         }
-        return student;
-    }
 
+        return UserConverter.INSTANCE.toStudentResponse(student);
+    }
     @Override
     @Transactional
     public StudentResponse updateStudentInformation(UpdateUserRequest request) {

@@ -5,9 +5,11 @@ import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
+import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import org.mapstruct.Mapper;
@@ -37,6 +39,27 @@ public interface UserConverter {
     default Domain convertDomain(String address) {
         return Domain.from(address);
     }
+
+//    @Mappings({
+//            @Mapping(source = "email", target = "email"),
+//            @Mapping(source = "nickname", target = "nickname"),
+//            @Mapping(source = "name", target = "name"),
+//            @Mapping(source = "gender", target = "gender")
+//    })
+//    @SubclassMapping(source = Student.class, target = StudentResponse.class)
+//    UserResponse toUserResponse(User user);
+
+    @Mappings({
+            @Mapping(source = "email", target = "email"),
+            @Mapping(source = "nickname", target = "nickname"),
+            @Mapping(source = "name", target = "name"),
+            @Mapping(source = "gender", target = "gender"),
+            @Mapping(source = "anonymous_nickname", target = "anonymousNickname"),
+            @Mapping(source = "phone_number", target = "phoneNumber"),
+            @Mapping(source = "student_number", target = "studentNumber"),
+            @Mapping(source = "major", target = "major")
+    })
+    StudentResponse toStudentResponse(Student student);
 
 //
 //    @Mappings({

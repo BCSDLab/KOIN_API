@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.User.student.Student;
+import java.util.Map;
+import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
@@ -10,9 +11,6 @@ import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.domain.User.owner.Owner;
-
-import java.util.Map;
 
 public interface UserService {
     LoginResponse login(LoginRequest request) throws Exception;
@@ -21,7 +19,7 @@ public interface UserService {
 
     void StudentRegister(StudentRegisterRequest request, String host);
 
-    Student getStudent();
+    StudentResponse getStudent();
 
     StudentResponse updateStudentInformation(UpdateUserRequest request);
 

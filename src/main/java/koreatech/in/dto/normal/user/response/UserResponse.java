@@ -3,34 +3,34 @@ package koreatech.in.dto.normal.user.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@NoArgsConstructor
 public class UserResponse {
-    private Integer id;
+
+    @ApiModelProperty(notes = "이메일 주소 \n"
+            + "- not null \n"
+            + "- 이메일 형식이어야 함"
+            , required = true
+            , example = "koin123@koreatech.ac.kr"
+    )
     private String email;
-    private String nickname;
+
+    @ApiModelProperty(notes = "이름 \n"
+            + "50자 이내여야 함"
+            , example = "정보혁"
+    )
     private String name;
-    private String phoneNumber;
-    private Integer gender;
-    private Boolean isAuth;
-    private UserType userType;
-    private Boolean isDeleted;
 
     public UserResponse(User user) {
-        this.id = user.getId();
         this.email = user.getEmail();
-        this.nickname = user.getNickname();
         this.name = user.getName();
-        this.phoneNumber = user.getPhone_number();
-        this.gender = user.getGender();
-        this.isAuth = user.getIs_authed();
-        this.userType = user.getUser_type();
-        this.isDeleted = user.getIs_deleted();
     }
 }
