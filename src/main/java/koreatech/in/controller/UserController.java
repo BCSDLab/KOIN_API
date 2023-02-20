@@ -135,8 +135,23 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(role = Auth.Role.STUDENT)
-    @ParamValid
+    @Auth(role = Auth.Role.STUDENT)@ParamValid
+    @ApiResponses({
+            @ApiResponse(
+                    code = 401,
+                    message = "- JWT 토큰이 유효하지 않은 경우 (code: 100001)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 409,
+                    message = "- 이미 존재하는 닉네임일 경우 (code: 101002)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)\n\n"
+                            + "  - 학생의 학번 형식이 아닌 경우 (code: 101015)\n\n"
+                            + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)",
+                    response = RequestDataInvalidResponse.class)
+    })
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
