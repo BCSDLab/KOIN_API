@@ -103,7 +103,7 @@ public class UserController {
                             + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)\n\n",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "회원가입 요청")
+    @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> studentRegister(
@@ -126,7 +126,7 @@ public class UserController {
     }
 
     @Auth(role = Auth.Role.STUDENT)
-    @ApiOperation(value = "학생 정보 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 정보 조회", notes= "- 학생 권한만 필요", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message
                     = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
@@ -158,7 +158,7 @@ public class UserController {
                             + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "학생 업데이트", notes= "- X권한 필요 없음", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 업데이트", notes= "- 학생 권한만 필요", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<StudentResponse> updateUser(@RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult) {
