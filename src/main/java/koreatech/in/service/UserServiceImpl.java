@@ -21,18 +21,15 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
@@ -151,6 +148,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void encodePasswordFor(Student student) {
+        if(student.getPassword() == null) {
+            return;
+        }
+
         student.changePassword(passwordEncoder.encode(student.getPassword()));
     }
 
@@ -167,34 +168,43 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
     @Override
     @Transactional
-    public StudentResponse updateStudentInformation(UpdateUserRequest request) {
-        Student student = request.toEntity();
+    public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
+        Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
+        Student studentInToken = getStudentInToken();
 
-        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if (student_old == null) {
-            throw new ValidationException(new ErrorMessage("token not validate", 402));
-        }
-        student.changeIdentity(student_old.getIdentity());
+        validateInUpdate(student);
+        enrichInUpdateFor(student);
 
-        if (!student_old.isUserAuthed()) {
-            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
-        }
+        studentInToken.update(student);
+        updateInDBFor(studentInToken);
+
+        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
+    }
+
+    private void enrichInUpdateFor(Student student) {
+        encodePasswordFor(student);
+        student.setIs_authed(true);
+    }
+
+    private void updateInDBFor(Student studentInToken) {
+        userMapper.updateUser(studentInToken);
+        studentMapper.updateStudent(studentInToken);
+    }
+
+    private void validateInUpdate(Student student) {
         validateNicknameUniqueness(student);
-        if (student.getStudent_number() != null) {
-            validateStudentNumber(student);
-        }
-        if (student.getMajor() != null) {
-            validateMajor(student);
-        }
-        if (student.getPassword() != null) {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-        }
 
-        student_old.update(student);
-        userMapper.updateUser(student_old);
-        studentMapper.updateStudent(student_old);
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
 
-        return new StudentResponse(student_old);
+    private Student getStudentInToken() {
+        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
+
+        if (studentInToken == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+        return studentInToken;
     }
 
     // TODO owner 정보 업데이트

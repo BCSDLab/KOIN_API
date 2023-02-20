@@ -23,11 +23,11 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UserService;
@@ -103,7 +103,7 @@ public class UserController {
                             + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)\n\n",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "회원가입 요청")
+    @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> studentRegister(
@@ -126,7 +126,7 @@ public class UserController {
     }
 
     @Auth(role = Auth.Role.STUDENT)
-    @ApiOperation(value = "학생 정보 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 정보 조회", notes= "- 학생 권한만 필요", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message
                     = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
@@ -140,14 +140,37 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(role = Auth.Role.STUDENT)
-    @ParamValid
-    @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음", authorizations = {@Authorization(value="Authorization")})
+    @Auth(role = Auth.Role.STUDENT)@ParamValid
+    @ApiResponses({
+            @ApiResponse(
+                    code = 401,
+                    message = "- JWT 토큰이 유효하지 않은 경우 (code: 100001)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 409,
+                    message = "- 이미 존재하는 닉네임일 경우 (code: 101002)",
+
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)\n\n"
+                            + "  - 학생의 학번 형식이 아닌 경우 (code: 101015)\n\n"
+                            + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "학생 업데이트", notes= "- 학생 권한만 필요", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateStudentInformation(@ApiParam(value = "(optional: password, name, nickname, gender, identity, is_graduated, major, student_number, phone_number)", required = true) @RequestBody @Validated(ValidationGroups.Update.class) UpdateUserRequest request, BindingResult bindingResult) throws Exception {
-        UpdateUserRequest clear = new UpdateUserRequest();
-        return new ResponseEntity<>(userService.updateStudentInformation((UpdateUserRequest) StringXssChecker.xssCheck(request, clear)), HttpStatus.CREATED);
+    ResponseEntity<StudentResponse> updateUser(@RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        StudentResponse studentResponse = userService.updateStudent(request);
+
+        return new ResponseEntity<>(studentResponse, HttpStatus.CREATED);
     }
 
     @ParamValid

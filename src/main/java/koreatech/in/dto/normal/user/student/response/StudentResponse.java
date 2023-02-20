@@ -1,9 +1,10 @@
-package koreatech.in.dto.normal.user.response;
+package koreatech.in.dto.normal.user.student.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.response.UserResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StudentResponse extends UserResponse {
 
-    @ApiModelProperty(notes = "익명 닉네임\n",
+    @ApiModelProperty(notes = "익명 닉네임",
             example = "익명_1676688416361"
     )
     private String anonymousNickname;
