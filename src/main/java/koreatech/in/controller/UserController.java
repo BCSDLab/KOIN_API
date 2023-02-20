@@ -224,11 +224,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    /*
-    * 예외 목록
-    * REQUEST_DATA_INVALID
-    *
-    * */
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
