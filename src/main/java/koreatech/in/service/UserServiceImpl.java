@@ -10,16 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthResult;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -262,18 +266,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+    public AuthResponse authenticate(AuthTokenRequest authTokenRequest) {
 
-        if (user == null || !user.isAwaitingEmailAuthentication()) {
-            return false;
+        AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
+        User user = userMapper.getUserByAuthToken(authToken.getToken());
+
+        AuthResult authResult = AuthResult.from(user);
+
+        if(authResult.isSuccess()) {
+            user.enrichForAuthed();
+            userMapper.updateUser(user);
+
+            slackNotiSender.noticeRegisterComplete(user);
         }
 
-        user.changeEmailAuthenticationStatusToComplete();
-        userMapper.updateUser(user);
-
-        slackNotiSender.noticeRegisterComplete(user);
-        return true;
+        return UserConverter.INSTANCE.toAuthResponse(authResult);
     }
 
     @Override
