@@ -64,6 +64,7 @@ public class StudentRegisterRequest extends UserRegisterRequest{
     )
     private String phoneNumber;
 
+    @Deprecated
     public Student toEntity(Integer identity){
         if (isGraduated == null) {
             isGraduated = false;
