@@ -1,9 +1,7 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -128,7 +126,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
-        Student student = downcastFrom(UserConverter.INSTANCE.toUser(request));
+        Student student = UserConverter.INSTANCE.toStudent(request);
 
         validateInRegister(student);
 
@@ -139,13 +137,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
 
         slackNotiSender.noticeEmailVerification(student);
-    }
-
-    private static Student downcastFrom(User user) {
-        if(!(user instanceof Student)) {
-            throw new ClassCastException("UserConverter에서 User -> Student 로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
-        }
-        return (Student) user;
     }
 
     private void enrichInRegisterFor(Student student) {
