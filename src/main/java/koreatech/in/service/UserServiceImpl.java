@@ -1,33 +1,36 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthResult;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
@@ -35,9 +38,7 @@ import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.DateUtil;
 import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.SHA256Util;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
@@ -55,6 +56,12 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
+
+    public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
+    public static final String AUTH_TOKEN = "authToken";
+    public static final String CONTEXT_PATH = "contextPath";
 
     @Autowired
     private UserMapper userMapper;
@@ -123,34 +130,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
-        Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
+    public void StudentRegister(StudentRegisterRequest request, String host) {
+        Student student = UserConverter.INSTANCE.toStudent(request);
 
-        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
-        studentEmail.validatePortalEmail();
+        validateInRegister(student);
 
-        checkInputDataDuplicationAndValidation(student);
-        String anonymousNickname = "익명_" + (System.currentTimeMillis());
-        student.setEmail(studentEmail.getEmailAddress());
-        student.setAnonymous_nickname(anonymousNickname);
-        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        String authToken = SHA256Util.getEncrypt(student.getEmail(), authExpiredAt.toString());
-        student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
-        String encodedPassword = passwordEncoder.encode(student.getPassword());
-        student.changePassword(encodedPassword);
+        enrichInRegisterFor(student);
 
-        try {
-            insertStudentToDB(student);
-        } catch (SQLException sqlException) {
-            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
-        }
+        createInDBFor(student);
 
-        sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
+        sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
+
         slackNotiSender.noticeEmailVerification(student);
+    }
 
-        return new HashMap<String, Object>() {{
-            put("success", "send mail for student authentication to entered email address");
-        }};
+    private void enrichInRegisterFor(Student student) {
+        student.fillAnonymousNickname();
+        student.fillAuthTokenAndTokenExpiredAt();
+        encodePasswordFor(student);
+    }
+
+    private void encodePasswordFor(Student student) {
+        student.changePassword(passwordEncoder.encode(student.getPassword()));
     }
 
     @Override
@@ -178,12 +179,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (!student_old.isUserAuthed()) {
             throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
         }
-        checkNicknameDuplicationWithoutSameUser(student);
+        validateNicknameUniqueness(student);
         if (student.getStudent_number() != null) {
-            checkStudentNumberValidation(student);
+            validateStudentNumber(student);
         }
         if (student.getMajor() != null) {
-            checkMajorValidation(student);
+            validateMajor(student);
         }
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -255,30 +256,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
-
         if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.generateDataForFindPassword();
+        user.generateResetTokenForFindPassword();
         userMapper.updateUser(user);
 
         sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
     }
 
     @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+    public AuthResponse authenticate(AuthTokenRequest authTokenRequest) {
 
-        if (user == null || !user.isAwaitingEmailAuthentication()) {
-            return false;
+        AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
+        User user = userMapper.getUserByAuthToken(authToken.getToken());
+
+        AuthResult authResult = AuthResult.from(user);
+
+        if(authResult.isSuccess()) {
+            user.enrichForAuthed();
+            userMapper.updateUser(user);
+
+            slackNotiSender.noticeRegisterComplete(user);
         }
 
-        user.changeEmailAuthenticationStatusToComplete();
-        userMapper.updateUser(user);
-
-        slackNotiSender.noticeRegisterComplete(user);
-        return true;
+        return UserConverter.INSTANCE.toAuthResponse(authResult);
     }
 
     @Override
@@ -314,61 +317,91 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private void checkInputDataDuplicationAndValidation(Student student){
+    private void validateInRegister(Student student){
+        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
+        studentEmail.validatePortalEmail();
+
+        validateUniqueness(student);
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
+
+    private void validateUniqueness(Student student) {
         validateEmailUniqueness(EmailAddress.from(student.getEmail()));
-        checkNicknameDuplicationWithoutSameUser(student);
-        checkStudentNumberValidation(student);
-        checkMajorValidation(student);
+        validateNicknameUniqueness(student);
     }
 
-    private void checkNicknameDuplicationWithoutSameUser(Student student) {
-        if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickname(student.getNickname());
-            if (selectUser != null && !student.equals(selectUser)) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+    private void validateNicknameUniqueness(Student student) {
+        if(student.getNickname() == null) {
+            return;
+        }
+
+        if (isExistOtherUser(student, userMapper.getUserByNickname(student.getNickname()))) {
+            throw new BaseException(NICKNAME_DUPLICATE);
         }
     }
 
-    private void checkMajorValidation(Student student) {
-        if (student.getMajor() != null) {
-            if (!student.isMajorValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-            }
+    private static boolean isExistOtherUser(User registerUser, User selectUser) {
+        return selectUser != null && !registerUser.equals(selectUser);
+    }
+
+    private void validateMajor(Student student) {
+        if(student.getMajor() == null) {
+            return;
+        }
+        if (!student.isMajorValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_MAJOR_INVALID);
         }
     }
 
-    private void checkStudentNumberValidation(Student student) {
-        if (student.getStudent_number() != null) {
-            if (!student.isStudentNumberValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-            }
+    private void validateStudentNumber(Student student) {
+        if(student.getStudent_number() == null) {
+            return;
+        }
+        if (!student.isStudentNumberValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_NUMBER_INVALID);
         }
     }
 
-    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
+    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, EmailAddress emailAddress){
+        emailAddress.validateSendable();
+
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
+                StandardCharsets.UTF_8.name(),
+                makeModelFor(authToken, contextPath));
+
+        sesMailSender.sendMail(
+                SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
+                emailAddress.getEmailAddress(),
+                SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
+                text);
+    }
+
+    private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
         Map<String, Object> model = new HashMap<>();
-        model.put("authToken", authToken);
-        model.put("contextPath", contextPath);
-
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", "UTF-8", model);
-
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
+        model.put(AUTH_TOKEN, authToken);
+        model.put(CONTEXT_PATH, contextPath);
+        return model;
     }
 
-    private void insertStudentToDB(Student student) throws SQLException{
-        userMapper.insertUser(student);
-        studentMapper.insertStudent(student);
+    private void createInDBFor(Student student){
+        try {
+            userMapper.insertUser(student);
+            studentMapper.insertStudent(student);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
         Map<String, Object> model = new HashMap<>();
         model.put("resetToken", resetToken);
-        model.put("contextPath", contextPath);
+        model.put(CONTEXT_PATH, contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
     private boolean isTokenExpired(Date expiredAt) {

@@ -1,11 +1,17 @@
 package koreatech.in.mapstruct;
 
+import koreatech.in.domain.User.AuthResult;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.response.AuthResponse;
+import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -55,4 +61,45 @@ public interface UserConverter {
     })
     StudentResponse toStudentResponse(Student student);
 
+//
+//    @Mappings({
+//            @Mapping(source = "password", target = "password"),
+//            @Mapping(source = "email", target = "email"),
+//            @Mapping(source = "name", target = "name")
+//    })
+//    @SubclassMapping(source = StudentRegisterRequest.class, target = Student.class)
+//    User toUser(UserRegisterRequest userRegisterRequest);
+//
+//    @Mappings({
+//            @Mapping(source = "nickname", target = "nickname"),
+//            @Mapping(source = "gender", target = "gender"),
+//            @Mapping(source = "isGraduated", target = "isGraduated"),
+//            @Mapping(source = "major", target = "major"),
+//            @Mapping(source = "studentNumber", target = "studentNumber"),
+//            @Mapping(source = "phoneNumber", target = "phoneNumber"),
+//    })
+//    Student toStudent(StudentRegisterRequest studentRegisterRequest);
+//
+    @Mappings({
+            @Mapping(source = "password", target = "password"),
+            @Mapping(source = "email", target = "email"),
+            @Mapping(source = "name", target = "name"),
+
+            @Mapping(source = "nickname", target = "nickname"),
+            @Mapping(source = "gender", target = "gender"),
+            @Mapping(source = "isGraduated", target = "isGraduated"),
+            @Mapping(source = "major", target = "major"),
+            @Mapping(source = "studentNumber", target = "studentNumber"),
+            @Mapping(source = "phoneNumber", target = "phoneNumber"),
+    })
+    Student toStudent(StudentRegisterRequest studentRegisterRequest);
+
+    @Mapping(source = "token", target = "token")
+    AuthToken toAuthToken(AuthTokenRequest token);
+
+    @Mappings({
+            @Mapping(target = "isSuccess", expression = "java(authResult.isSuccess())"),
+            @Mapping(source = "errorMessage", target = "errorMessage"),
+    })
+    AuthResponse toAuthResponse(AuthResult authResult);
 }
