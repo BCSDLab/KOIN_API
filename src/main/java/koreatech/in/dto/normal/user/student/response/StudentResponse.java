@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StudentResponse extends UserResponse {
 
-    @ApiModelProperty(notes = "익명 닉네임\n",
+    @ApiModelProperty(notes = "익명 닉네임",
             example = "익명_1676688416361"
     )
     private String anonymousNickname;
