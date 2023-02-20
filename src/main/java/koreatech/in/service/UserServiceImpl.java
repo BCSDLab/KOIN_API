@@ -176,9 +176,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
 
-        if (studentInToken == null) {
-            throw new BaseException(ExceptionInformation.BAD_ACCESS);
-        }
         validateInUpdate(student);
         enrichInUpdateFor(student);
 
