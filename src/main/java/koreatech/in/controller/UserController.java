@@ -19,10 +19,12 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
@@ -43,12 +45,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Api(tags = "(Normal) User", description = "회원")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UserController {
+    public static final String MAIL_SUCCESS_REGISTER_CONFIG = "mail/success_register_config";
+    public static final String MAIL_ERROR_CONFIG = "mail/error_config";
+    public static final String MODEL_KEY_ERROR_MESSAGE = "errorMessage";
     @Inject
     private UserService userService;
 
@@ -104,7 +110,6 @@ public class UserController {
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) {
-        //TODO: 23.02.11. 박한수 Controller API Response 추가시  EMAIL_DUPLICATED 관한 내용도 추가하기.
 
         // TODO: velocity template 에게 인증 url host를 넣기 위해 url 데이터를 register에 넘겼는데, 이 방법 대신 하단 링크를 참고하여 plugin을 붙이는 방법으로 해결하기.
         // https://developer.atlassian.com/server/confluence/confluence-objects-accessible-from-velocity/
@@ -152,7 +157,7 @@ public class UserController {
                             + "  - 학생의 전공 형식이 아닌 경우 (code: 101016)",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/user/student/me", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateUser(@RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult) {
@@ -226,8 +231,8 @@ public class UserController {
 
     @ApiOperation(value = "비밀번호 초기화(변경) 메일 발송")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "회원이 조회되지 않을 때 (code: 101000)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "이메일에 대한 회원이 조회되지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ResponseStatus(HttpStatus.CREATED)
     @AuthExcept
@@ -247,9 +252,34 @@ public class UserController {
     @ApiIgnore
     @AuthExcept
     @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
-    public String authenticate(@RequestParam("auth_token") String authToken) {
-        boolean success = userService.authenticate(authToken);
-        return success ? "mail/success_register_config" : "mail/error_config";
+    public ModelAndView authenticate(@RequestParam("auth_token") AuthTokenRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        AuthResponse authResponse = userService.authenticate(request);
+
+        return makeModelAndViewFor(authResponse);
+    }
+
+    private static ModelAndView makeModelAndViewFor(AuthResponse authResponse) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName(makeViewNameFor(authResponse));
+
+        if(!authResponse.isSuccess()) {
+            modelAndView.addObject(MODEL_KEY_ERROR_MESSAGE, authResponse.getErrorMessage());
+        }
+
+        return modelAndView;
+    }
+
+    private static String makeViewNameFor(AuthResponse authResponse) {
+        if(!authResponse.isSuccess()) {
+            return MAIL_ERROR_CONFIG;
+        }
+        return MAIL_SUCCESS_REGISTER_CONFIG;
     }
 
     @ApiIgnore
@@ -259,7 +289,7 @@ public class UserController {
         boolean isAwaitingUserFindPassword = userService.changePasswordInput(resetToken);
 
         if (!isAwaitingUserFindPassword) {
-            return "mail/error_config";
+            return MAIL_ERROR_CONFIG;
         }
 
         model.addAttribute("resetToken", resetToken);

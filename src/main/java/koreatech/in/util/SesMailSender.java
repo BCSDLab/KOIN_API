@@ -9,6 +9,7 @@ public class SesMailSender {
     public static final String COMPANY_NO_REPLY_EMAIL_ADDRESS = "no-reply@bcsdlab.com";
     public static final String OWNER_EMAIL_VERIFICATION_SUBJECT = "코인 사장님 회원가입 이메일 인증";
     public static final String STUDENT_EMAIL_AUTHENTICATION_SUBJECT = "코인 학생 회원가입 이메일 인증";
+    public static final String FIND_PASSWORD_SUBJECT = "코인 패스워드 초기화 인증";
 
     @Autowired
     private AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync;

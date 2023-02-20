@@ -1,9 +1,7 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -12,14 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthResult;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
+import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
@@ -28,6 +32,9 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
@@ -38,7 +45,6 @@ import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
 import org.apache.velocity.app.VelocityEngine;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,6 +58,8 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
     public static final String AUTH_TOKEN = "authToken";
@@ -125,7 +133,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
-        Student student = downcastFrom(UserConverter.INSTANCE.toUser(request));
+        Student student = UserConverter.INSTANCE.toStudent(request);
 
         validateInRegister(student);
 
@@ -136,13 +144,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
 
         slackNotiSender.noticeEmailVerification(student);
-    }
-
-    private static Student downcastFrom(User user) {
-        if(!(user instanceof Student)) {
-            throw new ClassCastException("UserConverter에서 User -> Student 로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
-        }
-        return (Student) user;
     }
 
     private void enrichInRegisterFor(Student student) {
@@ -270,30 +271,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void changePasswordConfig(FindPasswordRequest request, String host) {
         User user = userMapper.getAuthedUserByEmail(request.getEmail());
-
         if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
         }
 
-        user.generateDataForFindPassword();
+        user.generateResetTokenForFindPassword();
         userMapper.updateUser(user);
 
         sendResetTokenByEmailForFindPassword(user.getReset_token(), host, user.getEmail());
     }
 
     @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+    public AuthResponse authenticate(AuthTokenRequest authTokenRequest) {
 
-        if (user == null || !user.isAwaitingEmailAuthentication()) {
-            return false;
+        AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
+        User user = userMapper.getUserByAuthToken(authToken.getToken());
+
+        AuthResult authResult = AuthResult.from(user);
+
+        if(authResult.isSuccess()) {
+            user.enrichForAuthed();
+            userMapper.updateUser(user);
+
+            slackNotiSender.noticeRegisterComplete(user);
         }
 
-        user.changeEmailAuthenticationStatusToComplete();
-        userMapper.updateUser(user);
-
-        slackNotiSender.noticeRegisterComplete(user);
-        return true;
+        return UserConverter.INSTANCE.toAuthResponse(authResult);
     }
 
     @Override
@@ -390,7 +393,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 text);
     }
 
-    @NotNull
     private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
         Map<String, Object> model = new HashMap<>();
         model.put(AUTH_TOKEN, authToken);
@@ -412,9 +414,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         model.put("resetToken", resetToken);
         model.put(CONTEXT_PATH, contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/change_password.vm", "UTF-8", model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 패스워드 초기화 인증", text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
     private boolean isTokenExpired(Date expiredAt) {

@@ -7,8 +7,14 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.exception.BaseException;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.util.HttpHeaderValue;
+import koreatech.in.util.HttpHeaderValueAttacher;
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -202,5 +208,36 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
 
         return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        if (!(handler instanceof HandlerMethod)) {
+            return;
+        }
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+
+        Method actualMethod = handlerMethod.getMethod();
+
+        // view 응답이라면 캐싱 방지 헤더 설정
+        if (!actualMethod.isAnnotationPresent(ResponseBody.class) && !actualMethod.getReturnType().equals(ResponseEntity.class)) {
+            addHeaderForPreventingCache(response);
+        }
+    }
+
+    private void addHeaderForPreventingCache(HttpServletResponse response) {
+        // 캐싱 방지 (HTTP 1.1)
+        response.addHeader(HttpHeaders.CACHE_CONTROL, HttpHeaderValueAttacher.start()
+                .attach(HttpHeaderValue.NO_CACHE)
+                .attach(HttpHeaderValue.NO_STORE)
+                .attach(HttpHeaderValue.MUST_REVALIDATE)
+                .end()
+        );
+
+        // 캐싱 방지 (HTTP 1.0)
+        response.addHeader(HttpHeaders.PRAGMA, HttpHeaderValue.NO_CACHE);
+
+        // 응답의 리소스 만료
+        response.addHeader(HttpHeaders.EXPIRES, HttpHeaderValue.ZERO);
     }
 }
