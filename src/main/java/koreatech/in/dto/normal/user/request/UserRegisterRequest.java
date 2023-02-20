@@ -23,9 +23,17 @@ public class UserRegisterRequest {
             + "- not null \n"
             + "- 이메일 형식이어야 함"
             , required = true
-            , example = "abcd@gmail.com"
+            , example = "koin123@koreatech.ac.kr"
     )
     private String email;
+
+    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
+    @ApiModelProperty(notes = "이름 \n"
+            + "50자 이내여야 함"
+            , example = "정보혁"
+    )
+    private String name;
+
 
     @NotNull(message = "비밀번호는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "비밀번호 \n"
@@ -34,13 +42,4 @@ public class UserRegisterRequest {
             , example = "a0240120305812krlakdsflsa;1235"
     )
     private String password;
-
-    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
-    @ApiModelProperty(notes = "이름 \n"
-            + "- not null \n"
-            + "50자 이내여야 함"
-            , required = true
-            , example = "정보혁"
-    )
-    private String name;
 }
