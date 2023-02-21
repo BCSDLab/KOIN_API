@@ -17,6 +17,7 @@ public class UploadFileFullPath {
         this.path = path;
         this.uploadFileFullName = uploadFileFullName;
     }
+
     public static UploadFileFullPath of(String uploadPath, String originalFileName) {
         return new UploadFileFullPath(makePath(uploadPath), UploadFileFullName.from(originalFileName));
     }
@@ -28,6 +29,10 @@ public class UploadFileFullPath {
     //윈도우 시스템에서의 경로를 반환한다.
     public String value() {
         return path + File.separator + uploadFileFullName.getFileFullName();
+    }
+
+    public String getFileFullName() {
+        return uploadFileFullName.getFileFullName();
     }
 
     private static String makePath(String uploadPath) {

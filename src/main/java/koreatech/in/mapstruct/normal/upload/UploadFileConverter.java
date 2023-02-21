@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
-import koreatech.in.domain.Upload.UploadFileUrl;
-import koreatech.in.domain.Upload.UploadFileUrls;
+import koreatech.in.domain.Upload.UploadFileResult;
+import koreatech.in.domain.Upload.UploadFilesResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
@@ -25,16 +25,16 @@ public interface UploadFileConverter {
     @Mappings({
             @Mapping(source = "fileUrl", target = "file_url")
     })
-    UploadFileResponse toUploadFileResponse(UploadFileUrl uploadFileUrl);
+    UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
 
     @Mappings({
             @Mapping(source = "uploadFileUrls", target = "file_urls", qualifiedByName = "convertUploadFileUrls")
     })
-    UploadFilesResponse toUploadFilesResponse(UploadFileUrls uploadFileUrls);
+    UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
     @Named("convertUploadFileUrls")
-    default List<String> convertUploadFileUrls(List<UploadFileUrl> uploadFileUrls) {
-        return uploadFileUrls.stream().map(UploadFileUrl::getFileUrl).collect(Collectors.toList());
+    default List<String> convertUploadFileUrls(List<UploadFileResult> uploadFileResults) {
+        return uploadFileResults.stream().map(UploadFileResult::getFileUrl).collect(Collectors.toList());
     }
 
     @Mappings({

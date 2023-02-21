@@ -16,4 +16,8 @@ public class UploadFile {
     public byte[] getData() {
         return data;
     }
+
+    public String getFileName() {
+        return fullPath.getFileFullName();
+    }
 }
