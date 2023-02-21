@@ -41,6 +41,6 @@ public class UploadFileFullName {
 
     //"test" -> false, ".gitignore" -> true, "picture.png" -> true
     private static boolean hasExtension(String originalFileName) {
-        return getExtensionSeparatorIndex(originalFileName) == NOT_FOUND_INDEX;
+        return getExtensionSeparatorIndex(originalFileName) != NOT_FOUND_INDEX;
     }
 }
