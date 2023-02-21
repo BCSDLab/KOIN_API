@@ -221,13 +221,10 @@ public class UploadController {
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
         domainEnum.validateFor(multipartFile);
 
-        String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
-                multipartFile.getOriginalFilename(),
-                multipartFile.getBytes());
+        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPathForAdmin(domain), multipartFile);
 
-        UploadFileResponse uploadFileResponse = new UploadFileResponse(fileUrl);
+        UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(uploadFileRequest);
 
-        //CREATED 가 낫지 않을까?
         return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
     }
 
@@ -272,20 +269,14 @@ public class UploadController {
                     + "  - MaxSize: `10mb`\n"
                     , required = true) @PathVariable String domain)
             throws Exception {
-
+        
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
         files.forEach(domainEnum::validateFor);
 
-        List<String> fileUrls = new ArrayList<>();
+        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPathForAdmin(domain));
 
-        for (MultipartFile multipartFile : files) {
-            String fileUrl = uploadFileUtils.uploadFile(enrichDomainPathForAdmin(domain),
-                    multipartFile.getOriginalFilename(),
-                    multipartFile.getBytes());
+        UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
 
-            fileUrls.add(fileUrl);
-        }
-
-        return new ResponseEntity<>(new UploadFilesResponse(fileUrls), HttpStatus.CREATED);
+        return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 }
