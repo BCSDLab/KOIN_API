@@ -10,38 +10,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.User.AuthResult;
+import koreatech.in.domain.User.AuthToken;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.exception.ValidationException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.DateUtil;
 import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.SHA256Util;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +55,10 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
+
+    public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
+    public static final String AUTH_TOKEN = "authToken";
+    public static final String CONTEXT_PATH = "contextPath";
 
     @Autowired
     private UserMapper userMapper;
@@ -126,77 +127,84 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public Map<String, Object> StudentRegister(StudentRegisterRequest request, String host) {
-        Student student = request.toEntity(UserCode.UserIdentity.STUDENT.getIdentityType());
+    public void StudentRegister(StudentRegisterRequest request, String host) {
+        Student student = UserConverter.INSTANCE.toStudent(request);
 
-        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
-        studentEmail.validatePortalEmail();
+        validateInRegister(student);
 
-        checkInputDataDuplicationAndValidation(student);
-        String anonymousNickname = "익명_" + (System.currentTimeMillis());
-        student.setEmail(studentEmail.getEmailAddress());
-        student.setAnonymous_nickname(anonymousNickname);
-        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        String authToken = SHA256Util.getEncrypt(student.getEmail(), authExpiredAt.toString());
-        student.changeAuthTokenAndExpiredAt(authToken, authExpiredAt);
-        String encodedPassword = passwordEncoder.encode(student.getPassword());
-        student.changePassword(encodedPassword);
+        enrichInRegisterFor(student);
 
-        try {
-            insertStudentToDB(student);
-        } catch (SQLException sqlException) {
-            throw new ConflictException(new ErrorMessage("invalid authenticate", 0));
+        createInDBFor(student);
+
+        sendAuthTokenByEmailForAuthenticate(student.getAuth_token(), host, EmailAddress.from(student.getEmail()));
+
+        slackNotiSender.noticeEmailVerification(student);
+    }
+
+    private void enrichInRegisterFor(Student student) {
+        student.fillAnonymousNickname();
+        student.fillAuthTokenAndTokenExpiredAt();
+        encodePasswordFor(student);
+    }
+
+    private void encodePasswordFor(Student student) {
+        if(student.getPassword() == null) {
+            return;
         }
 
-        sendAuthTokenByEmailForAuthenticate(authToken, host, student.getEmail());
-        slackNotiSender.noticeEmailVerification(student);
-
-        return new HashMap<String, Object>() {{
-            put("success", "send mail for student authentication to entered email address");
-        }};
+        student.changePassword(passwordEncoder.encode(student.getPassword()));
     }
 
     @Override
-    public Student getStudent() {
-        User user = jwtValidator.validate();
+    public StudentResponse getStudent() {
+        Integer userId = jwtValidator.validate().getId();
+        Student student = studentMapper.getStudentById(userId);
 
-        Student student = studentMapper.getStudentById(user.getId());
         if(student == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
+            throw new BaseException(USER_NOT_FOUND);
         }
-        return student;
-    }
 
+        return UserConverter.INSTANCE.toStudentResponse(student);
+    }
     @Override
     @Transactional
-    public StudentResponse updateStudentInformation(UpdateUserRequest request) {
-        Student student = request.toEntity();
+    public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
+        Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
+        Student studentInToken = getStudentInToken();
 
-        Student student_old = studentMapper.getStudentById(jwtValidator.validate().getId());
-        if (student_old == null) {
-            throw new ValidationException(new ErrorMessage("token not validate", 402));
-        }
-        student.changeIdentity(student_old.getIdentity());
+        validateInUpdate(student);
+        enrichInUpdateFor(student);
 
-        if (!student_old.isUserAuthed()) {
-            throw new ForbiddenException(new ErrorMessage("Not Authed User", 0));
-        }
-        checkNicknameDuplicationWithoutSameUser(student);
-        if (student.getStudent_number() != null) {
-            checkStudentNumberValidation(student);
-        }
-        if (student.getMajor() != null) {
-            checkMajorValidation(student);
-        }
-        if (student.getPassword() != null) {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-        }
+        studentInToken.update(student);
+        updateInDBFor(studentInToken);
 
-        student_old.update(student);
-        userMapper.updateUser(student_old);
-        studentMapper.updateStudent(student_old);
+        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
+    }
 
-        return new StudentResponse(student_old);
+    private void enrichInUpdateFor(Student student) {
+        encodePasswordFor(student);
+        student.setIs_authed(true);
+    }
+
+    private void updateInDBFor(Student studentInToken) {
+        userMapper.updateUser(studentInToken);
+        studentMapper.updateStudent(studentInToken);
+    }
+
+    private void validateInUpdate(Student student) {
+        validateNicknameUniqueness(student);
+
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
+
+    private Student getStudentInToken() {
+        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
+
+        if (studentInToken == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+        return studentInToken;
     }
 
     // TODO owner 정보 업데이트
@@ -269,18 +277,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Boolean authenticate(String authToken) {
-        User user = userMapper.getUserByAuthToken(authToken);
+    public AuthResponse authenticate(AuthTokenRequest authTokenRequest) {
 
-        if (user == null || !user.isAwaitingEmailAuthentication()) {
-            return false;
+        AuthToken authToken = UserConverter.INSTANCE.toAuthToken(authTokenRequest);
+        User user = userMapper.getUserByAuthToken(authToken.getToken());
+
+        AuthResult authResult = AuthResult.from(user);
+
+        if(authResult.isSuccess()) {
+            user.enrichForAuthed();
+            userMapper.updateUser(user);
+
+            slackNotiSender.noticeRegisterComplete(user);
         }
 
-        user.changeEmailAuthenticationStatusToComplete();
-        userMapper.updateUser(user);
-
-        slackNotiSender.noticeRegisterComplete(user);
-        return true;
+        return UserConverter.INSTANCE.toAuthResponse(authResult);
     }
 
     @Override
@@ -316,58 +327,87 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private void checkInputDataDuplicationAndValidation(Student student){
+    private void validateInRegister(Student student){
+        EmailAddress studentEmail = EmailAddress.from(student.getEmail());
+        studentEmail.validatePortalEmail();
+
+        validateUniqueness(student);
+        validateStudentNumber(student);
+        validateMajor(student);
+    }
+
+    private void validateUniqueness(Student student) {
         validateEmailUniqueness(EmailAddress.from(student.getEmail()));
-        checkNicknameDuplicationWithoutSameUser(student);
-        checkStudentNumberValidation(student);
-        checkMajorValidation(student);
+        validateNicknameUniqueness(student);
     }
 
-    private void checkNicknameDuplicationWithoutSameUser(Student student) {
-        if (student.getNickname() != null) {
-            User selectUser = userMapper.getUserByNickname(student.getNickname());
-            if (selectUser != null && !student.equals(selectUser)) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+    private void validateNicknameUniqueness(Student student) {
+        if(student.getNickname() == null) {
+            return;
+        }
+
+        if (isExistOtherUser(student, userMapper.getUserByNickname(student.getNickname()))) {
+            throw new BaseException(NICKNAME_DUPLICATE);
         }
     }
 
-    private void checkMajorValidation(Student student) {
-        if (student.getMajor() != null) {
-            if (!student.isMajorValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-            }
+    private static boolean isExistOtherUser(User registerUser, User selectUser) {
+        return selectUser != null && !registerUser.equals(selectUser);
+    }
+
+    private void validateMajor(Student student) {
+        if(student.getMajor() == null) {
+            return;
+        }
+        if (!student.isMajorValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_MAJOR_INVALID);
         }
     }
 
-    private void checkStudentNumberValidation(Student student) {
-        if (student.getStudent_number() != null) {
-            if (!student.isStudentNumberValidated()) {
-                throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-            }
+    private void validateStudentNumber(Student student) {
+        if(student.getStudent_number() == null) {
+            return;
+        }
+        if (!student.isStudentNumberValidated()) {
+            throw new BaseException(ExceptionInformation.STUDENT_NUMBER_INVALID);
         }
     }
 
-    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, String email){
+    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, EmailAddress emailAddress){
+        emailAddress.validateSendable();
+
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
+                StandardCharsets.UTF_8.name(),
+                makeModelFor(authToken, contextPath));
+
+        sesMailSender.sendMail(
+                SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
+                emailAddress.getEmailAddress(),
+                SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
+                text);
+    }
+
+    private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
         Map<String, Object> model = new HashMap<>();
-        model.put("authToken", authToken);
-        model.put("contextPath", contextPath);
-
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mail/register_authenticate.vm", "UTF-8", model);
-
-        sesMailSender.sendMail("no-reply@bcsdlab.com", email, "코인 이메일 회원가입 인증", text);
+        model.put(AUTH_TOKEN, authToken);
+        model.put(CONTEXT_PATH, contextPath);
+        return model;
     }
 
-    private void insertStudentToDB(Student student) throws SQLException{
-        userMapper.insertUser(student);
-        studentMapper.insertStudent(student);
+    private void createInDBFor(Student student){
+        try {
+            userMapper.insertUser(student);
+            studentMapper.insertStudent(student);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     private void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
-        Map<String, Object> model = new HashMap<String, Object>() {{
-            put("resetToken", resetToken);
-            put("contextPath", contextPath);
-        }};
+        Map<String, Object> model = new HashMap<>();
+        model.put("resetToken", resetToken);
+        model.put(CONTEXT_PATH, contextPath);
 
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 

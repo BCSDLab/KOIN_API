@@ -1,27 +1,27 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.User.student.Student;
+import java.util.Map;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentRegisterRequest;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.response.StudentResponse;
-import koreatech.in.domain.User.owner.Owner;
-
-import java.util.Map;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
 public interface UserService {
     LoginResponse login(LoginRequest request) throws Exception;
 
     void logout();
 
-    Map<String, Object> StudentRegister(StudentRegisterRequest request, String host);
+    void StudentRegister(StudentRegisterRequest request, String host);
 
-    Student getStudent();
+    StudentResponse getStudent();
 
-    StudentResponse updateStudentInformation(UpdateUserRequest request);
+    StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest);
 
     Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 
@@ -31,7 +31,7 @@ public interface UserService {
 
     void changePasswordConfig(FindPasswordRequest request, String host);
 
-    Boolean authenticate(String authToken);
+    AuthResponse authenticate(AuthTokenRequest authTokenRequest);
 
     Boolean changePasswordInput(String resetToken);
 

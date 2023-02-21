@@ -8,7 +8,7 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.dto.normal.user.response.StudentResponse;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
 public interface AdminUserService {
     LoginResponse loginForAdmin(LoginRequest request) throws Exception;
