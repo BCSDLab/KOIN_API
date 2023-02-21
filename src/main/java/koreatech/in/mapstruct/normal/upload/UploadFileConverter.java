@@ -23,18 +23,19 @@ public interface UploadFileConverter {
     UploadFileConverter INSTANCE = Mappers.getMapper(UploadFileConverter.class);
 
     @Mappings({
-            @Mapping(source = "fileUrl", target = "file_url")
+            @Mapping(source = "fileUrl", target = "file_url"),
+            @Mapping(source = "fileName", target = "file_name")
     })
     UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
 
     @Mappings({
-            @Mapping(source = "uploadFileUrls", target = "file_urls", qualifiedByName = "convertUploadFileUrls")
+            @Mapping(source = "uploadFilesResult", target = "filesResponse", qualifiedByName = "convertUploadFilesResponse")
     })
     UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
-    @Named("convertUploadFileUrls")
-    default List<String> convertUploadFileUrls(List<UploadFileResult> uploadFileResults) {
-        return uploadFileResults.stream().map(UploadFileResult::getFileUrl).collect(Collectors.toList());
+    @Named("convertUploadFilesResponse")
+    default List<UploadFileResponse> convertUploadFilesResponseResponse(List<UploadFileResult> uploadFileResults) {
+        return uploadFileResults.stream().map(this::toUploadFileResponse).collect(Collectors.toList());
     }
 
     @Mappings({
