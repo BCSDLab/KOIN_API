@@ -27,7 +27,7 @@ public class UploadFileFullPath {
     }
     //윈도우 시스템에서의 경로를 반환한다.
     public String value() {
-        return path + uploadFileFullName.getFileFullName();
+        return path + File.separator + uploadFileFullName.getFileFullName();
     }
 
     private static String makePath(String uploadPath) {
