@@ -1,5 +1,7 @@
 package koreatech.in.dto.normal.user.owner.request;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;
@@ -10,6 +12,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class VerifyCodeRequest {
 
     @Email(message = "이메일 형식이 올바르지 않습니다.")
