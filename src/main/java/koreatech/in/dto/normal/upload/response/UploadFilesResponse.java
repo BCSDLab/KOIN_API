@@ -11,9 +11,9 @@ public class UploadFilesResponse {
             dataType = "[Lkoreatech.in.dto.normal.upload.response.UploadFileResponse;"
 //            example = "[\"https://static.koreatech.in/example1.png\", \"https://static.koreatech.in/example2.png\"]", required = true
             )
-    private final List<UploadFileResponse> filesResponse;
+    private final List<UploadFileResponse> files;
 
-    public List<UploadFileResponse> getFilesResponse() {
-        return Collections.unmodifiableList(filesResponse);
+    public List<UploadFileResponse> getFiles() {
+        return Collections.unmodifiableList(files);
     }
 }
