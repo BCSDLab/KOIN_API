@@ -32,7 +32,7 @@ public interface UploadFileConverter {
 
     @Named("convertUploadFilesResponse")
     default List<String> convertUploadFilesResponseResponse(List<UploadFileResult> uploadFileResults) {
-        return uploadFileResults.stream().map(Object::toString).collect(Collectors.toList());
+        return uploadFileResults.stream().map(UploadFileResult::getFileUrl).collect(Collectors.toList());
     }
 
     @Mappings({
