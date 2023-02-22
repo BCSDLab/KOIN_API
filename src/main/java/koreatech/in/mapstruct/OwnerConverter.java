@@ -64,7 +64,7 @@ public interface OwnerConverter {
     User toUser(UserRegisterRequest userRegisterRequest);
 
     @Mappings({
-            @Mapping(source = "companyCertificateAttachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
+            @Mapping(source = "attachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
             @Mapping(source = "companyNumber", target = "company_registration_number"),
     })
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);

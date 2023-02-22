@@ -1,5 +1,7 @@
 package koreatech.in.dto.global;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -8,6 +10,7 @@ import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AttachmentUrlRequest {
     @NotBlank
     @URL(protocol = "https", host = "static.koreatech.in"

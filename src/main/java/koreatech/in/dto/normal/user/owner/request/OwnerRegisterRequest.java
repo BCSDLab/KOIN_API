@@ -1,5 +1,7 @@
 package koreatech.in.dto.normal.user.owner.request;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import javax.validation.Valid;
@@ -15,6 +17,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class OwnerRegisterRequest extends UserRegisterRequest {
 
     @NotBlank(message = "이름은 필수입니다.")
@@ -47,5 +50,5 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             , required = true
     )
     @Valid
-    private List<AttachmentUrlRequest> companyCertificateAttachmentUrls;
+    private List<AttachmentUrlRequest> attachmentUrls;
 }
