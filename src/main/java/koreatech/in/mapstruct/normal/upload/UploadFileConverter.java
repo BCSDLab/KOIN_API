@@ -24,12 +24,13 @@ public interface UploadFileConverter {
 
     @Mappings({
             @Mapping(source = "fileUrl", target = "file_url"),
-            @Mapping(source = "fileName", target = "file_name")
+//            @Mapping(source = "fileName", target = "file_name")
     })
     UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
 
     @Mappings({
-            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
+//            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
+            @Mapping(source = "uploadFilesResult", target = "file_urls", qualifiedByName = "convertUploadFilesResponse")
     })
     UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
