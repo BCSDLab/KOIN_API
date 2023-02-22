@@ -22,15 +22,11 @@ public interface UploadFileConverter {
 
     UploadFileConverter INSTANCE = Mappers.getMapper(UploadFileConverter.class);
 
-    @Mappings({
-            @Mapping(source = "fileUrl", target = "file_url"),
-//            @Mapping(source = "fileName", target = "file_name")
-    })
     UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
 
     @Mappings({
 //            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
-            @Mapping(source = "uploadFilesResult", target = "file_urls", qualifiedByName = "convertUploadFilesResponse")
+            @Mapping(source = "uploadFilesResult", target = "fileUrls", qualifiedByName = "convertUploadFilesResponse")
     })
     UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
