@@ -29,7 +29,7 @@ public interface UploadFileConverter {
     UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
 
     @Mappings({
-            @Mapping(source = "uploadFilesResult", target = "filesResponse", qualifiedByName = "convertUploadFilesResponse")
+            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
     })
     UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
