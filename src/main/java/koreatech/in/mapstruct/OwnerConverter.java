@@ -45,7 +45,7 @@ public interface OwnerConverter {
 
     @Mappings({
             @Mapping(source = "address", target = "email", qualifiedByName = "convertEmail"),
-            @Mapping(source = "certificationCode", target = "certificationCode")
+            @Mapping(source = "certification_code", target = "certificationCode")
     })
     OwnerInCertification toOwnerInCertification(VerifyCodeRequest verifyCodeRequest);
 
@@ -64,14 +64,14 @@ public interface OwnerConverter {
     User toUser(UserRegisterRequest userRegisterRequest);
 
     @Mappings({
-            @Mapping(source = "companyCertificateAttachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
-            @Mapping(source = "companyNumber", target = "company_registration_number"),
+            @Mapping(source = "attachment_urls", target = "attachments", qualifiedByName = "convertAttachments"),
+            @Mapping(source = "company_number", target = "company_registration_number"),
     })
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
     default List<String> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
-        return companyCertificateAttachmentUrls.stream().map(AttachmentUrlRequest::getFileUrl)
+        return companyCertificateAttachmentUrls.stream().map(AttachmentUrlRequest::getFile_url)
                 .collect(Collectors.toList());
     }
 

@@ -24,5 +24,5 @@ public class VerifyCodeRequest {
     @ApiModelProperty(notes = "인증코드 \n" +
             "- not blank \n" +
             "- 6자리 정수여야 함", required = true)
-    private String certificationCode;
+    private String certification_code;
 }
