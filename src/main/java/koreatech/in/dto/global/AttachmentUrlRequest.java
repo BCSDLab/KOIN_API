@@ -18,5 +18,5 @@ public class AttachmentUrlRequest {
             , required = true
             , example = "https://static.koreatech.in/assets/img/logo_white.png"
     )
-    private String file_url;
+    private String fileUrl;
 }

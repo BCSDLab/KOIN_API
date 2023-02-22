@@ -35,7 +35,7 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             , example = "012-34-56789"
             , required = true
     )
-    private String company_number;
+    private String companyNumber;
 
     @NotNull(message = "이미지 첨부는 필수입니다.")
     @Size(min = 3, max = 5, message = "이미지는 사업자등록증, 영업신고증, 통장사본을 포함하여 최소 3개 최대 5개까지 가능합니다.")
@@ -47,5 +47,5 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             , required = true
     )
     @Valid
-    private List<AttachmentUrlRequest> attachment_urls;
+    private List<AttachmentUrlRequest> companyCertificateAttachmentUrls;
 }
