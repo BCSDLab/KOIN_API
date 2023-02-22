@@ -88,7 +88,7 @@ public class UploadController {
 
 
     // 단일 파일 업로드
-    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "단일 파일 업로드", notes = "사용자 권한 필요", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -133,7 +133,7 @@ public class UploadController {
                     dataType = "file",
                     value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
     )
-    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
+    @ApiOperation(value = "다중 파일 업로드", notes = "사용자 권한 필요\n\n**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
@@ -188,7 +188,7 @@ public class UploadController {
     // 어드민 전용 설정을 원한다면, Auth를 메서드별로 설정 & 인터셉터에서 인식 가능케 코드 변경 & Upload에 대한 Authority DB, enum, 인터셉터에 추가 해야 함.
     @Deprecated
     @ApiOff
-    @ApiOperation(value = "", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "단일 파일 업로드", notes = "어드민 권한 필요", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -215,8 +215,7 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain)
-            throws Exception {
+                    , required = true) @PathVariable String domain) {
 
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
         domainEnum.validateFor(multipartFile);
@@ -236,7 +235,7 @@ public class UploadController {
                     dataType = "file",
                     value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
     )
-    @ApiOperation(value = "", notes = "**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
+    @ApiOperation(value = "다중 파일 업로드", notes = "어드민 권한 필요\n\n**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
@@ -267,9 +266,8 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain)
-            throws Exception {
-        
+                    , required = true) @PathVariable String domain) {
+
         DomainEnum domainEnum = DomainEnum.mappingFor(domain);
         files.forEach(domainEnum::validateFor);
 
