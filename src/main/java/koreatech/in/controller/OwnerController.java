@@ -118,32 +118,6 @@ public class OwnerController {
             @ApiResponse(
                     code = 422,
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
-                    response = RequestDataInvalidResponse.class)
-    })
-    @ApiOperation(value = "사장님 정보 조회", notes= "- 사장님 권한[+가게 권한 부여] 필요", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/owner", method = RequestMethod.GET)
-    @ParamValid
-    public @ResponseBody
-    ResponseEntity<EmptyResponse> getOwner() {
-
-        ownerService.getOwner();
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-
-    @ApiResponses({
-            @ApiResponse(
-                    code = 409,
-                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n"
-                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
-                    response = ExceptionResponse.class),
-            @ApiResponse(
-                    code = 410,
-                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n",
-                    response = ExceptionResponse.class),
-            @ApiResponse(
-                    code = 422,
-                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
                     response = ExceptionResponse.class)
     })
     @ApiOperation(value = "회원가입 요청")
@@ -161,6 +135,31 @@ public class OwnerController {
 
         ownerService.register(request);
 
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiResponses({
+            @ApiResponse(
+                    code = 409,
+                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n"
+                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 410,
+                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "사장님 정보 조회", notes= "- 사장님 권한[+가게 권한 부여] 필요", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/owner", method = RequestMethod.GET)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> getOwner() {
+
+        ownerService.getOwner();
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
