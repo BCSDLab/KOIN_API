@@ -17,6 +17,7 @@ import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
@@ -107,6 +108,11 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeRegisterComplete(owner);
 
         removeRedisFrom(ownerEmailAddress);
+    }
+
+    @Override
+    public OwnerResponse getOwner() {
+        return null;
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
