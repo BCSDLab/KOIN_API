@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import javax.validation.Valid;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.Auth.Authority;
@@ -13,6 +14,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
@@ -102,6 +104,37 @@ public class OwnerController {
         ownerService.certificate(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiResponses({
+            @ApiResponse(
+                    code = 409,
+                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n"
+                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 410,
+                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "사장님 정보 조회", notes= "- 사장님 권한[+가게 권한 부여] 필요", authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/owner", method = RequestMethod.GET)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> getOwner(@RequestBody @Valid OwnerRegisterRequest request,
+                                           BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @ApiResponses({
             @ApiResponse(
