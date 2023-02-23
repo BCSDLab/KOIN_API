@@ -1,36 +1,46 @@
 package koreatech.in.domain.Upload;
 
-import java.io.File;
-import java.util.UUID;
-
 public class UploadFileFullName {
-    private static final String DASH = "-";
 
+    static private final String NO_EXTENSION = "";
+    static private final String EXTENSION_SEPARATOR = ".";
+    public static final int NOT_FOUND_INDEX = -1;
+    public static final int ZERO_INDEX = 0;
     //추후 파일명이 필요할 것 같아 필드를 둠.
-    private final String originalName;
-    private final FileExtensionName fileExtensionName;
-    private final String fullName;
+    private final String name;
+    private final String extensionWithSeparator;
 
-    private UploadFileFullName(String originalFileName) {
-        this.originalName = originalFileName;
-        this.fileExtensionName = FileExtensionName.from(originalFileName);
-        this.fullName = makeFileFullName();
-
+    private UploadFileFullName(String name, String extensionWithSeparator) {
+        this.name = name;
+        this.extensionWithSeparator = extensionWithSeparator;
     }
 
     public static UploadFileFullName from(String originalFileName) {
-        return new UploadFileFullName(originalFileName);
-    }
-
-    public String makeFileFullName() {
-        return File.separator + makeFileName() + fileExtensionName.getExtensionWithSeparator();
-    }
-
-    private String makeFileName() {
-        return UUID.randomUUID() + DASH + System.currentTimeMillis();
+        return new UploadFileFullName(makeName(originalFileName), makeExtensionWithSeparator(originalFileName));
     }
 
     public String getFileFullName() {
-        return this.fullName;
+        return name + extensionWithSeparator;
+    }
+
+    private static String makeName(String originalFileName) {
+        return originalFileName.substring(ZERO_INDEX, getExtensionSeparatorIndex(originalFileName));
+    }
+
+    private static String makeExtensionWithSeparator(String originalFileName) {
+        if (!hasExtension(originalFileName)) {
+            return NO_EXTENSION;
+        }
+
+        return originalFileName.substring(getExtensionSeparatorIndex(originalFileName));
+    }
+
+    private static int getExtensionSeparatorIndex(String originalFileName) {
+        return originalFileName.lastIndexOf(EXTENSION_SEPARATOR);
+    }
+
+    //"test" -> false, ".gitignore" -> true, "picture.png" -> true
+    private static boolean hasExtension(String originalFileName) {
+        return getExtensionSeparatorIndex(originalFileName) != NOT_FOUND_INDEX;
     }
 }

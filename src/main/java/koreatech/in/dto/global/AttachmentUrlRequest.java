@@ -12,8 +12,9 @@ import org.hibernate.validator.constraints.URL;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AttachmentUrlRequest {
+//    public static final String STATIC_KOREATECH_IN = "static.koreatech.in";
     @NotBlank
-    @URL(protocol = "https", host = "static.koreatech.in"
+    @URL(protocol = "https", regexp = ".*static\\.koreatech\\.in.*"
             , message = "코인 파일 저장 형식이 아닙니다.")
     @ApiModelProperty(notes = " \n"
             + "- not blank \n"

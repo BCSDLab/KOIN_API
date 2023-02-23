@@ -2,10 +2,9 @@ package koreatech.in.service;
 
 import java.util.ArrayList;
 import koreatech.in.domain.Upload.UploadFile;
-import koreatech.in.domain.Upload.UploadFileFullPath;
-import koreatech.in.domain.Upload.UploadFileUrl;
-import koreatech.in.domain.Upload.UploadFileUrls;
+import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
+import koreatech.in.domain.Upload.UploadFilesResult;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
@@ -37,41 +36,33 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFile file = UploadFileConverter.INSTANCE.toUploadFile(uploadFileRequest);
 
         uploadFor(file);
-        UploadFileUrl uploadedFileUrl = getUploadedFileUrl(file);
+        UploadFileResult uploadFileResult = UploadFileResult.of(domainName, file);
 
-        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadedFileUrl);
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileResult);
     }
 
     @Override
     public UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest) {
         UploadFiles uploadFiles = UploadFileConverter.INSTANCE.toUploadFiles(uploadFilesRequest);
 
-        UploadFileUrls uploadFileUrls = uploadAndGetUrls(uploadFiles);
+        UploadFilesResult uploadFilesResult = uploadAndGetUrls(uploadFiles);
 
-        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFileUrls);
+        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesResult);
     }
 
-    private UploadFileUrls uploadAndGetUrls(UploadFiles uploadFiles) {
-        UploadFileUrls uploadFileUrls = UploadFileUrls.from(new ArrayList<>());
+    private UploadFilesResult uploadAndGetUrls(UploadFiles uploadFiles) {
+        UploadFilesResult uploadFilesResult = UploadFilesResult.from(new ArrayList<>());
 
         for (UploadFile file : uploadFiles.getUploadFiles()) {
             uploadFor(file);
-            UploadFileUrl uploadedFileUrl = getUploadedFileUrl(file);
+            UploadFileResult uploadFileResult = UploadFileResult.of(domainName, file);
 
-            uploadFileUrls.append(uploadedFileUrl);
+            uploadFilesResult.append(uploadFileResult);
         }
-        return uploadFileUrls;
+        return uploadFilesResult;
     }
 
     private void uploadFor(UploadFile uploadFile) {
         s3Util.fileUpload(bucketName, uploadFile.getFullPath(), uploadFile.getData());
-    }
-
-    private UploadFileUrl getUploadedFileUrl(UploadFile uploadFile) {
-        return makeFileUrl(uploadFile.getFullPath());
-    }
-
-    private UploadFileUrl makeFileUrl(String fileFullPath) {
-        return UploadFileUrl.from(domainName + UploadFileFullPath.SLASH + fileFullPath);
     }
 }
