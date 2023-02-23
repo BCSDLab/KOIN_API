@@ -124,14 +124,9 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.GET)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> getOwner(@RequestBody @Valid OwnerRegisterRequest request,
-                                           BindingResult bindingResult) {
-        try {
-            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
-        } catch (Exception exception) {
-            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
-        }
+    ResponseEntity<EmptyResponse> getOwner() {
 
+        ownerService.getOwner();
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
