@@ -2,6 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="koreatech.in.repository.user.OwnerMapper">
 
+    <resultMap id="ownerWithShopsResultMap" extends="userResultMap" type="koreatech.in.domain.User.owner.OwnerWithShops">
+        <result property="company_registration_number" column="company_registration_number"/>
+        <result property="grant_shop" column="grant_shop"/>
+        <result property="grant_event" column="grant_event"/>
+        <collection property="shops" javaType="List" ofType="koreatech.in.domain.Shop.Shop">
+            <id property="id" column="shop_id"/>
+            <id property="name" column="shop_name"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
+        <id property="id" column="id"/>
+        <result property="email" column="email"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="getOwnerById" resultMap="ownerWithShopsResultMap">
+        SELECT user_id,
+               company_registration_number,
+               grant_shop,
+               grant_event,
+               shops.id   AS shop_id,
+               shops.name AS shop_name
+        FROM koin.owners
+                 LEFT JOIN koin.shops ON user_id = shops.owner_id
+        WHERE user_id = #{id}
+    </select>
+
     <insert id="insertOwner">
         INSERT INTO koin.owners (user_id,
                                  company_registration_number)
