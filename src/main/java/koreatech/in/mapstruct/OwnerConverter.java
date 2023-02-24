@@ -2,18 +2,22 @@ package koreatech.in.mapstruct;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import koreatech.in.domain.User.User;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
+import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerShopAttachment;
 import koreatech.in.domain.User.owner.OwnerShopAttachments;
+import koreatech.in.domain.User.owner.OwnerWithShops;
 import koreatech.in.dto.global.AttachmentUrlRequest;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
 import koreatech.in.dto.normal.user.request.UserRegisterRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -84,5 +88,21 @@ public interface OwnerConverter {
     default List<OwnerShopAttachment> convertAttachment(Owner owner) {
         return owner.getAttachments().stream().map(url -> OwnerShopAttachment.of(owner.getId(), url))
                 .collect(Collectors.toList());
+    }
+
+    @Mappings({
+            @Mapping(source = "company_registration_number", target = "companyNumber"),
+            @Mapping(source = "name", target = "name"),
+            @Mapping(source = "email", target = "email"),
+            @Mapping(source = "shops", target = "shops", qualifiedByName = "convertShops"),
+    })
+    OwnerResponse toOwnerResponse(OwnerWithShops ownerWithShops);
+
+    @Named("convertShops")
+    default List<ShopResponse> convertShops(List<Shop> shops) {
+        return shops.stream().map(shop -> ShopResponse.builder()
+                .id(shop.getId())
+                .name(shop.getName())
+                .build()).collect(Collectors.toList());
     }
 }
