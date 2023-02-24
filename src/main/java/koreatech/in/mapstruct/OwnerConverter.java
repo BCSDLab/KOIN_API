@@ -13,7 +13,6 @@ import koreatech.in.domain.User.owner.OwnerShopAttachment;
 import koreatech.in.domain.User.owner.OwnerShopAttachments;
 import koreatech.in.domain.User.owner.OwnerWithShops;
 import koreatech.in.dto.global.AttachmentUrlRequest;
-import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
@@ -91,16 +90,17 @@ public interface OwnerConverter {
     }
 
     @Mappings({
-            @Mapping(source = "company_registration_number", target = "companyNumber"),
             @Mapping(source = "name", target = "name"),
             @Mapping(source = "email", target = "email"),
+
+            @Mapping(source = "company_registration_number", target = "companyNumber"),
             @Mapping(source = "shops", target = "shops", qualifiedByName = "convertShops"),
     })
     OwnerResponse toOwnerResponse(OwnerWithShops ownerWithShops);
 
     @Named("convertShops")
-    default List<ShopResponse> convertShops(List<Shop> shops) {
-        return shops.stream().map(shop -> ShopResponse.builder()
+    default List<OwnerResponse.Shop> convertShops(List<Shop> shops) {
+        return shops.stream().map(shop -> OwnerResponse.Shop.builder()
                 .id(shop.getId())
                 .name(shop.getName())
                 .build()).collect(Collectors.toList());
