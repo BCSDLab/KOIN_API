@@ -16,6 +16,13 @@ import lombok.experimental.SuperBuilder;
 @ApiModel("OwnerResponse")
 public class OwnerResponse extends UserResponse {
 
+    @ApiModelProperty(notes = "이름 \n"
+            + "50자 이내여야 함"
+            , example = "정보혁"
+            , required = true
+    )
+    private String name;
+
     @ApiModelProperty(notes = "사업자 등록 번호 "
             , example = "012-34-56789"
             , required = true
