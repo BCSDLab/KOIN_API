@@ -14,6 +14,7 @@ import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.domain.User.owner.OwnerWithShops;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
@@ -48,6 +49,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private VelocityEngine velocityEngine;
+
+    @Autowired
+    private JwtValidator jwtValidator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -112,7 +116,11 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public OwnerResponse getOwner() {
-        return null;
+        Integer userId = jwtValidator.validate().getId();
+
+        OwnerWithShops ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
