@@ -7,10 +7,10 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.response.UserResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Setter
+@SuperBuilder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @NoArgsConstructor
 public class StudentResponse extends UserResponse {
