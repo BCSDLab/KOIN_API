@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import javax.validation.Valid;
-import koreatech.in.dto.global.AttachmentUrlRequest;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.dto.normal.user.response.UserResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,9 +27,15 @@ public class OwnerResponse extends UserResponse {
     )
     private String companyNumber;
 
-    @ApiModelProperty(notes = "첨부 이미지들 \n"
+//    @ApiModelProperty(notes = "첨부 이미지들 \n"
+//            , required = true
+//    )
+//    @Valid
+//    private List<AttachmentUrlRequest> attachmentUrls;
+
+    @ApiModelProperty(notes = "가게 정보 \n"
             , required = true
     )
     @Valid
-    private List<AttachmentUrlRequest> attachmentUrls;
+    private List<ShopResponse> shops;
 }
