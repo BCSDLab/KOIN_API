@@ -19,14 +19,19 @@
     </resultMap>
 
     <select id="getOwnerById" resultMap="ownerWithShopsResultMap">
-        SELECT user_id,
-               company_registration_number,
-               grant_shop,
-               grant_event,
-               shops.id   AS shop_id,
-               shops.name AS shop_name
-        FROM koin.owners
-                 LEFT JOIN koin.shops ON user_id = shops.owner_id
+        SELECT users.id                           AS id,
+               users.email                        AS email,
+               users.name                         AS name,
+
+               owners.company_registration_number AS company_registration_number,
+               owners.grant_shop                  AS grant_shop,
+               owners.grant_event                 AS grant_event,
+
+               shops.id                           AS shop_id,
+               shops.name                         AS shop_name
+        FROM koin.users
+                 LEFT JOIN koin.owners ON users.id = owners.user_id
+                 LEFT JOIN koin.shops ON users.id = shops.owner_id
         WHERE user_id = #{id}
     </select>
 
