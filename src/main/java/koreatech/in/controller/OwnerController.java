@@ -18,6 +18,7 @@ import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.OwnerService;
@@ -157,9 +158,8 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.GET)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> getOwner() {
-
-        ownerService.getOwner();
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    ResponseEntity<OwnerResponse> getOwner() {
+        OwnerResponse owner = ownerService.getOwner();
+        return new ResponseEntity<>(owner, HttpStatus.CREATED);
     }
 }
