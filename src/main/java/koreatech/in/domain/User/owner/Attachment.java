@@ -16,10 +16,9 @@ import lombok.ToString;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Attachment {
     private final String fileUrl;
-    private final String fileName;
 
     public static Attachment from(String fileUrl) {
-        return new Attachment(fileUrl, fileNameFor(fileUrl));
+        return new Attachment(fileUrl);
     }
 
     private static String fileNameFor(String fileUrl) {
