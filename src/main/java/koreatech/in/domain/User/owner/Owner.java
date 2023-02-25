@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Owner extends User {
     private String company_registration_number;
-    private List<String> attachments;
+    private List<Attachment> attachments;
     // Todo grant 들 별도의 Grant embedded 객체로 매핑
     private Boolean grant_shop;
     private Boolean grant_event;
