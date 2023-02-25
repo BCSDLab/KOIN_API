@@ -6,7 +6,6 @@ import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
-import koreatech.in.domain.User.owner.Attachment;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerAttachment;
@@ -65,9 +64,9 @@ public interface OwnerConverter {
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
-    default List<Attachment> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
+    default List<OwnerAttachment> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
         return companyCertificateAttachmentUrls.stream().map(
-                        attachmentUrlRequest -> Attachment.from(attachmentUrlRequest.getFileUrl())
+                        attachmentUrlRequest -> OwnerAttachment.builder().fileUrl(attachmentUrlRequest.getFileUrl()).build()
                 )
                 .collect(Collectors.toList());
     }
@@ -80,7 +79,7 @@ public interface OwnerConverter {
     @Named("convertAttachment")
     default List<OwnerAttachment> convertAttachment(Owner owner) {
         return owner.getAttachments().stream()
-                .map(attachment -> OwnerAttachment.of(owner.getId(), attachment.getFileUrl()))
+                .map(attachment -> OwnerAttachment.builder().ownerId(owner.getId()).fileUrl(attachment.getFileUrl()).build())
                 .collect(Collectors.toList());
     }
 
@@ -96,7 +95,7 @@ public interface OwnerConverter {
     OwnerResponse toOwnerResponse(Owner owner);
 
     @Named("convertAttachments")
-    default List<OwnerResponse.Attachment> convertAttachmentsForResponse(List<Attachment> attachments) {
+    default List<OwnerResponse.Attachment> convertAttachmentsForResponse(List<OwnerAttachment> attachments) {
         return attachments.stream().map(attachment ->
                 OwnerResponse.Attachment
                         .builder()

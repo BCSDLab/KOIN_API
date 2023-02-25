@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Owner extends User {
     private String company_registration_number;
-    private List<Attachment> attachments;
+    private List<OwnerAttachment> attachments;
     private List<Shop> shops;
 
     // Todo grant 들 별도의 Grant embedded 객체로 매핑
@@ -34,15 +34,4 @@ public class Owner extends User {
             this.email = owner.email;
         }
     }
-
-//    public String fileNameFor(String attachmentUrl) {
-//        String separator = UploadFileFullPath.SLASH;
-//        int separateIndex = attachmentUrl.lastIndexOf(separator);
-//
-//        if( separateIndex == UploadFileFullName.NOT_FOUND_INDEX) {
-//            throw new BaseException(ExceptionInformation.)
-//        }
-//
-//        return attachmentUrl.substring(separateIndex + separator.length());
-//    }
 }
