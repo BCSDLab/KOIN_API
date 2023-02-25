@@ -99,6 +99,7 @@ public interface OwnerConverter {
         return attachments.stream().map(attachment ->
                 OwnerResponse.Attachment
                         .builder()
+                        .id(attachment.getId())
                         .fileUrl(attachment.getFileUrl())
                         .fileName(attachment.fileName())
                         .build())

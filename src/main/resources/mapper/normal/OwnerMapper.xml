@@ -14,6 +14,7 @@
         </collection>
 
         <collection property="attachments" javaType="List" ofType="koreatech.in.domain.User.owner.OwnerAttachment">
+            <id property="id" column="attachment_id"/>
             <result property="fileUrl" column="attachment_url"/>
         </collection>
     </resultMap>
@@ -37,6 +38,7 @@
                shops.id                           AS shop_id,
                shops.name                         AS shop_name,
 
+               attachment.id                      AS attachment_id,
                attachment.url                     AS attachment_url
         FROM koin.users
                  LEFT JOIN koin.owners

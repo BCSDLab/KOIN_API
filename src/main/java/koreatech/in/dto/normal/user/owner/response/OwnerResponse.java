@@ -47,6 +47,11 @@ public class OwnerResponse extends UserResponse {
     @ApiModel("Attachment_in_OwnerResponse")
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class Attachment {
+        @ApiModelProperty(notes = "고유 id"
+                , example = "2"
+                , required = true)
+        private Integer id;
+
         @ApiModelProperty(notes = "업로드된 파일 url"
                 , example = "static.koreatech.in/example.png"
                 , required = true
