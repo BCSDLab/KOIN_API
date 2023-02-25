@@ -67,7 +67,7 @@
             (
             #{ownerAttachment.shopId},
             #{ownerAttachment.ownerId},
-            #{ownerAttachment.url}
+            #{ownerAttachment.fileUrl}
             )
         </foreach>
     </insert>
