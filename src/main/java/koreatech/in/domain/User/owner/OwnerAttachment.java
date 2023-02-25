@@ -12,14 +12,14 @@ public class OwnerAttachment {
     private Integer id;
     private Integer ownerId;
     private Integer shopId;
-    private String url;
+    private String fileUrl;
     private Boolean isDeleted;
     private Date updateAt;
 
-    public static OwnerAttachment of(Integer ownerId, String url) {
+    public static OwnerAttachment of(Integer ownerId, String fileUrl) {
         OwnerAttachment ownerAttachment = new OwnerAttachment();
         ownerAttachment.setOwnerId(ownerId);
-        ownerAttachment.setUrl(url);
+        ownerAttachment.setFileUrl(fileUrl);
 
         return ownerAttachment;
     }
