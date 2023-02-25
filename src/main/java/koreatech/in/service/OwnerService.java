@@ -14,4 +14,6 @@ public interface OwnerService {
     void register(OwnerRegisterRequest ownerRegisterRequest);
 
     OwnerResponse getOwner();
+
+    void deleteAttachment(Integer attachmentId);
 }

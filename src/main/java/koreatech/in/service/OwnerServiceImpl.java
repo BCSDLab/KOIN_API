@@ -121,6 +121,10 @@ public class OwnerServiceImpl implements OwnerService {
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
 
+    @Override
+    public void deleteAttachment(Integer attachmentId) {
+    }
+
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
