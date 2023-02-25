@@ -21,7 +21,7 @@ public class Attachment {
         return new Attachment(fileUrl);
     }
 
-    private static String fileNameFor(String fileUrl) {
+    public String fileName() {
         //TODO 23.02.25. 박한수 해당 위치에서, 파일 도메인이 `owners`인지 검사를 추가해야 할지..?
         String separator = UploadFileFullPath.SLASH;
         int separateIndex = fileUrl.lastIndexOf(separator);
