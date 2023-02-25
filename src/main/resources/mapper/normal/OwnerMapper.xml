@@ -3,7 +3,7 @@
 <mapper namespace="koreatech.in.repository.user.OwnerMapper">
 
     <resultMap id="ownerWithShopsResultMap" extends="userResultMap"
-               type="koreatech.in.domain.User.owner.OwnerWithShops">
+               type="koreatech.in.domain.User.owner.Owner">
         <result property="company_registration_number" column="company_registration_number"/>
         <result property="grant_shop" column="grant_shop"/>
         <result property="grant_event" column="grant_event"/>
@@ -37,7 +37,7 @@
                shops.id                           AS shop_id,
                shops.name                         AS shop_name,
 
-               attachment.url                     AS attchment_url
+               attachment.url                     AS attachment_url
         FROM koin.users
                  LEFT JOIN koin.owners
                            ON users.id = owners.user_id AND users.is_deleted = FALSE

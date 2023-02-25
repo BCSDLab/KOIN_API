@@ -1,6 +1,7 @@
 package koreatech.in.domain.User.owner;
 
 import java.util.List;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,8 @@ import lombok.ToString;
 public class Owner extends User {
     private String company_registration_number;
     private List<Attachment> attachments;
+    private List<Shop> shops;
+
     // Todo grant 들 별도의 Grant embedded 객체로 매핑
     private Boolean grant_shop;
     private Boolean grant_event;

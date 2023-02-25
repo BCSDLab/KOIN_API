@@ -11,7 +11,6 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerShopAttachment;
 import koreatech.in.domain.User.owner.OwnerShopAttachments;
-import koreatech.in.domain.User.owner.OwnerWithShops;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -94,7 +93,7 @@ public interface OwnerConverter {
 
             @Mapping(source = "shops", target = "shops", qualifiedByName = "convertShops"),
     })
-    OwnerResponse toOwnerResponse(OwnerWithShops ownerWithShops);
+    OwnerResponse toOwnerResponse(Owner owner);
 
     @Named("convertAttachments")
     default List<OwnerResponse.Attachment> convertAttachmentsForResponse(List<Attachment> attachments) {

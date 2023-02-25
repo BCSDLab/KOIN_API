@@ -13,7 +13,6 @@ import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
-import koreatech.in.domain.User.owner.OwnerWithShops;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
@@ -117,7 +116,7 @@ public class OwnerServiceImpl implements OwnerService {
     public OwnerResponse getOwner() {
         Integer userId = jwtValidator.validate().getId();
 
-        OwnerWithShops ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+        Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
 
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
