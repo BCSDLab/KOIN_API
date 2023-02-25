@@ -125,20 +125,21 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public void deleteAttachment(Integer attachmentId) {
         Integer userId = jwtValidator.validate().getId();
-
         OwnerAttachment attachmentInDB = ownerMapper.getOwnerAttachmentById(attachmentId.longValue());
 
+        validateInDelete(userId, attachmentInDB);
+
+        ownerMapper.deleteOwnerAttachmentLogically(attachmentId.longValue());
+    }
+
+    private static void validateInDelete(Integer userId, OwnerAttachment attachmentInDB) {
         if(attachmentInDB == null) {
-            return;
-            // throw 첨부파일 낫 파운드
+            throw new BaseException(ExceptionInformation.OWNER_ATTACHMENT_NOT_FOUND);
         }
 
         if(!attachmentInDB.getOwnerId().equals(userId)) {
-            return;
-//            throw new BaseException("소유자가 아닙니당")
+            throw new BaseException(ExceptionInformation.FORBIDDEN);
         }
-
-
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {

@@ -166,10 +166,15 @@ public class OwnerController {
             @ApiResponse(code = 401, message
                     = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
                     , response = ExceptionResponse.class),
-            @ApiResponse(
-                    code = 422,
-                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
-                    response = RequestDataInvalidResponse.class)
+            @ApiResponse(code = 403
+                    , message = "- 권한이 없을 때 (code: 100003)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message
+                    = "요청한 첨부파일이 존재하지 않을 때(code: 121003)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 422
+                    , message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                    , response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "사장님 첨부파일 삭제", notes= "- 사장님 권한[+가게 권한 부여] 필요",
             authorizations = {@Authorization(value="Authorization")})
@@ -177,7 +182,7 @@ public class OwnerController {
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteAttachment(@ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
-
+        ownerService.deleteAttachment(attachmentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
