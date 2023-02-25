@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor
-public class OwnerShopAttachment {
+public class OwnerAttachment {
 
     private Integer id;
     private Integer ownerId;
@@ -16,12 +16,12 @@ public class OwnerShopAttachment {
     private Boolean isDeleted;
     private Date updateAt;
 
-    public static OwnerShopAttachment of(Integer ownerId, String url) {
-        OwnerShopAttachment ownerShopAttachment = new OwnerShopAttachment();
-        ownerShopAttachment.setOwnerId(ownerId);
-        ownerShopAttachment.setUrl(url);
+    public static OwnerAttachment of(Integer ownerId, String url) {
+        OwnerAttachment ownerAttachment = new OwnerAttachment();
+        ownerAttachment.setOwnerId(ownerId);
+        ownerAttachment.setUrl(url);
 
-        return ownerShopAttachment;
+        return ownerAttachment;
     }
 
 }

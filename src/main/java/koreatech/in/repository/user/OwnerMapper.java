@@ -1,7 +1,7 @@
 package koreatech.in.repository.user;
 
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.owner.OwnerShopAttachments;
+import koreatech.in.domain.User.owner.OwnerAttachments;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
@@ -16,5 +16,5 @@ public interface OwnerMapper {
     void safeDeleteOwner(Owner owner);
     void deleteOwner(Integer id);
 
-    void insertOwnerShopAttachment(OwnerShopAttachments ownerShopAttachments);
+    void insertOwnerShopAttachment(OwnerAttachments ownerAttachments);
 }
