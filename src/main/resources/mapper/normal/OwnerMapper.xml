@@ -13,8 +13,8 @@
             <result property="name" column="shop_name"/>
         </collection>
 
-        <collection property="attachments" javaType="List" ofType="java.lang.String">
-            <result column="attachment_url"/>
+        <collection property="attachments" javaType="List" ofType="koreatech.in.domain.User.owner.Attachment">
+            <result property="fileUrl" column="attachment_url"/>
         </collection>
     </resultMap>
 
