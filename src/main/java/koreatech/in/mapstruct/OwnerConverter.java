@@ -6,6 +6,7 @@ import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
+import koreatech.in.domain.User.owner.Attachment;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
@@ -22,7 +23,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
-import org.mapstruct.SubclassMapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -57,24 +57,21 @@ public interface OwnerConverter {
         return EmailAddress.from(address).getEmailAddress();
     }
 
-
     @Mappings({
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "email", target = "email"),
-            @Mapping(source = "name", target = "name")
-    })
-    @SubclassMapping(source = OwnerRegisterRequest.class, target = Owner.class)
-    User toUser(UserRegisterRequest userRegisterRequest);
+            @Mapping(source = "name", target = "name"),
 
-    @Mappings({
             @Mapping(source = "attachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
             @Mapping(source = "companyNumber", target = "company_registration_number"),
     })
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
-    default List<String> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
-        return companyCertificateAttachmentUrls.stream().map(AttachmentUrlRequest::getFileUrl)
+    default List<Attachment> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
+        return companyCertificateAttachmentUrls.stream().map(
+                        attachmentUrlRequest -> Attachment.from(attachmentUrlRequest.getFileUrl())
+                )
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +82,7 @@ public interface OwnerConverter {
 
     @Named("convertAttachment")
     default List<OwnerShopAttachment> convertAttachment(Owner owner) {
-        return owner.getAttachments().stream().map(url -> OwnerShopAttachment.of(owner.getId(), url))
+        return owner.getAttachments().stream().map(attachment -> OwnerShopAttachment.of(owner.getId(), attachment.getFileUrl()))
                 .collect(Collectors.toList());
     }
 
