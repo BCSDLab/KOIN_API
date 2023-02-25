@@ -1,9 +1,7 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,9 +17,12 @@ import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.Users;
+import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -358,6 +359,21 @@ public class AdminUserServiceImpl implements AdminUserService {
         map.put("totalPage", totalPage);
 
         return map;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
+        Integer totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage) {
+            throw new BaseException(PAGE_NOT_FOUND);
+        }
+
+        List<Owner> owners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition.getCursor(), condition);
+        return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
