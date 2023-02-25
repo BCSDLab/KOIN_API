@@ -11,7 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-@Getter @SuperBuilder
+@Getter
+@SuperBuilder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @ApiModel("OwnerResponse")
 public class OwnerResponse extends UserResponse {
@@ -29,13 +30,38 @@ public class OwnerResponse extends UserResponse {
     )
     private String companyNumber;
 
-    @ApiModelProperty(notes = "가게 정보 \n"
+    @ApiModelProperty(notes = "첨부파일 목록 \n"
+            , required = true
+    )
+    @Valid
+    private List<Attachment> attachments;
+
+    @ApiModelProperty(notes = "가게 목록 \n"
             , required = true
     )
     @Valid
     private List<Shop> shops;
 
-    @Getter @Builder
+    @Getter
+    @Builder
+    @ApiModel("Attachment_in_OwnerResponse")
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class Attachment {
+        @ApiModelProperty(notes = "업로드된 파일 url"
+                , example = "static.koreatech.in/example.png"
+                , required = true
+        )
+        private final String fileUrl;
+
+        @ApiModelProperty(notes = "업로드된 파일 명"
+                , example = "example.png"
+                , required = true
+        )
+        private final String fileName;
+    }
+
+    @Getter
+    @Builder
     @ApiModel("Shop_in_OwnerResponse")
     public static class Shop {
         @ApiModelProperty(notes = "고유 id", example = "2", required = true)
