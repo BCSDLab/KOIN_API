@@ -5,11 +5,15 @@ import koreatech.in.domain.Upload.UploadFileFullName;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
+@Getter @Setter
 @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class OwnerAttachment {
 
     private Integer id;
