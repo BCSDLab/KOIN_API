@@ -163,14 +163,14 @@ public class OwnerController {
 
 
     @ApiResponses({
-            @ApiResponse(code = 401, message
-                    = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+            @ApiResponse(code = 401
+                    , message = "- 토큰에 대한 회원 정보가 없을 때 (code: 101000)"
                     , response = ExceptionResponse.class),
             @ApiResponse(code = 403
                     , message = "- 권한이 없을 때 (code: 100003)"
                     , response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message
-                    = "요청한 첨부파일이 존재하지 않을 때(code: 121003)"
+            @ApiResponse(code = 404
+                    , message = "- 요청한 첨부파일이 존재하지 않을 때(code: 121003)"
                     , response = ExceptionResponse.class),
             @ApiResponse(code = 422
                     , message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
