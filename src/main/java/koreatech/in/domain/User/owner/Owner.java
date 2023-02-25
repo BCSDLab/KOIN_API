@@ -31,4 +31,15 @@ public class Owner extends User {
             this.email = owner.email;
         }
     }
+
+//    public String fileNameFor(String attachmentUrl) {
+//        String separator = UploadFileFullPath.SLASH;
+//        int separateIndex = attachmentUrl.lastIndexOf(separator);
+//
+//        if( separateIndex == UploadFileFullName.NOT_FOUND_INDEX) {
+//            throw new BaseException(ExceptionInformation.)
+//        }
+//
+//        return attachmentUrl.substring(separateIndex + separator.length());
+//    }
 }

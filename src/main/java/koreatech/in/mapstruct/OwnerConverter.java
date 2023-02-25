@@ -94,9 +94,18 @@ public interface OwnerConverter {
             @Mapping(source = "email", target = "email"),
 
             @Mapping(source = "company_registration_number", target = "companyNumber"),
+//            @Mapping(source = "attachments", target = "attachments", qualifiedByName = "convertAttachments"),
+
             @Mapping(source = "shops", target = "shops", qualifiedByName = "convertShops"),
     })
     OwnerResponse toOwnerResponse(OwnerWithShops ownerWithShops);
+
+//    @Named("convertAttachments")
+//    default List<OwnerResponse.Attachment> convertAttachmentsForResponse(List<String> attachments) {
+//        return attachments.stream().map(
+//                )
+//                .build()).collect(Collectors.toList());
+//    }
 
     @Named("convertShops")
     default List<OwnerResponse.Shop> convertShops(List<Shop> shops) {
