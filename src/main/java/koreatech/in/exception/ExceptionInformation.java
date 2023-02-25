@@ -1,6 +1,7 @@
 package koreatech.in.exception;
 
 import lombok.Getter;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -58,7 +59,7 @@ public enum ExceptionInformation {
     // ======= 파일 업로드 =======
     DOMAIN_NOT_FOUND("존재하지 않는 도메인입니다.", 110000, HttpStatus.NOT_FOUND),
     FILE_INVALID("유효하지 않는 파일입니다.", 110001, HttpStatus.UNPROCESSABLE_ENTITY),
-    //TODO 23.02.11. 박한수 파일목록(List<File~>) 을 멤버로 하는 객체 선언해서, 이 객체로 ResponseBody가 매핑되어 ParamValid에 걸릴 수 있는지 시도해보기.
+    //TODO 23.02.11. 박한수 파일 업로드 API에서, 파일목록(List<File~>) {다중 파일 업로드시 request body에 매핑되는 collection} 을 list를 필드로 갖는 객체로 변경하여, 이 객체에 annotation validation을 적용할 수 있는지 보기.
     FILES_EMPTY("파일목록이 비어있습니다.", 110002, HttpStatus.UNPROCESSABLE_ENTITY),
     FILES_LENGTH_OVER("파일목록의 길이가 최대보다 큽니다.", 110003, HttpStatus.CONFLICT),
     UNEXPECTED_FILE_CONTENT_TYPE("도메인이 허용하지 않는 콘텐츠 타입입니다.", 110004, HttpStatus.UNSUPPORTED_MEDIA_TYPE),
@@ -88,7 +89,8 @@ public enum ExceptionInformation {
     TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED("휴무가 아니라면 여는 시간과 닫는 시간 정보는 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     DUPLICATE_DAY_OF_WEEK_INFORMATION_EXISTS("중복되는 요일이 존재합니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     PRICE_OF_MENU_IS_REQUIRED("메뉴의 가격 정보는 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
-    DUPLICATE_OPTIONS_EXIST_IN_MENU("메뉴에서 중복되는 옵션명이 있습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
+    DUPLICATE_OPTIONS_EXIST_IN_MENU("메뉴에서 중복되는 옵션명이 있습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    UPLOAD_FILE_URL_INVALID("코인 파일 저장 형식(static.koreatech.in)이 아닙니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
 
     ExceptionInformation(String message, Integer code, HttpStatus httpStatus) {
         this.message = message;
