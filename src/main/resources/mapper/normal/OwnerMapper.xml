@@ -88,4 +88,10 @@
         WHERE id = #{id}
           AND is_deleted = FALSE
     </select>
+
+    <update id="deleteOwnerAttachmentLogically">
+        UPDATE koin.owner_shop_attachment
+        SET is_deleted = TRUE
+        WHERE id = #{id}
+    </update>
 </mapper>
