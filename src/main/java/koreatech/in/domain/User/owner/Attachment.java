@@ -4,20 +4,22 @@ import koreatech.in.domain.Upload.UploadFileFullName;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Attachment {
-    private final String fileUrl;
+    private String fileUrl;
 
     public static Attachment from(String fileUrl) {
+        //TODO 23.02.25. https 붙일지 뗼지 [전 범위에 걸쳐서(파일 업로드, db 저장)] 박한수 해당 위치에서, 파일 도메인이 `owners`인지 검사를 추가해야 할지..?
         return new Attachment(fileUrl);
     }
 
