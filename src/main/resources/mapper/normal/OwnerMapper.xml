@@ -56,18 +56,18 @@
                 #{company_registration_number});
     </insert>
 
-    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerShopAttachments">
+    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerAttachments">
         INSERT INTO koin.owner_shop_attachment (
         shop_id,
         owner_id,
         url
         )
         VALUES
-        <foreach item="ownerShopAttachment" collection="attachments" separator=",">
+        <foreach item="ownerAttachment" collection="attachments" separator=",">
             (
-            #{ownerShopAttachment.shopId},
-            #{ownerShopAttachment.ownerId},
-            #{ownerShopAttachment.url}
+            #{ownerAttachment.shopId},
+            #{ownerAttachment.ownerId},
+            #{ownerAttachment.url}
             )
         </foreach>
     </insert>

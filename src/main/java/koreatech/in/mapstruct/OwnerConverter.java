@@ -9,8 +9,8 @@ import koreatech.in.domain.User.LocalParts;
 import koreatech.in.domain.User.owner.Attachment;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
-import koreatech.in.domain.User.owner.OwnerShopAttachment;
-import koreatech.in.domain.User.owner.OwnerShopAttachments;
+import koreatech.in.domain.User.owner.OwnerAttachment;
+import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -75,12 +75,12 @@ public interface OwnerConverter {
     @Mappings({
             @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachment")
     })
-    OwnerShopAttachments toOwnerShopAttachments(Owner owner);
+    OwnerAttachments toOwnerShopAttachments(Owner owner);
 
     @Named("convertAttachment")
-    default List<OwnerShopAttachment> convertAttachment(Owner owner) {
+    default List<OwnerAttachment> convertAttachment(Owner owner) {
         return owner.getAttachments().stream()
-                .map(attachment -> OwnerShopAttachment.of(owner.getId(), attachment.getFileUrl()))
+                .map(attachment -> OwnerAttachment.of(owner.getId(), attachment.getFileUrl()))
                 .collect(Collectors.toList());
     }
 
