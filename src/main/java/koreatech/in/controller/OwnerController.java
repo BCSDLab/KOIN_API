@@ -215,8 +215,6 @@ public class OwnerController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        ownerService.update(request);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(ownerService.update(request), HttpStatus.CREATED);
     }
 }

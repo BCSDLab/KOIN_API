@@ -18,5 +18,5 @@ public interface OwnerService {
 
     void deleteAttachment(Integer attachmentId);
 
-    void update(OwnerUpdateRequest ownerUpdateRequest);
+    OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
 }
