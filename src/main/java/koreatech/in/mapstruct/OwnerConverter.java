@@ -73,12 +73,12 @@ public interface OwnerConverter {
     }
 
     @Mappings({
-            @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachment")
+            @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachments")
     })
-    OwnerAttachments toOwnerShopAttachments(Owner owner);
+    OwnerAttachments toOwnerAttachments(Owner owner);
 
-    @Named("convertAttachment")
-    default List<OwnerAttachment> convertAttachment(Owner owner) {
+    @Named("convertAttachments")
+    default List<OwnerAttachment> convertAttachments(Owner owner) {
         return owner.getAttachments().stream()
                 .map(attachment -> OwnerAttachment.builder().ownerId(owner.getId()).fileUrl(attachment.getFileUrl()).build())
                 .collect(Collectors.toList());

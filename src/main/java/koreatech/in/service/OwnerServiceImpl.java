@@ -257,7 +257,7 @@ public class OwnerServiceImpl implements OwnerService {
             insertUserAndUpdateId(owner);
 
             ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerShopAttachment(OwnerConverter.INSTANCE.toOwnerShopAttachments(owner));
+            ownerMapper.insertOwnerAttachments(OwnerConverter.INSTANCE.toOwnerAttachments(owner));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
