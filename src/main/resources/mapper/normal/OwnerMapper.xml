@@ -81,7 +81,7 @@
         UPDATE koin.owner_shop_attachment
         SET is_deleted = TRUE
         <foreach item="ownerAttachment" collection="attachments" separator=",">
-            WHERE url = #{fileUrl}
+            WHERE url = #{ownerAttachment.fileUrl}
         </foreach>
     </update>
 
