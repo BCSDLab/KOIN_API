@@ -17,17 +17,19 @@ public class OwnerAttachments {
     private List<OwnerAttachment> attachments;
 
     public static OwnerAttachments from(List<OwnerAttachment> attachments) {
+        validateNonNullList(attachments);
+
         return new OwnerAttachments(attachments);
     }
 
     public Set<String> getExistAttachmentUrls() {
-        validateNonNullList();
+        validateNonNullList(getAttachments());
 
         return new HashSet<>(getAttachmentUrls());
     }
 
-    private void validateNonNullList() {
-        if(getAttachments() == null) {
+    private static void validateNonNullList(List<OwnerAttachment> attachments) {
+        if(attachments == null) {
             throw new RuntimeException("DB에 존재하는 사장님의 첨부파일은 비어있을 수 없습니다.");
         }
     }
@@ -53,7 +55,7 @@ public class OwnerAttachments {
     }
 
     private List<OwnerAttachment> filteredAttachmentsBy(Predicate<OwnerAttachment> filterPredicate) {
-        validateNonNullList();
+        validateNonNullList(getAttachments());
 
         return getAttachments()
                 .stream()
