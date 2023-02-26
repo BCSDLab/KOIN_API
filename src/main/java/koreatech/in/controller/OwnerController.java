@@ -204,7 +204,7 @@ public class OwnerController {
                     response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "사장님 정보 수정", notes = "- 사장님 권한[+가게 권한 부여] 필요")
-    @RequestMapping(value = "/owners", method = RequestMethod.PUT)
+    @RequestMapping(value = "/owner", method = RequestMethod.PUT)
     @ParamValid
     public @ResponseBody
     ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request,
