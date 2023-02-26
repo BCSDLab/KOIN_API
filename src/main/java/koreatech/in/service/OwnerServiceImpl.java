@@ -149,30 +149,37 @@ public class OwnerServiceImpl implements OwnerService {
         OwnerAttachments ownerAttachments = ownerAttachmentsFillWithOwnerId(owner);
         OwnerAttachments ownerAttachmentsInDB = OwnerAttachments.from(ownerInToken.getAttachments());
 
-        updateAttachment(ownerAttachments, ownerAttachmentsInDB);
+        OwnerAttachments updatedAttachments = updateAttachment(ownerAttachments, ownerAttachmentsInDB);
+
+        ownerInToken.setAttachments(updatedAttachments.getAttachments());
     }
 
     private static OwnerAttachments ownerAttachmentsFillWithOwnerId(Owner owner) {
         return OwnerConverter.INSTANCE.toOwnerAttachments(owner);
     }
 
-    private void updateAttachment(OwnerAttachments ownerAttachments, OwnerAttachments ownerAttachmentsInDB) {
+    private OwnerAttachments updateAttachment(OwnerAttachments ownerAttachments,
+                                              OwnerAttachments ownerAttachmentsInDB) {
+        OwnerAttachments result = ownerAttachmentsInDB.intersectionWith(ownerAttachments);
+
         OwnerAttachments toAdd = ownerAttachments.removeDuplicatesFrom(ownerAttachmentsInDB);
         OwnerAttachments toDelete = ownerAttachmentsInDB.removeDuplicatesFrom(ownerAttachments);
 
-        if(!toAdd.isEmpty()) {
-            ownerMapper.insertOwnerAttachments(toAdd);
+        if (!toAdd.isEmpty()) {
+            toAdd.getAttachments().forEach(ownerAttachment -> ownerMapper.insertOwnerAttachment(ownerAttachment));
+            result.addAllFrom(toAdd);
         }
-        if(!toDelete.isEmpty()) {
+        if (!toDelete.isEmpty()) {
             ownerMapper.deleteOwnerAttachmentsLogically(toDelete);
         }
+        return result;
     }
 
     private Owner getOwnerInToken() {
         Integer userId = jwtValidator.validateAndGetUserId();
         Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
 
-        if(ownerInDB == null) {
+        if (ownerInDB == null) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
 
