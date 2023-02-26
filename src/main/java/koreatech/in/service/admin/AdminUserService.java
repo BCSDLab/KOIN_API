@@ -6,7 +6,9 @@ import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
@@ -36,4 +38,6 @@ public interface AdminUserService {
     Map<String, Object> deletePermissionForAdmin(int userId);
 
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
+
+    NewOwnersResponse getNewOwners(NewOwnersCondition condition);
 }

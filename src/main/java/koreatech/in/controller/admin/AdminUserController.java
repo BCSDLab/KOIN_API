@@ -20,7 +20,9 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,5 +185,15 @@ public class AdminUserController {
     ResponseEntity getPermissionList(@ApiParam(required = false) @RequestParam(value = "page", required = false, defaultValue="1") int page,
                                      @ApiParam(required = false) @RequestParam(value = "limit", required = false, defaultValue="10") int limit) throws Exception {
         return new ResponseEntity<Map<String, Object>>(adminUserService.getPermissionListForAdmin(page, limit), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "가입 신청한 사장님 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @RequestMapping(value = "/admin/new-owners", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<NewOwnersResponse> getNewOwners(NewOwnersCondition condition) {
+        condition.checkDataConstraintViolation();
+
+        NewOwnersResponse response = adminUserService.getNewOwners(condition);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
