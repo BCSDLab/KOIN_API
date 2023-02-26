@@ -30,7 +30,6 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
-import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
@@ -53,9 +52,6 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private StudentMapper studentMapper;
-
-    @Autowired
-    private OwnerMapper ownerMapper;
 
     @Autowired
     private AuthorityMapper authorityMapper;
