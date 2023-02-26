@@ -140,7 +140,8 @@ public class OwnerServiceImpl implements OwnerService {
         Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
         Owner ownerInToken = getOwnerInToken();
 
-        updateAttachment(owner, ownerInToken);
+        OwnerAttachments ownerAttachments = OwnerConverter.INSTANCE.toOwnerAttachments(owner);
+        updateAttachment(ownerAttachments, ownerInToken);
         //생성은 가능, 삭제는 ??;
         //필드가 아에 비었을 수도 있짢아~
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
@@ -157,9 +158,8 @@ public class OwnerServiceImpl implements OwnerService {
 //        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
     }
 
-    private static void updateAttachment(Owner owner, Owner ownerInToken) {
+    private static void updateAttachment(OwnerAttachments ownerAttachments, Owner ownerInToken) {
         //PK를 url로? // 중복이 생김 // 중복 체크 ? // 사장님 ID까지 PK로 넣기?
-        OwnerAttachments ownerAttachments = OwnerAttachments.from(owner.getAttachments());
         Set<String> existAttachmentUrls = OwnerAttachments.from(ownerInToken.getAttachments()).getExistAttachmentUrls();
 
         OwnerAttachments toAdd = ownerAttachments.selectToAdd(existAttachmentUrls);
