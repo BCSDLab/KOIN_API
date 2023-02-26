@@ -34,6 +34,15 @@ public class OwnerAttachments {
 
         return OwnerAttachments.from(attachmentsRemovedDuplicates);
     }
+    public void addAllFrom(OwnerAttachments ownerAttachments) {
+        attachments.addAll(ownerAttachments.getAttachments());
+    }
+
+    public OwnerAttachments intersectionWith(OwnerAttachments other) {
+        OwnerAttachments removedOtherDuplicates = removeDuplicatesFrom(other);
+
+        return removeDuplicatesFrom(removedOtherDuplicates);
+    }
 
     private static void validateNonNullList(List<OwnerAttachment> attachments) {
         if(attachments == null) {
