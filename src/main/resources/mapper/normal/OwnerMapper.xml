@@ -77,7 +77,7 @@
         </foreach>
     </insert>
 
-    <update id="deleteOwnerAttachmentLogically">
+    <update id="deleteOwnerAttachmentsLogically">
         UPDATE koin.owner_shop_attachment
         SET is_deleted = TRUE
         <foreach item="ownerAttachment" collection="attachments" separator=",">
