@@ -192,4 +192,8 @@ public class User {
         }
         return getUser_type().getText();
     }
+
+    public void updateLastLoginTimeToCurrent() {
+        this.last_logged_at = new Date();
+    }
 }

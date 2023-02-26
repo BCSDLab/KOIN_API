@@ -5,7 +5,6 @@ import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,8 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(PASSWORD_DIFFERENT);
         }
 
-        userMapper.updateLastLoggedAt(user.getId(), new Date());
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {

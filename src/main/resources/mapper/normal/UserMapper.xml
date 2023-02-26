@@ -206,14 +206,6 @@
         <result property="grant_event" column="owners.grant_event"/>
     </resultMap>
 
-    <update id="updateLastLoggedAt">
-        UPDATE `koin`.`users`
-        SET `last_logged_at` = #{currentDate}
-        WHERE
-            `id` = #{id}
-            AND `is_deleted` = 0
-    </update>
-
     <delete id="deleteUser" parameterType="koreatech.in.domain.User.User">
         DELETE
         FROM `koin`.`users`
