@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.UserType;
@@ -135,38 +134,34 @@ public class OwnerServiceImpl implements OwnerService {
         ownerMapper.deleteOwnerAttachmentLogically(attachmentId.longValue());
     }
 
+    @Transactional
     @Override
     public OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest) {
         Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
-        Owner ownerInToken = getOwnerInToken();
+        Owner ownerInDB = getOwnerInToken();
 
-        OwnerAttachments ownerAttachments = OwnerConverter.INSTANCE.toOwnerAttachments(owner);
-        updateAttachment(ownerAttachments, ownerInToken);
-        //생성은 가능, 삭제는 ??;
-        //필드가 아에 비었을 수도 있짢아~
-        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
+        OwnerAttachments ownerAttachments = ownerAttachmentsFillWithOwnerId(owner);
+        OwnerAttachments ownerAttachmentsInDB = OwnerAttachments.from(ownerInDB.getAttachments());
 
-//        Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
-//        Student studentInToken = getStudentInToken();
-//
-//        validateInUpdate(student);
-//        enrichInUpdateFor(student);
-//
-//        studentInToken.update(student);
-//        updateInDBFor(studentInToken);
-//
-//        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
+        updateAttachment(ownerAttachments, ownerAttachmentsInDB);
+
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
 
-    private void updateAttachment(OwnerAttachments ownerAttachments, Owner ownerInToken) {
-        //PK를 url로? // 중복이 생김 // 중복 체크 ? // 사장님 ID까지 PK로 넣기?
-        Set<String> existAttachmentUrls = OwnerAttachments.from(ownerInToken.getAttachments()).getExistAttachmentUrls();
+    private static OwnerAttachments ownerAttachmentsFillWithOwnerId(Owner owner) {
+        return OwnerConverter.INSTANCE.toOwnerAttachments(owner);
+    }
 
-        OwnerAttachments toAdd = ownerAttachments.selectToAdd(existAttachmentUrls);
-        OwnerAttachments toDelete = ownerAttachments.selectToDelete(existAttachmentUrls);
+    private void updateAttachment(OwnerAttachments ownerAttachments, OwnerAttachments ownerAttachmentsInDB) {
+        OwnerAttachments toAdd = ownerAttachments.removeDuplicatesFrom(ownerAttachmentsInDB);
+        OwnerAttachments toDelete = ownerAttachmentsInDB.removeDuplicatesFrom(ownerAttachments);
 
-        ownerMapper.insertOwnerAttachments(toAdd);
-        ownerMapper.deleteOwnerAttachmentsLogically(toDelete);
+        if(!toAdd.isEmpty()) {
+            ownerMapper.insertOwnerAttachments(toAdd);
+        }
+        if(!toDelete.isEmpty()) {
+            ownerMapper.deleteOwnerAttachmentsLogically(toDelete);
+        }
     }
 
     private Owner getOwnerInToken() {
@@ -260,7 +255,7 @@ public class OwnerServiceImpl implements OwnerService {
             insertUserAndUpdateId(owner);
 
             ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerAttachments(OwnerConverter.INSTANCE.toOwnerAttachments(owner));
+            ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

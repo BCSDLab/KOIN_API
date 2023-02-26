@@ -3,7 +3,6 @@ package koreatech.in.domain.User.owner;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,10 +21,18 @@ public class OwnerAttachments {
         return new OwnerAttachments(attachments);
     }
 
-    public Set<String> getExistAttachmentUrls() {
+    public boolean isEmpty() {
+        return attachments.isEmpty();
+    }
+
+    // this 와 other 의 차집합을 반환
+    public OwnerAttachments removeDuplicatesFrom(OwnerAttachments other) {
         validateNonNullList(getAttachments());
 
-        return new HashSet<>(getAttachmentUrls());
+        Set<String> otherAttachments = other.makeAttachments();
+        List<OwnerAttachment> attachmentsRemovedDuplicates = removeDuplicates(otherAttachments);
+
+        return OwnerAttachments.from(attachmentsRemovedDuplicates);
     }
 
     private static void validateNonNullList(List<OwnerAttachment> attachments) {
@@ -34,32 +41,23 @@ public class OwnerAttachments {
         }
     }
 
+    private Set<String> makeAttachments() {
+        validateNonNullList(getAttachments());
+
+        return new HashSet<>(getAttachmentUrls());
+    }
+
     private List<String> getAttachmentUrls() {
         return getAttachments()
                 .stream()
                 .map(OwnerAttachment::getFileUrl)
                 .collect(Collectors.toList());
     }
-    
-    public OwnerAttachments selectToAdd(Set<String> existAttachmentUrls) {
-        return OwnerAttachments.from(filteredAttachmentsBy(
-                ownerAttachment -> !existAttachmentUrls.contains(ownerAttachment.getFileUrl()))
-        );
-    }
 
-
-    public OwnerAttachments selectToDelete(Set<String> existAttachmentUrls) {
-        return OwnerAttachments.from(filteredAttachmentsBy(
-                ownerAttachment -> existAttachmentUrls.contains(ownerAttachment.getFileUrl())
-        ));
-    }
-
-    private List<OwnerAttachment> filteredAttachmentsBy(Predicate<OwnerAttachment> filterPredicate) {
-        validateNonNullList(getAttachments());
-
+    private List<OwnerAttachment> removeDuplicates(Set<String> otherAttachments) {
         return getAttachments()
                 .stream()
-                .filter(filterPredicate)
+                .filter(ownerAttachment -> !otherAttachments.contains(ownerAttachment.getFileUrl()))
                 .collect(Collectors.toList());
     }
 }
