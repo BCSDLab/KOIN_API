@@ -30,9 +30,8 @@ public class JwtValidator {
         if (userId == null) {
             return null;
         }
-        User user = userMapper.getAuthedUserById(userId);
 
-        return user;
+        return userMapper.getAuthedUserById(userId);
     }
 
     private Integer getUserId(String header) {
@@ -45,8 +44,7 @@ public class JwtValidator {
             return null;
         }
 
-        Integer userId = jwtTokenGenerator.me(accessToken);
-        return userId;
+        return jwtTokenGenerator.me(accessToken);
     }
 
     public Integer validateAndGetUserId() {
