@@ -19,5 +19,6 @@ public interface OwnerMapper {
     OwnerAttachment getOwnerAttachmentById(Long id);
     void deleteOwnerAttachmentLogically(Long id);
 
-    void insertOwnerShopAttachment(OwnerAttachments ownerAttachments);
+    void insertOwnerAttachments(OwnerAttachments ownerAttachments);
+    void deleteOwnerAttachmentLogically(OwnerAttachments ownerAttachments);
 }

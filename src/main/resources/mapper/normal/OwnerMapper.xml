@@ -63,22 +63,27 @@
                 #{company_registration_number});
     </insert>
 
-    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerAttachments">
+    <insert id="insertOwnerAttachments">
         INSERT INTO koin.owner_shop_attachment (
-        shop_id,
         owner_id,
         url
         )
         VALUES
         <foreach item="ownerAttachment" collection="attachments" separator=",">
             (
-            #{ownerAttachment.shopId},
             #{ownerAttachment.ownerId},
             #{ownerAttachment.fileUrl}
             )
         </foreach>
     </insert>
 
+    <update id="deleteOwnerAttachmentLogically">
+        UPDATE koin.owner_shop_attachment
+        SET is_deleted = TRUE
+        <foreach item="ownerAttachment" collection="attachments" separator=",">
+            WHERE url = #{fileUrl}
+        </foreach>
+    </update>
 
     <select id="getOwnerAttachmentById" resultMap="ownerAttachmentResultMap">
         SELECT id,
