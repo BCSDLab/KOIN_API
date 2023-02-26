@@ -137,14 +137,18 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest) {
         Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
-        Owner ownerInDB = getOwnerInToken();
+        Owner ownerInToken = getOwnerInToken();
 
+        updateDBFor(owner, ownerInToken);
+
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
+    }
+
+    private void updateDBFor(Owner owner, Owner ownerInToken) {
         OwnerAttachments ownerAttachments = ownerAttachmentsFillWithOwnerId(owner);
-        OwnerAttachments ownerAttachmentsInDB = OwnerAttachments.from(ownerInDB.getAttachments());
+        OwnerAttachments ownerAttachmentsInDB = OwnerAttachments.from(ownerInToken.getAttachments());
 
         updateAttachment(ownerAttachments, ownerAttachmentsInDB);
-
-        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
 
     private static OwnerAttachments ownerAttachmentsFillWithOwnerId(Owner owner) {
