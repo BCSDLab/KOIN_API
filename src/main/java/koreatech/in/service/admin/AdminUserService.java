@@ -15,7 +15,7 @@ import koreatech.in.dto.normal.user.student.response.StudentResponse;
 public interface AdminUserService {
     LoginResponse login(LoginRequest request) throws Exception;
 
-    void logoutForAdmin();
+    void logout();
 
     Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
 

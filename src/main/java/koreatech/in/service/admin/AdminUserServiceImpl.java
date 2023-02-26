@@ -112,7 +112,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void logoutForAdmin() {
+    public void logout() {
         User user = jwtValidator.validate();
         deleteAccessTokenFromRedis(user.getId());
     }

@@ -73,7 +73,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/user/logout", method = RequestMethod.POST)
     public ResponseEntity<EmptyResponse> logout() {
-        adminUserService.logoutForAdmin();
+        adminUserService.logout();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
