@@ -21,7 +21,7 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
@@ -199,11 +199,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private Student getStudentInToken() {
-        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
+        User validatedUser = jwtValidator.validate();
 
-        if (studentInToken == null) {
+        if(!(validatedUser instanceof Student)) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
+
+        Student studentInToken = (Student) validatedUser;
+
         return studentInToken;
     }
 
@@ -211,6 +214,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
     @Transactional
+    @Deprecated
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
         try {
