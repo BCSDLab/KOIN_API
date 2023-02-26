@@ -205,9 +205,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
 
-        Student studentInToken = (Student) validatedUser;
-
-        return studentInToken;
+        return (Student) validatedUser;
     }
 
     // TODO owner 정보 업데이트
