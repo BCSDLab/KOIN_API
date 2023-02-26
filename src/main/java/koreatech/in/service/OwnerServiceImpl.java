@@ -139,6 +139,7 @@ public class OwnerServiceImpl implements OwnerService {
         Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
         Owner ownerInToken = getOwnerInToken();
 
+        owner.setId(ownerInToken.getId());
         updateDBFor(owner, ownerInToken);
 
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
