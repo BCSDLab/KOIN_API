@@ -63,13 +63,14 @@
                 #{company_registration_number});
     </insert>
 
-    <insert id="insertOwnerAttachments" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO koin.owner_shop_attachment (
+    <insert id="insertOwnerAttachments">
+        INSERT INTO koin.owner_shop_attachment
+        (
         owner_id,
         url
         )
         VALUES
-        <foreach item="ownerAttachment" collection="attachments" separator=",">
+        <foreach collection="attachments" item="ownerAttachment" separator=",">
             (
             #{ownerAttachment.ownerId},
             #{ownerAttachment.fileUrl}
