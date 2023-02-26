@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
-import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerAttachment;
@@ -243,13 +242,8 @@ public class OwnerServiceImpl implements OwnerService {
         owner.setPassword(passwordEncoder.encode(owner.getPassword()));
     }
 
-    private static void enrichAuthComplete(Owner owner) {
-        owner.setUser_type(UserType.OWNER);
-        owner.setIs_authed(false);
-    }
-
     private void createInDBFor(Owner owner) {
-        enrichAuthComplete(owner);
+        owner.enrichAuthComplete();
 
         try {
             insertUserAndUpdateId(owner);
