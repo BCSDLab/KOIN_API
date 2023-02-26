@@ -18,7 +18,6 @@ import lombok.experimental.SuperBuilder;
 public class OwnerResponse extends UserResponse {
 
     @ApiModelProperty(notes = "이름 \n"
-            + "50자 이내여야 함"
             , example = "정보혁"
             , required = true
     )
