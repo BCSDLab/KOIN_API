@@ -189,15 +189,12 @@ public class OwnerController {
 
 
     @ApiResponses({
-            @ApiResponse(
-                    code = 409,
-                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n"
-                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
-                    response = ExceptionResponse.class),
-            @ApiResponse(
-                    code = 410,
-                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n",
-                    response = ExceptionResponse.class),
+            @ApiResponse(code = 401
+                    , message = "- 토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 403
+                    , message = "- 권한이 없을 때 (code: 100003)"
+                    , response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
@@ -214,7 +211,8 @@ public class OwnerController {
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
+        OwnerResponse ownerResponse = ownerService.update(request);
 
-        return new ResponseEntity<>(ownerService.update(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(ownerResponse, HttpStatus.CREATED);
     }
 }
