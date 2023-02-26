@@ -15,6 +15,7 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
@@ -130,6 +131,11 @@ public class OwnerServiceImpl implements OwnerService {
         validateInDelete(userId, attachmentInDB);
 
         ownerMapper.deleteOwnerAttachmentLogically(attachmentId.longValue());
+    }
+
+    @Override
+    public void update(OwnerUpdateRequest ownerUpdateRequest) {
+        jwtValidator.validate();
     }
 
     private static void validateInDelete(Integer userId, OwnerAttachment attachmentInDB) {
