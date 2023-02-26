@@ -6,12 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerAttachment;
+import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
@@ -134,22 +136,59 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public void update(OwnerUpdateRequest ownerUpdateRequest) {
-        jwtValidator.validate();
+    public OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest) {
+        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
+        Owner ownerInToken = getOwnerInToken();
+
+        updateAttachment(owner, ownerInToken);
+        //생성은 가능, 삭제는 ??;
+        //필드가 아에 비었을 수도 있짢아~
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
+
+//        Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
+//        Student studentInToken = getStudentInToken();
+//
+//        validateInUpdate(student);
+//        enrichInUpdateFor(student);
+//
+//        studentInToken.update(student);
+//        updateInDBFor(studentInToken);
+//
+//        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
+    }
+
+    private static void updateAttachment(Owner owner, Owner ownerInToken) {
+        //PK를 url로? // 중복이 생김 // 중복 체크 ? // 사장님 ID까지 PK로 넣기?
+        OwnerAttachments ownerAttachments = OwnerAttachments.from(owner.getAttachments());
+        Set<String> existAttachmentUrls = OwnerAttachments.from(ownerInToken.getAttachments()).getExistAttachmentUrls();
+
+        OwnerAttachments toAdd = ownerAttachments.selectToAdd(existAttachmentUrls);
+        OwnerAttachments toDelete = ownerAttachments.selectToDelete(existAttachmentUrls);
+    }
+
+    private Owner getOwnerInToken() {
+        Integer userId = jwtValidator.validateAndGetUserId();
+        Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+
+        if(ownerInDB == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+
+        return ownerInDB;
     }
 
     private static void validateInDelete(Integer userId, OwnerAttachment attachmentInDB) {
-        if(attachmentInDB == null) {
+        if (attachmentInDB == null) {
             throw new BaseException(ExceptionInformation.OWNER_ATTACHMENT_NOT_FOUND);
         }
 
-        if(!attachmentInDB.getOwnerId().equals(userId)) {
+        if (!attachmentInDB.getOwnerId().equals(userId)) {
             throw new BaseException(ExceptionInformation.FORBIDDEN);
         }
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
-        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+        if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
@@ -190,8 +229,7 @@ public class OwnerServiceImpl implements OwnerService {
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
-                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT,
-                mailFormFor(certificationCode));
+                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT, mailFormFor(certificationCode));
     }
 
     private String mailFormFor(CertificationCode certificationCode) {
