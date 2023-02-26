@@ -3,6 +3,7 @@ package koreatech.in.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -28,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -157,5 +159,30 @@ public class OwnerController {
     ResponseEntity<OwnerResponse> getOwner() {
         OwnerResponse owner = ownerService.getOwner();
         return new ResponseEntity<>(owner, HttpStatus.CREATED);
+    }
+
+
+    @ApiResponses({
+            @ApiResponse(code = 401
+                    , message = "- 토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 403
+                    , message = "- 권한이 없을 때 (code: 100003)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 404
+                    , message = "- 요청한 첨부파일이 존재하지 않을 때(code: 121003)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 422
+                    , message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                    , response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "사장님 첨부파일 삭제", notes= "- 사장님 권한[+가게 권한 부여] 필요",
+            authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/owners/attachment/{id}", method = RequestMethod.DELETE)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> deleteAttachment(@ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
+        ownerService.deleteAttachment(attachmentId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

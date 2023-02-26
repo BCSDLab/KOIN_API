@@ -26,6 +26,11 @@
         <result property="name" column="name"/>
     </resultMap>
 
+    <resultMap id="ownerAttachmentResultMap" type="koreatech.in.domain.User.owner.OwnerAttachment">
+        <id property="id" column="attachment_id"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
     <select id="getOwnerById" resultMap="ownerShopsResultMap">
         SELECT users.id                           AS id,
                users.email                        AS email,
@@ -73,4 +78,20 @@
             )
         </foreach>
     </insert>
+
+
+    <select id="getOwnerAttachmentById" resultMap="ownerAttachmentResultMap">
+        SELECT id,
+               owner_id
+        FROM koin.owner_shop_attachment
+
+        WHERE id = #{id}
+          AND is_deleted = FALSE
+    </select>
+
+    <update id="deleteOwnerAttachmentLogically">
+        UPDATE koin.owner_shop_attachment
+        SET is_deleted = TRUE
+        WHERE id = #{id}
+    </update>
 </mapper>

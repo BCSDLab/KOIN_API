@@ -11,6 +11,7 @@ import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
@@ -119,6 +120,26 @@ public class OwnerServiceImpl implements OwnerService {
         Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
 
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
+    }
+
+    @Override
+    public void deleteAttachment(Integer attachmentId) {
+        Integer userId = jwtValidator.validate().getId();
+        OwnerAttachment attachmentInDB = ownerMapper.getOwnerAttachmentById(attachmentId.longValue());
+
+        validateInDelete(userId, attachmentInDB);
+
+        ownerMapper.deleteOwnerAttachmentLogically(attachmentId.longValue());
+    }
+
+    private static void validateInDelete(Integer userId, OwnerAttachment attachmentInDB) {
+        if(attachmentInDB == null) {
+            throw new BaseException(ExceptionInformation.OWNER_ATTACHMENT_NOT_FOUND);
+        }
+
+        if(!attachmentInDB.getOwnerId().equals(userId)) {
+            throw new BaseException(ExceptionInformation.FORBIDDEN);
+        }
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
