@@ -77,6 +77,21 @@
         </foreach>
     </insert>
 
+    <insert id="insertOwnerAttachment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO koin.owner_shop_attachment
+        (
+        owner_id,
+        url
+        )
+        VALUES
+
+        (
+        #{ownerId},
+        #{fileUrl}
+        )
+    </insert>
+
+
     <update id="deleteOwnerAttachmentsLogically">
         UPDATE koin.owner_shop_attachment
         SET is_deleted = TRUE
