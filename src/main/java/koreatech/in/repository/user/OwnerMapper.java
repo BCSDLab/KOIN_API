@@ -26,6 +26,7 @@ public interface OwnerMapper {
 
     void insertOwnerAttachments(OwnerAttachments attachments);
 
+    //insertOwnerAttachments-foreach 에서, useGeneratedKeys 를 사용해도 id들을 채워주지 않아 반복문을 통해 OwnerAttachment 각각을 insert 함.
     void insertOwnerAttachment(OwnerAttachment attachment);
 
     void deleteOwnerAttachmentsLogically(OwnerAttachments ownerAttachments);
