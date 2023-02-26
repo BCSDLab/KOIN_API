@@ -59,7 +59,7 @@ public class AdminUserController {
     @ParamValid
     @RequestMapping(value = "/admin/user/login", method = RequestMethod.POST)
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) throws Exception {
-        LoginResponse response = adminUserService.loginForAdmin(request);
+        LoginResponse response = adminUserService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

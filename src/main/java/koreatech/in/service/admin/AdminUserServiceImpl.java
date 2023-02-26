@@ -77,7 +77,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private String redisLoginTokenKeyPrefix;
 
     @Override
-    public LoginResponse loginForAdmin(LoginRequest request) throws Exception {
+    public LoginResponse login(LoginRequest request) throws Exception {
         final User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null || !user.hasAuthority() /* 어드민 권한이 없으면 없는 회원으로 간주 */) {
