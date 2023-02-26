@@ -5,7 +5,6 @@ import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
-import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
@@ -56,9 +54,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     private StudentMapper studentMapper;
 
     @Autowired
-    private OwnerMapper ownerMapper;
-
-    @Autowired
     private AuthorityMapper authorityMapper;
 
     @Autowired
@@ -77,7 +72,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private String redisLoginTokenKeyPrefix;
 
     @Override
-    public LoginResponse loginForAdmin(LoginRequest request) throws Exception {
+    public LoginResponse login(LoginRequest request) throws Exception {
         final User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null || !user.hasAuthority() /* 어드민 권한이 없으면 없는 회원으로 간주 */) {
@@ -87,7 +82,8 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(PASSWORD_DIFFERENT);
         }
 
-        userMapper.updateLastLoggedAt(user.getId(), new Date());
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
@@ -112,7 +108,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void logoutForAdmin() {
+    public void logout() {
         User user = jwtValidator.validate();
         deleteAccessTokenFromRedis(user.getId());
     }

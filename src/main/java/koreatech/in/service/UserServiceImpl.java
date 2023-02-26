@@ -108,7 +108,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BaseException(PASSWORD_DIFFERENT);
         }
 
-        userMapper.updateLastLoggedAt(user.getId(), new Date());
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
