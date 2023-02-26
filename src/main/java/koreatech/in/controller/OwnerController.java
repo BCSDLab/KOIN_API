@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import javax.validation.Valid;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.Auth.Authority;
@@ -13,9 +14,11 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.OwnerService;
@@ -84,7 +87,7 @@ public class OwnerController {
                     code = 422,
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
                             + "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n",
-                    response = ExceptionResponse.class)
+                    response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "인증번호 입력")
     @AuthExcept
@@ -116,7 +119,7 @@ public class OwnerController {
             @ApiResponse(
                     code = 422,
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
-                    response = ExceptionResponse.class)
+                    response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "회원가입 요청")
     @AuthExcept
@@ -134,5 +137,25 @@ public class OwnerController {
         ownerService.register(request);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+
+    @ApiResponses({
+            @ApiResponse(code = 401, message
+                    = "토큰에 대한 회원 정보가 없을 때 (code: 101000)"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "사장님 정보 조회", notes= "- 사장님 권한[+가게 권한 부여] 필요",
+            authorizations = {@Authorization(value="Authorization")})
+    @RequestMapping(value = "/owner", method = RequestMethod.GET)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<OwnerResponse> getOwner() {
+        OwnerResponse owner = ownerService.getOwner();
+        return new ResponseEntity<>(owner, HttpStatus.CREATED);
     }
 }

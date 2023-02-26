@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
-import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
@@ -17,6 +16,7 @@ import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
+import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
@@ -47,6 +47,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private VelocityEngine velocityEngine;
+
+    @Autowired
+    private JwtValidator jwtValidator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -94,7 +97,7 @@ public class OwnerServiceImpl implements OwnerService {
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
 
         // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
-        Owner owner = downcastFrom(OwnerConverter.INSTANCE.toUser(ownerRegisterRequest));
+        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
@@ -107,6 +110,15 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeRegisterComplete(owner);
 
         removeRedisFrom(ownerEmailAddress);
+    }
+
+    @Override
+    public OwnerResponse getOwner() {
+        Integer userId = jwtValidator.validate().getId();
+
+        Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
@@ -162,13 +174,6 @@ public class OwnerServiceImpl implements OwnerService {
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
                 StandardCharsets.UTF_8.name(), model);
-    }
-
-    private static Owner downcastFrom(User user) {
-        if (!(user instanceof Owner)) {
-            throw new ClassCastException("OwnerConverter에서 User -> Owner로 변환 과정 중 잘못된 다운캐스팅이 발생했습니다.");
-        }
-        return (Owner) user;
     }
 
     private void encodePassword(Owner owner) {

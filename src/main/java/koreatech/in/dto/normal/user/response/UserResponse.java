@@ -7,10 +7,10 @@ import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.User.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Setter
+@SuperBuilder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @NoArgsConstructor
 public class UserResponse {

@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OwnerShopAttachments {
-    private List<OwnerShopAttachment> attachments;
+public class OwnerAttachments {
+    private List<OwnerAttachment> attachments;
 }

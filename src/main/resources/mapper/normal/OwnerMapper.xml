@@ -2,6 +2,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="koreatech.in.repository.user.OwnerMapper">
 
+    <resultMap id="ownerShopsResultMap" extends="userResultMap"
+               type="koreatech.in.domain.User.owner.Owner">
+        <result property="company_registration_number" column="company_registration_number"/>
+        <result property="grant_shop" column="grant_shop"/>
+        <result property="grant_event" column="grant_event"/>
+
+        <collection property="shops" javaType="List" ofType="koreatech.in.domain.Shop.Shop">
+            <id property="id" column="shop_id"/>
+            <result property="name" column="shop_name"/>
+        </collection>
+
+        <collection property="attachments" javaType="List" ofType="koreatech.in.domain.User.owner.OwnerAttachment">
+            <id property="id" column="attachment_id"/>
+            <result property="fileUrl" column="attachment_url"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
+        <id property="id" column="id"/>
+
+        <result property="email" column="email"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="getOwnerById" resultMap="ownerShopsResultMap">
+        SELECT users.id                           AS id,
+               users.email                        AS email,
+               users.name                         AS name,
+
+               owners.company_registration_number AS company_registration_number,
+               owners.grant_shop                  AS grant_shop,
+               owners.grant_event                 AS grant_event,
+
+               shops.id                           AS shop_id,
+               shops.name                         AS shop_name,
+
+               attachment.id                      AS attachment_id,
+               attachment.url                     AS attachment_url
+        FROM koin.users
+                 LEFT JOIN koin.owners
+                           ON users.id = owners.user_id AND users.is_deleted = FALSE
+                 LEFT JOIN koin.shops
+                           ON users.id = shops.owner_id AND shops.is_deleted = FALSE
+                 LEFT JOIN koin.owner_shop_attachment AS attachment
+                           ON users.id = attachment.owner_id AND attachment.is_deleted = FALSE
+
+        WHERE user_id = #{id}
+    </select>
+
     <insert id="insertOwner">
         INSERT INTO koin.owners (user_id,
                                  company_registration_number)
@@ -9,18 +58,18 @@
                 #{company_registration_number});
     </insert>
 
-    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerShopAttachments">
+    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerAttachments">
         INSERT INTO koin.owner_shop_attachment (
         shop_id,
         owner_id,
         url
         )
         VALUES
-        <foreach item="ownerShopAttachment" collection="attachments" separator=",">
+        <foreach item="ownerAttachment" collection="attachments" separator=",">
             (
-            #{ownerShopAttachment.shopId},
-            #{ownerShopAttachment.ownerId},
-            #{ownerShopAttachment.url}
+            #{ownerAttachment.shopId},
+            #{ownerAttachment.ownerId},
+            #{ownerAttachment.fileUrl}
             )
         </foreach>
     </insert>
