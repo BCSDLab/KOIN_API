@@ -158,12 +158,15 @@ public class OwnerServiceImpl implements OwnerService {
 //        return UserConverter.INSTANCE.toStudentResponse(studentInToken);
     }
 
-    private static void updateAttachment(OwnerAttachments ownerAttachments, Owner ownerInToken) {
+    private void updateAttachment(OwnerAttachments ownerAttachments, Owner ownerInToken) {
         //PK를 url로? // 중복이 생김 // 중복 체크 ? // 사장님 ID까지 PK로 넣기?
         Set<String> existAttachmentUrls = OwnerAttachments.from(ownerInToken.getAttachments()).getExistAttachmentUrls();
 
         OwnerAttachments toAdd = ownerAttachments.selectToAdd(existAttachmentUrls);
         OwnerAttachments toDelete = ownerAttachments.selectToDelete(existAttachmentUrls);
+
+        ownerMapper.insertOwnerAttachments(toAdd);
+        ownerMapper.deleteOwnerAttachmentsLogically(toDelete);
     }
 
     private Owner getOwnerInToken() {
