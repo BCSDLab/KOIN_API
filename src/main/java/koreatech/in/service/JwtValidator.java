@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.JwtTokenGenerator;
@@ -7,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 @Service
@@ -27,6 +26,16 @@ public class JwtValidator {
     }
 
     public User validate(String header) {
+        Integer userId = getUserId(header);
+        if (userId == null) {
+            return null;
+        }
+        User user = userMapper.getAuthedUserById(userId);
+
+        return user;
+    }
+
+    private Integer getUserId(String header) {
         if (header == null || !header.startsWith("Bearer ")) {
             return null;
         }
@@ -37,8 +46,12 @@ public class JwtValidator {
         }
 
         Integer userId = jwtTokenGenerator.me(accessToken);
-        User user = userMapper.getAuthedUserById(userId);
+        return userId;
+    }
 
-        return user;
+    public Integer validateAndGetUserId() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        return getUserId(request.getHeader("Authorization"));
     }
 }
