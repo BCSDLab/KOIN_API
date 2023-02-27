@@ -10,12 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.Users;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
@@ -114,17 +113,25 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
 
-    public Map<String, Object> getUserListForAdmin(Criteria criteria) {
-        Integer totalCount = userMapper.getTotalCount();
-        //int totalPage = criteria.calcTotalPage(totalCount);
-        Map<String, Object> map = new HashMap<>();
+//    @Override
+//    public Map<String, Object> getUserListForAdmin(Criteria criteria) {
+//        Integer totalCount = userMapper.getTotalCount();
+//        //int totalPage = criteria.calcTotalPage(totalCount);
+//        Map<String, Object> map = new HashMap<>();
+//
+//        Users userListForAdmin = userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit());
+//        map.put("items", userListForAdmin);
+//        //map.put("totalPage", totalPage);
+//
+//        return map;
+//    }
 
-        Users userListForAdmin = userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit());
-        map.put("items", userListForAdmin);
-        //map.put("totalPage", totalPage);
-
-        return map;
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getUserListForAdmin(UserCriteria userCriteria) throws Exception {
+        return userMapper.getUserListForAdmin(userCriteria.getCursor(), userCriteria.getLimit(), userCriteria.getUserType().name());
     }
+
     @Override
     public User getUserForAdmin(int id) {
         User user = userMapper.getUserById(id);

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
@@ -14,7 +15,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
@@ -87,8 +88,8 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<Map<String, Object>> getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
-            return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
+    ResponseEntity<List<User>> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
+        return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
     }
 
     @ParamValid
