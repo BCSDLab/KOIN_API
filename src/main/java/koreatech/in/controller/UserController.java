@@ -63,7 +63,7 @@ public class UserController {
             @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
                                                "아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
                                                "비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
     @ParamValid
