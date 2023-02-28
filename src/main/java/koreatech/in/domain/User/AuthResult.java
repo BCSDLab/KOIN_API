@@ -26,7 +26,7 @@ public class AuthResult {
         if(user == null) {
             return USER_NOT_FOUND;
         }
-        if(user.isEmailAuthenticationCompleted()) {
+        if(user.isAuthenticated()) {
             return ALREADY_AUTHENTICATION;
         }
         if(user.isAuthTokenExpired()) {

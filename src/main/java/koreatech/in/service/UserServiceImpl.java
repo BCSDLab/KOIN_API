@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
@@ -53,6 +55,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+    private static final long VALID_TIME_OF_ACCESS_TOKEN = 72;
 
     private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
@@ -98,25 +101,54 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = userMapper.getAuthedUserByEmail(request.getEmail());
+        User user = getUserByEmailForLogin(request.getEmail());
 
-        // TODO 23.02.15. 박한수 user가 존재하지 않은 경우와 존재하되 is_authed만 false인 경우가 같이 처리됨 -> getUserByEmail (아직 sql문 작성 안됨)으로 유저를 가져와서, 1. null 체크 2. is_authed 체크로 다른 예외로 반환하기.
-        if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
-        }
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BaseException(PASSWORD_DIFFERENT);
-        }
+        checkPasswordEquals(request.getPassword(), user.getPassword());
+        checkAuthenticationStatus(user);
 
         user.updateLastLoginTimeToCurrent();
-        userMapper.updateUser(user);
+        userMapper.updateUser(user); // TODO: (김주원) 유저 신원에 따라 owners 또는 student 테이블 데이터도 update 할것인지 결정
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
-            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+            accessToken = regenerateAccessTokenAndGet(user);
+            setAccessTokenToRedis(accessToken, user);
         }
 
         return LoginResponse.from(accessToken);
+    }
+
+    private User getUserByEmailForLogin(String email) {
+        return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+    }
+
+    private void checkAuthenticationStatus(User user) {
+        if (!user.isAuthenticated()) {
+            throw new BaseException(FORBIDDEN);
+        }
+    }
+
+    private void checkPasswordEquals(String requestedPassword, String encodedPassword) {
+        if (!passwordEncoder.matches(requestedPassword, encodedPassword)) {
+            throw new BaseException(PASSWORD_DIFFERENT);
+        }
+    }
+
+    private String getAccessTokenFromRedis(User user) throws Exception {
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String regenerateAccessTokenAndGet(User user) {
+        return jwtTokenGenerator.generate(user.getId());
+    }
+
+    private void setAccessTokenToRedis(String accessToken, User user) {
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + user.getId(), accessToken, VALID_TIME_OF_ACCESS_TOKEN, TimeUnit.HOURS);
     }
 
     @Override
@@ -432,19 +464,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return null;
-    }
-
-    private String getAccessTokenFromRedis(User user) throws Exception {
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
-    }
-
-    private boolean isTokenNotExistOrExpired(String getToken) {
-        return getToken == null || jwtTokenGenerator.isExpired(getToken);
-    }
-
-    private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
-        return accessToken;
     }
 }
