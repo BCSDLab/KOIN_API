@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             setAccessTokenToRedis(accessToken, user);
         }
 
-        return LoginResponse.from(accessToken);
+        return LoginResponse.of(accessToken, user.getUser_type().name());
     }
 
     private User getUserByEmailForLogin(String email) {
