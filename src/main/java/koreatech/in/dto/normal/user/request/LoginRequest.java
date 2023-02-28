@@ -17,6 +17,6 @@ public class LoginRequest {
 
     @NotNull(message = "비밀번호는 필수입니다.")
     @ApiModelProperty(notes = "비밀번호 \n" +
-                              "- not null", required = true)
+                              "- not null", required = true, example = "samplepassword")
     private String password;
 }
