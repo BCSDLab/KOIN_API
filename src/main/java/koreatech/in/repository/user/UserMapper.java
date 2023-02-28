@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper {
     User getAuthedUserById(@Param("id") Integer id);
     User getAuthedUserByEmail(@Param("email") String email);
+    User getUserByEmail(@Param("email") String email);
     void deleteUser(@Param("user") User user);
     void undeleteUserLogicallyById(@Param("id") Integer id);
 
@@ -39,7 +40,6 @@ public interface UserMapper {
     UserType getUserTypeById(@Param("id") int id);
     String getUserEmail(@Param("id") int id);
     Integer getTotalCount();
-    User getUserByEmail(String email);
 
     // TODO: JOIN으로 처리할 수 있는지 알아보기.
 //    @Select("SELECT * FROM koin.users u INNER JOIN koin.admins a ON u.id = a.user_id WHERE u.id = #{id}")
