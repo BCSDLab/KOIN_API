@@ -67,9 +67,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserMapper userMapper;
 
     @Autowired
-    private AuthorityMapper authorityMapper;
-
-    @Autowired
     private SesMailSender sesMailSender;
 
     @Autowired
