@@ -45,7 +45,7 @@
                            ON users.id = owners.user_id AND users.is_deleted = FALSE
                  LEFT JOIN koin.shops
                            ON users.id = shops.owner_id AND shops.is_deleted = FALSE
-                 LEFT JOIN koin.owner_shop_attachment AS attachment
+                 LEFT JOIN koin.owner_attachments AS attachment
                            ON users.id = attachment.owner_id AND attachment.is_deleted = FALSE
 
         WHERE user_id = #{id}
