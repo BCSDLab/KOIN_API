@@ -20,6 +20,12 @@ public class ShopsCondition extends Criteria {
             "  - CREATED_AT_DESC: 최신순(등록순의 반대)")
     private Sort sort;
 
+    @ApiParam("삭제(soft delete) 여부")
+    private Boolean is_deleted;
+
+    @ApiParam("소속시킬 상점 카테고리 고유 id")
+    private Integer category_id;
+
     @ApiParam("검색 대상 \n" +
             "- null일 경우 기본값: NAME \n" +
             "- 다음중 하나로만 요청 가능 \n" +
