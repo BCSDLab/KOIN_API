@@ -67,4 +67,8 @@ public class ShopsCondition extends Criteria {
             throw new BaseException(SEARCH_QUERY_MUST_NOT_BE_BLANK);
         }
     }
+
+    public boolean isCategoryIdExist() {
+        return category_id != null;
+    }
 }
