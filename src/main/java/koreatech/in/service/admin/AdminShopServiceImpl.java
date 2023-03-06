@@ -171,6 +171,10 @@ public class AdminShopServiceImpl implements AdminShopService {
     @Override
     @Transactional(readOnly = true)
     public ShopsResponse getShops(ShopsCondition condition) {
+        if (condition.isCategoryIdExist()) {
+            checkShopCategoryExistById(condition.getCategory_id());
+        }
+
         Integer totalCount = adminShopMapper.getTotalCountOfShopsByCondition(condition);
         Integer totalPage = condition.extractTotalPage(totalCount);
         Integer currentPage = condition.getPage();
@@ -182,6 +186,11 @@ public class AdminShopServiceImpl implements AdminShopService {
         List<ShopProfile> shops = adminShopMapper.getShopProfilesByCondition(condition.getCursor(), condition);
 
         return ShopsResponse.of(totalCount, totalPage, currentPage, shops);
+    }
+
+    private void checkShopCategoryExistById(Integer id) {
+        Optional.ofNullable(adminShopMapper.getShopCategoryById(id))
+                .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
     }
 
     @Override
