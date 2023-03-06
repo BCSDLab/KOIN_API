@@ -7,9 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
@@ -23,14 +20,6 @@ public class ShopsCondition extends Criteria {
             "  - CREATED_AT_DESC: 최신순(등록순의 반대)")
     private Sort sort;
 
-    @ApiParam("필터링 기준 \n" +
-              "- 다음중 1개 이상을 배열로 요청 가능 \n" +
-              "  - IS_DELETED (삭제 여부) \n" +
-              "  - DELIVERY (배달 가능) \n" +
-              "  - PAY_CARD (카드 계산 가능 여부) \n" +
-              "  - PAY_BANK (계좌 이체 가능 여부)")
-    private List<Filter> filter = new ArrayList<>();
-
     @ApiParam("검색 대상 \n" +
             "- null일 경우 기본값: NAME \n" +
             "- 다음중 하나로만 요청 가능 \n" +
@@ -43,13 +32,6 @@ public class ShopsCondition extends Criteria {
         NAME_DESC,
         CREATED_AT_ASC,
         CREATED_AT_DESC
-    }
-
-    private enum Filter {
-        IS_DELETED,
-        DELIVERY,
-        PAY_CARD,
-        PAY_BANK
     }
 
     private enum SearchType {
