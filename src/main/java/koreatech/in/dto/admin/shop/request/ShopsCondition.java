@@ -25,6 +25,11 @@ public class ShopsCondition extends Criteria {
             "- 다음중 하나로만 요청 가능 \n" +
             "  - NAME (이름 검색)")
     private SearchType searchType = SearchType.NAME;
+
+    @ApiParam("검색 문자열 \n" +
+              "- null이 아닐 경우에는 다음의 조건을 만족해야 함 \n" +
+              "  - 길이는 1 이상 \n" +
+              "  - 공백 문자로만 이루어져 있으면 안됨")
     private String query;
 
     private enum Sort {
