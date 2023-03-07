@@ -5,10 +5,7 @@ import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import koreatech.in.domain.ErrorMessage;
@@ -33,7 +30,6 @@ import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.mapstruct.UserConverter;
-import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -279,7 +275,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void withdraw() {
         User user = jwtValidator.validate();
 
-        userMapper.deleteUser(user);
+        userMapper.deleteUser(user); // 회원 관련 테이블에서 해당 회원에 대한 모든 레코드 삭제
+
+        if (user.isOwner()) {
+            userMapper.deleteRelationBetweenOwnerAndShop(user.getId());
+        }
+
         deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeDelete(user);
