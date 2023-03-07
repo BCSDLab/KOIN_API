@@ -134,12 +134,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public User getUserForAdmin(int id) {
-        User user = userMapper.getUserById(id);
+        /*User user = userMapper.getUserById(id);
 
         if(user == null){
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
         }
-        return user;
+        return user;*/
+        return null;
     }
 
     @Override
@@ -155,9 +156,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
+            /*if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
+            }*/
         }
 
         // 학번 유효성 체크
@@ -200,7 +201,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
-        User user =  userMapper.getUserById(id);
+        /*User user =  userMapper.getUserById(id);
         if (!user.isStudent()) {
             throw new NotFoundException(new ErrorMessage("User is not Student", 0));
         }
@@ -238,7 +239,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return new StudentResponse(student);
+        return new StudentResponse(student);*/
+        return null;
     }
 
     @Override
@@ -268,7 +270,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
-        User selectUser = userMapper.getUserById(userId);
+        /*User selectUser = userMapper.getUserById(userId);
         if(selectUser == null){
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
@@ -283,7 +285,8 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         authorityMapper.createAuthority(authority);
 
-        return authority;
+        return authority;*/
+        return null;
     }
 
     @Override
@@ -328,7 +331,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
-        Map<String, Object> map = new HashMap<>();
+        /*Map<String, Object> map = new HashMap<>();
 
         limit = Math.min(limit, 50);
         page = Math.max(page, 1);
@@ -361,7 +364,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         map.put("admins", listedAdmin);
         map.put("totalPage", totalPage);
 
-        return map;
+        return map;*/
+        return null;
     }
 
     @Override
