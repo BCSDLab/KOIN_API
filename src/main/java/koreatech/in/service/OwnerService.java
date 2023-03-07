@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
@@ -16,4 +17,6 @@ public interface OwnerService {
     OwnerResponse getOwner();
 
     void deleteAttachment(Integer attachmentId);
+
+    OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
 }

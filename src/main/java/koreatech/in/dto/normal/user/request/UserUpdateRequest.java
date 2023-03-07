@@ -16,5 +16,7 @@ public class UserUpdateRequest {
     @ApiModelProperty(notes = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
     private String password;
 
+
+    @ApiModelProperty(notes = "이름 \n", example = "정보혁")
     private String name;
 }

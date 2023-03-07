@@ -8,13 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
-import koreatech.in.domain.User.UserType;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerAttachment;
+import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
@@ -132,18 +133,71 @@ public class OwnerServiceImpl implements OwnerService {
         ownerMapper.deleteOwnerAttachmentLogically(attachmentId.longValue());
     }
 
+    @Transactional
+    @Override
+    public OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest) {
+        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerUpdateRequest);
+        Owner ownerInToken = getOwnerInToken();
+
+        owner.setId(ownerInToken.getId());
+        updateDBFor(owner, ownerInToken);
+
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInToken);
+    }
+
+    private void updateDBFor(Owner owner, Owner ownerInToken) {
+        OwnerAttachments ownerAttachments = ownerAttachmentsFillWithOwnerId(owner);
+        OwnerAttachments ownerAttachmentsInDB = OwnerAttachments.from(ownerInToken.getAttachments());
+
+        OwnerAttachments updatedAttachments = updateAttachment(ownerAttachments, ownerAttachmentsInDB);
+
+        ownerInToken.setAttachments(updatedAttachments.getAttachments());
+    }
+
+    private static OwnerAttachments ownerAttachmentsFillWithOwnerId(Owner owner) {
+        return OwnerConverter.INSTANCE.toOwnerAttachments(owner);
+    }
+
+    private OwnerAttachments updateAttachment(OwnerAttachments ownerAttachments,
+                                              OwnerAttachments ownerAttachmentsInDB) {
+        OwnerAttachments result = ownerAttachmentsInDB.intersectionWith(ownerAttachments);
+
+        OwnerAttachments toAdd = ownerAttachments.removeDuplicatesFrom(ownerAttachmentsInDB);
+        OwnerAttachments toDelete = ownerAttachmentsInDB.removeDuplicatesFrom(ownerAttachments);
+
+        if (!toAdd.isEmpty()) {
+            toAdd.getAttachments().forEach(ownerAttachment -> ownerMapper.insertOwnerAttachment(ownerAttachment));
+            result.addAllFrom(toAdd);
+        }
+        if (!toDelete.isEmpty()) {
+            ownerMapper.deleteOwnerAttachmentsLogically(toDelete);
+        }
+        return result;
+    }
+
+    private Owner getOwnerInToken() {
+        Integer userId = jwtValidator.validateAndGetUserId();
+        Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+
+        if (ownerInDB == null) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+
+        return ownerInDB;
+    }
+
     private static void validateInDelete(Integer userId, OwnerAttachment attachmentInDB) {
-        if(attachmentInDB == null) {
+        if (attachmentInDB == null) {
             throw new BaseException(ExceptionInformation.OWNER_ATTACHMENT_NOT_FOUND);
         }
 
-        if(!attachmentInDB.getOwnerId().equals(userId)) {
+        if (!attachmentInDB.getOwnerId().equals(userId)) {
             throw new BaseException(ExceptionInformation.FORBIDDEN);
         }
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
-        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+        if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
@@ -184,8 +238,7 @@ public class OwnerServiceImpl implements OwnerService {
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
-                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT,
-                mailFormFor(certificationCode));
+                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT, mailFormFor(certificationCode));
     }
 
     private String mailFormFor(CertificationCode certificationCode) {
@@ -201,19 +254,14 @@ public class OwnerServiceImpl implements OwnerService {
         owner.setPassword(passwordEncoder.encode(owner.getPassword()));
     }
 
-    private static void enrichAuthComplete(Owner owner) {
-        owner.setUser_type(UserType.OWNER);
-        owner.setIs_authed(false);
-    }
-
     private void createInDBFor(Owner owner) {
-        enrichAuthComplete(owner);
+        owner.enrichAuthComplete();
 
         try {
             insertUserAndUpdateId(owner);
 
             ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerShopAttachment(OwnerConverter.INSTANCE.toOwnerShopAttachments(owner));
+            ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
