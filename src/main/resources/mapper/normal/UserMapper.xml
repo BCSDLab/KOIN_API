@@ -276,20 +276,28 @@
     </resultMap>
 
     <delete id="deleteUser" parameterType="koreatech.in.domain.User.User">
-        DELETE
-        FROM `koin`.`users`
-        WHERE `id` = #{user.id};
-
         <if test='user.user_type.name().equals("STUDENT")'>
             DELETE
             FROM `koin`.`students`
+            WHERE `user_id` = #{user.id};
+
+            DELETE
+            FROM `koin`.`admins`
             WHERE `user_id` = #{user.id};
         </if>
         <if test='user.user_type.name().equals("OWNER")'>
             DELETE
             FROM `koin`.`owners`
             WHERE `user_id` = #{user.id};
+
+            DELETE
+            FROM `koin`.`owner_shop_attachment`
+            WHERE `owner_id` = #{user.id};
         </if>
+
+        DELETE
+        FROM `koin`.`users`
+        WHERE `id` = #{user.id};
     </delete>
 
     <delete id="undeleteUserLogicallyById">
@@ -524,6 +532,12 @@
                 `t1`.`id` = `t4`.`user_id`
                 AND `t4`.`is_deleted` = 0
     </select>
+
+    <update id="deleteRelationBetweenOwnerAndShop" parameterType="integer">
+        UPDATE `koin`.`shops`
+        SET `owner_id` = null
+        WHERE `owner_id` = #{ownerId}
+    </update>
 
     <select id="getUserById" parameterType="Integer" resultMap="UserDiscriminator">
         SELECT
