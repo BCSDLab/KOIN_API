@@ -2,6 +2,7 @@ package koreatech.in.repository.user;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
@@ -30,8 +31,8 @@ public interface UserMapper {
     Integer isNicknameAlreadyUsed(String nickname);
     void updateUserIsAuthed(@Param("id")Integer id, @Param("isAuth")Boolean isAuth);
     void updateResetTokenAndResetTokenExpiredTime(@Param("id") Integer id, @Param("resetToken") String resetToken, @Param("resetTokenExpiredTime") Date resetTokenExpiredTime);
-    Users getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
-
+//    Users getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
+    List<User> getUserListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit, @Param("userType") String userType);
 
     @Select("SELECT * FROM koin.admins WHERE USER_ID = #{id}")
     Authority getAuthorityByUserIdForAdmin(@Param("id") int id);
