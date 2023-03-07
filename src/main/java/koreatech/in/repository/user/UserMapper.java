@@ -23,6 +23,7 @@ public interface UserMapper {
     void updateUser(@Param("user") User user);
     User getUserByAuthToken(@Param("authToken") String authToken);
     User getAuthedUserByResetToken(@Param("resetToken") String resetToken);
+    void deleteRelationBetweenOwnerAndShop(@Param("ownerId") Integer ownerId);
 
 
 //    Integer isAccountAlreadyUsed(String account);
