@@ -146,7 +146,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         deleteAccessTokenFromRedis(user.getId());
     }
 
-    @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
@@ -187,8 +186,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return UserConverter.INSTANCE.toStudentResponse(student);
     }
+
     @Override
-    @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
@@ -231,7 +230,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // TODO owner 정보 업데이트
     // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
-    @Transactional
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
         try {
@@ -266,7 +264,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional
     public void withdraw() {
         User user = jwtValidator.validate();
 
