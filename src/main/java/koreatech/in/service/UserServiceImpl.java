@@ -445,10 +445,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
-    private boolean isTokenExpired(Date expiredAt) {
-        return expiredAt.getTime() - (new Date()).getTime() < 0;
-    }
-
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
