@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = getUserByEmailForLogin(request.getEmail());
+        User user = getUserByEmail(request.getEmail());
 
         checkPasswordEquals(request.getPassword(), user.getPassword());
         checkAuthenticationStatus(user);
@@ -109,11 +109,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return LoginResponse.of(accessToken, user.getUser_type().name());
-    }
-
-    private User getUserByEmailForLogin(String email) {
-        return Optional.ofNullable(userMapper.getUserByEmail(email))
-                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void checkAuthenticationStatus(User user) {
@@ -356,6 +351,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
+    }
+
+    private User getUserByEmail(String email) {
+        return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void validateInRegister(Student student){
