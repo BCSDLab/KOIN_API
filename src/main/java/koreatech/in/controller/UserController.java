@@ -109,7 +109,7 @@ public class UserController {
     @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> studentRegister(
+    ResponseEntity<EmptyResponse> registerStudent(
             @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) {
@@ -123,7 +123,7 @@ public class UserController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        userService.StudentRegister(request, getHost(httpServletRequest));
+        userService.registerStudent(request, getHost(httpServletRequest));
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

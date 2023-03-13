@@ -17,7 +17,7 @@ public interface UserService {
 
     void logout();
 
-    void StudentRegister(StudentRegisterRequest request, String host);
+    void registerStudent(StudentRegisterRequest request, String host);
 
     StudentResponse getStudent();
 

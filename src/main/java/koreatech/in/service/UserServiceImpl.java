@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void StudentRegister(StudentRegisterRequest request, String host) {
+    public void registerStudent(StudentRegisterRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
 
         validateInRegister(student);
