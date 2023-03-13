@@ -9,7 +9,7 @@ import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.RegisterStudentRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
 public interface UserService {
@@ -17,7 +17,7 @@ public interface UserService {
 
     void logout();
 
-    void registerStudent(StudentRegisterRequest request, String host);
+    void registerStudent(RegisterStudentRequest request, String host);
 
     StudentResponse getStudent();
 

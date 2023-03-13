@@ -10,7 +10,7 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
-import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.RegisterStudentRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -112,7 +112,7 @@ public interface UserConverter {
             @Mapping(source = "studentNumber", target = "studentNumber"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
     })
-    Student toStudent(StudentRegisterRequest studentRegisterRequest);
+    Student toStudent(RegisterStudentRequest studentRegisterRequest);
 
     @Mapping(source = "token", target = "token")
     AuthToken toAuthToken(AuthTokenRequest token);
