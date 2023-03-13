@@ -23,7 +23,7 @@ import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.RegisterStudentRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void StudentRegister(StudentRegisterRequest request, String host) {
+    public void registerStudent(RegisterStudentRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
 
         validateInRegister(student);

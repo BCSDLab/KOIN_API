@@ -18,7 +18,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class StudentRegisterRequest extends UserRegisterRequest {
+public class RegisterStudentRequest extends UserRegisterRequest {
 //
 //    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
 //    @ApiModelProperty(notes = "이름 \n"

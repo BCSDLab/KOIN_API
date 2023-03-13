@@ -26,7 +26,7 @@ import koreatech.in.dto.normal.user.request.LoginRequest;
 import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
-import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.RegisterStudentRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
@@ -109,8 +109,8 @@ public class UserController {
     @ApiOperation(value = "학생 회원가입", notes= "- 권한 필요 없음")
     @RequestMapping(value = "/user/student/register", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> studentRegister(
-            @ApiParam(required = true) @RequestBody @Validated StudentRegisterRequest request,
+    ResponseEntity<EmptyResponse> registerStudent(
+            @ApiParam(required = true) @RequestBody @Validated RegisterStudentRequest request,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest) {
 
@@ -123,7 +123,7 @@ public class UserController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        userService.StudentRegister(request, getHost(httpServletRequest));
+        userService.registerStudent(request, getHost(httpServletRequest));
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
