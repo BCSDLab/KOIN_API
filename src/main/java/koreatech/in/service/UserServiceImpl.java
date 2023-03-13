@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = getUserByEmailForLogin(request.getEmail());
+        User user = getUserByEmail(request.getEmail());
 
         checkPasswordEquals(request.getPassword(), user.getPassword());
         checkAuthenticationStatus(user);
@@ -109,11 +109,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return LoginResponse.of(accessToken, user.getUser_type().name());
-    }
-
-    private User getUserByEmailForLogin(String email) {
-        return Optional.ofNullable(userMapper.getUserByEmail(email))
-                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void checkAuthenticationStatus(User user) {
@@ -151,7 +146,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         deleteAccessTokenFromRedis(user.getId());
     }
 
-    @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
@@ -192,8 +186,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return UserConverter.INSTANCE.toStudentResponse(student);
     }
+
     @Override
-    @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
@@ -236,7 +230,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // TODO owner 정보 업데이트
     // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
-    @Transactional
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
         try {
@@ -271,7 +264,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional
     public void withdraw() {
         User user = jwtValidator.validate();
 
@@ -356,6 +348,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
+    }
+
+    private User getUserByEmail(String email) {
+        return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void validateInRegister(Student student){
@@ -443,10 +440,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
-    }
-
-    private boolean isTokenExpired(Date expiredAt) {
-        return expiredAt.getTime() - (new Date()).getTime() < 0;
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
