@@ -1,27 +1,26 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.Users;
+import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -30,7 +29,6 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
-import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
@@ -55,9 +53,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     private StudentMapper studentMapper;
 
     @Autowired
-    private OwnerMapper ownerMapper;
-
-    @Autowired
     private AuthorityMapper authorityMapper;
 
     @Autowired
@@ -76,7 +71,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private String redisLoginTokenKeyPrefix;
 
     @Override
-    public LoginResponse loginForAdmin(LoginRequest request) throws Exception {
+    public LoginResponse login(LoginRequest request) throws Exception {
         final User user = userMapper.getAuthedUserByEmail(request.getEmail());
 
         if (user == null || !user.hasAuthority() /* 어드민 권한이 없으면 없는 회원으로 간주 */) {
@@ -86,7 +81,8 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(PASSWORD_DIFFERENT);
         }
 
-        userMapper.updateLastLoggedAt(user.getId(), new Date());
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
@@ -111,23 +107,31 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void logoutForAdmin() {
+    public void logout() {
         User user = jwtValidator.validate();
         deleteAccessTokenFromRedis(user.getId());
     }
 
 
-    public Map<String, Object> getUserListForAdmin(Criteria criteria) {
-        Integer totalCount = userMapper.getTotalCount();
-        //int totalPage = criteria.calcTotalPage(totalCount);
-        Map<String, Object> map = new HashMap<>();
+//    @Override
+//    public Map<String, Object> getUserListForAdmin(Criteria criteria) {
+//        Integer totalCount = userMapper.getTotalCount();
+//        //int totalPage = criteria.calcTotalPage(totalCount);
+//        Map<String, Object> map = new HashMap<>();
+//
+//        Users userListForAdmin = userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit());
+//        map.put("items", userListForAdmin);
+//        //map.put("totalPage", totalPage);
+//
+//        return map;
+//    }
 
-        Users userListForAdmin = userMapper.getUserListForAdmin(criteria.getCursor(), criteria.getLimit());
-        map.put("items", userListForAdmin);
-        //map.put("totalPage", totalPage);
-
-        return map;
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getUserListForAdmin(UserCriteria userCriteria) throws Exception {
+        return userMapper.getUserListForAdmin(userCriteria.getCursor(), userCriteria.getLimit(), userCriteria.getUserType().name());
     }
+
     @Override
     public User getUserForAdmin(int id) {
         User user = userMapper.getUserById(id);
@@ -358,6 +362,21 @@ public class AdminUserServiceImpl implements AdminUserService {
         map.put("totalPage", totalPage);
 
         return map;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
+        Integer totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
+        Integer totalPage = condition.extractTotalPage(totalCount);
+        Integer currentPage = condition.getPage();
+
+        if (currentPage > totalPage) {
+            throw new BaseException(PAGE_NOT_FOUND);
+        }
+
+        List<Owner> owners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition.getCursor(), condition);
+        return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {

@@ -5,10 +5,9 @@ import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
@@ -31,7 +30,6 @@ import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.mapstruct.UserConverter;
-import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -53,6 +51,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+    private static final long VALID_TIME_OF_ACCESS_TOKEN = 72;
 
     private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
@@ -62,9 +61,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserMapper userMapper;
-
-    @Autowired
-    private AuthorityMapper authorityMapper;
 
     @Autowired
     private SesMailSender sesMailSender;
@@ -98,24 +94,49 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = userMapper.getAuthedUserByEmail(request.getEmail());
+        User user = getUserByEmail(request.getEmail());
 
-        // TODO 23.02.15. 박한수 user가 존재하지 않은 경우와 존재하되 is_authed만 false인 경우가 같이 처리됨 -> getUserByEmail (아직 sql문 작성 안됨)으로 유저를 가져와서, 1. null 체크 2. is_authed 체크로 다른 예외로 반환하기.
-        if (user == null) {
-            throw new BaseException(USER_NOT_FOUND);
-        }
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BaseException(PASSWORD_DIFFERENT);
-        }
+        checkPasswordEquals(request.getPassword(), user.getPassword());
+        checkAuthenticationStatus(user);
 
-        userMapper.updateLastLoggedAt(user.getId(), new Date());
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user); // TODO: (김주원) 유저 신원에 따라 owners 또는 student 테이블 데이터도 update 할것인지 결정
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
-            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+            accessToken = regenerateAccessTokenAndGet(user);
+            setAccessTokenToRedis(accessToken, user);
         }
 
-        return LoginResponse.from(accessToken);
+        return LoginResponse.of(accessToken, user.getUser_type().name());
+    }
+
+    private void checkAuthenticationStatus(User user) {
+        if (!user.isAuthenticated()) {
+            throw new BaseException(FORBIDDEN);
+        }
+    }
+
+    private void checkPasswordEquals(String requestedPassword, String encodedPassword) {
+        if (!passwordEncoder.matches(requestedPassword, encodedPassword)) {
+            throw new BaseException(PASSWORD_DIFFERENT);
+        }
+    }
+
+    private String getAccessTokenFromRedis(User user) throws Exception {
+        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    }
+
+    private boolean isTokenNotExistOrExpired(String getToken) {
+        return getToken == null || jwtTokenGenerator.isExpired(getToken);
+    }
+
+    private String regenerateAccessTokenAndGet(User user) {
+        return jwtTokenGenerator.generate(user.getId());
+    }
+
+    private void setAccessTokenToRedis(String accessToken, User user) {
+        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + user.getId(), accessToken, VALID_TIME_OF_ACCESS_TOKEN, TimeUnit.HOURS);
     }
 
     @Override
@@ -125,7 +146,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         deleteAccessTokenFromRedis(user.getId());
     }
 
-    @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
@@ -166,8 +186,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return UserConverter.INSTANCE.toStudentResponse(student);
     }
+
     @Override
-    @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
@@ -211,7 +231,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // TODO owner 정보 업데이트
     // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
-    @Transactional
     @Deprecated
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
@@ -247,11 +266,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional
     public void withdraw() {
         User user = jwtValidator.validate();
 
-        userMapper.deleteUser(user);
+        userMapper.deleteUser(user); // 회원 관련 테이블에서 해당 회원에 대한 모든 레코드 삭제
+
+        if (user.isOwner()) {
+            userMapper.deleteRelationBetweenOwnerAndShop(user.getId());
+        }
+
         deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeDelete(user);
@@ -327,6 +350,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
+    }
+
+    private User getUserByEmail(String email) {
+        return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void validateInRegister(Student student){
@@ -416,10 +444,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
     }
 
-    private boolean isTokenExpired(Date expiredAt) {
-        return expiredAt.getTime() - (new Date()).getTime() < 0;
-    }
-
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
     }
@@ -433,19 +457,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return null;
-    }
-
-    private String getAccessTokenFromRedis(User user) throws Exception {
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
-    }
-
-    private boolean isTokenNotExistOrExpired(String getToken) {
-        return getToken == null || jwtTokenGenerator.isExpired(getToken);
-    }
-
-    private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
-        return accessToken;
     }
 }

@@ -60,10 +60,13 @@ public class UserController {
 
     @ApiOperation("로그인")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
-                                               "아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
-                                               "비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n\n" +
+                                               "- 아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
+                                               "- 비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 로그인 권한이 없을 때 (code: 100003) \n" +
+                                               "  - 신원이 학생일 경우: 아직 이메일 인증이 되지 않았기 때문 \n" +
+                                               "  - 신원이 사장님일 경우: 아직 어드민페이지에서 권한 부여를 하지 않았기 때문", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
     @ParamValid

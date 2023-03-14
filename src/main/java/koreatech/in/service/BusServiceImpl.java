@@ -29,6 +29,8 @@ public class BusServiceImpl implements BusService {
         try {
             Bus bus = BusTypeEnum.createBus(busType);
             return bus.getNowAndNextBusRemainTime(busType, depart, arrival);
+        }  catch (DateTimeParseException e) {
+            return new BusRemainTime(busType);
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
         }

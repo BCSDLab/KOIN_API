@@ -13,6 +13,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class Owner extends User {
+    private Integer user_id;
     private String company_registration_number;
     private List<OwnerAttachment> attachments;
     private List<Shop> shops;

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
@@ -14,13 +15,16 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
+import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +52,15 @@ public class AdminUserController {
     @ApiOperation("어드민 로그인")
     @ApiResponses({
             @ApiResponse(code = 401, message = "잘못된 접근일 때 (code: 100001) \n\n" +
-                                               "아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
+                                               "이메일에 대한 회원 정보가 없을 때 (code: 101000) \n\n" +
                                                "비밀번호가 일치하지 않을 때 (code: 101001)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = ExceptionResponse.class)
+            @ApiResponse(code = 422, message = "요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @AuthExcept
     @ParamValid
     @RequestMapping(value = "/admin/user/login", method = RequestMethod.POST)
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) throws Exception {
-        LoginResponse response = adminUserService.loginForAdmin(request);
+        LoginResponse response = adminUserService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -70,7 +74,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/user/logout", method = RequestMethod.POST)
     public ResponseEntity<EmptyResponse> logout() {
-        adminUserService.logoutForAdmin();
+        adminUserService.logout();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -84,8 +88,8 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<Map<String, Object>> getUserList(@ModelAttribute("criteria") Criteria criteria) throws Exception {
-            return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
+    ResponseEntity<List<User>> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
+        return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
     }
 
     @ParamValid
@@ -183,5 +187,15 @@ public class AdminUserController {
     ResponseEntity getPermissionList(@ApiParam(required = false) @RequestParam(value = "page", required = false, defaultValue="1") int page,
                                      @ApiParam(required = false) @RequestParam(value = "limit", required = false, defaultValue="10") int limit) throws Exception {
         return new ResponseEntity<Map<String, Object>>(adminUserService.getPermissionListForAdmin(page, limit), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "가입 신청한 사장님 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
+    @RequestMapping(value = "/admin/new-owners", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<NewOwnersResponse> getNewOwners(NewOwnersCondition condition) {
+        condition.checkDataConstraintViolation();
+
+        NewOwnersResponse response = adminUserService.getNewOwners(condition);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

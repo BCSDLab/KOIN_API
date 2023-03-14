@@ -278,15 +278,24 @@
                 </trim>
             </if>
 
-            <!-- 필터링 -->
-            <if test="!condition.filter.isEmpty()">
+            <!-- 삭제 여부 -->
+            <if test="condition.is_deleted != null">
                 <trim prefix="AND">
-                    <foreach collection="condition.filter" item="item" separator="AND">
-                        <if test='item.name().equals("IS_DELETED")'> `is_deleted` = 1 </if>
-                        <if test='item.name().equals("DELIVERY")'> `delivery` = 1 </if>
-                        <if test='item.name().equals("PAY_CARD")'> `pay_card` = 1 </if>
-                        <if test='item.name().equals("PAY_BANK")'> `pay_bank` = 1 </if>
-                    </foreach>
+                    <choose>
+                        <when test="condition.is_deleted.equals(true)"> `is_deleted` = 1 </when>
+                        <otherwise> `is_deleted` = 0 </otherwise>
+                    </choose>
+                </trim>
+            </if>
+
+            <!-- 카테고리 -->
+            <if test="condition.category_id != null">
+                <trim prefix="AND">
+                    `id` IN (
+                        SELECT `shop_id`
+                        FROM `koin`.`shop_category_map`
+                        WHERE `shop_category_id` = #{condition.category_id}
+                    )
                 </trim>
             </if>
         </trim>
@@ -336,15 +345,24 @@
                     </trim>
                 </if>
 
-                <!-- 필터링 -->
-                <if test="!condition.filter.isEmpty()">
+                <!-- 삭제 여부 -->
+                <if test="condition.is_deleted != null">
                     <trim prefix="AND">
-                        <foreach collection="condition.filter" item="item" separator="AND">
-                            <if test='item.name().equals("IS_DELETED")'> `is_deleted` = 1 </if>
-                            <if test='item.name().equals("DELIVERY")'> `delivery` = 1 </if>
-                            <if test='item.name().equals("PAY_CARD")'> `pay_card` = 1 </if>
-                            <if test='item.name().equals("PAY_BANK")'> `pay_bank` = 1 </if>
-                        </foreach>
+                        <choose>
+                            <when test="condition.is_deleted.equals(true)"> `is_deleted` = 1 </when>
+                            <otherwise> `is_deleted` = 0 </otherwise>
+                        </choose>
+                    </trim>
+                </if>
+
+                <!-- 카테고리 -->
+                <if test="condition.category_id != null">
+                    <trim prefix="AND">
+                        `id` IN (
+                            SELECT `shop_id`
+                            FROM `koin`.`shop_category_map`
+                            WHERE `shop_category_id` = #{condition.category_id}
+                        )
                     </trim>
                 </if>
             </trim>

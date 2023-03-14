@@ -107,7 +107,7 @@ public class User {
         return this.id.equals(id);
     }
 
-    public boolean isEmailAuthenticationCompleted() {
+    public boolean isAuthenticated() {
         return is_authed != null && is_authed.equals(true);
     }
 
@@ -116,7 +116,7 @@ public class User {
     }
 
     public boolean isAwaitingEmailAuthentication() {
-        return !isEmailAuthenticationCompleted()
+        return !isAuthenticated()
                 && this.auth_token != null
                 && this.auth_expired_at != null
                 && !isAuthTokenExpired();
@@ -191,5 +191,9 @@ public class User {
             enrichUserType();
         }
         return getUser_type().getText();
+    }
+
+    public void updateLastLoginTimeToCurrent() {
+        this.last_logged_at = new Date();
     }
 }

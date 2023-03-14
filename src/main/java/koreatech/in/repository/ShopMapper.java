@@ -20,6 +20,8 @@ public interface ShopMapper {
 
     Shop getShopById(@Param("id") Integer id);
 
+    List<Shop> getShopByOwnerId(@Param("ownerId") Integer ownerId);
+
     void updateShop(@Param("shop") Shop shop);
 
     void updateShopOpens(@Param("shopOpens") List<ShopOpen> shopOpens);
