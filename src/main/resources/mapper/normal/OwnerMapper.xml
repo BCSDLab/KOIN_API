@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="koreatech.in.repository.user.OwnerMapper">
 
-    <resultMap id="ownerShopsResultMap" extends="userResultMap"
+    <resultMap id="ownerWithShopsResultMap" extends="userResultMap"
                type="koreatech.in.domain.User.owner.Owner">
         <result property="company_registration_number" column="company_registration_number"/>
         <result property="grant_shop" column="grant_shop"/>
@@ -21,7 +21,6 @@
 
     <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
         <id property="id" column="id"/>
-
         <result property="email" column="email"/>
         <result property="name" column="name"/>
     </resultMap>
@@ -31,7 +30,7 @@
         <result property="ownerId" column="owner_id"/>
     </resultMap>
 
-    <select id="getOwnerById" resultMap="ownerShopsResultMap">
+    <select id="getOwnerById" resultMap="ownerWithShopsResultMap">
         SELECT users.id                           AS id,
                users.email                        AS email,
                users.name                         AS name,
@@ -50,7 +49,7 @@
                            ON users.id = owners.user_id AND users.is_deleted = FALSE
                  LEFT JOIN koin.shops
                            ON users.id = shops.owner_id AND shops.is_deleted = FALSE
-                 LEFT JOIN koin.owner_shop_attachment AS attachment
+                 LEFT JOIN koin.owner_attachments AS attachment
                            ON users.id = attachment.owner_id AND attachment.is_deleted = FALSE
 
         WHERE user_id = #{id}
@@ -64,7 +63,7 @@
     </insert>
 
     <insert id="insertOwnerAttachments">
-        INSERT INTO koin.owner_shop_attachment
+        INSERT INTO koin.owner_attachments
         (
         owner_id,
         url
@@ -79,7 +78,7 @@
     </insert>
 
     <insert id="insertOwnerAttachment" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO koin.owner_shop_attachment
+        INSERT INTO koin.owner_attachments
         (
         owner_id,
         url
@@ -92,10 +91,9 @@
         )
     </insert>
 
-
     <update id="deleteOwnerAttachmentsLogically">
         <foreach item="ownerAttachment" collection="attachments" separator=";">
-            UPDATE koin.owner_shop_attachment
+            UPDATE koin.owner_attachments
             SET is_deleted = TRUE
             WHERE id = #{ownerAttachment.id}
         </foreach>
@@ -104,14 +102,14 @@
     <select id="getOwnerAttachmentById" resultMap="ownerAttachmentResultMap">
         SELECT id,
                owner_id
-        FROM koin.owner_shop_attachment
+        FROM koin.owner_attachments
 
         WHERE id = #{id}
           AND is_deleted = FALSE
     </select>
 
     <update id="deleteOwnerAttachmentLogically">
-        UPDATE koin.owner_shop_attachment
+        UPDATE koin.owner_attachments
         SET is_deleted = TRUE
         WHERE id = #{id}
     </update>

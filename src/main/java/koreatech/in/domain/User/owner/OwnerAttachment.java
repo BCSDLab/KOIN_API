@@ -18,7 +18,6 @@ public class OwnerAttachment {
 
     private Integer id;
     private Integer ownerId;
-    private Integer shopId;
     private String fileUrl;
     private Boolean isDeleted;
     private Date updateAt;
