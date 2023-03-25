@@ -21,7 +21,6 @@
 
     <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
         <id property="id" column="id"/>
-
         <result property="email" column="email"/>
         <result property="name" column="name"/>
     </resultMap>
@@ -65,6 +64,7 @@
 
     <insert id="insertOwnerAttachments">
         INSERT INTO koin.owner_attachments
+        (
         owner_id,
         url
         )
@@ -90,7 +90,6 @@
         #{fileUrl}
         )
     </insert>
-
 
     <update id="deleteOwnerAttachmentsLogically">
         <foreach item="ownerAttachment" collection="attachments" separator=";">
