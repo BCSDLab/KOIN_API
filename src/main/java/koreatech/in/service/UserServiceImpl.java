@@ -5,10 +5,7 @@ import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import koreatech.in.domain.ErrorMessage;
@@ -23,7 +20,7 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
@@ -33,7 +30,6 @@ import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.mapstruct.UserConverter;
-import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -67,9 +63,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserMapper userMapper;
 
     @Autowired
-    private AuthorityMapper authorityMapper;
-
-    @Autowired
     private SesMailSender sesMailSender;
 
     @Autowired
@@ -101,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
-        User user = getUserByEmailForLogin(request.getEmail());
+        User user = getUserByEmail(request.getEmail());
 
         checkPasswordEquals(request.getPassword(), user.getPassword());
         checkAuthenticationStatus(user);
@@ -116,11 +109,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return LoginResponse.of(accessToken, user.getUser_type().name());
-    }
-
-    private User getUserByEmailForLogin(String email) {
-        return Optional.ofNullable(userMapper.getUserByEmail(email))
-                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void checkAuthenticationStatus(User user) {
@@ -158,7 +146,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         deleteAccessTokenFromRedis(user.getId());
     }
 
-    @Transactional
     @Override
     public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = UserConverter.INSTANCE.toStudent(request);
@@ -199,8 +186,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return UserConverter.INSTANCE.toStudentResponse(student);
     }
+
     @Override
-    @Transactional
     public StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest) {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
@@ -232,18 +219,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private Student getStudentInToken() {
-        Student studentInToken = studentMapper.getStudentById(jwtValidator.validate().getId());
+        User validatedUser = jwtValidator.validate();
 
-        if (studentInToken == null) {
+        if(!(validatedUser instanceof Student)) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
-        return studentInToken;
+
+        return (Student) validatedUser;
     }
 
     // TODO owner 정보 업데이트
     // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
     @Override
-    @Transactional
+    @Deprecated
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
         Owner user_old;
         try {
@@ -278,11 +266,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional
     public void withdraw() {
         User user = jwtValidator.validate();
 
-        userMapper.deleteUser(user);
+        userMapper.deleteUser(user); // 회원 관련 테이블에서 해당 회원에 대한 모든 레코드 삭제
+
+        if (user.isOwner()) {
+            userMapper.deleteRelationBetweenOwnerAndShop(user.getId());
+        }
+
         deleteAccessTokenFromRedis(user.getId());
 
         slackNotiSender.noticeDelete(user);
@@ -358,6 +350,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
+    }
+
+    private User getUserByEmail(String email) {
+        return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void validateInRegister(Student student){
@@ -445,10 +442,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
-    }
-
-    private boolean isTokenExpired(Date expiredAt) {
-        return expiredAt.getTime() - (new Date()).getTime() < 0;
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {

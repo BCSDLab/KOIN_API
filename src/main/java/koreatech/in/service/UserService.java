@@ -6,7 +6,7 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;

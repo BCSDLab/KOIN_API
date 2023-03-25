@@ -26,6 +26,11 @@
         <result property="name" column="name"/>
     </resultMap>
 
+    <resultMap id="ownerAttachmentResultMap" type="koreatech.in.domain.User.owner.OwnerAttachment">
+        <id property="id" column="attachment_id"/>
+        <result property="ownerId" column="owner_id"/>
+    </resultMap>
+
     <select id="getOwnerById" resultMap="ownerShopsResultMap">
         SELECT users.id                           AS id,
                users.email                        AS email,
@@ -58,17 +63,55 @@
                 #{company_registration_number});
     </insert>
 
-    <insert id="insertOwnerShopAttachment" parameterType="koreatech.in.domain.User.owner.OwnerAttachments">
-        INSERT INTO koin.owner_attachments (
+    <insert id="insertOwnerAttachments">
+        INSERT INTO koin.owner_attachments
         owner_id,
         url
         )
         VALUES
-        <foreach item="ownerAttachment" collection="attachments" separator=",">
+        <foreach collection="attachments" item="ownerAttachment" separator=",">
             (
             #{ownerAttachment.ownerId},
             #{ownerAttachment.fileUrl}
             )
         </foreach>
     </insert>
+
+    <insert id="insertOwnerAttachment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO koin.owner_attachments
+        (
+        owner_id,
+        url
+        )
+        VALUES
+
+        (
+        #{ownerId},
+        #{fileUrl}
+        )
+    </insert>
+
+
+    <update id="deleteOwnerAttachmentsLogically">
+        <foreach item="ownerAttachment" collection="attachments" separator=";">
+            UPDATE koin.owner_attachments
+            SET is_deleted = TRUE
+            WHERE id = #{ownerAttachment.id}
+        </foreach>
+    </update>
+
+    <select id="getOwnerAttachmentById" resultMap="ownerAttachmentResultMap">
+        SELECT id,
+               owner_id
+        FROM koin.owner_attachments
+
+        WHERE id = #{id}
+          AND is_deleted = FALSE
+    </select>
+
+    <update id="deleteOwnerAttachmentLogically">
+        UPDATE koin.owner_attachments
+        SET is_deleted = TRUE
+        WHERE id = #{id}
+    </update>
 </mapper>

@@ -16,15 +16,12 @@ import lombok.experimental.SuperBuilder;
 public class UserResponse {
 
     @ApiModelProperty(notes = "이메일 주소 \n"
-            + "- not null \n"
-            + "- 이메일 형식이어야 함"
             , required = true
             , example = "koin123@koreatech.ac.kr"
     )
     private String email;
 
     @ApiModelProperty(notes = "이름 \n"
-            + "50자 이내여야 함"
             , example = "정보혁"
     )
     private String name;

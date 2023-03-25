@@ -3,6 +3,7 @@ package koreatech.in.domain.User.owner;
 import java.util.List;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.UserType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class Owner extends User {
+    private Integer user_id;
     private String company_registration_number;
     private List<OwnerAttachment> attachments;
     private List<Shop> shops;
@@ -33,5 +35,10 @@ public class Owner extends User {
         if (owner.email != null) {
             this.email = owner.email;
         }
+    }
+
+    public void enrichAuthComplete() {
+        setUser_type(UserType.OWNER);
+        setIs_authed(false);
     }
 }
