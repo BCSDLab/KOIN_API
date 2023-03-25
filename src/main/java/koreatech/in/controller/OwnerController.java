@@ -152,8 +152,8 @@ public class OwnerController {
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "사장님 정보 조회", notes= "- 사장님 권한[+가게 권한 부여] 필요",
-            authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "사장님 정보 조회", notes = "- 사장님 권한[+가게 권한 부여] 필요",
+            authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/owner", method = RequestMethod.GET)
     @ParamValid
     public @ResponseBody
@@ -177,12 +177,13 @@ public class OwnerController {
                     , message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
                     , response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "사장님 첨부파일 삭제", notes= "- 사장님 권한[+가게 권한 부여] 필요",
-            authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "사장님 첨부파일 삭제", notes = "- 사장님 권한[+가게 권한 부여] 필요",
+            authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/owners/attachment/{id}", method = RequestMethod.DELETE)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteAttachment(@ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
+    ResponseEntity<EmptyResponse> deleteAttachment(
+            @ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
         ownerService.deleteAttachment(attachmentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -200,12 +201,13 @@ public class OwnerController {
                     message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "사장님 정보 수정", notes = "- 사장님 권한[+가게 권한 부여] 필요")
+    @ApiOperation(value = "사장님 정보 수정", notes = "- 사장님 권한[+가게 권한 부여] 필요", authorizations = {
+            @Authorization(value = "Authorization")})
     @RequestMapping(value = "/owner", method = RequestMethod.PUT)
     @ParamValid
     public @ResponseBody
     ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request,
-                                           BindingResult bindingResult) {
+                                         BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
