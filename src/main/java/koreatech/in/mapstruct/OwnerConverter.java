@@ -12,6 +12,7 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
@@ -64,20 +65,20 @@ public interface OwnerConverter {
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
-    default List<OwnerAttachment> convertAttachments(List<AttachmentUrlRequest> companyCertificateAttachmentUrls) {
-        return companyCertificateAttachmentUrls.stream().map(
+    default List<OwnerAttachment> convertAttachments(List<AttachmentUrlRequest> attachmentUrls) {
+        return attachmentUrls.stream().map(
                         attachmentUrlRequest -> OwnerAttachment.builder().fileUrl(attachmentUrlRequest.getFileUrl()).build()
                 )
                 .collect(Collectors.toList());
     }
 
     @Mappings({
-            @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachment")
+            @Mapping(source = ".", target = "attachments", qualifiedByName = "convertAttachments")
     })
-    OwnerAttachments toOwnerShopAttachments(Owner owner);
+    OwnerAttachments toOwnerAttachments(Owner owner);
 
-    @Named("convertAttachment")
-    default List<OwnerAttachment> convertAttachment(Owner owner) {
+    @Named("convertAttachments")
+    default List<OwnerAttachment> convertAttachments(Owner owner) {
         return owner.getAttachments().stream()
                 .map(attachment -> OwnerAttachment.builder().ownerId(owner.getId()).fileUrl(attachment.getFileUrl()).build())
                 .collect(Collectors.toList());
@@ -88,13 +89,13 @@ public interface OwnerConverter {
             @Mapping(source = "email", target = "email"),
 
             @Mapping(source = "company_registration_number", target = "companyNumber"),
-            @Mapping(source = "attachments", target = "attachments", qualifiedByName = "convertAttachments"),
+            @Mapping(source = "attachments", target = "attachments", qualifiedByName = "convertAttachmentsForResponse"),
 
             @Mapping(source = "shops", target = "shops", qualifiedByName = "convertShops"),
     })
     OwnerResponse toOwnerResponse(Owner owner);
 
-    @Named("convertAttachments")
+    @Named("convertAttachmentsForResponse")
     default List<OwnerResponse.Attachment> convertAttachmentsForResponse(List<OwnerAttachment> attachments) {
         return attachments.stream().map(attachment ->
                 OwnerResponse.Attachment
@@ -113,4 +114,9 @@ public interface OwnerConverter {
                 .name(shop.getName())
                 .build()).collect(Collectors.toList());
     }
+
+    @Mappings({
+            @Mapping(source = "attachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
+    })
+    Owner toOwner(OwnerUpdateRequest ownerUpdateRequest);
 }
