@@ -25,6 +25,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class AdminUserController {
 
     @RequestMapping(value = "/admin/students/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<User> getStudent(@PathVariable("id") int id) throws Exception {
+    ResponseEntity<StudentResponse> getStudent(@PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(adminUserService.getStudentForAdmin(id), HttpStatus.OK);
     }
 

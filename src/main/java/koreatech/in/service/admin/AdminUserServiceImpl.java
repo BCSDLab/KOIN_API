@@ -21,8 +21,8 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
@@ -143,6 +143,13 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public StudentResponse getStudentForAdmin(Integer userId) {
+
+        StudentResponse student = userMapper.getStudentById(userId);
+        return student;
+    }
+
+    @Override
     public Student createStudentForAdmin(Student student) {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
@@ -199,7 +206,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
+    public koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
         User user =  userMapper.getUserById(id);
         if (!user.isStudent()) {
             throw new NotFoundException(new ErrorMessage("User is not Student", 0));
@@ -238,7 +245,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return new StudentResponse(student);
+        return new koreatech.in.dto.normal.user.student.response.StudentResponse(student);
     }
 
     @Override
