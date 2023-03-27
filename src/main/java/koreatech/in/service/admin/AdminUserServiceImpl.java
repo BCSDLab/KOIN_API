@@ -21,7 +21,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
-import koreatech.in.dto.admin.user.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
@@ -146,6 +146,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public StudentResponse getStudentForAdmin(Integer userId) {
 
         StudentResponse student = userMapper.getStudentById(userId);
+
         return student;
     }
 

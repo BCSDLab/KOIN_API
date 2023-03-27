@@ -10,7 +10,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
-import koreatech.in.dto.admin.user.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 
 public interface AdminUserService {
