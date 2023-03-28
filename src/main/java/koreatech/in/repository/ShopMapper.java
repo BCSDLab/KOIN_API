@@ -1,14 +1,17 @@
 package koreatech.in.repository;
 
+import java.util.List;
 import koreatech.in.domain.Event.EventArticle;
 import koreatech.in.domain.Shop.Menu;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopViewLog;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Map;
 
 @Repository("shopMapper")
 public interface ShopMapper {
@@ -52,7 +55,7 @@ public interface ShopMapper {
     @Select("SELECT COUNT(*) AS totalCount FROM koin.shops")
     Integer totalShopCountForAdmin();
 
-    @Select("SELECT * FROM koin.shops ORDER BY created_at DESC LIMIT #{cursor}, #{limit}")
+    @Select("SELECT * FROM koin.shops ORDER BY internal_name ASC LIMIT #{cursor}, #{limit}")
     List<Shop> getShopListForAdmin(@Param("cursor") int cursor, @Param("limit") int limit);
 
     @Update("UPDATE koin.shops SET NAME=#{name}, INTERNAL_NAME=#{internal_name}, CHOSUNG=#{chosung}, CATEGORY=#{category}, PHONE=#{phone}, OPEN_TIME=#{open_time}, CLOSE_TIME=#{close_time}, weekend_open_time=#{weekend_open_time}, weekend_close_time=#{weekend_close_time}, IMAGE_URLS=#{image_urls}, " +
