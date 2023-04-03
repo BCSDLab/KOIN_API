@@ -144,10 +144,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     public StudentResponse getStudentForAdmin(Integer userId) {
         User user = adminUserMapper.getUserById(userId);
         Optional.ofNullable(user).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
-
-        if (!user.isStudent()) {
-            throw new BaseException(NOT_STUDENT);
-        }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
     }
 
