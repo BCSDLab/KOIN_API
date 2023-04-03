@@ -4,10 +4,7 @@ import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
@@ -27,6 +24,7 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
@@ -144,10 +142,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public StudentResponse getStudentForAdmin(Integer userId) {
+        User user = adminUserMapper.getUserById(userId);
+        Optional.ofNullable(user).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
-        StudentResponse student = userMapper.getStudentById(userId);
-
-        return student;
+        if (!user.isStudent()) {
+            throw new BaseException(NOT_STUDENT);
+        }
+        return StudentConverter.INSTANCE.toStudentResponse((Student) user);
     }
 
     @Override
