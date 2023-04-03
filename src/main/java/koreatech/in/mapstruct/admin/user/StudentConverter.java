@@ -8,5 +8,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface StudentConverter {
     StudentConverter INSTANCE = Mappers.getMapper(StudentConverter.class);
+
     StudentResponse toStudentResponse(Student student);
 }

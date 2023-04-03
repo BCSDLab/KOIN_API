@@ -24,7 +24,7 @@ public interface AdminUserService {
 
     User getUserForAdmin(int id) throws Exception;
 
-    StudentResponse getStudentForAdmin(Integer userId) throws Exception;
+    StudentResponse getStudent(Integer userId) throws Exception;
 
     Student createStudentForAdmin(Student student);
 
