@@ -96,7 +96,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<StudentResponse> getStudent(@PathVariable("id") int id) throws Exception {
+    ResponseEntity<StudentResponse> getStudent(@ApiParam(name = "id", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
 
