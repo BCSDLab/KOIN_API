@@ -1,5 +1,6 @@
 package koreatech.in.dto.admin.user.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.User.UserType;
@@ -40,11 +41,14 @@ public class UserResponse {
     private Boolean is_authed;
 
     @ApiModelProperty(value = "최근 로그인 날짜", example = "1680585195000")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date last_logged_at;
 
     @ApiModelProperty(value = "회원가입 일자", example = "1511885648000", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date created_at;
 
     @ApiModelProperty(value = "업데이트 일자", example = "1680585195000", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date updated_at;
 }
