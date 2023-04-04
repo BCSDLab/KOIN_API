@@ -2,6 +2,7 @@ package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
@@ -151,6 +152,10 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public StudentResponse getStudent(Integer userId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(userId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isStudent()) {
+            throw new BaseException(NOT_STUDENT);
+        }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
     }
 
