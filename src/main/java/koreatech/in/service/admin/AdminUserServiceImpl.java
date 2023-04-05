@@ -1,13 +1,19 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
@@ -21,12 +27,13 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
@@ -143,6 +150,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public StudentResponse getStudent(Integer userId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(userId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isStudent()) {
+            throw new BaseException(NOT_STUDENT);
+        }
+        return StudentConverter.INSTANCE.toStudentResponse((Student) user);
+    }
+
+    @Override
     public Student createStudentForAdmin(Student student) {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
@@ -199,7 +216,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
+    public koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
         User user =  userMapper.getUserById(id);
         if (!user.isStudent()) {
             throw new NotFoundException(new ErrorMessage("User is not Student", 0));
@@ -238,7 +255,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return new StudentResponse(student);
+        return new koreatech.in.dto.normal.user.student.response.StudentResponse(student);
     }
 
     @Override

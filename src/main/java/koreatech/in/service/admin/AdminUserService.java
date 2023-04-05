@@ -10,8 +10,8 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
 public interface AdminUserService {
     LoginResponse login(LoginRequest request) throws Exception;
@@ -24,9 +24,11 @@ public interface AdminUserService {
 
     User getUserForAdmin(int id) throws Exception;
 
+    StudentResponse getStudent(Integer userId) throws Exception;
+
     Student createStudentForAdmin(Student student);
 
-    StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id);
+    koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id);
 
     void deleteUser(Integer userId);
 
