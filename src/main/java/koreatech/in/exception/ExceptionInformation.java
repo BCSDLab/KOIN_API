@@ -70,6 +70,11 @@ public enum ExceptionInformation {
     CERTIFICATION_CODE_INVALID("인증 코드가 일치하지 않습니다.", 121002, HttpStatus.UNPROCESSABLE_ENTITY),
     OWNER_ATTACHMENT_NOT_FOUND("존재하지 않는 첨부파일입니다.", 121003, HttpStatus.NOT_FOUND),
 
+    // ======= 파일 업로드 =======
+    VERSION_TYPE_NOT_FOUND("존재하지 않는 버전의 타입입니다. 다시 시도해주세요.", 122000, HttpStatus.NOT_FOUND),
+    VERSION_NOT_FOUND("타입에 해당하는 버전이 없습니다.", 122001, HttpStatus.NOT_FOUND),
+
+
     // ======= BCSDLab 트랙 =======
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201000, HttpStatus.NOT_FOUND),
 

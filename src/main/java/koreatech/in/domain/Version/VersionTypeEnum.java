@@ -3,8 +3,8 @@ package koreatech.in.domain.Version;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import koreatech.in.domain.ErrorMessage;
-import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 
 public enum VersionTypeEnum {
     ANDROID("android"),
@@ -32,6 +32,6 @@ public enum VersionTypeEnum {
             return;
         }
 
-        throw new NotFoundException(new ErrorMessage("유지중인 타입이 아닙니다. 올바른 타입을 입력해주세요.", 0));
+        throw new BaseException(ExceptionInformation.VERSION_TYPE_NOT_FOUND);
     }
 }

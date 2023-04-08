@@ -1,8 +1,11 @@
 package koreatech.in.service;
 
+import java.util.Optional;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Version.Version;
+import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.repository.VersionMapper;
 import org.springframework.beans.factory.annotation.Autowired;

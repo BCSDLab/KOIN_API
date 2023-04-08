@@ -1,10 +1,14 @@
 package koreatech.in.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import javax.inject.Inject;
 import koreatech.in.domain.Version.Version;
 import koreatech.in.domain.Version.VersionTypeEnum;
+import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.service.VersionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,13 @@ public class VersionController {
     @Inject
     private VersionService versionService;
 
+    @ApiOperation(value = "버전 조회", notes = "- 권한 필요 없음")
+    @ApiResponses({
+            @ApiResponse(code = 404, message
+                    = "- 존재하지 않는 버전 타입일 때 (code: 122000) \n\n"
+                    + "- 아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n"
+                    , response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "/versions/{type}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<Version> getVersion(
