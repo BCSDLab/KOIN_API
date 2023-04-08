@@ -28,7 +28,7 @@ public class VersionController {
     @ApiResponses({
             @ApiResponse(code = 404, message
                     = "- 존재하지 않는 버전 타입일 때 (code: 122000) \n\n"
-                    + "- 아이디에 대한 회원 정보가 없을 때 (code: 101000) \n\n"
+                    + "- 버전 타입에 해당하는 버전이 없을 때 (code: 122001) \n\n"
                     , response = ExceptionResponse.class),
     })
     @RequestMapping(value = "/versions/{type}", method = RequestMethod.GET)
