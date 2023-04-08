@@ -1,5 +1,6 @@
 package koreatech.in.repository;
 
+import koreatech.in.domain.Version.BatchVersion;
 import koreatech.in.domain.Version.Version;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,8 @@ public interface VersionMapper {
 
     @Delete("DELETE FROM koin.versions WHERE TYPE = #{type}")
     void deleteVersionForAdmin(@Param("type") String type);
+
+    @Insert("INSERT INTO versions (version, type) VALUES (#{version}, #{type}) ON DUPLICATE KEY UPDATE version = #{version};")
+    void upsertBusVersion(BatchVersion batchVersion);
+
 }
