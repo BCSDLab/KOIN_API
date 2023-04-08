@@ -24,6 +24,7 @@ public class VersionController {
             @PathVariable(value = "type")
             @ApiParam(value = "타입 이름 \n\n"
                     + "- `android`(안드로이드)\n"
+                    + "- `timetable`(시간표)\n"
                     + "- `shuttle_bus_timetable`(셔틀, 통학 버스)\n"
                     + "- `express_bus_timetable`(대성 고속)\n"
                     + "- `city_bus_timetable`(시내 버스)\n"
