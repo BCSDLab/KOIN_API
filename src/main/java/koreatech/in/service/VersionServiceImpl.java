@@ -23,9 +23,9 @@ public class VersionServiceImpl implements VersionService{
     JwtValidator jwtValidator;
 
     @Override
-    public Version getVersion(String type) throws Exception {
-
-        return versionMapper.getVersion(type);
+    public Version getVersion(String type) {
+        return Optional.ofNullable(versionMapper.getVersion(type))
+                .orElseThrow(() -> new BaseException(ExceptionInformation.VERSION_NOT_FOUND));
     }
 
     @Override
