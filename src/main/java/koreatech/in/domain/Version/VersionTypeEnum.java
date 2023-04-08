@@ -8,6 +8,7 @@ import koreatech.in.exception.ExceptionInformation;
 
 public enum VersionTypeEnum {
     ANDROID("android"),
+    TIMETABLE("timetable"),
     SHUTTLE("shuttle_bus_timetable"),
     CITY("city_bus_timetable"),
     EXPRESS("express_bus_timetable"),
