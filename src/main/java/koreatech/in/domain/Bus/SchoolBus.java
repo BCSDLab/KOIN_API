@@ -5,19 +5,23 @@ import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import koreatech.in.repository.BusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-
 import java.lang.reflect.Type;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import koreatech.in.domain.Version.VersionTypeEnum;
+import koreatech.in.repository.BusRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 public abstract class SchoolBus extends Bus {
 
@@ -30,6 +34,7 @@ public abstract class SchoolBus extends Bus {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
 
     @Override
     public BusRemainTime getNowAndNextBusRemainTime(String busType, String depart, String arrival) {
@@ -225,6 +230,16 @@ public abstract class SchoolBus extends Bus {
 
     @Override
     public void cacheBusArrivalInfo() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public VersionTypeEnum getVersionType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateVersion() {
         throw new UnsupportedOperationException();
     }
 }

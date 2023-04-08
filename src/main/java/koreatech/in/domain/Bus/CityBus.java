@@ -5,13 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import koreatech.in.domain.NotiSlack;
-import koreatech.in.util.SlackNotiSender;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
@@ -27,6 +20,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import koreatech.in.domain.NotiSlack;
+import koreatech.in.domain.Version.VersionTypeEnum;
+import koreatech.in.util.SlackNotiSender;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CityBus extends Bus {
@@ -41,6 +41,8 @@ public class CityBus extends Bus {
 
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrivalInfo>>() {
     }.getType();
+
+    private static final VersionTypeEnum BUS_VERSION_TYPE = VersionTypeEnum.CITY;
 
     @Value("${OPEN_API_KEY}")
     private String OPEN_API_KEY;
@@ -157,6 +159,13 @@ public class CityBus extends Bus {
         for (String nodeID : BusNodeEnum.nodeIDs) {
             getArrivalTimesFromReal(nodeID);
         }
+
+        updateVersion();
+    }
+
+    @Override
+    public VersionTypeEnum getVersionType() {
+        return BUS_VERSION_TYPE;
     }
 
     @Override
