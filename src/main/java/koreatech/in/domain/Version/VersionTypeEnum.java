@@ -7,6 +7,8 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.NotFoundException;
 
 public enum VersionTypeEnum {
+    ANDROID("android"),
+    SHUTTLE("shuttle_bus_timetable"),
     CITY("city_bus_timetable"),
     EXPRESS("express_bus_timetable"),
     ;
