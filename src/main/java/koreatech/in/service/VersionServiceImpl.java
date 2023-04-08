@@ -1,22 +1,18 @@
 package koreatech.in.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import javax.annotation.Resource;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.User.User;
 import koreatech.in.domain.Version.Version;
 import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.ForbiddenException;
 import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.UnauthorizeException;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.repository.VersionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service("versionService")
 public class VersionServiceImpl implements VersionService{
@@ -29,7 +25,7 @@ public class VersionServiceImpl implements VersionService{
     @Override
     public Version getVersion(String type) {
         return Optional.ofNullable(versionMapper.getVersion(type))
-                .orElseThrow(() -> new BaseException(ExceptionInformation.VERSION_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(new ErrorMessage("타입에 해당하는 버전이 없습니다.", 0)));
     }
 
     @Override
