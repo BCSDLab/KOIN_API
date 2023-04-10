@@ -86,13 +86,14 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getUserForAdmin(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 학생 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 학생 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 조회한 id가 학생이 아닐 떄 (code: 101017)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.GET)
     public @ResponseBody
