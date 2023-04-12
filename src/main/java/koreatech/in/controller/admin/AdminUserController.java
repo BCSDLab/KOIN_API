@@ -93,7 +93,7 @@ public class AdminUserController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "- 조회한 id가 학생이 아닐 떄 (code: 101017)", response = ExceptionResponse.class)
+            @ApiResponse(code = 409, message = "- 조회한 id가 학생이 아닐 때 (code: 101017)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.GET)
     public @ResponseBody
