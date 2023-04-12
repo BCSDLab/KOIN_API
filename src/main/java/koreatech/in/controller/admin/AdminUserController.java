@@ -198,4 +198,18 @@ public class AdminUserController {
         NewOwnersResponse response = adminUserService.getNewOwners(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "특정 사장님 조회", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+        @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+            "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+            "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+        @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+        @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/users/owner/{ownerId}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity getOwner(@ApiParam(name = "ownerId", required = true) @PathVariable("ownerId") int ownerId) throws Exception {
+        return new ResponseEntity<>(adminUserService.getOwner(ownerId), HttpStatus.OK);
+    }
 }
