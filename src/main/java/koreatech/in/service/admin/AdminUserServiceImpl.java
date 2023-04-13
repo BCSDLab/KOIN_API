@@ -1,11 +1,7 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
-import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.sql.SQLException;
 
@@ -23,6 +19,7 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -35,6 +32,7 @@ import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminOwnerMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -55,6 +53,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AdminUserMapper adminUserMapper;
+
+    @Autowired
+    private AdminOwnerMapper adminOwnerMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -157,6 +158,16 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(NOT_STUDENT);
         }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
+    }
+
+    @Override
+    public void updateOwner(Integer userId, OwnerUpdateRequest request) throws Exception{
+        Owner existingOwner = getOwnerById(userId);
+
+        if(existingOwner.needToUpdate(request)){
+            existingOwner.updateAll(request);
+            adminOwnerMapper.updateOwner(existingOwner);
+        }
     }
 
     @Override
@@ -398,5 +409,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
+    }
+    private Owner getOwnerById(Integer user_id) throws Exception{
+        return Optional.ofNullable(adminOwnerMapper.getOwnerById(user_id))
+                .orElseThrow(() -> new BaseException(OWNER_NOT_FOUND));
     }
 }
