@@ -6,6 +6,7 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -25,6 +26,8 @@ public interface AdminUserService {
     User getUserForAdmin(int id) throws Exception;
 
     StudentResponse getStudent(Integer userId) throws Exception;
+
+    void updateOwner(Integer userId, OwnerUpdateRequest request) throws Exception;
 
     Student createStudentForAdmin(Student student);
 
