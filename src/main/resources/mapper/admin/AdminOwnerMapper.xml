@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.admin.AdminOwnerMapper">
+
+    <resultMap id="ownerMap" type="koreatech.in.domain.User.owner.Owner">
+        <id column="user_id" property="user_id" jdbcType="INTEGER"/>
+        <result column="company_registration_number" property="company_registration_number" jdbcType="VARCHAR"/>
+        <result column="company_registration_certificate_image_url" property="company_registration_certificate_image_url" jdbcType="VARCHAR"/>
+        <result column="grant_shop" property="grant_shop" jdbcType="TIMESTAMP"/>
+        <result column="grant_event" property="grant_event" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <select id="getOwnerById" resultMap="ownerMap">
+        SELECT company_registration_number,
+               company_registration_certificate_image_url,
+               grant_shop,
+               grant_event
+        FROM owners
+        WHERE user_id = #{user_id}
+    </select>
+
+    <update id="updateOwner" parameterType="koreatech.in.domain.User.owner.Owner">
+        UPDATE owners
+        SET company_registration_number=#{owner.company_registration_number},
+            company_registration_certificate_image_url=#{owner.company_registration_certificate_image_url},
+            grant_shop=#{owner.grant_shop},
+            grant_event=#{owner.grant_event}
+        WHERE user_id = #{owner.user_id}
+    </update>
+
+</mapper>
