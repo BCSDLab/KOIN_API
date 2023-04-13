@@ -99,6 +99,25 @@ public class AdminUserController {
     ResponseEntity<StudentResponse> getStudent(@ApiParam(name = "id", required = true) @PathVariable("id") int id) throws Exception {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
+    @ApiOperation(value = "특정 사장님 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 120004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @ParamValid
+    @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> updateOwner(
+            @ApiParam(value = "user_id", required = true) @PathVariable("id") Integer userId,
+            @RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) throws Exception {
+        adminUserService.updateOwner(userId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
