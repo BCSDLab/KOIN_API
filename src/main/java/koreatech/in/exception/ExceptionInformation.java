@@ -69,6 +69,7 @@ public enum ExceptionInformation {
     CERTIFICATION_CODE_EXPIRED("코드 인증 기한이 경과되었습니다.", 121001, HttpStatus.GONE),
     CERTIFICATION_CODE_INVALID("인증 코드가 일치하지 않습니다.", 121002, HttpStatus.UNPROCESSABLE_ENTITY),
     OWNER_ATTACHMENT_NOT_FOUND("존재하지 않는 첨부파일입니다.", 121003, HttpStatus.NOT_FOUND),
+    OWNER_NOT_FOUND("사장님이 존재하지 않습니다",121004,HttpStatus.NOT_FOUND),
 
     // ======= 파일 업로드 =======
     VERSION_TYPE_NOT_FOUND("존재하지 않는 버전의 타입입니다. 다시 시도해주세요.", 122000, HttpStatus.NOT_FOUND),
