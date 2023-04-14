@@ -25,6 +25,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,9 +208,10 @@ public class AdminUserController {
         @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
         @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/admin/users/owner/{ownerId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getOwner(@ApiParam(name = "ownerId", required = true) @PathVariable("ownerId") int ownerId) throws Exception {
-        return new ResponseEntity<>(adminUserService.getOwner(ownerId), HttpStatus.OK);
+    ResponseEntity<OwnerResponse> getOwner(@ApiParam(name = "사장님 id", required = true) @PathVariable("id") int id) {
+
+        return new ResponseEntity<>(adminUserService.getOwner(id), HttpStatus.OK);
     }
 }

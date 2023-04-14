@@ -22,7 +22,7 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
-import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
@@ -32,7 +32,7 @@ import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.mapstruct.OwnerConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
-import koreatech.in.repository.user.OwnerMapper;
+import koreatech.in.repository.admin.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
@@ -388,10 +388,10 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public OwnerResponse getOwner(int ownerId) {
+    public OwnerResponse getOwner(int ownerId) {/*
         Owner ownerInDB = Optional.ofNullable(ownerMapper.getOwnerById((long)ownerId))
             .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
-        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
+        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);*/
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
