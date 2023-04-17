@@ -1,10 +1,12 @@
 package koreatech.in.dto.admin.land.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter @Builder
@@ -104,4 +106,8 @@ public class LandResponse {
 
     @ApiModelProperty(notes = "이미지 url 리스트")
     private List<String> image_urls = new ArrayList<>();
+
+    @ApiModelProperty(notes = "업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Date updated_at;
 }
