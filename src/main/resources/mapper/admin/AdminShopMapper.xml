@@ -211,23 +211,28 @@
             `t1`.`pay_card` AS `shops.pay_card`,
             `t1`.`pay_bank` AS `shops.pay_bank`,
             `t1`.`is_deleted` AS `shops.is_deleted`,
+            `t1`.`updated_at` AS `shops.updated_at`,
 
             # shop_opens
             `t2`.`day_of_week` AS `shop_opens.day_of_week`,
             `t2`.`closed` AS `shop_opens.closed`,
             `t2`.`open_time` AS `shop_opens.open_time`,
             `t2`.`close_time` AS `shop_opens.close_time`,
+            `t2`.`updated_at` AS `shop_opens.updated_at`,
 
             # shop_images
             `t3`.`image_url` AS `shop_images.image_url`,
+            `t3`.`updated_at` AS `shop_images.updated_at`,
 
             # shop_menu_categories
             `t4`.`id` AS `shop_menu_categories.id`,
             `t4`.`name` AS `shop_menu_categories.name`,
+            `t4`.`updated_at` AS `shop_menu_categories.updated_at`,
 
             # shop_categories
             `t6`.`id` AS `shop_categories.id`,
-            `t6`.`name` AS `shop_categories.name`
+            `t6`.`name` AS `shop_categories.name`,
+            `t6`.`updated_at` AS `shop_categories.updated_at`
 
         FROM (
             # shops
