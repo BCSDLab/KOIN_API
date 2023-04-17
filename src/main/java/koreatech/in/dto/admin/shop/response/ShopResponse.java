@@ -1,11 +1,13 @@
 package koreatech.in.dto.admin.shop.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
+import java.util.Date;
 import java.util.List;
 
 @Getter @Builder
@@ -53,6 +55,10 @@ public class ShopResponse {
     @ApiModelProperty(notes = "삭제(soft delete) 여부", example = "false", required = true)
     private Boolean is_deleted;
 
+    @ApiModelProperty(value = "상점 일반 정보 업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Date updated_at;
+
     @Getter @Builder
     @ApiModel("Open_1")
     public static class Open {
@@ -69,6 +75,10 @@ public class ShopResponse {
 
         @ApiModelProperty(notes = "해당 요일의 마감 시간", example = "02:00", required = true)
         private String close_time;
+
+        @ApiModelProperty(notes = "상점 오픈 정보 업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        private Date updated_at;
     }
 
     @Getter @Builder
@@ -79,6 +89,10 @@ public class ShopResponse {
 
         @ApiModelProperty(notes = "이름", example = "치킨", required = true)
         private String name;
+
+        @ApiModelProperty(notes = "상점 카테고리 업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        private Date updated_at;
     }
 
     @Getter @Builder
@@ -89,5 +103,9 @@ public class ShopResponse {
 
         @ApiModelProperty(notes = "이름", example = "대표 메뉴", required = true)
         private String name;
+
+        @ApiModelProperty(notes = "상점 메뉴 카테고리 업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        private Date updated_at;
     }
 }
