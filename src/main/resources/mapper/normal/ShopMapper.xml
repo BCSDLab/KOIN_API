@@ -21,6 +21,7 @@
             `t1`.`pay_card` AS `shops.pay_card`,
             `t1`.`pay_bank` AS `shops.pay_bank`,
             `t1`.`is_deleted` AS `shops.is_deleted`,
+            `t1`.`updated_at` AS `shops.updated_at`,
 
             # shop_opens
             `t2`.`day_of_week` AS `shop_opens.day_of_week`,
@@ -642,6 +643,7 @@
         <result property="pay_card" column="shops.pay_card"/>
         <result property="pay_bank" column="shops.pay_bank"/>
         <result property="is_deleted" column="shops.is_deleted"/>
+        <result property="updated_at" column="shops.updated_at"/>
 
         <collection property="open" javaType="list" ofType="koreatech.in.domain.Shop.ShopProfile$Open">
             <result property="day_of_week" column="shop_opens.day_of_week" />
