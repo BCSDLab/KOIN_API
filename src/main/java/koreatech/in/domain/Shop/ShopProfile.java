@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class ShopProfile {
     private List<ShopCategory> shop_categories;
     private List<MenuCategory> menu_categories;
     private Boolean is_deleted;
+    private Date updated_at;
 
     @Getter
     public static final class Open {

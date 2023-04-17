@@ -1,11 +1,13 @@
 package koreatech.in.dto.normal.shop.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
+import java.util.Date;
 import java.util.List;
 
 @Getter @Builder
@@ -48,6 +50,10 @@ public class ShopResponse {
 
     @ApiModelProperty(notes = "상점에 있는 메뉴 카테고리 리스트", required = true)
     private List<MenuCategory> menu_categories;
+
+    @ApiModelProperty(value = "업데이트 일자", example = "2023-01-01 12:01:02", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Date updated_at;
 
     @Getter @Builder
     @ApiModel("Open_4")
