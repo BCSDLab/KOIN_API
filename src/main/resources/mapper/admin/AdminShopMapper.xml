@@ -842,26 +842,31 @@
         <result property="pay_card" column="shops.pay_card"/>
         <result property="pay_bank" column="shops.pay_bank"/>
         <result property="is_deleted" column="shops.is_deleted"/>
+        <result property="updated_at" column="shops.updated_at"/>
 
         <collection property="open" javaType="list" ofType="koreatech.in.domain.Shop.ShopProfile$Open">
             <result property="day_of_week" column="shop_opens.day_of_week" />
             <result property="closed" column="shop_opens.closed"/>
             <result property="open_time" column="shop_opens.open_time" />
             <result property="close_time" column="shop_opens.close_time"/>
+            <result property="updated_at" column="shop_opens.updated_at"/>
         </collection>
 
         <collection property="image_urls" javaType="list" ofType="string">
             <result property="image_url" column="shop_images.image_url"/>
+            <result property="updated_at" column="shop_images.updated_at"/>
         </collection>
 
         <collection property="menu_categories" javaType="list" ofType="koreatech.in.domain.Shop.ShopProfile$MenuCategory">
             <id property="id" column="shop_menu_categories.id"/>
             <result property="name" column="shop_menu_categories.name"/>
+            <result property="updated_at" column="shop_menu_categories.updated_at"/>
         </collection>
 
         <collection property="shop_categories" javaType="list" ofType="koreatech.in.domain.Shop.ShopProfile$ShopCategory">
             <id property="id" column="shop_categories.id"/>
             <result property="name" column="shop_categories.name"/>
+            <result property="updated_at" column="shop_categories.updated_at"/>
         </collection>
     </resultMap>
 
