@@ -33,7 +33,8 @@ public enum ExceptionInformation {
     EMAIL_DOMAIN_IS_NOT_PORTAL_DOMAIN("한국기술교육대학교 포탈의 이메일 형식('koreatech.ac.kr')이 아닙니다.", 101014, HttpStatus.UNPROCESSABLE_ENTITY),
     STUDENT_NUMBER_INVALID("학생의 학번 형식이 아닙니다.", 101015, HttpStatus.UNPROCESSABLE_ENTITY),
     STUDENT_MAJOR_INVALID("학생의 전공 형식이 아닙니다.", 101016, HttpStatus.UNPROCESSABLE_ENTITY),
-    NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101017, HttpStatus.CONFLICT),
+    NOT_STUDENT("회원의 신원이 학생이 아닙니다.", 101017, HttpStatus.CONFLICT),
+    NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101018, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
@@ -70,6 +71,11 @@ public enum ExceptionInformation {
     CERTIFICATION_CODE_EXPIRED("코드 인증 기한이 경과되었습니다.", 121001, HttpStatus.GONE),
     CERTIFICATION_CODE_INVALID("인증 코드가 일치하지 않습니다.", 121002, HttpStatus.UNPROCESSABLE_ENTITY),
     OWNER_ATTACHMENT_NOT_FOUND("존재하지 않는 첨부파일입니다.", 121003, HttpStatus.NOT_FOUND),
+
+    // ======= 파일 업로드 =======
+    VERSION_TYPE_NOT_FOUND("존재하지 않는 버전의 타입입니다. 다시 시도해주세요.", 122000, HttpStatus.NOT_FOUND),
+    VERSION_NOT_FOUND("타입에 해당하는 버전이 없습니다.", 122001, HttpStatus.NOT_FOUND),
+
 
     // ======= BCSDLab 트랙 =======
     TRACK_NOT_FOUND("트랙이 존재하지 않습니다.", 201000, HttpStatus.NOT_FOUND),

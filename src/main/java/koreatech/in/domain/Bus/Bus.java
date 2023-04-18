@@ -1,10 +1,6 @@
 package koreatech.in.domain.Bus;
 
 import com.google.gson.Gson;
-import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.StringRedisUtilStr;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,6 +9,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import koreatech.in.domain.Version.BatchVersion;
+import koreatech.in.domain.Version.VersionTypeEnum;
+import koreatech.in.repository.VersionMapper;
+import koreatech.in.util.StringRedisUtilObj;
+import koreatech.in.util.StringRedisUtilStr;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class Bus {
 
@@ -23,6 +26,9 @@ public abstract class Bus {
 
     @Autowired
     StringRedisUtilStr stringRedisUtilStr;
+
+    @Autowired
+    VersionMapper versionMapper;
 
     String requestOpenAPI(String urlBuilder) {
 
@@ -57,6 +63,15 @@ public abstract class Bus {
     public abstract List<? extends BusTimetable> getTimetables(String busType, String direction, String region);
 
     public abstract void cacheBusArrivalInfo();
+
+    public abstract VersionTypeEnum getVersionType();
+
+    protected void updateVersion() {
+        VersionTypeEnum typeEnum = Optional.ofNullable(getVersionType())
+                .orElseThrow(UnsupportedOperationException::new);
+
+        versionMapper.upsertBusVersion(BatchVersion.from(typeEnum));
+    }
 
     public abstract SingleBusTime searchBusTime(String busType, String depart, String arrival, LocalDateTime at);
 }

@@ -5,20 +5,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import koreatech.in.domain.NotiSlack;
-import koreatech.in.mapstruct.normal.bus.IntercityBusTimetableConverter;
-import koreatech.in.util.SlackNotiSender;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -26,6 +21,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import koreatech.in.domain.NotiSlack;
+import koreatech.in.domain.Version.VersionTypeEnum;
+import koreatech.in.mapstruct.normal.bus.IntercityBusTimetableConverter;
+import koreatech.in.util.SlackNotiSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class IntercityBus extends Bus {
@@ -39,6 +43,8 @@ public class IntercityBus extends Bus {
 
     private static final Type timetableType = new TypeToken<List<IntercityBusTimetable>>() {
     }.getType();
+
+    public static final VersionTypeEnum BUS_VERSION_TYPE = VersionTypeEnum.EXPRESS;
 
     @Value("${OPEN_API_KEY}")
     private String OPEN_API_KEY;
@@ -206,8 +212,16 @@ public class IntercityBus extends Bus {
     public void cacheBusArrivalInfo() {
         BusTerminalEnum koreatech = BusTerminalEnum.KOREATECH;
         BusTerminalEnum terminal = BusTerminalEnum.TERMINAL;
+
         getArrivalTimesFromReal(koreatech, terminal);
         getArrivalTimesFromReal(terminal, koreatech);
+
+        updateVersion();
+    }
+
+    @Override
+    public VersionTypeEnum getVersionType() {
+        return BUS_VERSION_TYPE;
     }
 
     @Override

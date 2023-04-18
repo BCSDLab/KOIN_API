@@ -1,8 +1,11 @@
 package koreatech.in.service;
 
+import java.util.Optional;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.Version.Version;
+import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.repository.VersionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +26,9 @@ public class VersionServiceImpl implements VersionService{
     JwtValidator jwtValidator;
 
     @Override
-    public Version getVersion(String type) throws Exception {
-
-        return versionMapper.getVersion(type);
+    public Version getVersion(String type) {
+        return Optional.ofNullable(versionMapper.getVersion(type))
+                .orElseThrow(() -> new BaseException(ExceptionInformation.VERSION_NOT_FOUND));
     }
 
     @Override
