@@ -213,7 +213,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<OwnerResponse> getOwner(@ApiParam(name = "사장님 id", required = true) @PathVariable("id") int id) {
+    ResponseEntity<OwnerResponse> getOwner(@ApiParam(value = "owner_id", required = true) @PathVariable("id") int id) {
 
         return new ResponseEntity<>(adminUserService.getOwner(id), HttpStatus.OK);
     }

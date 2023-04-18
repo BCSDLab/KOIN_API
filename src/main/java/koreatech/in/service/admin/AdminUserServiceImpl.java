@@ -1,7 +1,10 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,6 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -29,20 +39,14 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.mapstruct.OwnerConverter;
+import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
-import koreatech.in.repository.admin.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
 import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -58,9 +62,6 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AuthorityMapper authorityMapper;
-
-    @Autowired
-    private OwnerMapper ownerMapper;
 
     @Autowired
     private JwtValidator jwtValidator;
@@ -388,10 +389,19 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public OwnerResponse getOwner(int ownerId) {/*
-        Owner ownerInDB = Optional.ofNullable(ownerMapper.getOwnerById((long)ownerId))
+    public OwnerResponse getOwner(int ownerId) {
+        User userInDB = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
             .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
-        return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);*/
+
+        if(!userInDB.isOwner()) {
+            //익셉션 종류 새로 추가할 것
+            throw new BaseException(INQUIRED_USER_NOT_FOUND);
+        }
+
+        Owner fullOwnerInDB = Optional.ofNullable(adminUserMapper.getFullOwnerById(ownerId))
+            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        return OwnerConverter.INSTANCE.toFullOwnerResponse(fullOwnerInDB);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {

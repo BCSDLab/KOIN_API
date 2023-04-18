@@ -325,6 +325,66 @@
             ON `t1`.`id` = `t2`.`user_id`
     </select>
 
+    <select id="getFullOwnerById" resultMap="FullOwnerResultMap">
+        SELECT
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+            `t1`.`phone_number` AS `users.phone_number`,
+            `t1`.`user_type` AS `users.user_type`,
+            `t1`.`gender` AS `users.gender`,
+            `t1`.`is_authed` AS `users.is_authed`,
+            `t1`.`last_logged_at` AS `users.last_logged_at`,
+            `t1`.`profile_image_url` AS `users.profile_image_url`,
+            `t1`.`auth_token` AS `users.auth_token`,
+            `t1`.`auth_expired_at` AS `users.auth_expired_at`,
+            `t1`.`reset_token` AS `users.reset_token`,
+            `t1`.`reset_expired_at` AS `users.reset_expired_at`,
+            `t1`.`is_deleted` AS `users.is_deleted`,
+            `t1`.`created_at` AS `users.created_at`,
+            `t1`.`updated_at` AS `users.updated_at`,
+
+            `t2`.`company_registration_number` AS `owners.company_registration_number`,
+
+            `t3`.`id` AS `shops.id`,
+            `t3`.`name` AS `shops.name`,
+            `t3`.`internal_name` AS `shops.internal_name`,
+            `t3`.`chosung` AS `shops.chosung`,
+            `t3`.`phone` AS `shops.phone`,
+            `t3`.`address` AS `shops.address`,
+            `t3`.`description` AS `shops.description`,
+            `t3`.`delivery` AS `shops.delivery`,
+            `t3`.`delivery_price` AS `shops.delivery_price`,
+            `t3`.`pay_card` AS `shops.pay_card`,
+            `t3`.`pay_bank` AS `shops.pay_bank`,
+            `t3`.`is_deleted` AS `shops.is_deleted`,
+            `t3`.`created_at` AS `shops.created_at`,
+            `t3`.`updated_at` AS `shops.updated_at`,
+            `t3`.`is_event` AS `shops.is_event`,
+            `t3`.`remarks` AS `shops.remarks`,
+            `t3`.`hit` AS `shops.hit`,
+
+            `t4`.`id` AS `attachments.id`,
+            `t4`.`url` AS `attachments.url`,
+            `t4`.`is_deleted` AS `attachments.is_deleted`,
+            `t4`.`updated_at` AS `attachments.updated_at`
+
+        FROM (
+                 SELECT *
+                 FROM `koin`.`users`
+                 WHERE
+                     `id` = #{id}
+             ) `t1`
+
+             LEFT JOIN `koin`.`owners` `t2`
+                       ON `t1`.`id` = `t2`.`user_id`
+             LEFT JOIN `koin`.`shops` `t3`
+                       ON `t1`.`id` = `t3`.`owner_id`
+             LEFT JOIN `koin`.`owner_attachments` `t4`
+                       ON `t1`.`id` = `t4`.`owner_id`
+    </select>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
@@ -384,5 +444,34 @@
         <result property="company_registration_number" column="owners.company_registration_number"/>
         <result property="grant_shop" column="owners.grant_shop"/>
         <result property="grant_event" column="owners.grant_event"/>
+    </resultMap>
+
+    <resultMap id="FullOwnerResultMap" extends="OwnerResultMap" type="koreatech.in.domain.User.owner.Owner">
+        <collection property="shops" javaType="List" ofType="koreatech.in.domain.Shop.Shop">
+            <id property="id" column="shops.id"/>
+            <result property="name" column="shops.name"/>
+            <result property="internal_name" column="shops.internal_name"/>
+            <result property="chosung" column="shops.chosung"/>
+            <result property="phone" column="shops.phone"/>
+            <result property="address" column="shops.address"/>
+            <result property="description" column="shops.description"/>
+            <result property="delivery" column="shops.delivery"/>
+            <result property="delivery_price" column="shops.delivery_price"/>
+            <result property="pay_card" column="shops.pay_card"/>
+            <result property="pay_bank" column="shops.pay_bank"/>
+            <result property="is_deleted" column="shops.is_deleted"/>
+            <result property="created_at" column="shops.created_at"/>
+            <result property="updated_at" column="shops.updated_at"/>
+            <result property="is_event" column="shops.is_event"/>
+            <result property="remarks" column="shops.remarks"/>
+            <result property="hit" column="shops.hit"/>
+        </collection>
+
+        <collection property="attachments" javaType="List" ofType="koreatech.in.domain.User.owner.OwnerAttachment">
+            <id property="id" column="attachments.id"/>
+            <result property="fileUrl" column="attachments.url"/>
+            <result property="isDeleted" column="attachments.is_deleted"/>
+            <result property="updateAt" column="attachments.updated_at"/>
+        </collection>
     </resultMap>
 </mapper>

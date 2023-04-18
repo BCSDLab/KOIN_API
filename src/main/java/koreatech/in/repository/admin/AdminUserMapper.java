@@ -1,12 +1,13 @@
 package koreatech.in.repository.admin;
 
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 
 @Repository
 public interface AdminUserMapper {
@@ -16,4 +17,5 @@ public interface AdminUserMapper {
     void undeleteUserLogicallyById(@Param("id") Integer id);
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
+    Owner getFullOwnerById(@Param("id") Integer id);
 }
