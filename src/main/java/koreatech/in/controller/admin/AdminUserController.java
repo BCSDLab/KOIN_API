@@ -116,7 +116,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(value = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -132,7 +132,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(value = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.undeleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
