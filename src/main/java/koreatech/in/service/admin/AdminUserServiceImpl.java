@@ -2,6 +2,7 @@ package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
@@ -393,9 +394,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         User userInDB = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
             .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
-        if(!userInDB.isOwner()) {
-            //익셉션 종류 새로 추가할 것
-            throw new BaseException(INQUIRED_USER_NOT_FOUND);
+        if (!userInDB.isOwner()) {
+            throw new BaseException(NOT_OWNER);
         }
 
         Owner fullOwnerInDB = Optional.ofNullable(adminUserMapper.getFullOwnerById(ownerId))
