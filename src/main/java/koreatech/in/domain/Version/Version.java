@@ -19,8 +19,8 @@ public class Version {
     @ApiModelProperty(notes = "생성 일자", example = "2018-04-18 09:00:00")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date created_at;
-    @ApiModelProperty(notes = "수정 일자", example = "2018-04-18 09:00:00")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    @ApiModelProperty(notes = "수정 일자", example = "2018-04-18")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date updated_at;
 
     public Integer getId() {
