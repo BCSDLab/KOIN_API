@@ -404,17 +404,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional(readOnly = true)
     public OwnerResponse getOwner(int ownerId) {
-        User userInDB = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
             .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
-        if (!userInDB.isOwner()) {
+        if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
 
-        Owner fullOwnerInDB = Optional.ofNullable(adminUserMapper.getFullOwnerById(ownerId))
-            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
-
-        return OwnerConverter.INSTANCE.toFullOwnerResponse(fullOwnerInDB);
+        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
