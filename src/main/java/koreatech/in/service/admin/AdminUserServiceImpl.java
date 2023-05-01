@@ -1,28 +1,5 @@
 package koreatech.in.service.admin;
 
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
-import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
-import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
-
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -51,6 +28,18 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
 import koreatech.in.util.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -410,8 +399,12 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
+        Owner owner = (Owner)user;
 
-        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user);
+        List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
+        List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
+
+        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {

@@ -1,13 +1,12 @@
 package koreatech.in.repository.admin;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
-
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface AdminUserMapper {
@@ -18,4 +17,8 @@ public interface AdminUserMapper {
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
     Owner getFullOwnerById(@Param("id") Integer id);
+
+    List<Integer> getShopsIdByOwnerId(Integer id);
+
+    List<Integer> getAttachmentsIdByOwnerId(Integer id);
 }

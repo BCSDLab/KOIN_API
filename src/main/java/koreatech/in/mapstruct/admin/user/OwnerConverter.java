@@ -1,17 +1,14 @@
 package koreatech.in.mapstruct.admin.user;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
-
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 @Mapper
 public interface OwnerConverter {
@@ -20,23 +17,23 @@ public interface OwnerConverter {
     NewOwnersResponse.NewOwner toNewOwnersResponse$NewOwner(Owner owner);
 
     @Mappings({
-        @Mapping(source = "company_registration_number", target = "companyRegistrationNumber"),
-        @Mapping(source = "attachments", target = "attachmentsId", qualifiedByName = "convertAttachments"),
-        @Mapping(source = "shops", target = "shopsId", qualifiedByName = "convertShops")
+        @Mapping(source = "owner.company_registration_number", target = "companyRegistrationNumber"),
+        @Mapping(source = "attachmentsId", target = "attachmentsId"),
+        @Mapping(source = "shopsId", target = "shopsId")
     })
-    OwnerResponse toOwnerResponse(Owner owner);
-
+    OwnerResponse toOwnerResponse(Owner owner, List<Integer> shopsId, List<Integer> attachmentsId);
+/*
     @Named("convertAttachments")
-    default List<Integer> convertAttachmentsId(List<koreatech.in.domain.User.owner.OwnerAttachment> attachmentsId) {
-        return attachmentsId.stream()
-            .map(attachment -> attachment.getId()).
-            collect(Collectors.toList());
+    default List<Integer> convertAttachments(List<Integer> attachmentsId) {
+        return attachments.stream()
+            .map(OwnerAttachment::getId)
+            .collect(Collectors.toList());
     }
 
     @Named("convertShops")
-    default List<Integer> convertShops(List<koreatech.in.domain.Shop.Shop> shopsId) {
-        return shopsId.stream()
-            .map(shop -> shop.getId()).
-            collect(Collectors.toList());
-    }
+    default List<Integer> convertShops(List<Integer> shopsId) {
+        return shops.stream()
+            .map(Shop::getId)
+            .collect(Collectors.toList());
+    }*/
 }

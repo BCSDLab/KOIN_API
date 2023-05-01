@@ -1,16 +1,14 @@
 package koreatech.in.dto.admin.user.response;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @Getter
 @SuperBuilder

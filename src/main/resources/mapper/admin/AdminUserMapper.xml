@@ -50,11 +50,7 @@
             `t4`.`grant_event` AS `admins.grant_event`,
             `t4`.`is_deleted` AS `admins.is_deleted`,
             `t4`.`created_at` AS `admins.created_at`,
-            `t4`.`updated_at` AS `admins.updated_at`,
-
-            `t5`.`id` AS `owners.owner_attachments.id`,
-
-            `t6`.`id` AS `owners.shops.id`
+            `t4`.`updated_at` AS `admins.updated_at`
 
         FROM (
             SELECT *
@@ -73,12 +69,6 @@
             ON
                 `t1`.`id` = `t4`.`user_id`
                 AND `t4`.`is_deleted` = 0
-            LEFT JOIN `koin`.`shops` `t5`
-            ON
-                `t1`.id = `t5`.owner_id AND `t5`.is_deleted = FALSE
-            LEFT JOIN `koin`.`owner_attachments` `t6`
-            ON
-                `t1`.id = `t6`.owner_id AND `t6`.is_deleted = FALSE
     </select>
 
 <!--    <select id="getUndeletedUserByAccount" parameterType="string" resultMap="UserDiscriminator">-->
@@ -335,6 +325,20 @@
             ON `t1`.`id` = `t2`.`user_id`
     </select>
 
+    <select id="getShopsIdByOwnerId" parameterType="integer" resultType="integer">
+        SELECT `id`
+        FROM `koin`.`shops`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
+    <select id="getAttachmentsIdByOwnerId" parameterType="integer" resultType="integer">
+        SELECT `id`
+        FROM `koin`.`owner_attachments`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
@@ -394,11 +398,5 @@
         <result property="company_registration_number" column="owners.company_registration_number"/>
         <result property="grant_shop" column="owners.grant_shop"/>
         <result property="grant_event" column="owners.grant_event"/>
-        <collection property="attachments" javaType="List" ofType="koreatech.in.domain.User.owner.OwnerAttachment">
-            <id property="id" column="owners.owner_attachments.id"/>
-        </collection>
-        <collection property="shops" javaType="List" ofType="koreatech.in.domain.Shop.Shop">
-            <id property="id" column="owners.shops.id"/>
-        </collection>
     </resultMap>
 </mapper>
