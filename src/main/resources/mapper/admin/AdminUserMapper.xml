@@ -325,6 +325,13 @@
             ON `t1`.`id` = `t2`.`user_id`
     </select>
 
+    <update id="updateOwnerAuthorById">
+        UPDATE `koin`.`users`
+        SET
+            `is_authed` = true
+        WHERE `id` = #{user.id}
+    </update>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
