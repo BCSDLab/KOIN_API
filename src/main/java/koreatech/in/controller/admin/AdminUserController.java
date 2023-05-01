@@ -101,9 +101,19 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/admin/permission/owner/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "사장님 권한 요청 허용", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 조회한 id가 사장님이 아닐 때 (code: 101018) \n" +
+                                               "- 인증된 회원일 때 (code: 101019)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/owner/{id}/permission", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> allowOwnerPermission(@PathVariable("id") int id) {
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") int id) throws Exception {
         adminUserService.allowOwnerPermission(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
