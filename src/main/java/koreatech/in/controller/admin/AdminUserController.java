@@ -101,6 +101,13 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/admin/permission/owner/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@PathVariable("id") int id) {
+        adminUserService.allowOwnerPermission();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
@@ -214,4 +221,7 @@ public class AdminUserController {
         NewOwnersResponse response = adminUserService.getNewOwners(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+
 }
