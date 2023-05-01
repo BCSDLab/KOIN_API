@@ -1,7 +1,9 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
 import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
@@ -157,6 +159,19 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(NOT_STUDENT);
         }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
+    }
+
+    @Override
+    public void allowOwnerPermission(Integer ownerId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+        if (user.isAuthenticated()) {
+            throw new BaseException(AUTHENTICATED_USER);
+        }
+        adminUserMapper.updateOwnerAuthorById(ownerId);
     }
 
     @Override

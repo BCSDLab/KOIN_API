@@ -45,4 +45,6 @@ public interface AdminUserService {
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
 
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
+
+    void allowOwnerPermission(Integer ownerId);
 }
