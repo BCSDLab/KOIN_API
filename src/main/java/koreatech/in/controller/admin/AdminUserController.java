@@ -101,10 +101,10 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/admin/permission/owner/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/permission/owner/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<EmptyResponse> allowOwnerPermission(@PathVariable("id") int id) {
-        adminUserService.allowOwnerPermission();
+        adminUserService.allowOwnerPermission(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
