@@ -107,13 +107,15 @@ public class AdminUserController {
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "- 조회한 id가 사장님이 아닐 때 (code: 101018) \n" +
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (code: 101003) \n" +
+                                               "- 상점이 존재하지 않을 때 (code:104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- id가 사장님이 아닐 때 (code: 101018) \n" +
                                                "- 인증된 회원일 때 (code: 101019)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/admin/owner/{ownerId}/permission/shops/{shopId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/admin/owner/{ownerId}/permission", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("ownerId") int ownerId, @ApiParam(value = "shopId", required = true) @PathVariable("shopId") int shopId) throws Exception {
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("ownerId") int ownerId,
+                                                       @ApiParam(value = "shopId", required = true) @RequestParam("shopId") int shopId) throws Exception {
         adminUserService.allowOwnerPermission(ownerId, shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
