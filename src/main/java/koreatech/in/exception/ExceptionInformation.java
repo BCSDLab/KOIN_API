@@ -34,7 +34,7 @@ public enum ExceptionInformation {
     STUDENT_NUMBER_INVALID("학생의 학번 형식이 아닙니다.", 101015, HttpStatus.UNPROCESSABLE_ENTITY),
     STUDENT_MAJOR_INVALID("학생의 전공 형식이 아닙니다.", 101016, HttpStatus.UNPROCESSABLE_ENTITY),
     NOT_STUDENT("회원의 신원이 학생이 아닙니다.", 101017, HttpStatus.CONFLICT),
-    NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101018, HttpStatus.CONFLICT),
+    GENDER_INVALID("유효한 성별이 아닙니다.", 101019, HttpStatus.UNPROCESSABLE_ENTITY),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
