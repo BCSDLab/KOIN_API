@@ -1,14 +1,30 @@
 package koreatech.in.controller.admin;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import java.util.List;
-import java.util.Map;
-import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
@@ -26,22 +42,10 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.service.admin.AdminUserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Api(tags = "(Admin) User", description = "회원")
@@ -87,13 +91,14 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getUserForAdmin(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 학생 조회", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "특정 학생 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                                                "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class)
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 조회한 id가 학생이 아닐 때 (code: 101017)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -147,7 +152,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> deleteUser(@ApiParam(value = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -163,7 +168,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(name = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
+    ResponseEntity<EmptyResponse> undeleteUser(@ApiParam(value = "회원 고유 id", required = true) @PathVariable("id") Integer userId) throws Exception {
         adminUserService.undeleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -232,5 +237,20 @@ public class AdminUserController {
 
         NewOwnersResponse response = adminUserService.getNewOwners(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "특정 사장님 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization(value="Authorization")})
+    @ApiResponses({
+        @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+            "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+            "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+        @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+        @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+        @ApiResponse(code = 409, message = "- 조회한 회원의 신원이 사장님이 아닐 때 (code: 101018)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<OwnerResponse> getOwner(@ApiParam(value = "owner_id", required = true) @PathVariable("id") int id) {
+        return new ResponseEntity<>(adminUserService.getOwner(id), HttpStatus.OK);
     }
 }

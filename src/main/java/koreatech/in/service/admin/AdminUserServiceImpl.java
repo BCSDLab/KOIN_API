@@ -1,16 +1,5 @@
 package koreatech.in.service.admin;
 
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
-
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -19,20 +8,20 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.admin.AdminOwnerMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -45,6 +34,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.*;
+
 @Service
 @Transactional
 public class AdminUserServiceImpl implements AdminUserService {
@@ -53,9 +49,6 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AdminUserMapper adminUserMapper;
-
-    @Autowired
-    private AdminOwnerMapper adminOwnerMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -158,16 +151,6 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(NOT_STUDENT);
         }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
-    }
-
-    @Override
-    public void updateOwner(Integer userId, OwnerUpdateRequest request) throws Exception{
-        Owner existingOwner = getOwnerById(userId);
-
-        if(existingOwner.needToUpdate(request)){
-            existingOwner.updateAll(request);
-            adminOwnerMapper.updateOwner(existingOwner);
-        }
     }
 
     @Override
@@ -407,11 +390,24 @@ public class AdminUserServiceImpl implements AdminUserService {
         return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public OwnerResponse getOwner(int ownerId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
+            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+        Owner owner = (Owner)user;
+
+        List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
+        List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
+
+        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
+    }
+
     private void deleteAccessTokenFromRedis(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
-    }
-    private Owner getOwnerById(Integer user_id) throws Exception{
-        return Optional.ofNullable(adminOwnerMapper.getOwnerById(user_id))
-                .orElseThrow(() -> new BaseException(OWNER_NOT_FOUND));
     }
 }

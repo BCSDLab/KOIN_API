@@ -2,12 +2,11 @@ package koreatech.in.domain.Dining;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
-
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @ToString
@@ -41,11 +40,10 @@ public class DiningMenuDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private final Date created_at;
 
-    @ApiModelProperty(hidden = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private final Date updated_at;
+    @ApiModelProperty(notes = "최신화 일자", example = "2023-04-19")
+    private final String updated_at;
 
-    public DiningMenuDTO(Integer id, String date, String type, String place, Integer price_card, Integer price_cash, Integer kcal, List<String> menu, Date created_at, Date updated_at) {
+    public DiningMenuDTO(Integer id, String date, String type, String place, Integer price_card, Integer price_cash, Integer kcal, List<String> menu, Date created_at, String updated_at) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -78,4 +76,5 @@ public class DiningMenuDTO {
         }
         return kcal;
     }
+
 }

@@ -325,6 +325,20 @@
             ON `t1`.`id` = `t2`.`user_id`
     </select>
 
+    <select id="getShopsIdByOwnerId" parameterType="integer" resultType="integer">
+        SELECT `id`
+        FROM `koin`.`shops`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
+    <select id="getAttachmentsIdByOwnerId" parameterType="integer" resultType="integer">
+        SELECT `id`
+        FROM `koin`.`owner_attachments`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>

@@ -12,6 +12,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 
 public interface AdminUserService {
@@ -48,4 +49,6 @@ public interface AdminUserService {
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
 
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
+
+    OwnerResponse getOwner(int ownerId);
 }
