@@ -5,6 +5,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
+import koreatech.in.util.StringXssChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +46,6 @@ import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.service.admin.AdminUserService;
 import springfox.documentation.annotations.ApiIgnore;
@@ -130,9 +132,14 @@ public class AdminUserController {
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
-                                 @RequestBody @Valid StudentUpdateRequest studentUpdateRequest,
+                                 @RequestBody @Valid StudentUpdateRequest request,
                                  BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
-        adminUserService.updateStudentForAdmin(studentUpdateRequest, id);
+        adminUserService.updateStudentForAdmin(request, id);
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
