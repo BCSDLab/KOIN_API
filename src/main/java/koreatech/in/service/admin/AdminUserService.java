@@ -46,5 +46,5 @@ public interface AdminUserService {
 
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
 
-    void allowOwnerPermission(Integer ownerId);
+    void allowOwnerPermission(Integer ownerId, Integer shopId);
 }
