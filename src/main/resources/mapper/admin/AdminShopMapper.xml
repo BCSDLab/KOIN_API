@@ -533,6 +533,17 @@
         )
     </insert>
 
+    <insert id="createShopOwners" parameterType="Integer">
+        INSERT IGNORE INTO `koin`.`shop_owners` (
+            `user_id`,
+            `shop_id`
+        )
+        VALUES (
+            #{ownerId},
+            #{shopId}
+        )
+    </insert>
+
     <select id="getMenuCategoriesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
         SELECT *
         FROM `koin`.`shop_menu_categories`
