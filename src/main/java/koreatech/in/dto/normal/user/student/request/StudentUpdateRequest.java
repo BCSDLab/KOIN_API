@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.normal.user.request.UserUpdateRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,4 +42,15 @@ public class StudentUpdateRequest extends UserUpdateRequest {
     @ApiModelProperty(notes = "휴대폰 번호", example = "010-0000-0000")
     private String phoneNumber;
 
+    public Student toEntity() {
+        return Student.builder()
+                .nickname(nickname)
+                .gender(gender)
+                .identity(identity)
+                .isGraduated(isGraduated)
+                .major(major)
+                .studentNumber(studentNumber)
+                .phoneNumber(phoneNumber)
+                .build();
+    }
 }
