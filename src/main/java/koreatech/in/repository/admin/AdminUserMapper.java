@@ -16,4 +16,9 @@ public interface AdminUserMapper {
     void undeleteUserLogicallyById(@Param("id") Integer id);
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
+    Owner getFullOwnerById(@Param("id") Integer id);
+
+    List<Integer> getShopsIdByOwnerId(Integer id);
+
+    List<Integer> getAttachmentsIdByOwnerId(Integer id);
 }
