@@ -112,10 +112,10 @@ public class AdminUserController {
             @ApiResponse(code = 409, message = "- id가 사장님이 아닐 때 (code: 101018) \n" +
                                                "- 인증된 회원일 때 (code: 101019)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/admin/owner/{ownerId}/permission", method = RequestMethod.PUT)
+    @RequestMapping(value = "/admin/owner/{ownerId}/permission/shops/{shopId}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("ownerId") int ownerId,
-                                                       @ApiParam(value = "shopId", required = true) @RequestParam("shopId") int shopId) throws Exception {
+                                                       @ApiParam(value = "shopId", required = true) @PathVariable("shopId") int shopId) throws Exception {
         adminUserService.allowOwnerPermission(ownerId, shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
