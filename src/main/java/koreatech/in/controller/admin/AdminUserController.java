@@ -5,6 +5,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
+import koreatech.in.util.StringXssChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -120,6 +123,11 @@ public class AdminUserController {
     ResponseEntity<EmptyResponse> updateOwner(
             @ApiParam(value = "user_id", required = true) @PathVariable("id") Integer userId,
             @RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) throws Exception {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
         adminUserService.updateOwner(userId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
