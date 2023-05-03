@@ -339,6 +339,16 @@
           AND `is_deleted` = 0
     </select>
 
+    <update id="updateOwner" parameterType="koreatech.in.domain.User.owner.Owner">
+        UPDATE `koin`.`owners`
+        SET
+            `company_registration_number` = #{owner.company_registration_number},
+            `grant_shop` = #{owner.grant_shop},
+            `grant_event` = #{owner.grant_event}
+        WHERE
+            `user_id` = #{owner.user_id}
+    </update>
+
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
