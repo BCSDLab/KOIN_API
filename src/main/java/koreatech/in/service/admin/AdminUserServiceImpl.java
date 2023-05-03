@@ -8,6 +8,7 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -152,6 +153,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
     }
+
 
     @Override
     public Student createStudentForAdmin(Student student) {
@@ -405,6 +407,19 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
 
         return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
+    }
+
+    @Override
+    public void updateOwner(Integer ownerId, OwnerUpdateRequest request){
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        Owner existingOwner=(Owner)user;
+
+        if(existingOwner.needToUpdate(request)){
+            existingOwner.updateAll(request);
+            adminUserMapper.updateOwner(existingOwner);
+        }
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
