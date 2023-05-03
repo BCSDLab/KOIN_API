@@ -55,12 +55,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -178,6 +173,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    @Transactional
     public void allowOwnerPermission(Integer ownerId, Integer shopId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
         Shop shop = Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
@@ -189,7 +185,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(AUTHENTICATED_USER);
         }
         adminUserMapper.updateOwnerAuthorById(ownerId);
-        adminShopMapper.createShopOwners(ownerId, shopId);
+        adminShopMapper.updateShopOwnerId(ownerId, shopId);
     }
 
     @Override

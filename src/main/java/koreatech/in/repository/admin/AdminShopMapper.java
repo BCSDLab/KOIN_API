@@ -114,5 +114,5 @@ public interface AdminShopMapper {
 
     void revealMenuById(@Param("menuId") Integer menuId);
 
-    void createShopOwners(@Param("ownerId") Integer ownerId, @Param("shopId") Integer shopId);
+    void updateShopOwnerId(@Param("ownerId") Integer ownerId, @Param("shopId") Integer shopId);
 }
