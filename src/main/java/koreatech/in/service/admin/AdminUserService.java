@@ -11,6 +11,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 
 public interface AdminUserService {
@@ -47,4 +48,6 @@ public interface AdminUserService {
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
 
     void allowOwnerPermission(Integer ownerId, Integer shopId);
+
+    OwnerResponse getOwner(int ownerId);
 }

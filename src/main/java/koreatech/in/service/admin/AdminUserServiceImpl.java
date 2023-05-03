@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -31,12 +32,14 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -51,6 +54,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -417,6 +427,23 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         List<Owner> owners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition.getCursor(), condition);
         return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OwnerResponse getOwner(int ownerId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
+            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+        Owner owner = (Owner)user;
+
+        List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
+        List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
+
+        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
     }
 
     private void deleteAccessTokenFromRedis(Integer userId) {
