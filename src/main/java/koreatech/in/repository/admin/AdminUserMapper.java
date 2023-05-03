@@ -21,4 +21,6 @@ public interface AdminUserMapper {
     List<Integer> getShopsIdByOwnerId(Integer id);
 
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
+
+    void updateOwner(@Param("owner") Owner owner);
 }
