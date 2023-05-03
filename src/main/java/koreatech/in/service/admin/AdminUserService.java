@@ -28,7 +28,7 @@ public interface AdminUserService {
 
     StudentResponse getStudent(Integer userId) throws Exception;
 
-    void updateOwner(Integer userId, OwnerUpdateRequest request) throws Exception;
+    void updateOwner(Integer userId, OwnerUpdateRequest request);
 
     Student createStudentForAdmin(Student student);
 
