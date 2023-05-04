@@ -72,15 +72,6 @@ public class JwtTokenGenerator {
             stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
         }
     }
-    */
-
-    public SecretKey getAccessKey() {
-        return this.jwtKeys.getAccessKey();
-    }
-
-    public SecretKey getRefreshKey() {
-        return this.jwtKeys.getRefreshKey();
-    }
 
     public static String convertSecretKeyToString(SecretKey secretKey) {
         byte[] rawData = secretKey.getEncoded();
@@ -93,6 +84,16 @@ public class JwtTokenGenerator {
         }
         byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
+    }
+
+    */
+
+    public SecretKey getAccessKey() {
+        return this.jwtKeys.getAccessKey();
+    }
+
+    public SecretKey getRefreshKey() {
+        return this.jwtKeys.getRefreshKey();
     }
 
     @PostConstruct
