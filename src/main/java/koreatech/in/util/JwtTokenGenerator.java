@@ -35,6 +35,7 @@ public class JwtTokenGenerator {
     private static final String ACCESS_KEY_FIELD_NAME = "access_key";
     private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
+    public static final String REDIS_SECRET_KEY = "secretKey";
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
@@ -193,10 +194,10 @@ public class JwtTokenGenerator {
 
     private SecretKey enrichKeyFor(DBObject jwtKeysInDB, String keyFieldName) {
         if(needKeyCreate(jwtKeysInDB, keyFieldName)) {
-            return Keys.secretKeyFor(signatureAlgorithm);
+            return createKey(keyFieldName);
         }
 
-        return decode(getKeyFor(jwtKeysInDB, ACCESS_KEY_FIELD_NAME));
+        return decode(getKeyFor(jwtKeysInDB, keyFieldName));
     }
 
     private boolean needAnyKeyUpdate(DBObject jwtKeysInDB) {
@@ -220,8 +221,32 @@ public class JwtTokenGenerator {
     }
 
     private JWTKeys createKeys() {
-        return JWTKeys.of(Keys.secretKeyFor(signatureAlgorithm),
-                Keys.secretKeyFor(signatureAlgorithm));
+        return JWTKeys.of(createKey(ACCESS_KEY_FIELD_NAME),
+                createKey(REFRESH_KEY_FIELD_NAME));
+    }
+
+    private SecretKey createKey(String keyFieldName) {
+        Optional<String> keyFromRedis = getKeyFromRedis(keyFieldName);
+
+        if(keyFromRedis.isPresent()) {
+            return decode(keyFromRedis.get());
+        }
+        return createKey();
+    }
+
+    private Optional<String> getKeyFromRedis(String keyFieldName) {
+        if(!ACCESS_KEY_FIELD_NAME.equals(keyFieldName)) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(REDIS_SECRET_KEY));
+        } catch (IOException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private SecretKey createKey() {
+        return Keys.secretKeyFor(signatureAlgorithm);
     }
 
     private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
