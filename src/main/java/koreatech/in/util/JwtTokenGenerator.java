@@ -47,9 +47,31 @@ public class JwtTokenGenerator {
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    private SecretKey accessKey;
 
     private JWTKeys jwtKeys;
+
+    /*
+
+    private SecretKey accessKey;
+
+    public SecretKey getAccessKey() {
+        return accessKey;
+    }
+
+    @PostConstruct
+    public void keySetter() throws IOException {
+        try {
+            accessKey = convertStringToSecretKey(stringRedisUtilStr.getDataAsString("secretKey"));
+            if (accessKey == null) {
+                accessKey = Keys.secretKeyFor(signatureAlgorithm);
+                stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            accessKey = Keys.secretKeyFor(signatureAlgorithm);
+            stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
+        }
+    }
+    */
 
     public SecretKey getAccessKey() {
         return this.jwtKeys.getAccessKey();
@@ -70,20 +92,6 @@ public class JwtTokenGenerator {
         }
         byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
-    }
-
-    @PostConstruct
-    public void keySetter() throws IOException {
-        try {
-            accessKey = convertStringToSecretKey(stringRedisUtilStr.getDataAsString("secretKey"));
-            if (accessKey == null) {
-                accessKey = Keys.secretKeyFor(signatureAlgorithm);
-                stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
-            }
-        } catch (IOException | IllegalArgumentException e) {
-            accessKey = Keys.secretKeyFor(signatureAlgorithm);
-            stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
-        }
     }
 
     @PostConstruct
