@@ -410,13 +410,15 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void updateOwner(Integer ownerId, OwnerUpdateRequest request){
-        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
+    public void updateOwner(Integer userId, OwnerUpdateRequest request){
+        User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
                 .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         Owner existingOwner=(Owner)user;
 
         if(existingOwner.needToUpdate(request)){
+            existingOwner.setId(userId);
+            existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
             existingOwner.updateAll(request);
             adminUserMapper.updateOwner(existingOwner);
         }
