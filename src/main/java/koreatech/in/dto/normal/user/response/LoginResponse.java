@@ -1,18 +1,27 @@
 package koreatech.in.dto.normal.user.response;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor(staticName = "of")
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class LoginResponse {
     @ApiModelProperty(
             notes = "액세스 토큰",
             required = true,
-            example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxOTQ1IiwiZXhwIjoxNjc3ODI0Njc1fQ.3TyxbP3edVyOVNYMGBY-t7_N1B8qMR_ZNNcbjuyWp8U"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
     )
     private final String token;
+
+    @ApiModelProperty(
+            notes = "리프레시 토큰",
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    )
+    private final String refreshToken;
 
     @ApiModelProperty(
             notes = "로그인한 회원의 신원 \n" +
@@ -21,6 +30,5 @@ public class LoginResponse {
             required = true,
             example = "STUDENT"
     )
-    private final String user_type;
+    private final String userType;
 }
-
