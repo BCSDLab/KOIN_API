@@ -30,7 +30,7 @@ public interface AdminUserService {
 
     Student createStudentForAdmin(Student student);
 
-    void updateStudentForAdmin(StudentUpdateRequest updateUserRequest, int id);
+    void updateStudent(StudentUpdateRequest updateUserRequest, int id);
 
     void deleteUser(Integer userId);
 

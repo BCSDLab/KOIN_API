@@ -221,7 +221,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public void updateStudentForAdmin(StudentUpdateRequest studentUpdateRequest, int id) {
+    public void updateStudent(StudentUpdateRequest studentUpdateRequest, int id) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(id)).orElseThrow(() -> new BaseException(USER_NOT_FOUND));
 
         if (!user.isStudent()) {

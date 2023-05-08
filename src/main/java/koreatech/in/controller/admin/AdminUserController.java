@@ -134,7 +134,7 @@ public class AdminUserController {
     ResponseEntity updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
                                  @RequestBody @Valid StudentUpdateRequest request,
                                  BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
-        adminUserService.updateStudentForAdmin(request, id);
+        adminUserService.updateStudent(request, id);
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
