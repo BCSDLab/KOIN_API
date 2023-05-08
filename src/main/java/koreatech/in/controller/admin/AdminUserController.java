@@ -45,7 +45,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.service.admin.AdminUserService;
 import springfox.documentation.annotations.ApiIgnore;

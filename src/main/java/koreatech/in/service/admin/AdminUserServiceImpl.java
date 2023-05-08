@@ -24,7 +24,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
@@ -45,12 +45,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
