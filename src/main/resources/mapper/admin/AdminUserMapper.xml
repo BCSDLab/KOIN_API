@@ -332,6 +332,13 @@
         WHERE `id` = #{user.id}
     </update>
 
+    <update id="updateOwnerGrantShopByOwnerId">
+        UPDATE `koin`.`owners`
+        SET
+            `grant_shop` = 1
+        WHERE `user_id` = #{ownerId}
+    </update>
+
     <select id="getShopsIdByOwnerId" parameterType="integer" resultType="integer">
         SELECT `id`
         FROM `koin`.`shops`

@@ -185,6 +185,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(AUTHENTICATED_USER);
         }
         adminUserMapper.updateOwnerAuthorById(ownerId);
+        adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
         adminShopMapper.updateShopOwnerId(ownerId, shopId);
     }
 

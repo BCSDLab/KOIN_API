@@ -20,4 +20,5 @@ public interface AdminUserMapper {
     Owner getFullOwnerById(@Param("id") Integer id);
     List<Integer> getShopsIdByOwnerId(Integer id);
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
+    void updateOwnerGrantShopByOwnerId(Integer ownerId);
 }
