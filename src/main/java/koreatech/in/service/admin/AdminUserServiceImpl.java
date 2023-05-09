@@ -111,7 +111,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private String regenerateAccessTokenAndSetRedis(Integer userId) {
         String accessToken = jwtTokenGenerator.generateAccessToken(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
+        stringRedisUtilStr.setDataAsString(redisLoginTokenKeyPrefix + userId, accessToken, 72L, TimeUnit.HOURS);
         return accessToken;
     }
 

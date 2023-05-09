@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void setAccessTokenToRedis(String accessToken, User user) {
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + user.getId(), accessToken, VALID_TIME_OF_ACCESS_TOKEN, TimeUnit.HOURS);
+        stringRedisUtilStr.setDataAsString(redisLoginTokenKeyPrefix + user.getId(), accessToken, VALID_TIME_OF_ACCESS_TOKEN, TimeUnit.HOURS);
     }
 
     @Override
