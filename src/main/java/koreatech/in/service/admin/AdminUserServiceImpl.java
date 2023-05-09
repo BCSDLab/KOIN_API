@@ -1,5 +1,20 @@
 package koreatech.in.service.admin;
 
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
+import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -33,13 +48,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -102,7 +110,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
+        String accessToken = jwtTokenGenerator.generateAccessToken(userId);
         stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
         return accessToken;
     }

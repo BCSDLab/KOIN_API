@@ -1,13 +1,18 @@
 package koreatech.in.service;
 
 import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.*;
+import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
@@ -20,10 +25,10 @@ import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
 import koreatech.in.dto.normal.user.request.LoginRequest;
-import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.response.AuthResponse;
 import koreatech.in.dto.normal.user.response.LoginResponse;
 import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
@@ -104,7 +109,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         String accessToken = getAccessTokenFromRedis(user);
         if (isTokenNotExistOrExpired(accessToken)) {
-            accessToken = regenerateAccessTokenAndGet(user);
+            accessToken = generateAccessToken(user);
             setAccessTokenToRedis(accessToken, user);
         }
 
@@ -131,8 +136,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return getToken == null || jwtTokenGenerator.isExpired(getToken);
     }
 
-    private String regenerateAccessTokenAndGet(User user) {
-        return jwtTokenGenerator.generate(user.getId());
+    private String generateAccessToken(User user) {
+        return jwtTokenGenerator.generateAccessToken(user.getId());
     }
 
     private void setAccessTokenToRedis(String accessToken, User user) {

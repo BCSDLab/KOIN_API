@@ -103,9 +103,9 @@ public class JwtTokenGenerator {
         this.jwtKeys = enrichKeysAndSetDB(secretKeyCollection);
     }
 
-    public String generate(int id) {
+    public String generateAccessToken(int userId) {
         Date exp = DateUtil.addHoursToJavaUtilDate(new Date(), 72);
-        return Jwts.builder().setSubject(String.valueOf(id)).setExpiration(exp).signWith(getAccessKey()).compact();
+        return Jwts.builder().setSubject(String.valueOf(userId)).setExpiration(exp).signWith(getAccessKey()).compact();
     }
 
     public int me(String token) {
