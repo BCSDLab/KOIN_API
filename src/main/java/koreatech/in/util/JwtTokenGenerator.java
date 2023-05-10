@@ -167,6 +167,16 @@ public class JwtTokenGenerator {
         }
     }
 
+    public Boolean isExpiredRefreshToken(String refreshToken) {
+        try {
+            Jwts.parser().setSigningKey(getRefreshKey()).parseClaimsJws(refreshToken);
+            return false;
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new BaseException(BAD_ACCESS);
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
+    }
     private static String encode(SecretKey secretKey) {
         byte[] rawData = secretKey.getEncoded();
         return Base64.getEncoder().encodeToString(rawData);
