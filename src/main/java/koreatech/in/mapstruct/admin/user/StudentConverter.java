@@ -1,6 +1,7 @@
 package koreatech.in.mapstruct.admin.user;
 
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateForAdminRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -10,4 +11,6 @@ public interface StudentConverter {
     StudentConverter INSTANCE = Mappers.getMapper(StudentConverter.class);
 
     StudentResponse toStudentResponse(Student student);
+
+    Student toStudent(StudentUpdateForAdminRequest student);
 }

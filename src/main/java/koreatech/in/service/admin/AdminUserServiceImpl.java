@@ -224,7 +224,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
 
         Student selectUser = (Student) user;
-        Student student = studentUpdateRequest.toEntity();
+        Student student = StudentConverter.INSTANCE.toStudent(studentUpdateRequest);
         student.setIdentity(selectUser.getIdentity());//identity 수정 막음.
         student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
 
