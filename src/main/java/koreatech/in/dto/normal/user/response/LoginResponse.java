@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @RequiredArgsConstructor(staticName = "of")
+@SuperBuilder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class LoginResponse {
     @ApiModelProperty(
