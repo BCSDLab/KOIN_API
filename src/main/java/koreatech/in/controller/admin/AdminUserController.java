@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import koreatech.in.dto.admin.user.student.request.StudentUpdateForAdminRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.util.StringXssChecker;
@@ -132,7 +133,7 @@ public class AdminUserController {
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
-                                 @RequestBody @Valid StudentUpdateRequest request,
+                                 @RequestBody @Valid StudentUpdateForAdminRequest request,
                                  BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
         adminUserService.updateStudent(request, id);
         try {
