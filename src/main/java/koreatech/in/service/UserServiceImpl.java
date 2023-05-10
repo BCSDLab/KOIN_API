@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private String getOrCreateRefreshToken(Integer userId) throws IOException {
         String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
 
-        if (isValidRefreshToken(refreshToken)) {
+        if (!isExpired(refreshToken)) {
             return refreshToken;
         }
 
@@ -143,9 +143,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private boolean isValidRefreshToken(String getToken) {
+    private boolean isExpired(String getToken) {
         //TODO 유효성 검사 추가?
-        return !(getToken == null || jwtTokenGenerator.isExpiredRefreshToken(getToken));
+        return (getToken == null || jwtTokenGenerator.isExpiredRefreshToken(getToken));
     }
 
     private String generateAccessToken(Integer userId) {
