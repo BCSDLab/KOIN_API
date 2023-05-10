@@ -3,7 +3,7 @@ package koreatech.in.service;
 import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.JwtTokenGenerator;
+import koreatech.in.util.jwt.JwtTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;

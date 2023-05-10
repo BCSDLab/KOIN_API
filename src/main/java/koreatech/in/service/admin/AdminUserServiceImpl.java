@@ -41,7 +41,7 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
-import koreatech.in.util.JwtTokenGenerator;
+import koreatech.in.util.jwt.JwtTokenGenerator;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

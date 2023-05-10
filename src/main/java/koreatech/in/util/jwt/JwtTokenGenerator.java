@@ -1,4 +1,4 @@
-package koreatech.in.util;
+package koreatech.in.util.jwt;
 
 import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 
@@ -27,11 +27,14 @@ import javax.crypto.spec.SecretKeySpec;
 import koreatech.in.domain.Auth.JWTKeys;
 import koreatech.in.exception.BaseException;
 import koreatech.in.repository.AuthenticationMapper;
+import koreatech.in.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Component
 public class JwtTokenGenerator {
     private static final String ACCESS_KEY_FIELD_NAME = "access_key";
     private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";

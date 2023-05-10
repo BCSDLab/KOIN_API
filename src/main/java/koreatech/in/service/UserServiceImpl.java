@@ -41,7 +41,7 @@ import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.JwtTokenGenerator;
+import koreatech.in.util.jwt.JwtTokenGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import org.apache.velocity.app.VelocityEngine;
