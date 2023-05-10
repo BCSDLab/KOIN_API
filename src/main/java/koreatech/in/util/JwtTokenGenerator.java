@@ -112,6 +112,15 @@ public class JwtTokenGenerator {
         return Jwts.builder().setSubject(String.valueOf(userId)).setExpiration(exp).signWith(getAccessKey()).compact();
     }
 
+    public String generateRefreshToken(Integer userId) {
+        Date exp = DateUtil.addHoursToJavaUtilDate(new Date(), (int) TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS));
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setExpiration(exp)
+                .signWith(getRefreshKey())
+                .compact();
+    }
+
     public int me(String token) {
         try {
             Claims body = Jwts.parser()
@@ -121,6 +130,26 @@ public class JwtTokenGenerator {
 
             return Integer.parseInt(body.getSubject());
         } catch (JwtException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        throw new BaseException(BAD_ACCESS);
+    }
+
+    public int getIdFromRefreshToken(String refreshToken) {
+        try {
+            Claims body = Jwts.parser()
+                    .setSigningKey(getRefreshKey())
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+
+            int userId = Integer.parseInt(body.getSubject());
+
+            String redisToken = redisAuthenticationMapper.getRefreshToken(userId);
+            if (refreshToken.equals(redisToken)) {
+                return userId;
+            }
+        } catch (JwtException | IllegalArgumentException | IOException e) {
             e.printStackTrace();
         }
 
