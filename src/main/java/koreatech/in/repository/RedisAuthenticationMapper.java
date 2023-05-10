@@ -13,6 +13,8 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
     private static final long PREV_ACCESS_TOKEN_VALID_HOUR = 72;
     private static final long ACCESS_TOKEN_VALID_HOUR = 2;
 
+    public static final String SECRET_KEY = "secretKey";
+
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
 
@@ -33,4 +35,11 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
     public void deleteRefreshToken(Integer userId) {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId);
     }
+
+    @Override
+    public String getKey() throws IOException {
+        return stringRedisUtilStr.getDataAsString(SECRET_KEY);
+    }
+
+
 }
