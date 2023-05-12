@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class StudentUpdateForAdminRequest extends UserUpdateRequest {
+public class StudentUpdateRequest extends UserUpdateRequest {
 
     @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
     @ApiModelProperty(notes = "닉네임", example = "bbo")

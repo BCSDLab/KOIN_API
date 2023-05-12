@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import koreatech.in.dto.admin.user.student.request.StudentUpdateForAdminRequest;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.util.StringXssChecker;
@@ -47,7 +47,6 @@ import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
-import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
 import koreatech.in.service.admin.AdminUserService;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -133,7 +132,7 @@ public class AdminUserController {
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
-                                 @RequestBody @Valid StudentUpdateForAdminRequest request,
+                                 @RequestBody @Valid StudentUpdateRequest request,
                                  BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
         adminUserService.updateStudent(request, id);
         try {

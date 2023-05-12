@@ -24,7 +24,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.request.StudentUpdateForAdminRequest;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
@@ -216,7 +216,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public void updateStudent(StudentUpdateForAdminRequest studentUpdateRequest, int id) {
+    public void updateStudent(StudentUpdateRequest studentUpdateRequest, int id) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(id)).orElseThrow(() -> new BaseException(USER_NOT_FOUND));
 
         if (!user.isStudent()) {
