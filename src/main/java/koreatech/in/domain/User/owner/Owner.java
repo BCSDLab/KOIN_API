@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 @NoArgsConstructor
 public class Owner extends User {
@@ -41,15 +42,25 @@ public class Owner extends User {
     }
 
     public boolean needToUpdate(OwnerUpdateRequest request) {
-        return !Objects.equals(this.company_registration_number,request.getCompany_registration_number())
+        return !Objects.equals(this.company_registration_number, request.getCompany_registration_number())
                 || !Objects.equals(this.grant_shop, request.getGrant_shop())
-                || !Objects.equals(this.grant_event, request.getGrant_event());
+                || !Objects.equals(this.grant_event, request.getGrant_event())
+                || !Objects.equals(this.nickname, request.getNickname())
+                || !Objects.equals(this.phone_number, request.getPhone_number())
+                || !Objects.equals(this.name, request.getName())
+                || !Objects.equals(this.email, request.getEmail())
+                || !Objects.equals(this.gender, request.getGender());
     }
 
     public void updateAll(OwnerUpdateRequest request) {
-        this.company_registration_number=request.getCompany_registration_number();
-        this.grant_shop=request.getGrant_shop();
-        this.grant_event=request.getGrant_event();
+        this.company_registration_number = request.getCompany_registration_number();
+        this.grant_shop = request.getGrant_shop();
+        this.grant_event = request.getGrant_event();
+        this.nickname = request.getNickname();
+        this.phone_number = request.getPhone_number();
+        this.name = request.getName();
+        this.email = request.getEmail();
+        this.gender = request.getGender();
     }
 
     public void enrichAuthComplete() {
