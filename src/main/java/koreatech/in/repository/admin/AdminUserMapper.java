@@ -11,11 +11,17 @@ import java.util.List;
 @Repository
 public interface AdminUserMapper {
     User getUserById(@Param("id") Integer id);
+
     User getUndeletedUserByEmail(@Param("email") String email);
+
     void deleteUserLogicallyById(@Param("id") Integer id);
+
     void undeleteUserLogicallyById(@Param("id") Integer id);
+
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
+
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
+
     Owner getFullOwnerById(@Param("id") Integer id);
 
     List<Integer> getShopsIdByOwnerId(Integer id);
@@ -23,4 +29,6 @@ public interface AdminUserMapper {
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
 
     void updateOwner(@Param("owner") Owner owner);
+
+    void updateUser(@Param("user") User user);
 }
