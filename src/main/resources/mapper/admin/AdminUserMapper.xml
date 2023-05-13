@@ -3,205 +3,213 @@
 
 <mapper namespace="koreatech.in.repository.admin.AdminUserMapper">
     <select id="getUserById" parameterType="integer" resultMap="UserDiscriminator">
-        SELECT `t1`.`id`                                         AS `users.id`,
-               `t1`.`email`                                      AS `users.email`,
-               `t1`.`password`                                   AS `users.password`,
-               `t1`.`nickname`                                   AS `users.nickname`,
-               `t1`.`name`                                       AS `users.name`,
-               `t1`.`phone_number`                               AS `users.phone_number`,
-               `t1`.`user_type`                                  AS `users.user_type`,
-               `t1`.`gender`                                     AS `users.gender`,
-               `t1`.`is_authed`                                  AS `users.is_authed`,
-               `t1`.`last_logged_at`                             AS `users.last_logged_at`,
-               `t1`.`profile_image_url`                          AS `users.profile_image_url`,
-               `t1`.`auth_token`                                 AS `users.auth_token`,
-               `t1`.`auth_expired_at`                            AS `users.auth_expired_at`,
-               `t1`.`reset_token`                                AS `users.reset_token`,
-               `t1`.`reset_expired_at`                           AS `users.reset_expired_at`,
-               `t1`.`is_deleted`                                 AS `users.is_deleted`,
-               `t1`.`created_at`                                 AS `users.created_at`,
-               `t1`.`updated_at`                                 AS `users.updated_at`,
+        SELECT
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`password` AS `users.password`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+            `t1`.`phone_number` AS `users.phone_number`,
+            `t1`.`user_type` AS `users.user_type`,
+            `t1`.`gender` AS `users.gender`,
+            `t1`.`is_authed` AS `users.is_authed`,
+            `t1`.`last_logged_at` AS `users.last_logged_at`,
+            `t1`.`profile_image_url` AS `users.profile_image_url`,
+            `t1`.`auth_token` AS `users.auth_token`,
+            `t1`.`auth_expired_at` AS `users.auth_expired_at`,
+            `t1`.`reset_token` AS `users.reset_token`,
+            `t1`.`reset_expired_at` AS `users.reset_expired_at`,
+            `t1`.`is_deleted` AS `users.is_deleted`,
+            `t1`.`created_at` AS `users.created_at`,
+            `t1`.`updated_at` AS `users.updated_at`,
 
-               `t2`.`anonymous_nickname`                         AS `students.anonymous_nickname`,
-               `t2`.`student_number`                             AS `students.student_number`,
-               `t2`.`major`                                      AS `students.major`,
-               `t2`.`identity`                                   AS `students.identity`,
-               `t2`.`is_graduated`                               AS `students.is_graduated`,
+            `t2`.`anonymous_nickname` AS `students.anonymous_nickname`,
+            `t2`.`student_number` AS `students.student_number`,
+            `t2`.`major` AS `students.major`,
+            `t2`.`identity` AS `students.identity`,
+            `t2`.`is_graduated` AS `students.is_graduated`,
 
-               `t3`.`company_registration_number`                AS `owners.company_registration_number`,
-               `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
-               `t3`.`grant_shop`                                 AS `owners.grant_shop`,
-               `t3`.`grant_event`                                AS `owners.grant_event`,
+            `t3`.`company_registration_number` AS `owners.company_registration_number`,
+            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
+            `t3`.`grant_shop` AS `owners.grant_shop`,
+            `t3`.`grant_event` AS `owners.grant_event`,
 
-               `t4`.`id`                                         AS `admins.id`,
-               `t4`.`user_id`                                    AS `admins.user_id`,
-               `t4`.`grant_user`                                 AS `admins.grant_user`,
-               `t4`.`grant_callvan`                              AS `admins.grant_callvan`,
-               `t4`.`grant_land`                                 AS `admins.grant_land`,
-               `t4`.`grant_community`                            AS `admins.grant_community`,
-               `t4`.`grant_shop`                                 AS `admins.grant_shop`,
-               `t4`.`grant_version`                              AS `admins.grant_version`,
-               `t4`.`grant_market`                               AS `admins.grant_market`,
-               `t4`.`grant_circle`                               AS `admins.grant_circle`,
-               `t4`.`grant_lost`                                 AS `admins.grant_lost`,
-               `t4`.`grant_survey`                               AS `admins.grant_survey`,
-               `t4`.`grant_bcsdlab`                              AS `admins.grant_bcsdlab`,
-               `t4`.`grant_event`                                AS `admins.grant_event`,
-               `t4`.`is_deleted`                                 AS `admins.is_deleted`,
-               `t4`.`created_at`                                 AS `admins.created_at`,
-               `t4`.`updated_at`                                 AS `admins.updated_at`
+            `t4`.`id` AS `admins.id`,
+            `t4`.`user_id` AS `admins.user_id`,
+            `t4`.`grant_user` AS `admins.grant_user`,
+            `t4`.`grant_callvan` AS `admins.grant_callvan`,
+            `t4`.`grant_land` AS `admins.grant_land`,
+            `t4`.`grant_community` AS `admins.grant_community`,
+            `t4`.`grant_shop` AS `admins.grant_shop`,
+            `t4`.`grant_version` AS `admins.grant_version`,
+            `t4`.`grant_market` AS `admins.grant_market`,
+            `t4`.`grant_circle` AS `admins.grant_circle`,
+            `t4`.`grant_lost` AS `admins.grant_lost`,
+            `t4`.`grant_survey` AS `admins.grant_survey`,
+            `t4`.`grant_bcsdlab` AS `admins.grant_bcsdlab`,
+            `t4`.`grant_event` AS `admins.grant_event`,
+            `t4`.`is_deleted` AS `admins.is_deleted`,
+            `t4`.`created_at` AS `admins.created_at`,
+            `t4`.`updated_at` AS `admins.updated_at`
 
-        FROM (SELECT *
-              FROM `koin`.`users`
-              WHERE `id` = #{id}) `t1`
+        FROM (
+            SELECT *
+            FROM `koin`.`users`
+            WHERE
+                `id` = #{id}
+        ) `t1`
 
-                 LEFT JOIN `koin`.`students` `t2`
-                           ON `t1`.`id` = `t2`.`user_id`
+            LEFT JOIN `koin`.`students` `t2`
+            ON `t1`.`id` = `t2`.`user_id`
 
-                 LEFT JOIN `koin`.`owners` `t3`
-                           ON `t1`.`id` = `t3`.`user_id`
+            LEFT JOIN `koin`.`owners` `t3`
+            ON `t1`.`id` = `t3`.`user_id`
 
-                 LEFT JOIN `koin`.`admins` `t4`
-                           ON
-                                       `t1`.`id` = `t4`.`user_id`
-                                   AND `t4`.`is_deleted` = 0
+            LEFT JOIN `koin`.`admins` `t4`
+            ON
+                `t1`.`id` = `t4`.`user_id`
+                AND `t4`.`is_deleted` = 0
     </select>
 
-    <!--    <select id="getUndeletedUserByAccount" parameterType="string" resultMap="UserDiscriminator">-->
-    <!--        SELECT-->
-    <!--            `t1`.`id` AS `users.id`,-->
-    <!--            `t1`.`account` AS `users.account`,-->
-    <!--            `t1`.`password` AS `users.password`,-->
-    <!--            `t1`.`nickname` AS `users.nickname`,-->
-    <!--            `t1`.`name` AS `users.name`,-->
-    <!--            `t1`.`phone_number` AS `users.phone_number`,-->
-    <!--            `t1`.`user_type` AS `users.user_type`,-->
-    <!--            `t1`.`email` AS `users.email`,-->
-    <!--            `t1`.`gender` AS `users.gender`,-->
-    <!--            `t1`.`is_authed` AS `users.is_authed`,-->
-    <!--            `t1`.`last_logged_at` AS `users.last_logged_at`,-->
-    <!--            `t1`.`profile_image_url` AS `users.profile_image_url`,-->
-    <!--            `t1`.`auth_token` AS `users.auth_token`,-->
-    <!--            `t1`.`auth_expired_at` AS `users.auth_expired_at`,-->
-    <!--            `t1`.`reset_token` AS `users.reset_token`,-->
-    <!--            `t1`.`reset_expired_at` AS `users.reset_expired_at`,-->
-    <!--            `t1`.`is_deleted` AS `users.is_deleted`,-->
-    <!--            `t1`.`created_at` AS `users.created_at`,-->
-    <!--            `t1`.`updated_at` AS `users.updated_at`,-->
+<!--    <select id="getUndeletedUserByAccount" parameterType="string" resultMap="UserDiscriminator">-->
+<!--        SELECT-->
+<!--            `t1`.`id` AS `users.id`,-->
+<!--            `t1`.`account` AS `users.account`,-->
+<!--            `t1`.`password` AS `users.password`,-->
+<!--            `t1`.`nickname` AS `users.nickname`,-->
+<!--            `t1`.`name` AS `users.name`,-->
+<!--            `t1`.`phone_number` AS `users.phone_number`,-->
+<!--            `t1`.`user_type` AS `users.user_type`,-->
+<!--            `t1`.`email` AS `users.email`,-->
+<!--            `t1`.`gender` AS `users.gender`,-->
+<!--            `t1`.`is_authed` AS `users.is_authed`,-->
+<!--            `t1`.`last_logged_at` AS `users.last_logged_at`,-->
+<!--            `t1`.`profile_image_url` AS `users.profile_image_url`,-->
+<!--            `t1`.`auth_token` AS `users.auth_token`,-->
+<!--            `t1`.`auth_expired_at` AS `users.auth_expired_at`,-->
+<!--            `t1`.`reset_token` AS `users.reset_token`,-->
+<!--            `t1`.`reset_expired_at` AS `users.reset_expired_at`,-->
+<!--            `t1`.`is_deleted` AS `users.is_deleted`,-->
+<!--            `t1`.`created_at` AS `users.created_at`,-->
+<!--            `t1`.`updated_at` AS `users.updated_at`,-->
 
-    <!--            `t2`.`anonymous_nickname` AS `students.anonymous_nickname`,-->
-    <!--            `t2`.`student_number` AS `students.student_number`,-->
-    <!--            `t2`.`major` AS `students.major`,-->
-    <!--            `t2`.`identity` AS `students.identity`,-->
-    <!--            `t2`.`is_graduated` AS `students.is_graduated`,-->
+<!--            `t2`.`anonymous_nickname` AS `students.anonymous_nickname`,-->
+<!--            `t2`.`student_number` AS `students.student_number`,-->
+<!--            `t2`.`major` AS `students.major`,-->
+<!--            `t2`.`identity` AS `students.identity`,-->
+<!--            `t2`.`is_graduated` AS `students.is_graduated`,-->
 
-    <!--            `t3`.`company_registration_number` AS `owners.company_registration_number`,-->
-    <!--            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,-->
-    <!--            `t3`.`grant_shop` AS `owners.grant_shop`,-->
-    <!--            `t3`.`grant_event` AS `owners.grant_event`,-->
+<!--            `t3`.`company_registration_number` AS `owners.company_registration_number`,-->
+<!--            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,-->
+<!--            `t3`.`grant_shop` AS `owners.grant_shop`,-->
+<!--            `t3`.`grant_event` AS `owners.grant_event`,-->
 
-    <!--            `t4`.`id` AS `admins.id`,-->
-    <!--            `t4`.`user_id` AS `admins.user_id`,-->
-    <!--            `t4`.`grant_user` AS `admins.grant_user`,-->
-    <!--            `t4`.`grant_callvan` AS `admins.grant_callvan`,-->
-    <!--            `t4`.`grant_land` AS `admins.grant_land`,-->
-    <!--            `t4`.`grant_community` AS `admins.grant_community`,-->
-    <!--            `t4`.`grant_shop` AS `admins.grant_shop`,-->
-    <!--            `t4`.`grant_version` AS `admins.grant_version`,-->
-    <!--            `t4`.`grant_market` AS `admins.grant_market`,-->
-    <!--            `t4`.`grant_circle` AS `admins.grant_circle`,-->
-    <!--            `t4`.`grant_lost` AS `admins.grant_lost`,-->
-    <!--            `t4`.`grant_survey` AS `admins.grant_survey`,-->
-    <!--            `t4`.`grant_bcsdlab` AS `admins.grant_bcsdlab`,-->
-    <!--            `t4`.`grant_event` AS `admins.grant_event`,-->
-    <!--            `t4`.`is_deleted` AS `admins.is_deleted`,-->
-    <!--            `t4`.`created_at` AS `admins.created_at`,-->
-    <!--            `t4`.`updated_at` AS `admins.updated_at`-->
+<!--            `t4`.`id` AS `admins.id`,-->
+<!--            `t4`.`user_id` AS `admins.user_id`,-->
+<!--            `t4`.`grant_user` AS `admins.grant_user`,-->
+<!--            `t4`.`grant_callvan` AS `admins.grant_callvan`,-->
+<!--            `t4`.`grant_land` AS `admins.grant_land`,-->
+<!--            `t4`.`grant_community` AS `admins.grant_community`,-->
+<!--            `t4`.`grant_shop` AS `admins.grant_shop`,-->
+<!--            `t4`.`grant_version` AS `admins.grant_version`,-->
+<!--            `t4`.`grant_market` AS `admins.grant_market`,-->
+<!--            `t4`.`grant_circle` AS `admins.grant_circle`,-->
+<!--            `t4`.`grant_lost` AS `admins.grant_lost`,-->
+<!--            `t4`.`grant_survey` AS `admins.grant_survey`,-->
+<!--            `t4`.`grant_bcsdlab` AS `admins.grant_bcsdlab`,-->
+<!--            `t4`.`grant_event` AS `admins.grant_event`,-->
+<!--            `t4`.`is_deleted` AS `admins.is_deleted`,-->
+<!--            `t4`.`created_at` AS `admins.created_at`,-->
+<!--            `t4`.`updated_at` AS `admins.updated_at`-->
 
-    <!--        FROM (-->
-    <!--            SELECT *-->
-    <!--            FROM `koin`.`users`-->
-    <!--            WHERE-->
-    <!--                `account` = #{account}-->
-    <!--                AND `is_deleted` = 0-->
-    <!--        ) `t1`-->
+<!--        FROM (-->
+<!--            SELECT *-->
+<!--            FROM `koin`.`users`-->
+<!--            WHERE-->
+<!--                `account` = #{account}-->
+<!--                AND `is_deleted` = 0-->
+<!--        ) `t1`-->
 
-    <!--            LEFT JOIN `koin`.`students` `t2`-->
-    <!--            ON `t1`.`id` = `t2`.`user_id`-->
+<!--            LEFT JOIN `koin`.`students` `t2`-->
+<!--            ON `t1`.`id` = `t2`.`user_id`-->
 
-    <!--            LEFT JOIN `koin`.`owners` `t3`-->
-    <!--            ON `t1`.`id` = `t3`.`user_id`-->
+<!--            LEFT JOIN `koin`.`owners` `t3`-->
+<!--            ON `t1`.`id` = `t3`.`user_id`-->
 
-    <!--            LEFT JOIN `koin`.`admins` `t4`-->
-    <!--            ON-->
-    <!--                `t1`.`id` = `t4`.`user_id`-->
-    <!--                AND `t4`.`is_deleted` = 0-->
-    <!--    </select>-->
+<!--            LEFT JOIN `koin`.`admins` `t4`-->
+<!--            ON-->
+<!--                `t1`.`id` = `t4`.`user_id`-->
+<!--                AND `t4`.`is_deleted` = 0-->
+<!--    </select>-->
 
     <select id="getUndeletedUserByEmail" parameterType="string" resultMap="UserDiscriminator">
-        SELECT `t1`.`id`                                         AS `users.id`,
-               `t1`.`email`                                      AS `users.email`,
-               `t1`.`password`                                   AS `users.password`,
-               `t1`.`nickname`                                   AS `users.nickname`,
-               `t1`.`name`                                       AS `users.name`,
-               `t1`.`phone_number`                               AS `users.phone_number`,
-               `t1`.`user_type`                                  AS `users.user_type`,
-               `t1`.`gender`                                     AS `users.gender`,
-               `t1`.`is_authed`                                  AS `users.is_authed`,
-               `t1`.`last_logged_at`                             AS `users.last_logged_at`,
-               `t1`.`profile_image_url`                          AS `users.profile_image_url`,
-               `t1`.`auth_token`                                 AS `users.auth_token`,
-               `t1`.`auth_expired_at`                            AS `users.auth_expired_at`,
-               `t1`.`reset_token`                                AS `users.reset_token`,
-               `t1`.`reset_expired_at`                           AS `users.reset_expired_at`,
-               `t1`.`is_deleted`                                 AS `users.is_deleted`,
-               `t1`.`created_at`                                 AS `users.created_at`,
-               `t1`.`updated_at`                                 AS `users.updated_at`,
+        SELECT
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`password` AS `users.password`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+            `t1`.`phone_number` AS `users.phone_number`,
+            `t1`.`user_type` AS `users.user_type`,
+            `t1`.`gender` AS `users.gender`,
+            `t1`.`is_authed` AS `users.is_authed`,
+            `t1`.`last_logged_at` AS `users.last_logged_at`,
+            `t1`.`profile_image_url` AS `users.profile_image_url`,
+            `t1`.`auth_token` AS `users.auth_token`,
+            `t1`.`auth_expired_at` AS `users.auth_expired_at`,
+            `t1`.`reset_token` AS `users.reset_token`,
+            `t1`.`reset_expired_at` AS `users.reset_expired_at`,
+            `t1`.`is_deleted` AS `users.is_deleted`,
+            `t1`.`created_at` AS `users.created_at`,
+            `t1`.`updated_at` AS `users.updated_at`,
 
-               `t2`.`anonymous_nickname`                         AS `students.anonymous_nickname`,
-               `t2`.`student_number`                             AS `students.student_number`,
-               `t2`.`major`                                      AS `students.major`,
-               `t2`.`identity`                                   AS `students.identity`,
-               `t2`.`is_graduated`                               AS `students.is_graduated`,
+            `t2`.`anonymous_nickname` AS `students.anonymous_nickname`,
+            `t2`.`student_number` AS `students.student_number`,
+            `t2`.`major` AS `students.major`,
+            `t2`.`identity` AS `students.identity`,
+            `t2`.`is_graduated` AS `students.is_graduated`,
 
-               `t3`.`company_registration_number`                AS `owners.company_registration_number`,
-               `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
-               `t3`.`grant_shop`                                 AS `owners.grant_shop`,
-               `t3`.`grant_event`                                AS `owners.grant_event`,
+            `t3`.`company_registration_number` AS `owners.company_registration_number`,
+            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
+            `t3`.`grant_shop` AS `owners.grant_shop`,
+            `t3`.`grant_event` AS `owners.grant_event`,
 
-               `t4`.`id`                                         AS `admins.id`,
-               `t4`.`user_id`                                    AS `admins.user_id`,
-               `t4`.`grant_user`                                 AS `admins.grant_user`,
-               `t4`.`grant_callvan`                              AS `admins.grant_callvan`,
-               `t4`.`grant_land`                                 AS `admins.grant_land`,
-               `t4`.`grant_community`                            AS `admins.grant_community`,
-               `t4`.`grant_shop`                                 AS `admins.grant_shop`,
-               `t4`.`grant_version`                              AS `admins.grant_version`,
-               `t4`.`grant_market`                               AS `admins.grant_market`,
-               `t4`.`grant_circle`                               AS `admins.grant_circle`,
-               `t4`.`grant_lost`                                 AS `admins.grant_lost`,
-               `t4`.`grant_survey`                               AS `admins.grant_survey`,
-               `t4`.`grant_bcsdlab`                              AS `admins.grant_bcsdlab`,
-               `t4`.`grant_event`                                AS `admins.grant_event`,
-               `t4`.`is_deleted`                                 AS `admins.is_deleted`,
-               `t4`.`created_at`                                 AS `admins.created_at`,
-               `t4`.`updated_at`                                 AS `admins.updated_at`
+            `t4`.`id` AS `admins.id`,
+            `t4`.`user_id` AS `admins.user_id`,
+            `t4`.`grant_user` AS `admins.grant_user`,
+            `t4`.`grant_callvan` AS `admins.grant_callvan`,
+            `t4`.`grant_land` AS `admins.grant_land`,
+            `t4`.`grant_community` AS `admins.grant_community`,
+            `t4`.`grant_shop` AS `admins.grant_shop`,
+            `t4`.`grant_version` AS `admins.grant_version`,
+            `t4`.`grant_market` AS `admins.grant_market`,
+            `t4`.`grant_circle` AS `admins.grant_circle`,
+            `t4`.`grant_lost` AS `admins.grant_lost`,
+            `t4`.`grant_survey` AS `admins.grant_survey`,
+            `t4`.`grant_bcsdlab` AS `admins.grant_bcsdlab`,
+            `t4`.`grant_event` AS `admins.grant_event`,
+            `t4`.`is_deleted` AS `admins.is_deleted`,
+            `t4`.`created_at` AS `admins.created_at`,
+            `t4`.`updated_at` AS `admins.updated_at`
 
-        FROM (SELECT *
-              FROM `koin`.`users`
-              WHERE `email` = #{email}
-                AND `is_deleted` = 0) `t1`
+        FROM (
+            SELECT *
+            FROM `koin`.`users`
+            WHERE
+                `email` = #{email}
+                AND `is_deleted` = 0
+        ) `t1`
 
-                 LEFT JOIN `koin`.`students` `t2`
-                           ON `t1`.`id` = `t2`.`user_id`
+            LEFT JOIN `koin`.`students` `t2`
+            ON `t1`.`id` = `t2`.`user_id`
 
-                 LEFT JOIN `koin`.`owners` `t3`
-                           ON `t1`.`id` = `t3`.`user_id`
+            LEFT JOIN `koin`.`owners` `t3`
+            ON `t1`.`id` = `t3`.`user_id`
 
-                 LEFT JOIN `koin`.`admins` `t4`
-                           ON
-                                       `t1`.`id` = `t4`.`user_id`
-                                   AND `t4`.`is_deleted` = 0
+            LEFT JOIN `koin`.`admins` `t4`
+            ON
+                `t1`.`id` = `t4`.`user_id`
+                AND `t4`.`is_deleted` = 0
     </select>
 
     <delete id="deleteUserLogicallyById">
@@ -216,8 +224,7 @@
         WHERE `id` = #{id}
     </delete>
 
-    <select id="getTotalCountOfUnauthenticatedOwnersByCondition"
-            parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultType="integer">
+    <select id="getTotalCountOfUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`users`
 
@@ -240,83 +247,82 @@
             <!-- 검색 -->
             <if test="condition.query != null">
                 <trim prefix="AND">
-                    <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
-                    <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                    <if test='condition.search_type.name().equals("EMAIL")'> `email` </if>
+                    <if test='condition.search_type.name().equals("NAME")'> `name` </if>
                     LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
                 </trim>
             </if>
         </trim>
     </select>
 
-    <select id="getUnauthenticatedOwnersByCondition"
-            parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerResultMap">
+    <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerResultMap">
         SELECT
-        `t1`.`id` AS `users.id`,
-        `t1`.`email` AS `users.email`,
-        `t1`.`password` AS `users.password`,
-        `t1`.`nickname` AS `users.nickname`,
-        `t1`.`name` AS `users.name`,
-        `t1`.`phone_number` AS `users.phone_number`,
-        `t1`.`user_type` AS `users.user_type`,
-        `t1`.`gender` AS `users.gender`,
-        `t1`.`is_authed` AS `users.is_authed`,
-        `t1`.`last_logged_at` AS `users.last_logged_at`,
-        `t1`.`profile_image_url` AS `users.profile_image_url`,
-        `t1`.`auth_token` AS `users.auth_token`,
-        `t1`.`auth_expired_at` AS `users.auth_expired_at`,
-        `t1`.`reset_token` AS `users.reset_token`,
-        `t1`.`reset_expired_at` AS `users.reset_expired_at`,
-        `t1`.`is_deleted` AS `users.is_deleted`,
-        `t1`.`created_at` AS `users.created_at`,
-        `t1`.`updated_at` AS `users.updated_at`,
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`password` AS `users.password`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+            `t1`.`phone_number` AS `users.phone_number`,
+            `t1`.`user_type` AS `users.user_type`,
+            `t1`.`gender` AS `users.gender`,
+            `t1`.`is_authed` AS `users.is_authed`,
+            `t1`.`last_logged_at` AS `users.last_logged_at`,
+            `t1`.`profile_image_url` AS `users.profile_image_url`,
+            `t1`.`auth_token` AS `users.auth_token`,
+            `t1`.`auth_expired_at` AS `users.auth_expired_at`,
+            `t1`.`reset_token` AS `users.reset_token`,
+            `t1`.`reset_expired_at` AS `users.reset_expired_at`,
+            `t1`.`is_deleted` AS `users.is_deleted`,
+            `t1`.`created_at` AS `users.created_at`,
+            `t1`.`updated_at` AS `users.updated_at`,
 
-        `t2`.`company_registration_number` AS `owners.company_registration_number`,
-        `t2`.`grant_shop` AS `owners.grant_shop`,
-        `t2`.`grant_event` AS `owners.grant_event`
+            `t2`.`company_registration_number` AS `owners.company_registration_number`,
+            `t2`.`grant_shop` AS `owners.grant_shop`,
+            `t2`.`grant_event` AS `owners.grant_event`
 
         FROM (
-        SELECT *
-        FROM `koin`.`users`
+            SELECT *
+            FROM `koin`.`users`
 
-        <trim prefix="WHERE" prefixOverrides="AND">
-            <!-- 사장님만 조회 -->
-            <trim prefix="AND">
-                `user_type` = 'OWNER'
-            </trim>
-
-            <!-- 로그인 권한이 없는 회원만 조회 -->
-            <trim prefix="AND">
-                `is_authed` = 0
-            </trim>
-
-            <!-- 삭제되지 않은 회원만 조회 -->
-            <trim prefix="AND">
-                `is_deleted` = 0
-            </trim>
-
-            <!-- 검색 -->
-            <if test="condition.query != null">
+            <trim prefix="WHERE" prefixOverrides="AND">
+                <!-- 사장님만 조회 -->
                 <trim prefix="AND">
-                    <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
-                    <if test='condition.search_type.name().equals("NAME")'>`name`</if>
-                    LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                    `user_type` = 'OWNER'
                 </trim>
-            </if>
-        </trim>
 
-        <!-- 정렬 -->
-        <trim prefix="ORDER BY">
-            <if test="condition.sort != null">
-                <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`created_at` ASC</if>
-                <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`created_at` DESC</if>
-            </if>
-        </trim>
+                <!-- 로그인 권한이 없는 회원만 조회 -->
+                <trim prefix="AND">
+                    `is_authed` = 0
+                </trim>
 
-        LIMIT #{begin}, #{condition.limit}
+                <!-- 삭제되지 않은 회원만 조회 -->
+                <trim prefix="AND">
+                    `is_deleted` = 0
+                </trim>
+
+                <!-- 검색 -->
+                <if test="condition.query != null">
+                    <trim prefix="AND">
+                        <if test='condition.search_type.name().equals("EMAIL")'> `email` </if>
+                        <if test='condition.search_type.name().equals("NAME")'> `name` </if>
+                        LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                    </trim>
+                </if>
+            </trim>
+
+            <!-- 정렬 -->
+            <trim prefix="ORDER BY">
+                <if test="condition.sort != null">
+                    <if test='condition.sort.name().equals("CREATED_AT_ASC")'> `created_at` ASC </if>
+                    <if test='condition.sort.name().equals("CREATED_AT_DESC")'> `created_at` DESC </if>
+                </if>
+            </trim>
+
+            LIMIT #{begin}, #{condition.limit}
         ) `t1`
 
-        LEFT JOIN `koin`.`owners` `t2`
-        ON `t1`.`id` = `t2`.`user_id`
+            LEFT JOIN `koin`.`owners` `t2`
+            ON `t1`.`id` = `t2`.`user_id`
     </select>
 
     <select id="getShopsIdByOwnerId" parameterType="integer" resultType="integer">
@@ -335,22 +341,25 @@
 
     <update id="updateOwner" parameterType="koreatech.in.domain.User.owner.Owner">
         UPDATE `koin`.`owners`
-        SET `company_registration_number` = #{owner.company_registration_number},
-            `grant_shop`                  = #{owner.grant_shop},
-            `grant_event`                 = #{owner.grant_event}
-        WHERE `user_id` = #{owner.user_id}
+        SET
+            `company_registration_number` = #{owner.company_registration_number},
+            `grant_shop` = #{owner.grant_shop},
+            `grant_event` = #{owner.grant_event}
+        WHERE
+            `user_id` = #{owner.user_id}
     </update>
 
     <update id="updateUser" parameterType="koreatech.in.domain.User.User">
         UPDATE `koin`.`users`
-        SET `email`        = #{user.email},
-            `nickname`     = #{user.nickname},
-            `name`         = #{user.name},
+        SET
+            `email` = #{user.email},
+            `nickname` = #{user.nickname},
+            `name` = #{user.name},
             `phone_number` = #{user.phone_number},
-            `gender`       = #{user.gender}
+            `gender` = #{user.gender}
         WHERE `id` = #{user.id}
     </update>
-    <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User">
+    <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User" >
         <discriminator javaType="String" column="users.user_type">
             <case value="STUDENT" resultMap="StudentResultMap"/>
             <case value="OWNER" resultMap="OwnerResultMap"/>
