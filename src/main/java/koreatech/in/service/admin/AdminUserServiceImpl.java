@@ -414,6 +414,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
                 .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
         Owner existingOwner=(Owner)user;
 
         if(existingOwner.needToUpdate(request)){
