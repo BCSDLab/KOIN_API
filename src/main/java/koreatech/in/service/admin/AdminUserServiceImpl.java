@@ -421,6 +421,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
             existingOwner.updateAll(request);
             adminUserMapper.updateOwner(existingOwner);
+            adminUserMapper.updateUser(existingOwner);
         }
     }
 
