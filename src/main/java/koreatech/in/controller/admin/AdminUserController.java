@@ -139,8 +139,7 @@ public class AdminUserController {
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-        adminUserService.updateStudent(request, id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity(adminUserService.updateStudent(request, id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "회원 삭제 (탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})

@@ -26,6 +26,7 @@ import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
@@ -216,7 +217,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public void updateStudent(StudentUpdateRequest studentUpdateRequest, int id) {
+    public StudentUpdateResponse updateStudent(StudentUpdateRequest studentUpdateRequest, int id) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(id)).orElseThrow(() -> new BaseException(USER_NOT_FOUND));
 
         if (!user.isStudent()) {
@@ -237,6 +238,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         selectUser.update(student);
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
+
+        return StudentConverter.INSTANCE.toStudentUpdateResponse(student);
     }
 
     private void isValidRequest(Student student) {
