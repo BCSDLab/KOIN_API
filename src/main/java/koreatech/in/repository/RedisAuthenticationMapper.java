@@ -4,22 +4,18 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RedisAuthenticationMapper implements AuthenticationMapper {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
-    private static final long PREV_ACCESS_TOKEN_VALID_HOUR = 72;
-    private static final long ACCESS_TOKEN_VALID_HOUR = 2;
 
     public static final String SECRET_KEY = "secretKey";
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
 
-    @Value("${redis.key.login_prefix}")
-    private String redisLoginTokenKeyPrefix;
+    private static final String redisLoginTokenKeyPrefix = "user:";
 
     public void setRefreshToken(String refreshToken, Integer userId) {
         stringRedisUtilStr.setDataAsString(redisLoginTokenKeyPrefix + userId, refreshToken,
