@@ -3,7 +3,7 @@ package koreatech.in.service;
 import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.jwt.JwtTokenGenerator;
+import koreatech.in.util.jwt.UserAccessJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class JwtValidator {
     @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
+    private UserAccessJwtGenerator userAccessJwtGenerator;
 
     @Autowired
     private UserMapper userMapper;
@@ -44,7 +44,7 @@ public class JwtValidator {
             return null;
         }
 
-        return jwtTokenGenerator.me(accessToken);
+        return userAccessJwtGenerator.getFromToken(accessToken);
     }
 
     public Integer validateAndGetUserId() {
