@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
@@ -22,6 +23,8 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.global.TokenRefreshResponse;
+import koreatech.in.dto.global.auth.TokenRefreshRequest;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
@@ -75,9 +78,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private JwtValidator jwtValidator;
-
-//    @Autowired
-//    private JwtTokenGenerator jwtTokenGenerator;
 
     @Autowired
     private UserAccessJwtGenerator userAccessJwtGenerator;
@@ -373,6 +373,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
+    }
+
+    @Override
+    public TokenRefreshResponse refresh(TokenRefreshRequest request) {
+        RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
+
+        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
+
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
     }
 
     private User getUserByEmail(String email) {
