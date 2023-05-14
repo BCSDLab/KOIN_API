@@ -123,12 +123,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private String getOrCreateRefreshToken(Integer userId) throws IOException {
         String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
 
-        if (!isExpired(refreshToken)) {
-            return refreshToken;
+        if (isDBTokenExpired(refreshToken)) {
+            String newRefreshToken = generateRefreshToken(userId);
+            setRefreshTokenToRedis(newRefreshToken, userId);
+            return newRefreshToken;
         }
 
-        refreshToken = generateRefreshToken(userId);
-        setRefreshTokenToRedis(refreshToken, userId);
         return refreshToken;
     }
 
@@ -148,7 +148,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private boolean isExpired(String refreshToken) {
+    private boolean isDBTokenExpired(String refreshToken) {
         //TODO 유효성 검사 추가?
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
     }
