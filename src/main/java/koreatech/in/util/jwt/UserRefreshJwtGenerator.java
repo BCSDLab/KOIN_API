@@ -1,13 +1,21 @@
 package koreatech.in.util.jwt;
 
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
+import koreatech.in.repository.AuthenticationMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
+
+    @Autowired
+    private AuthenticationMapper redisAuthenticationMapper;
 
     @Override
     protected long getTokenValidHour() {
@@ -25,8 +33,17 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     }
 
     @Override
-    protected void validateData(Integer data) {
+    protected void validateData(String token,  Integer data) {
+        try {
+            String tokenInRedis = redisAuthenticationMapper.getRefreshToken(data);
+            if (token.equals(tokenInRedis)) {
+                return;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        throw new BaseException(ExceptionInformation.BAD_ACCESS);
     }
 
     @Override

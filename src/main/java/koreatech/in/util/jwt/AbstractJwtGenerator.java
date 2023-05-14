@@ -43,7 +43,7 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
         T data;
         try {
             data = getData(token);
-            validateData(data);
+            validateData(token, data);
         } catch (JwtException | IllegalArgumentException e) {
             e.printStackTrace();
             throw new BaseException(BAD_ACCESS);
@@ -53,7 +53,9 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
     }
 
     //e.g. Redis의 것과 비교 (구현 = optional)
-    abstract protected void validateData(T data);
+    protected void validateData(String token, T data) {
+
+    }
 
     private T getData(String token) throws IllegalArgumentException, JwtException {
         Claims body = Jwts.parser()

@@ -23,10 +23,6 @@ public class UserAccessJwtGenerator extends AbstractJwtGenerator<Integer> {
     }
 
     @Override
-    protected void validateData(Integer data) {
-    }
-
-    @Override
     protected Integer toData(String subject) throws IllegalStateException {
         try {
             return Integer.parseInt(subject);
