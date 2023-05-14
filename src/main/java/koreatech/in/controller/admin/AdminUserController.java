@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
+import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.util.StringXssChecker;
@@ -131,15 +132,14 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
-                                 @RequestBody @Valid StudentUpdateRequest request,
-                                 BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
+    ResponseEntity<StudentUpdateResponse> updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
+                                 @RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-        return new ResponseEntity(adminUserService.updateStudent(request, id), HttpStatus.OK);
+        return new ResponseEntity<>(adminUserService.updateStudent(request, id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "회원 삭제 (탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
