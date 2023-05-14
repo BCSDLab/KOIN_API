@@ -3,7 +3,7 @@ package koreatech.in.dto.admin.user.student.request;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.dto.normal.user.request.UserUpdateRequest;
+import koreatech.in.dto.admin.user.request.UserUpdateRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
