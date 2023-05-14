@@ -120,16 +120,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return AuthConverter.INSTANCE.toLoginResponse(loginResult);
     }
 
-    private String getOrCreateRefreshToken(Integer userId) throws IOException {
-        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+    private String generateAccessToken(Integer userId) {
+        return userAccessJwtGenerator.generateToken(userId);
+    }
 
-        if (isDBTokenExpired(refreshToken)) {
-            String newRefreshToken = generateRefreshToken(userId);
-            setRefreshTokenToRedis(newRefreshToken, userId);
-            return newRefreshToken;
+    private String getOrCreateRefreshToken(Integer userId) throws IOException {
+        String refreshToken = getRefreshToken(userId);
+        if (!isDBTokenExpired(refreshToken)) {
+            return refreshToken;
         }
 
-        return refreshToken;
+        return createAndSetRefreshToken(userId);
+    }
+
+    private String getRefreshToken(Integer userId) throws IOException {
+        return redisAuthenticationMapper.getRefreshToken(userId);
+    }
+
+    private String createAndSetRefreshToken(Integer userId) {
+        String newRefreshToken = generateRefreshToken(userId);
+        setRefreshTokenToRedis(newRefreshToken, userId);
+        return newRefreshToken;
     }
 
     private String generateRefreshToken(Integer userId) {
@@ -149,12 +160,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private boolean isDBTokenExpired(String refreshToken) {
-        //TODO 유효성 검사 추가?
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
-    }
-
-    private String generateAccessToken(Integer userId) {
-        return userAccessJwtGenerator.generateToken(userId);
     }
 
     private void setRefreshTokenToRedis(String accessToken, Integer userId) {
@@ -166,7 +172,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void logout() {
         User user = jwtValidator.validate();
 
-        redisAuthenticationMapper.deleteRefreshToken(user.getId());
+        deleteRefreshTokenInDB(user.getId());
+    }
+
+    private void deleteRefreshTokenInDB(Integer userId) {
+        redisAuthenticationMapper.deleteRefreshToken(userId);
     }
 
     @Override
@@ -298,7 +308,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userMapper.deleteRelationBetweenOwnerAndShop(user.getId());
         }
 
-        redisAuthenticationMapper.deleteRefreshToken(user.getId());
+        deleteRefreshTokenInDB(user.getId());
 
         slackNotiSender.noticeDelete(user);
     }
