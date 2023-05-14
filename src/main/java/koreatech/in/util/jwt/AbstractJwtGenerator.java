@@ -9,24 +9,25 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import java.io.IOException;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import koreatech.in.exception.BaseException;
-import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.util.DateUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public abstract class AbstractJwtGenerator implements JwtGenerator<Integer> {
-
-    private AuthenticationMapper authenticationMapper;
-
-    private JwtKeyManager jwtKeyManager;
+@Component
+public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
+    @Autowired()
+    protected JwtKeyManager jwtKeyManager;
 
     protected abstract long getTokenValidHour();
 
-    public String generateToken(Integer userId) {
+    abstract protected String makeSubject(T data);
+
+    public String generateToken(T data) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(makeSubject(data))
                 .setExpiration(makeExpiration())
                 .signWith(getKey())
                 .compact();
@@ -38,25 +39,31 @@ public abstract class AbstractJwtGenerator implements JwtGenerator<Integer> {
 
     protected abstract SecretKey getKey();
 
-    public Integer getFromToken(String token) {
+    public T getFromToken(String token) {
+        T data;
         try {
-            Claims body = Jwts.parser()
-                    .setSigningKey(getKey())
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            int userId = Integer.parseInt(body.getSubject());
-
-            String redisToken = authenticationMapper.getRefreshToken(userId);
-            if (token.equals(redisToken)) {
-                return userId;
-            }
-        } catch (JwtException | IllegalArgumentException | IOException e) {
+            data = getData(token);
+            validateData(data);
+        } catch (JwtException | IllegalArgumentException e) {
             e.printStackTrace();
+            throw new BaseException(BAD_ACCESS);
         }
 
-        throw new BaseException(BAD_ACCESS);
+        return data;
     }
+
+    //e.g. Redis의 것과 비교 (구현 = optional)
+    abstract protected void validateData(T data);
+
+    private T getData(String token) throws IllegalArgumentException, JwtException {
+        Claims body = Jwts.parser()
+                .setSigningKey(getKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return toData(body.getSubject());
+    }
+    abstract protected T toData(String subject) throws IllegalStateException;
 
     public Boolean isExpired(String token) {
         try {

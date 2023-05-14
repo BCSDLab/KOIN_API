@@ -41,9 +41,10 @@ import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.jwt.JwtTokenGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
+import koreatech.in.util.jwt.UserAccessJwtGenerator;
+import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,8 +58,6 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
-    private static final long VALID_TIME_OF_ACCESS_TOKEN = 72;
-
     private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
@@ -77,8 +76,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private JwtValidator jwtValidator;
 
+//    @Autowired
+//    private JwtTokenGenerator jwtTokenGenerator;
+
     @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
+    private UserAccessJwtGenerator userAccessJwtGenerator;
+
+    @Autowired
+    private UserRefreshJwtGenerator userRefreshJwtGenerator;
 
     @Autowired
     private SlackNotiSender slackNotiSender;
@@ -128,7 +133,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        return jwtTokenGenerator.generateRefreshToken(userId);
+        return userRefreshJwtGenerator.generateToken(userId);
     }
 
     private void checkAuthenticationStatus(User user) {
@@ -143,13 +148,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private boolean isExpired(String getToken) {
+    private boolean isExpired(String refreshToken) {
         //TODO 유효성 검사 추가?
-        return (getToken == null || jwtTokenGenerator.isExpiredRefreshToken(getToken));
+        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
     }
 
     private String generateAccessToken(Integer userId) {
-        return jwtTokenGenerator.generateAccessToken(userId);
+        return userAccessJwtGenerator.generateToken(userId);
     }
 
     private void setRefreshTokenToRedis(String accessToken, Integer userId) {
