@@ -90,14 +90,21 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "액세스 토큰 재발급", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(
+            value = "액세스 토큰 재발급"
+            , notes = "- 사용자 권한 허용"
+            , authorizations = {@Authorization("Authorization")}
+    )
     @ApiResponses({
             @ApiResponse(code = 401
                     , message = "잘못된 접근일 때 (code: 100001) \n\n"
                     + "토큰의 유효시간이 만료되었을 때 (code: 100004)"
                     , response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/user/refresh", method = RequestMethod.POST)
+    @RequestMapping(
+            value = "/user/refresh"
+            , method = RequestMethod.POST
+    )
     public @ResponseBody
     ResponseEntity<TokenRefreshResponse> refresh(@ApiParam(required = true) @RequestBody TokenRefreshRequest request) {
         try {
