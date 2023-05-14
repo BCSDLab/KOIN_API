@@ -1,5 +1,6 @@
 package koreatech.in.util.jwt;
 
+import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
 import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 
 import io.jsonwebtoken.Claims;
@@ -30,16 +31,14 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
     protected abstract SecretKey getKey();
 
     public T getFromToken(String token) {
-        T data;
         try {
-            data = getData(token);
+            T data = getData(token);
             validateData(token, data);
-        } catch (JwtException | IllegalArgumentException e) {
-            e.printStackTrace();
-            throw new BaseException(BAD_ACCESS);
-        }
 
-        return data;
+            return data;
+        } catch (JwtException | IllegalArgumentException e){
+            throw new BaseException(TOKEN_EXPIRED);
+        }
     }
 
     //e.g. Redis의 것과 비교 (구현 = optional)
@@ -61,7 +60,7 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
             Jwts.parser().setSigningKey(getKey()).parseClaimsJws(token);
             return false;
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new BaseException(BAD_ACCESS);
+            throw new BaseException(BAD_ACCESS); //보안상 목적으로 상세하게 표현하지 않는다.
         } catch (ExpiredJwtException e) {
             return true;
         }

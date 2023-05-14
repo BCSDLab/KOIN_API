@@ -1,12 +1,11 @@
 package koreatech.in.util.jwt;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
-import koreatech.in.exception.BaseException;
-import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.repository.AuthenticationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,10 +48,10 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
                 return;
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        }
+            throw new ExpiredJwtException(null, null, null, e);
 
-        throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+        throw new ExpiredJwtException(null, null, null);
     }
 
     @Override
