@@ -2,8 +2,8 @@ package koreatech.in.service;
 
 import java.util.Map;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.dto.global.TokenRefreshResponse;
-import koreatech.in.dto.global.auth.TokenRefreshRequest;
+import koreatech.in.dto.normal.auth.TokenRefreshResponse;
+import koreatech.in.dto.normal.auth.TokenRefreshRequest;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
