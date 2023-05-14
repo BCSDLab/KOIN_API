@@ -388,11 +388,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
+        User userInHeader = jwtValidator.validate();
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        validateEqualUser(userInHeader, tokenUserId);
+
         String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
 
+
         return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+    }
+
+    private void validateEqualUser(User userInHeader, Integer tokenUserId) {
+        if(!userInHeader.hasSameId(tokenUserId)) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
     }
 
     private User getUserByEmail(String email) {
