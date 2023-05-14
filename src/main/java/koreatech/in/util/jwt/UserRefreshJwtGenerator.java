@@ -1,6 +1,7 @@
 package koreatech.in.util.jwt;
 
 
+import io.jsonwebtoken.Jwts;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
@@ -18,17 +19,25 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     private AuthenticationMapper redisAuthenticationMapper;
 
     @Override
+    public String generateToken(Integer data) {
+        return Jwts.builder()
+                .setSubject(makeSubject(data))
+                .setExpiration(makeExpiration())
+                .signWith(getKey())
+                .compact();
+    }
+
+    @Override
     protected long getTokenValidHour() {
         return TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS);
     }
 
-    @Override
-    protected String makeSubject(Integer data) {
+    private String makeSubject(Integer data) {
         return String.valueOf(data);
     }
 
     @Override
-    protected SecretKey getKey() {
+    protected final SecretKey getKey() {
         return super.jwtKeyManager.getRefreshKey();
     }
 

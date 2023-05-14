@@ -23,17 +23,7 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
 
     protected abstract long getTokenValidHour();
 
-    abstract protected String makeSubject(T data);
-
-    public String generateToken(T data) {
-        return Jwts.builder()
-                .setSubject(makeSubject(data))
-                .setExpiration(makeExpiration())
-                .signWith(getKey())
-                .compact();
-    }
-
-    private Date makeExpiration() {
+    protected Date makeExpiration() {
         return DateUtil.addHoursToJavaUtilDate(new Date(), (int) getTokenValidHour());
     }
 
@@ -54,7 +44,6 @@ public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
 
     //e.g. Redis의 것과 비교 (구현 = optional)
     protected void validateData(String token, T data) {
-
     }
 
     private T getData(String token) throws IllegalArgumentException, JwtException {
