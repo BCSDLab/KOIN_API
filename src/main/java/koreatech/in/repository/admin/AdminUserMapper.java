@@ -31,4 +31,12 @@ public interface AdminUserMapper {
     void updateOwner(@Param("owner") Owner owner);
 
     void updateUser(@Param("user") User user);
+
+    Integer isCompanyRegistrationNumberAlreadyUsed(String company_registration_number);
+
+    Integer isNickNameAlreadyUsed(String nickname);
+
+    Integer isEmailAlreadyUsed(String email);
+
+
 }
