@@ -1,10 +1,39 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import java.util.Map;
-
 import javax.validation.Valid;
-
+import koreatech.in.annotation.ApiOff;
+import koreatech.in.annotation.Auth;
+import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.ParamValid;
+import koreatech.in.annotation.ValidationGroups;
+import koreatech.in.domain.Authority;
+import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.EmptyResponse;
+import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.admin.auth.TokenRefreshRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshResponse;
+import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import koreatech.in.dto.admin.user.response.LoginResponse;
+import koreatech.in.dto.admin.user.response.NewOwnersResponse;
+import koreatech.in.dto.admin.user.response.OwnerResponse;
+import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
+import koreatech.in.service.admin.AdminUserService;
+import koreatech.in.util.StringXssChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,33 +47,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
-import koreatech.in.annotation.ApiOff;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.EmptyResponse;
-import koreatech.in.dto.ExceptionResponse;
-import koreatech.in.dto.RequestDataInvalidResponse;
-import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
-import koreatech.in.dto.admin.user.response.LoginResponse;
-import koreatech.in.dto.admin.user.response.NewOwnersResponse;
-import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.service.admin.AdminUserService;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Api(tags = "(Admin) User", description = "회원")
@@ -82,6 +84,32 @@ public class AdminUserController {
         adminUserService.logout();
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiOperation(
+            value = "액세스 토큰 재발급"
+            , notes = "- 어드민 권한만 허용"
+            , authorizations = {@Authorization("Authorization")}
+    )
+    @ApiResponses({
+            @ApiResponse(code = 401
+                    , message = "잘못된 접근일 때 (code: 100001) \n\n"
+                    + "토큰의 유효시간이 만료되었을 때 (code: 100004)"
+                    , response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/user/refresh", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<TokenRefreshResponse> refresh(@ApiParam(required = true) @RequestBody TokenRefreshRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        TokenRefreshResponse tokenRefreshResponse = adminUserService.refresh(request);
+        return new ResponseEntity<>(tokenRefreshResponse, HttpStatus.CREATED);
+    }
+
+
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users/{id}", method = RequestMethod.GET)

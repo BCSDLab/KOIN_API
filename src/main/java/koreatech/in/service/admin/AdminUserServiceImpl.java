@@ -1,5 +1,22 @@
 package koreatech.in.service.admin;
 
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
+import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -8,6 +25,8 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.auth.TokenRefreshRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -17,29 +36,24 @@ import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.NotFoundException;
 import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
+import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
-import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.jwt.UserAccessJwtGenerator;
+import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -60,16 +74,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     private JwtValidator jwtValidator;
 
     @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
+    private UserAccessJwtGenerator userAccessJwtGenerator;
 
-    @Value("${redis.key.login_prefix}")
-    private String redisLoginTokenKeyPrefix;
+    @Autowired
+    private UserRefreshJwtGenerator userRefreshJwtGenerator;
+
+    @Autowired
+    private AuthenticationMapper redisAuthenticationMapper;
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
@@ -85,32 +99,55 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.updateLastLoginTimeToCurrent();
         userMapper.updateUser(user);
 
-        String accessToken = getAccessTokenFromRedis(user);
-        if (isTokenNotExistOrExpired(accessToken)) {
-            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+        LoginResult loginResult = LoginResult
+                .builder()
+                .accessToken(generateAccessToken(user.getId()))
+                .refreshToken(getOrCreateRefreshToken(user.getId()))
+                .build();
+
+        return AuthConverter.INSTANCE.toLoginResponse(loginResult);
+    }
+
+    private String generateAccessToken(Integer adminId) {
+        return userAccessJwtGenerator.generateToken(adminId);
+    }
+
+    private String getOrCreateRefreshToken(Integer userId) throws IOException {
+        String refreshToken = getRefreshToken(userId);
+        if (!isDBTokenExpired(refreshToken)) {
+            return refreshToken;
         }
 
-        return LoginResponse.from(accessToken);
+        return createAndSetRefreshToken(userId);
     }
 
-    private String getAccessTokenFromRedis(User user) throws Exception {
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    private String getRefreshToken(Integer userId) throws IOException {
+        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        return refreshToken;
     }
 
-    private boolean isTokenNotExistOrExpired(String accessToken) {
-        return accessToken == null || jwtTokenGenerator.isExpired(accessToken);
+    private String createAndSetRefreshToken(Integer userId) {
+        String newRefreshToken = generateRefreshToken(userId);
+        setRefreshTokenToRedis(newRefreshToken, userId);
+        return newRefreshToken;
     }
 
-    private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
-        return accessToken;
+    private String generateRefreshToken(Integer userId) {
+        return userRefreshJwtGenerator.generateToken(userId);
+    }
+
+    private boolean isDBTokenExpired(String refreshToken) {
+        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+    }
+
+    private void setRefreshTokenToRedis(String accessToken, Integer userId) {
+        redisAuthenticationMapper.setRefreshToken(accessToken, userId);
     }
 
     @Override
     public void logout() {
         User user = jwtValidator.validate();
-        deleteAccessTokenFromRedis(user.getId());
+        deleteRefreshTokenInDB(user.getId());
     }
 
 
@@ -261,6 +298,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         user.checkPossibilityOfDeletion();
 
+        deleteRefreshTokenInDB(userId);
         adminUserMapper.deleteUserLogicallyById(userId);
     }
 
@@ -407,7 +445,28 @@ public class AdminUserServiceImpl implements AdminUserService {
         return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
     }
 
-    private void deleteAccessTokenFromRedis(Integer userId) {
-        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
+    @Override
+    public TokenRefreshResponse refresh(TokenRefreshRequest request) {
+        RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
+
+        User userInHeader = jwtValidator.validate();
+
+        //어드민만 접근가능하므로, 어드민임을 다시 검증할 필요는 없다.
+
+        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        validateEqualUser(userInHeader, tokenUserId);
+
+        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+    }
+
+    private void validateEqualUser(User userInHeader, Integer tokenUserId) {
+        if(!userInHeader.hasSameId(tokenUserId)) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
+        }
+    }
+
+    private void deleteRefreshTokenInDB(Integer userId) {
+        redisAuthenticationMapper.deleteRefreshToken(userId);
     }
 }
