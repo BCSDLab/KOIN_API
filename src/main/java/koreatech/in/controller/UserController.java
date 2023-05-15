@@ -101,10 +101,7 @@ public class UserController {
                     + "토큰의 유효시간이 만료되었을 때 (code: 100004)"
                     , response = ExceptionResponse.class)
     })
-    @RequestMapping(
-            value = "/user/refresh"
-            , method = RequestMethod.POST
-    )
+    @RequestMapping(value = "/user/refresh", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<TokenRefreshResponse> refresh(@ApiParam(required = true) @RequestBody TokenRefreshRequest request) {
         try {
