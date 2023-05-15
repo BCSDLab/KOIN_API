@@ -83,25 +83,23 @@ public class AllMenusOfShopResponse {
                 .sorted()
                 .collect(Collectors.toList());
         for (int i = 0; i < categoryIds.size(); i++) {
-            for (int j = 0; j < shopMenuProfiles.get(i).getCategory_ids().size(); j++) {
-                int categoryIndex = categoryIds.get(i);
-                category.add(
-                        Category.builder()
-                                .id(categoryIndex)
-                                .name(
-                                        categoryNames.stream()
-                                                .filter(categoryName -> categoryName.getId().equals(categoryIndex))
-                                                .collect(Collectors.toList()).get(0).getName()
-                                )
-                                .menus(
-                                        shopMenuProfiles.stream()
-                                                .filter(menuProfile -> menuProfile.getCategory_ids().contains(categoryIndex))
-                                                .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
-                                                .collect(Collectors.toList())
-                                )
-                                .build()
-                );
-            }
+            int categoryIndex = categoryIds.get(i);
+            category.add(
+                    Category.builder()
+                            .id(categoryIndex)
+                            .name(
+                                    categoryNames.stream()
+                                            .filter(categoryName -> categoryName.getId().equals(categoryIndex))
+                                            .collect(Collectors.toList()).get(0).getName()
+                            )
+                            .menus(
+                                    shopMenuProfiles.stream()
+                                            .filter(menuProfile -> menuProfile.getCategory_ids().contains(categoryIndex))
+                                            .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
+                                            .collect(Collectors.toList())
+                            )
+                            .build()
+            );
         }
         return AllMenusOfShopResponse.builder()
                 .count(shopMenuProfiles.size())
