@@ -49,6 +49,8 @@ public interface AdminUserService {
 
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
 
+    void allowOwnerPermission(Integer ownerId, Integer shopId);
+
     OwnerResponse getOwner(int ownerId);
 
     TokenRefreshResponse refresh(TokenRefreshRequest request);

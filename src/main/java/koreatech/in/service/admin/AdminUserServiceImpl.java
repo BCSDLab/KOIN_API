@@ -1,11 +1,17 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
 import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.sql.SQLException;
+
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.io.IOException;
@@ -15,11 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -44,6 +53,7 @@ import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminShopMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -55,6 +65,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static koreatech.in.domain.DomainToMap.domainToMap;
+
 @Service
 @Transactional
 public class AdminUserServiceImpl implements AdminUserService {
@@ -63,6 +75,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AdminUserMapper adminUserMapper;
+
+    @Autowired
+    private AdminShopMapper adminShopMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -188,6 +203,29 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(NOT_STUDENT);
         }
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
+    }
+
+    @Override
+    @Transactional
+    public void allowOwnerPermission(Integer ownerId, Integer shopId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+        if (user.isAuthenticated()) {
+            throw new BaseException(AUTHENTICATED_USER);
+        }
+        if(shopId != null) {
+            updateShopOwnerId(ownerId, shopId);
+        }
+        adminUserMapper.updateOwnerAuthorById(ownerId);
+        adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
+    }
+
+    private void updateShopOwnerId(Integer ownerId, Integer shopId) {
+        Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+        adminShopMapper.updateShopOwnerId(ownerId, shopId);
     }
 
     @Override

@@ -502,7 +502,9 @@
     <select id="getShopById" parameterType="integer" resultType="koreatech.in.domain.Shop.Shop">
         SELECT *
         FROM `koin`.`shops`
-        WHERE `id` = #{id}
+        WHERE
+            `id` = #{id}
+            AND `is_deleted` =  0
     </select>
 
     <select id="getMenuCategoryByShopIdAndName" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
@@ -532,6 +534,12 @@
             #{menuCategory.name}
         )
     </insert>
+
+    <update id="updateShopOwnerId" parameterType="Integer">
+        UPDATE `koin`.`shops`
+        SET `owner_id` = #{ownerId}
+        WHERE `id` = #{shopId}
+    </update>
 
     <select id="getMenuCategoriesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
         SELECT *
