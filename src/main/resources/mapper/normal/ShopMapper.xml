@@ -419,9 +419,9 @@
             AND `is_deleted` = 0
     </select>
 
-    <select id="getMenuCategoryNamesByShopId" parameterType="integer" resultMap="ShopMenuCategoryName">
-        SELECT DISTINCT `t1`.`id` AS `shop_menu_categories.id`,
-                        `t1`.`name` AS `shop_menu_categories.name`
+    <select id="getMenuCategoryNamesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopCategory">
+        SELECT DISTINCT `t1`.`id` AS `id`,
+                        `t1`.`name` AS `name`
         FROM (
                  SELECT *
                  FROM `koin`.`shop_menu_categories`
@@ -700,10 +700,5 @@
         <collection property="category_ids" javaType="list" ofType="integer">
             <id property="id" column="shop_menu_categories.id"/>
         </collection>
-    </resultMap>
-    
-    <resultMap id="ShopMenuCategoryName" type="koreatech.in.domain.Shop.ShopCategory">
-        <id property="id" column="shop_menu_categories.id"/>
-        <result property="name" column="shop_menu_categories.name"/>
     </resultMap>
 </mapper>
