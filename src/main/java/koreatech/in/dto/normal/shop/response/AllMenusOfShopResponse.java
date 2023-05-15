@@ -78,8 +78,8 @@ public class AllMenusOfShopResponse {
         List<Category> category = new ArrayList<>();
         List<Integer> categoryIds = shopMenuProfiles.stream()
                 .map(ShopMenuProfile::getCategory_ids)
-                .distinct()
                 .flatMap(Collection::stream)
+                .distinct()
                 .sorted()
                 .collect(Collectors.toList());
         for (int i = 0; i < categoryIds.size(); i++) {
