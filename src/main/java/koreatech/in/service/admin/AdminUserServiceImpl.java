@@ -27,6 +27,7 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -446,6 +447,32 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public void updateOwner(Integer userId, OwnerUpdateRequest request) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+
+        Owner existingOwner = (Owner) user;
+
+        validateEmailUniqueness(request.getEmail());
+
+        validateNicknameUniqueness(request.getNickname());
+
+        validateCompanyRegistrationNumberUniqueness(request.getCompany_registration_number());
+
+        if (existingOwner.needToUpdate(request)) {
+            existingOwner.setId(userId);
+            existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+            existingOwner.updateAll(request);
+            adminUserMapper.updateOwner(existingOwner);
+            adminUserMapper.updateUser(existingOwner);
+        }
+    }
+
+    @Override
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
@@ -468,5 +495,29 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private void deleteRefreshTokenInDB(Integer userId) {
         redisAuthenticationMapper.deleteRefreshToken(userId);
+    }
+
+    private void validateEmailUniqueness(String email) {
+        if (email != null) {
+            if (adminUserMapper.isEmailAlreadyUsed(email) > 0) {
+                throw new ConflictException(new ErrorMessage("email duplicate", 0));
+            }
+        }
+    }
+
+    private void validateNicknameUniqueness(String nickname) {
+        if (nickname != null) {
+            if (adminUserMapper.isNickNameAlreadyUsed(nickname) > 0) {
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
+        if (company_registration_number != null) {
+            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0) {
+                throw new ConflictException(new ErrorMessage("company_registration_number duplicate", 2));
+            }
+        }
     }
 }
