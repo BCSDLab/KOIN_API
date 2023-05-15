@@ -19,6 +19,8 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.normal.auth.TokenRefreshResponse;
+import koreatech.in.dto.normal.auth.TokenRefreshRequest;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
@@ -86,6 +88,30 @@ public class UserController {
     public ResponseEntity<EmptyResponse> logout() {
         userService.logout();
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "액세스 토큰 재발급"
+            , notes = "- 사용자 권한 허용"
+            , authorizations = {@Authorization("Authorization")}
+    )
+    @ApiResponses({
+            @ApiResponse(code = 401
+                    , message = "잘못된 접근일 때 (code: 100001) \n\n"
+                    + "토큰의 유효시간이 만료되었을 때 (code: 100004)"
+                    , response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/user/refresh", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<TokenRefreshResponse> refresh(@ApiParam(required = true) @RequestBody TokenRefreshRequest request) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        TokenRefreshResponse tokenRefreshResponse = userService.refresh(request);
+        return new ResponseEntity<>(tokenRefreshResponse, HttpStatus.CREATED);
     }
 
     @AuthExcept
