@@ -217,11 +217,15 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new BaseException(AUTHENTICATED_USER);
         }
         if(shopId != null) {
-            Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
-            adminShopMapper.updateShopOwnerId(ownerId, shopId);
+            updateShopOwnerId(ownerId, shopId);
         }
         adminUserMapper.updateOwnerAuthorById(ownerId);
         adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
+    }
+
+    private void updateShopOwnerId(Integer ownerId, Integer shopId) {
+        Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+        adminShopMapper.updateShopOwnerId(ownerId, shopId);
     }
 
     @Override
