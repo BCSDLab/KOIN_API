@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -221,14 +222,18 @@ public class OwnerServiceImpl implements OwnerService {
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
-        stringRedisUtilStr.valOps.set(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
+        stringRedisUtilStr.setDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
                 gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
         Gson gson = new GsonBuilder().create();
-        String json = stringRedisUtilStr.valOps.get(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
-
+        String json;
+        try {
+            json = stringRedisUtilStr.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
         OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
         validateRedis(ownerInRedis);
 

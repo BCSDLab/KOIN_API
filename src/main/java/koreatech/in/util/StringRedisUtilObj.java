@@ -1,5 +1,6 @@
 package koreatech.in.util;
 
+import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,11 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
     public void setDataAsString(String key, Object data) throws IOException {
         String value = data instanceof String ? (String) data : objectMapper.writeValueAsString(data);
         valOps.set(key, value);
+    }
+
+    @Override
+    public void setDataAsString(String key, Object data, Long time, TimeUnit timeUnit) {
+        valOps.set(key, data, time, timeUnit);
     }
 
     private String getDataAsString(String key) {
