@@ -16,10 +16,7 @@ import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.exception.BaseException;
-import koreatech.in.exception.ConflictException;
-import koreatech.in.exception.NotFoundException;
-import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.exception.*;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthorityMapper;
@@ -138,7 +135,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public User getUserForAdmin(int id) {
         User user = userMapper.getUserById(id);
 
-        if(user == null){
+        if (user == null) {
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
         }
         return user;
@@ -162,13 +159,13 @@ public class AdminUserServiceImpl implements AdminUserService {
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
         studentEmail.validatePortalEmail();
 
-        if(userMapper.isEmailAlreadyExist(studentEmail).equals(true)){
+        if (userMapper.isEmailAlreadyExist(studentEmail).equals(true)) {
             throw new NotFoundException(new ErrorMessage("already exists", 0));
         }
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
+            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
@@ -213,13 +210,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
-        User user =  userMapper.getUserById(id);
+        User user = userMapper.getUserById(id);
         if (!user.isStudent()) {
             throw new NotFoundException(new ErrorMessage("User is not Student", 0));
         }
         Student selectUser = (Student) user;
         Student student = updateUserRequest.toEntity();
-        if(selectUser == null){
+        if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
@@ -282,7 +279,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
         User selectUser = userMapper.getUserById(userId);
-        if(selectUser == null){
+        if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
@@ -339,6 +336,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             put("success", "delete authority");
         }};
     }
+
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
         Map<String, Object> map = new HashMap<>();
@@ -396,12 +394,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional(readOnly = true)
     public OwnerResponse getOwner(int ownerId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
-            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
-        Owner owner = (Owner)user;
+        Owner owner = (Owner) user;
 
         List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
         List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
@@ -410,21 +408,52 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void updateOwner(Integer userId, OwnerUpdateRequest request){
+    public void updateOwner(Integer userId, OwnerUpdateRequest request) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
                 .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
-        Owner existingOwner=(Owner)user;
 
-        if(existingOwner.needToUpdate(request)){
+        Owner existingOwner = (Owner) user;
+
+        validateEmailUniqueness(request.getEmail());
+
+        validateNicknameUniqueness(request.getNickname());
+
+        validateCompanyRegistrationNumberUniqueness(request.getCompany_registration_number());
+
+        if (existingOwner.needToUpdate(request)) {
             existingOwner.setId(userId);
             existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
             existingOwner.updateAll(request);
             adminUserMapper.updateOwner(existingOwner);
             adminUserMapper.updateUser(existingOwner);
+        }
+    }
+
+    private void validateEmailUniqueness(String email) {
+        if (email != null) {
+            if (adminUserMapper.isEmailAlreadyUsed(email) > 0) {
+                throw new ConflictException(new ErrorMessage("email duplicate", 0));
+            }
+        }
+    }
+
+    private void validateNicknameUniqueness(String nickname) {
+        if (nickname != null) {
+            if (adminUserMapper.isNickNameAlreadyUsed(nickname) > 0) {
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+            }
+        }
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
+        if (company_registration_number != null) {
+            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0) {
+                throw new ConflictException(new ErrorMessage("company_registration_number duplicate", 2));
+            }
         }
     }
 
