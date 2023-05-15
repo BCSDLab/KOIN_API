@@ -1,5 +1,22 @@
 package koreatech.in.service.admin;
 
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
+import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
@@ -8,7 +25,8 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -16,28 +34,26 @@ import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.StudentResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
-import koreatech.in.exception.*;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ConflictException;
+import koreatech.in.exception.ExceptionInformation;
+import koreatech.in.exception.NotFoundException;
+import koreatech.in.exception.PreconditionFailedException;
+import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
+import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
-import koreatech.in.util.JwtTokenGenerator;
-import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.jwt.UserAccessJwtGenerator;
+import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -58,16 +74,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     private JwtValidator jwtValidator;
 
     @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
+    private UserAccessJwtGenerator userAccessJwtGenerator;
 
-    @Value("${redis.key.login_prefix}")
-    private String redisLoginTokenKeyPrefix;
+    @Autowired
+    private UserRefreshJwtGenerator userRefreshJwtGenerator;
+
+    @Autowired
+    private AuthenticationMapper redisAuthenticationMapper;
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
@@ -83,32 +99,55 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.updateLastLoginTimeToCurrent();
         userMapper.updateUser(user);
 
-        String accessToken = getAccessTokenFromRedis(user);
-        if (isTokenNotExistOrExpired(accessToken)) {
-            accessToken = regenerateAccessTokenAndSetRedis(user.getId());
+        LoginResult loginResult = LoginResult
+                .builder()
+                .accessToken(generateAccessToken(user.getId()))
+                .refreshToken(getOrCreateRefreshToken(user.getId()))
+                .build();
+
+        return AuthConverter.INSTANCE.toLoginResponse(loginResult);
+    }
+
+    private String generateAccessToken(Integer adminId) {
+        return userAccessJwtGenerator.generateToken(adminId);
+    }
+
+    private String getOrCreateRefreshToken(Integer userId) throws IOException {
+        String refreshToken = getRefreshToken(userId);
+        if (!isDBTokenExpired(refreshToken)) {
+            return refreshToken;
         }
 
-        return LoginResponse.from(accessToken);
+        return createAndSetRefreshToken(userId);
     }
 
-    private String getAccessTokenFromRedis(User user) throws Exception {
-        return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + user.getId());
+    private String getRefreshToken(Integer userId) throws IOException {
+        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        return refreshToken;
     }
 
-    private boolean isTokenNotExistOrExpired(String accessToken) {
-        return accessToken == null || jwtTokenGenerator.isExpired(accessToken);
+    private String createAndSetRefreshToken(Integer userId) {
+        String newRefreshToken = generateRefreshToken(userId);
+        setRefreshTokenToRedis(newRefreshToken, userId);
+        return newRefreshToken;
     }
 
-    private String regenerateAccessTokenAndSetRedis(Integer userId) {
-        String accessToken = jwtTokenGenerator.generate(userId);
-        stringRedisUtilStr.valOps.set(redisLoginTokenKeyPrefix + userId, accessToken, 72, TimeUnit.HOURS);
-        return accessToken;
+    private String generateRefreshToken(Integer userId) {
+        return userRefreshJwtGenerator.generateToken(userId);
+    }
+
+    private boolean isDBTokenExpired(String refreshToken) {
+        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+    }
+
+    private void setRefreshTokenToRedis(String accessToken, Integer userId) {
+        redisAuthenticationMapper.setRefreshToken(accessToken, userId);
     }
 
     @Override
     public void logout() {
         User user = jwtValidator.validate();
-        deleteAccessTokenFromRedis(user.getId());
+        deleteRefreshTokenInDB(user.getId());
     }
 
 
@@ -135,7 +174,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public User getUserForAdmin(int id) {
         User user = userMapper.getUserById(id);
 
-        if (user == null) {
+        if(user == null){
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
         }
         return user;
@@ -151,7 +190,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         return StudentConverter.INSTANCE.toStudentResponse((Student) user);
     }
 
-
     @Override
     public Student createStudentForAdmin(Student student) {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
@@ -159,13 +197,13 @@ public class AdminUserServiceImpl implements AdminUserService {
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
         studentEmail.validatePortalEmail();
 
-        if (userMapper.isEmailAlreadyExist(studentEmail).equals(true)) {
+        if(userMapper.isEmailAlreadyExist(studentEmail).equals(true)){
             throw new NotFoundException(new ErrorMessage("already exists", 0));
         }
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0) {
+            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
@@ -210,13 +248,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
-        User user = userMapper.getUserById(id);
+        User user =  userMapper.getUserById(id);
         if (!user.isStudent()) {
             throw new NotFoundException(new ErrorMessage("User is not Student", 0));
         }
         Student selectUser = (Student) user;
         Student student = updateUserRequest.toEntity();
-        if (selectUser == null) {
+        if(selectUser == null){
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
@@ -260,6 +298,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         user.checkPossibilityOfDeletion();
 
+        deleteRefreshTokenInDB(userId);
         adminUserMapper.deleteUserLogicallyById(userId);
     }
 
@@ -279,7 +318,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
         User selectUser = userMapper.getUserById(userId);
-        if (selectUser == null) {
+        if(selectUser == null){
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
@@ -336,7 +375,6 @@ public class AdminUserServiceImpl implements AdminUserService {
             put("success", "delete authority");
         }};
     }
-
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
         Map<String, Object> map = new HashMap<>();
@@ -394,12 +432,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional(readOnly = true)
     public OwnerResponse getOwner(int ownerId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
-                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
-        Owner owner = (Owner) user;
+        Owner owner = (Owner)user;
 
         List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
         List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
@@ -408,56 +446,27 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public void updateOwner(Integer userId, OwnerUpdateRequest request) {
-        User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
-                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+    public TokenRefreshResponse refresh(TokenRefreshRequest request) {
+        RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        if (!user.isOwner()) {
-            throw new BaseException(NOT_OWNER);
-        }
+        User userInHeader = jwtValidator.validate();
 
-        Owner existingOwner = (Owner) user;
+        //어드민만 접근가능하므로, 어드민임을 다시 검증할 필요는 없다.
 
-        validateEmailUniqueness(request.getEmail());
+        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        validateEqualUser(userInHeader, tokenUserId);
 
-        validateNicknameUniqueness(request.getNickname());
+        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+    }
 
-        validateCompanyRegistrationNumberUniqueness(request.getCompany_registration_number());
-
-        if (existingOwner.needToUpdate(request)) {
-            existingOwner.setId(userId);
-            existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
-            existingOwner.updateAll(request);
-            adminUserMapper.updateOwner(existingOwner);
-            adminUserMapper.updateUser(existingOwner);
+    private void validateEqualUser(User userInHeader, Integer tokenUserId) {
+        if(!userInHeader.hasSameId(tokenUserId)) {
+            throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
     }
 
-    private void validateEmailUniqueness(String email) {
-        if (email != null) {
-            if (adminUserMapper.isEmailAlreadyUsed(email) > 0) {
-                throw new ConflictException(new ErrorMessage("email duplicate", 0));
-            }
-        }
-    }
-
-    private void validateNicknameUniqueness(String nickname) {
-        if (nickname != null) {
-            if (adminUserMapper.isNickNameAlreadyUsed(nickname) > 0) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-    }
-
-    private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
-        if (company_registration_number != null) {
-            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0) {
-                throw new ConflictException(new ErrorMessage("company_registration_number duplicate", 2));
-            }
-        }
-    }
-
-    private void deleteAccessTokenFromRedis(Integer userId) {
-        stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId.toString());
+    private void deleteRefreshTokenInDB(Integer userId) {
+        redisAuthenticationMapper.deleteRefreshToken(userId);
     }
 }

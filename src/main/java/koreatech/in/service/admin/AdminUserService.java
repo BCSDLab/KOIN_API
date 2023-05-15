@@ -6,7 +6,8 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshRequest;
+import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -27,8 +28,6 @@ public interface AdminUserService {
     User getUserForAdmin(int id) throws Exception;
 
     StudentResponse getStudent(Integer userId) throws Exception;
-
-    void updateOwner(Integer userId, OwnerUpdateRequest request);
 
     Student createStudentForAdmin(Student student);
 
@@ -51,4 +50,6 @@ public interface AdminUserService {
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
 
     OwnerResponse getOwner(int ownerId);
+
+    TokenRefreshResponse refresh(TokenRefreshRequest request);
 }

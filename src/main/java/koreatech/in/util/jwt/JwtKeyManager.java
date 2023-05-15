@@ -1,92 +1,41 @@
-package koreatech.in.util;
-
-import static koreatech.in.exception.ExceptionInformation.ACCESS_TOKEN_CHANGED;
-import static koreatech.in.exception.ExceptionInformation.ACCESS_TOKEN_EXPIRED;
-import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
+package koreatech.in.util.jwt;
 
 import com.google.gson.JsonObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Date;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import koreatech.in.domain.Auth.JWTKeys;
-import koreatech.in.exception.BaseException;
+import koreatech.in.repository.AuthenticationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-public class JwtTokenGenerator {
+@Component
+public class JwtKeyManager {
+    //TODO AccessKeyManager, RefreshKeyManager로 분리하기.  (KeyManager Interface -> AbastractKeyManager -> {AccKeyMangner, RefKeyManager}
     private static final String ACCESS_KEY_FIELD_NAME = "access_key";
     private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
-    public static final String REDIS_SECRET_KEY = "secretKey";
 
     @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
+    private AuthenticationMapper redisAuthenticationMapper;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @Value("${redis.key.login_prefix}")
-    private String redisLoginTokenKeyPrefix;
-
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-
     private JWTKeys jwtKeys;
-
-    /*
-
-    private SecretKey accessKey;
-
-    public SecretKey getAccessKey() {
-        return accessKey;
-    }
-
-    @PostConstruct
-    public void keySetter() throws IOException {
-        try {
-            accessKey = convertStringToSecretKey(stringRedisUtilStr.getDataAsString("secretKey"));
-            if (accessKey == null) {
-                accessKey = Keys.secretKeyFor(signatureAlgorithm);
-                stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
-            }
-        } catch (IOException | IllegalArgumentException e) {
-            accessKey = Keys.secretKeyFor(signatureAlgorithm);
-            stringRedisUtilStr.setDataAsString("secretKey", convertSecretKeyToString(accessKey));
-        }
-    }
-
-    public static String convertSecretKeyToString(SecretKey secretKey) {
-        byte[] rawData = secretKey.getEncoded();
-        return Base64.getEncoder().encodeToString(rawData);
-    }
-
-    public static SecretKey convertStringToSecretKey(String encodedKey) {
-        if (!StringUtils.hasText(encodedKey)) {
-            return null;
-        }
-        byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
-    }
-
-    */
 
     public SecretKey getAccessKey() {
         return this.jwtKeys.getAccessKey();
@@ -101,44 +50,6 @@ public class JwtTokenGenerator {
         DBCollection secretKeyCollection = mongoTemplate.getCollection(SECRET_KEY_COLLECTION);
 
         this.jwtKeys = enrichKeysAndSetDB(secretKeyCollection);
-    }
-
-    public String generate(int id) {
-        Date exp = DateUtil.addHoursToJavaUtilDate(new Date(), 72);
-        return Jwts.builder().setSubject(String.valueOf(id)).setExpiration(exp).signWith(getAccessKey()).compact();
-    }
-
-    public int me(String token) {
-        try {
-            Claims body = Jwts.parser()
-                    .setSigningKey(getAccessKey())
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            int userId = Integer.parseInt(body.getSubject());
-
-            String redisToken = stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + userId);
-            if (!token.equals(redisToken)) {
-                throw new BaseException(ACCESS_TOKEN_CHANGED);
-            }
-
-            return userId;
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new BaseException(BAD_ACCESS);
-        } catch (ExpiredJwtException | IOException e) {
-            throw new BaseException(ACCESS_TOKEN_EXPIRED);
-        }
-    }
-
-    public Boolean isExpired(String token) {
-        try {
-            Jwts.parser().setSigningKey(getAccessKey()).parseClaimsJws(token);
-            return false;
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new BaseException(BAD_ACCESS);
-        } catch (ExpiredJwtException e) {
-            return true;
-        }
     }
 
     private static String encode(SecretKey secretKey) {
@@ -166,10 +77,10 @@ public class JwtTokenGenerator {
         if(!needAnyKeyUpdate(jwtKeysInDB)) {
             return maintainKeysOnly(jwtKeysInDB);
         }
-        return updateAndUpsertDB(secretKeyCollection, jwtKeysInDB);
+        return upsertJWTKeys(secretKeyCollection, jwtKeysInDB);
     }
 
-    private JWTKeys updateAndUpsertDB(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
+    private JWTKeys upsertJWTKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
         JWTKeys enrichedJwtKeys = JWTKeys.of(
                 enrichKeyFor(jwtKeysInDB, ACCESS_KEY_FIELD_NAME),
                 enrichKeyFor(jwtKeysInDB, REFRESH_KEY_FIELD_NAME)
@@ -227,7 +138,7 @@ public class JwtTokenGenerator {
     }
 
     private SecretKey createKey(String keyFieldName) {
-        Optional<String> keyFromRedis = getKeyFromRedis(keyFieldName);
+        Optional<String> keyFromRedis = getKeyFor(keyFieldName);
 
         if(keyFromRedis.isPresent()) {
             return decode(keyFromRedis.get());
@@ -235,12 +146,12 @@ public class JwtTokenGenerator {
         return createKey();
     }
 
-    private Optional<String> getKeyFromRedis(String keyFieldName) {
+    private Optional<String> getKeyFor(String keyFieldName) {
         if(!ACCESS_KEY_FIELD_NAME.equals(keyFieldName)) {
             return Optional.empty();
         }
         try {
-            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(REDIS_SECRET_KEY));
+            return Optional.ofNullable(redisAuthenticationMapper.getKey());
         } catch (IOException ignored) {
             return Optional.empty();
         }
@@ -258,5 +169,4 @@ public class JwtTokenGenerator {
 
         return (DBObject) JSON.parse(encodedKeysJson.toString());
     }
-
 }
