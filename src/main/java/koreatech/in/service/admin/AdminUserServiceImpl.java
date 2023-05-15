@@ -7,6 +7,10 @@ import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
+import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
 
 import java.io.IOException;
 import java.sql.SQLException;
