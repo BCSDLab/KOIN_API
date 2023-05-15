@@ -176,7 +176,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public void allowOwnerPermission(Integer ownerId, Integer shopId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
-        Shop shop = Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
 
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
@@ -184,9 +183,12 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (user.isAuthenticated()) {
             throw new BaseException(AUTHENTICATED_USER);
         }
+        if(shopId != null) {
+            Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+            adminShopMapper.updateShopOwnerId(ownerId, shopId);
+        }
         adminUserMapper.updateOwnerAuthorById(ownerId);
         adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
-        adminShopMapper.updateShopOwnerId(ownerId, shopId);
     }
 
     @Override

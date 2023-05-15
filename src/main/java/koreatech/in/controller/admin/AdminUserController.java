@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -118,8 +119,8 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/owner/{id}/authed", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") int ownerId,
-                                                       @ApiParam(value = "shopId", required = true) @RequestParam("shopId") int shopId) throws Exception {
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") Integer ownerId,
+                                                       @ApiParam(value = "shopId") @RequestParam(value = "shopId", required = false) Integer shopId) throws Exception {
         adminUserService.allowOwnerPermission(ownerId, shopId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
