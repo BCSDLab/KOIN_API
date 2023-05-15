@@ -56,6 +56,8 @@ public interface AdminShopMapper {
 
     List<ShopMenuCategoryMap> getMenuCategoryMapsByMenuId(@Param("menuId") Integer menuId);
 
+    List<ShopCategory> getMenuCategoryNamesByShopId(@Param("shopId") Integer shopId);
+
     void deleteMenuCategoryMaps(@Param("menuCategoryMaps") List<ShopMenuCategoryMap> menuCategoryMaps);
 
     List<ShopMenuImage> getMenuImagesByMenuId(@Param("menuId") Integer menuId);

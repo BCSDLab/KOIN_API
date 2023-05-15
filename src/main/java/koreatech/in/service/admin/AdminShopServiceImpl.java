@@ -424,8 +424,9 @@ public class AdminShopServiceImpl implements AdminShopService {
 
         List<ShopMenuProfile> menuProfilesOfShop = adminShopMapper.getMenuProfilesByShopId(shopId);
         menuProfilesOfShop.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
+        List<ShopCategory> categoryNames = adminShopMapper.getMenuCategoryNamesByShopId(shopId);
 
-        return AllMenusOfShopResponse.from(menuProfilesOfShop);
+        return AllMenusOfShopResponse.from(menuProfilesOfShop, categoryNames);
     }
 
     @Override

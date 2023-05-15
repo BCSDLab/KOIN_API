@@ -22,7 +22,7 @@ public class AllMenusOfShopResponse {
     private List<Category> menu_categories;
 
     @Getter @Builder
-    @ApiModel("CategoryModel")
+    @ApiModel("CategoryModel_1")
     public static class Category {
         @ApiModelProperty(notes = "카테고리 id", example = "1", required = true)
         private Integer id;
