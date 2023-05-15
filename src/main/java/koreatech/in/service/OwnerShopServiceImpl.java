@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -274,8 +275,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
         menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
+        List<ShopCategory> categoryNames = shopMapper.getMenuCategoryNamesByShopId(shopId);
 
-        return AllMenusOfShopResponse.from(menuProfiles);
+        return AllMenusOfShopResponse.from(menuProfiles, categoryNames);
     }
 
     @Override

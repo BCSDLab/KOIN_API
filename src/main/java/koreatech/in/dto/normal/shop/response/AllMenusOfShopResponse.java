@@ -2,11 +2,14 @@ package koreatech.in.dto.normal.shop.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.domain.Shop.ShopCategory;
 import koreatech.in.domain.Shop.ShopMenuProfile;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,8 +18,21 @@ public class AllMenusOfShopResponse {
     @ApiModelProperty(notes = "개수", example = "20", required = true)
     private Integer count;
 
-    @ApiModelProperty(notes = "해당 상점의 모든 메뉴 리스트", required = true)
-    private List<Menu> menus;
+    @ApiModelProperty(notes = "카테고리 별로 분류된 소속 메뉴 리스트", required = true)
+    private List<Category> menu_categories;
+
+    @Getter @Builder
+    @ApiModel("CategoryModel")
+    public static class Category {
+        @ApiModelProperty(notes = "카테고리 id", example = "1", required = true)
+        private Integer id;
+
+        @ApiModelProperty(notes = "카테고리 이름", example = "중식", required = true)
+        private String name;
+
+        @ApiModelProperty(notes = "해당 상점의 모든 메뉴 리스트", required = true)
+        private List<Menu> menus;
+    }
 
     @Getter @Builder
     @ApiModel("Menu_2")
@@ -31,8 +47,8 @@ public class AllMenusOfShopResponse {
         private Boolean is_hidden;
 
         @ApiModelProperty(notes = "단일 메뉴 여부 \n" +
-                                  "- true: 단일 메뉴 \n" +
-                                  "- false: 옵션이 있는 메뉴", example = "false", required = true)
+                "- true: 단일 메뉴 \n" +
+                "- false: 옵션이 있는 메뉴", example = "false", required = true)
         private Boolean is_single;
 
         @ApiModelProperty(notes = "단일 메뉴일때(is_single이 true일때)의 가격", example = "10000")
@@ -43,9 +59,6 @@ public class AllMenusOfShopResponse {
 
         @ApiModelProperty(notes = "설명", example = "저희 식당의 대표 메뉴 탕수육입니다.")
         private String description;
-
-        @ApiModelProperty(notes = "소속되어 있는 메뉴 카테고리들의 고유 id 리스트", required = true)
-        private List<Integer> category_ids;
 
         @ApiModelProperty(notes = "이미지 URL 리스트")
         private List<String> image_urls;
@@ -61,14 +74,38 @@ public class AllMenusOfShopResponse {
         }
     }
 
-    public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles) {
+    public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles, List<ShopCategory> categoryNames) {
+        List<Category> category = new ArrayList<>();
+        List<Integer> categoryIds = shopMenuProfiles.stream()
+                .map(ShopMenuProfile::getCategory_ids)
+                .distinct()
+                .flatMap(Collection::stream)
+                .sorted()
+                .collect(Collectors.toList());
+        for (int i = 0; i < categoryIds.size(); i++) {
+            for (int j = 0; j < shopMenuProfiles.get(i).getCategory_ids().size(); j++) {
+                int categoryIndex = categoryIds.get(i);
+                category.add(
+                        Category.builder()
+                                .id(categoryIndex)
+                                .name(
+                                        categoryNames.stream()
+                                                .filter(categoryName -> categoryName.getId().equals(categoryIndex))
+                                                .collect(Collectors.toList()).get(0).getName()
+                                )
+                                .menus(
+                                        shopMenuProfiles.stream()
+                                                .filter(menuProfile -> menuProfile.getCategory_ids().contains(categoryIndex))
+                                                .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
+                                                .collect(Collectors.toList())
+                                )
+                                .build()
+                );
+            }
+        }
         return AllMenusOfShopResponse.builder()
                 .count(shopMenuProfiles.size())
-                .menus(
-                        shopMenuProfiles.stream()
-                                .map(ShopMenuConverter.INSTANCE::toAllMenusOfShopResponse$Menu)
-                                .collect(Collectors.toList())
-                )
+                .menu_categories(category)
                 .build();
     }
 }
