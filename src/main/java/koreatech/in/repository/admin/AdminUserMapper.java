@@ -17,22 +17,14 @@ public interface AdminUserMapper {
     void undeleteUserLogicallyById(@Param("id") Integer id);
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
-
+    void updateOwnerAuthorById(Integer ownerId);
     Owner getFullOwnerById(@Param("id") Integer id);
-
     List<Integer> getShopsIdByOwnerId(Integer id);
-
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
-
     void updateOwner(@Param("owner") Owner owner);
-
     void updateUser(@Param("user") User user);
-
     Integer isCompanyRegistrationNumberAlreadyUsed(String company_registration_number);
-
     Integer isNickNameAlreadyUsed(String nickname);
-
     Integer isEmailAlreadyUsed(String email);
-
-
+    void updateOwnerGrantShopByOwnerId(Integer ownerId);
 }

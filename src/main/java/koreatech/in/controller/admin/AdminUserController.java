@@ -25,6 +25,7 @@ import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -313,7 +314,7 @@ public class AdminUserController {
     @ParamValid
     @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> updateOwner(
+    ResponseEntity<OwnerUpdateResponse> updateOwner(
             @ApiParam(value = "user_id", required = true) @PathVariable("id") Integer userId,
             @RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) throws Exception {
         try {
@@ -321,7 +322,7 @@ public class AdminUserController {
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-        adminUserService.updateOwner(userId, request);
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        return new ResponseEntity<>(adminUserService.updateOwner(userId, request),HttpStatus.OK);
     }
 }

@@ -41,26 +41,26 @@ public class Owner extends User {
         }
     }
 
-    public boolean needToUpdate(OwnerUpdateRequest request) {
-        return !Objects.equals(this.company_registration_number, request.getCompany_registration_number())
-                || !Objects.equals(this.grant_shop, request.getGrant_shop())
-                || !Objects.equals(this.grant_event, request.getGrant_event())
-                || !Objects.equals(this.nickname, request.getNickname())
-                || !Objects.equals(this.phone_number, request.getPhone_number())
-                || !Objects.equals(this.name, request.getName())
-                || !Objects.equals(this.email, request.getEmail())
-                || !Objects.equals(this.gender, request.getGender());
+    public boolean needToUpdate(Owner owner) {
+        return !Objects.equals(this.company_registration_number, owner.getCompany_registration_number())
+                || !Objects.equals(this.grant_shop, owner.getGrant_shop())
+                || !Objects.equals(this.grant_event, owner.getGrant_event())
+                || !Objects.equals(this.nickname, owner.getNickname())
+                || !Objects.equals(this.phone_number, owner.getPhone_number())
+                || !Objects.equals(this.name, owner.getName())
+                || !Objects.equals(this.email, owner.getEmail())
+                || !Objects.equals(this.gender, owner.getGender());
     }
 
-    public void updateAll(OwnerUpdateRequest request) {
-        this.company_registration_number = request.getCompany_registration_number();
-        this.grant_shop = request.getGrant_shop();
-        this.grant_event = request.getGrant_event();
-        this.nickname = request.getNickname();
-        this.phone_number = request.getPhone_number();
-        this.name = request.getName();
-        this.email = request.getEmail();
-        this.gender = request.getGender();
+    public void updateAll(Owner owner) {
+        this.company_registration_number = owner.getCompany_registration_number();
+        this.grant_shop = owner.getGrant_shop();
+        this.grant_event = owner.getGrant_event();
+        this.nickname = owner.getNickname();
+        this.phone_number = owner.getPhone_number();
+        this.name = owner.getName();
+        this.email = owner.getEmail();
+        this.gender = owner.getGender();
     }
 
     public void enrichAuthComplete() {
