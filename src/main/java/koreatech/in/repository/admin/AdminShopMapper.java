@@ -113,4 +113,6 @@ public interface AdminShopMapper {
     void hideMenuById(@Param("menuId") Integer menuId);
 
     void revealMenuById(@Param("menuId") Integer menuId);
+
+    void updateShopOwnerId(@Param("ownerId") Integer ownerId, @Param("shopId") Integer shopId);
 }

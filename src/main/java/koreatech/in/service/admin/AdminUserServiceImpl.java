@@ -1,12 +1,22 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
 import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
 import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+
+import java.sql.SQLException;
+
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
+import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -15,11 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -33,8 +46,9 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
@@ -45,6 +59,7 @@ import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.admin.AdminShopMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
@@ -56,6 +71,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static koreatech.in.domain.DomainToMap.domainToMap;
+
 @Service
 @Transactional
 public class AdminUserServiceImpl implements AdminUserService {
@@ -64,6 +81,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AdminUserMapper adminUserMapper;
+
+    @Autowired
+    private AdminShopMapper adminShopMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -175,7 +195,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public User getUserForAdmin(int id) {
         User user = userMapper.getUserById(id);
 
-        if(user == null){
+        if (user == null) {
             throw new NotFoundException(new ErrorMessage("User not found.", 0));
         }
         return user;
@@ -192,19 +212,42 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    @Transactional
+    public void allowOwnerPermission(Integer ownerId, Integer shopId) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+        if (user.isAuthenticated()) {
+            throw new BaseException(AUTHENTICATED_USER);
+        }
+        if(shopId != null) {
+            updateShopOwnerId(ownerId, shopId);
+        }
+        adminUserMapper.updateOwnerAuthorById(ownerId);
+        adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
+    }
+
+    private void updateShopOwnerId(Integer ownerId, Integer shopId) {
+        Optional.ofNullable(adminShopMapper.getShopById(shopId)).orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+        adminShopMapper.updateShopOwnerId(ownerId, shopId);
+    }
+
+    @Override
     public Student createStudentForAdmin(Student student) {
         // 가입되어 있는 계정이거나, 메일 인증을 아직 하지 않은 경우 가입 요청중인 계정이 디비에 존재하는 경우 예외처리
         // TODO: 메일 인증 하지 않은 경우 조건 추가
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
         studentEmail.validatePortalEmail();
 
-        if(userMapper.isEmailAlreadyExist(studentEmail).equals(true)){
+        if (userMapper.isEmailAlreadyExist(studentEmail).equals(true)) {
             throw new NotFoundException(new ErrorMessage("already exists", 0));
         }
 
         // 닉네임 중복 체크
         if (student.getNickname() != null) {
-            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0){
+            if (userMapper.isNicknameAlreadyUsed(student.getNickname()) > 0) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
@@ -248,36 +291,21 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
     @Override
-    public koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id) {
-        User user =  userMapper.getUserById(id);
+    public StudentUpdateResponse updateStudent(StudentUpdateRequest studentUpdateRequest, int id) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(id)).orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+
         if (!user.isStudent()) {
-            throw new NotFoundException(new ErrorMessage("User is not Student", 0));
+            throw new BaseException(NOT_STUDENT);
         }
+
         Student selectUser = (Student) user;
-        Student student = updateUserRequest.toEntity();
-        if(selectUser == null){
-            throw new NotFoundException(new ErrorMessage("No User", 0));
-        }
+        Student student = StudentConverter.INSTANCE.toStudent(studentUpdateRequest);
 
-        student.setIdentity(selectUser.getIdentity());
+        student.setIdentity(selectUser.getIdentity());//identity 수정 막음.
+        student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
+        student.setIs_authed(selectUser.getIs_authed());
 
-        // 닉네임 중복 체크
-        if (student.getNickname() != null) {
-            User selectUser2 = userMapper.getUserByNickname(student.getNickname());
-            if (selectUser2 != null && !selectUser.getId().equals(selectUser2.getId())) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-            }
-        }
-
-        // 학번 유효성 체크
-        if (student.getStudent_number() != null && !UserCode.isValidatedStudentNumber(student.getIdentity(), student.getStudent_number())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid student number", 2));
-        }
-
-        // 학과 유효성 체크
-        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
-            throw new PreconditionFailedException(new ErrorMessage("invalid dept code", 3));
-        }
+        isValidRequest(student);
 
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -287,7 +315,41 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return new koreatech.in.dto.normal.user.student.response.StudentResponse(student);
+        return StudentConverter.INSTANCE.toStudentUpdateResponse(selectUser);
+    }
+
+    private void isValidRequest(Student student) {
+        isValidGender(student.getGender());
+        isDuplicateNickname(student.getNickname());
+        isValidStudentNumber(student.getStudent_number());
+        isValidMajor(student.getMajor());
+    }
+
+    private void isValidGender(Integer gender) {
+        if (gender != null && !(gender == 0 || gender == 1)) {
+            throw new BaseException(GENDER_INVALID);
+        }
+    }
+
+    private void isDuplicateNickname(String nickname) {
+        if (nickname != null) {
+            Optional.ofNullable(userMapper.getUserByNickname(nickname))
+                    .ifPresent(existUser -> {
+                        throw new BaseException(NICKNAME_DUPLICATE);
+                    });
+        }
+    }
+
+    private void isValidStudentNumber(String studentNumber) {
+        if (studentNumber != null && !UserCode.isValidatedStudentNumber(0, studentNumber)) {//현재 identity를 사용하지 않기 때문에 기존 코드를 위해 재학생 코드인 0으로 할당.
+            throw new BaseException(STUDENT_NUMBER_INVALID);
+        }
+    }
+
+    private void isValidMajor(String major) {
+        if (major != null && !UserCode.isValidatedDeptNumber(major)) {
+            throw new BaseException(STUDENT_MAJOR_INVALID);
+        }
     }
 
     @Override
@@ -319,7 +381,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Authority createPermissionForAdmin(Authority authority, int userId) {
         User selectUser = userMapper.getUserById(userId);
-        if(selectUser == null){
+        if (selectUser == null) {
             throw new NotFoundException(new ErrorMessage("No User", 0));
         }
 
@@ -376,6 +438,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             put("success", "delete authority");
         }};
     }
+
     @Override
     public Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception {
         Map<String, Object> map = new HashMap<>();

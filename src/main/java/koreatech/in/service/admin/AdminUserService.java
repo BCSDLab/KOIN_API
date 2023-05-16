@@ -13,9 +13,10 @@ import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
+import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
 
 public interface AdminUserService {
     LoginResponse login(LoginRequest request) throws Exception;
@@ -32,7 +33,7 @@ public interface AdminUserService {
 
     Student createStudentForAdmin(Student student);
 
-    koreatech.in.dto.normal.user.student.response.StudentResponse updateStudentForAdmin(UpdateUserRequest updateUserRequest, int id);
+    StudentUpdateResponse updateStudent(StudentUpdateRequest updateUserRequest, int id);
 
     void deleteUser(Integer userId);
 
@@ -49,6 +50,8 @@ public interface AdminUserService {
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
 
     NewOwnersResponse getNewOwners(NewOwnersCondition condition);
+
+    void allowOwnerPermission(Integer ownerId, Integer shopId);
 
     OwnerResponse getOwner(int ownerId);
 

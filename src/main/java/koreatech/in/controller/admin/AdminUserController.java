@@ -9,6 +9,7 @@ import io.swagger.annotations.Authorization;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
+import io.swagger.models.auth.In;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
@@ -29,7 +30,10 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
+import koreatech.in.dto.admin.user.student.response.StudentResponse;
+import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
@@ -134,6 +138,25 @@ public class AdminUserController {
         return new ResponseEntity<>(adminUserService.getStudent(id), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "사장님 권한 요청 허용", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (code: 101003) \n" +
+                                               "- 상점이 존재하지 않을 때 (code:104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- id가 사장님이 아닐 때 (code: 101018) \n" +
+                                               "- 인증된 회원일 때 (code: 101019)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/owner/{id}/authed", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") Integer ownerId,
+                                                       @ApiParam(value = "shopId") @RequestParam(value = "shopId", required = false) Integer shopId) throws Exception {
+        adminUserService.allowOwnerPermission(ownerId, shopId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     public @ResponseBody
@@ -142,14 +165,29 @@ public class AdminUserController {
     }
 
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "특정 학생 정보 수정", authorizations = {@Authorization(value = "Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 조회한 id가 학생이 아닐 때 (code: 101017) \n" +
+                    "- 중복된 닉네임일 때 (code: 101002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 유효한 학번이 아닐 때 (code: 101015) \n" +
+                    "- 유효한 전공이 아닐 때 (code: 101016) \n" +
+                    "- 유효한 성별이 아닐 때 (code: 101018)", response = ExceptionResponse.class),
+    })
     @RequestMapping(value = "/admin/users/student/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateUser(@ApiParam(value = "(optional: email, password, name, nickname, student_number, major, identity, is_graduated, phone_number, gender, is_authed)", required = false)
-                              @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) UpdateUserRequest updateUserRequest,
-                              BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-
-        return new ResponseEntity(adminUserService.updateStudentForAdmin(updateUserRequest, id), HttpStatus.CREATED);
+    ResponseEntity<StudentUpdateResponse> updateStudent(@ApiParam(value = "(optional: nickname, gender, major, student_number, phone_number)", required = false)
+                                 @RequestBody @Valid StudentUpdateRequest request, BindingResult bindingResult, @ApiParam(value = "id", required = true) @PathVariable("id") int id) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+        return new ResponseEntity<>(adminUserService.updateStudent(request, id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "회원 삭제 (탈퇴 처리)", notes = "회원을 soft delete 합니다.", authorizations = {@Authorization("Authorization")})
@@ -247,7 +285,6 @@ public class AdminUserController {
         NewOwnersResponse response = adminUserService.getNewOwners(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
     @ApiOperation(value = "특정 사장님 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
         @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
