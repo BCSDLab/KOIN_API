@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.response.UserUpdateResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
