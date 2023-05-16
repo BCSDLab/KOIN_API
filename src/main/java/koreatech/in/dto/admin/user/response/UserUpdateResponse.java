@@ -11,7 +11,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @NoArgsConstructor
 @SuperBuilder
