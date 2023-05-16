@@ -261,8 +261,10 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         Student selectUser = (Student) user;
         Student student = StudentConverter.INSTANCE.toStudent(studentUpdateRequest);
+
         student.setIdentity(selectUser.getIdentity());//identity 수정 막음.
         student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
+        student.setIs_authed(selectUser.getIs_authed());
 
         isValidRequest(student);
 
@@ -274,7 +276,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         userMapper.updateUser(selectUser);
         studentMapper.updateStudent(selectUser);
 
-        return StudentConverter.INSTANCE.toStudentUpdateResponse(student);
+        return StudentConverter.INSTANCE.toStudentUpdateResponse(selectUser);
     }
 
     private void isValidRequest(Student student) {
