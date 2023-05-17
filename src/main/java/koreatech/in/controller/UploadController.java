@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
+import koreatech.in.annotation.AuthTemporary;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -88,7 +89,8 @@ public class UploadController {
 
 
     // 단일 파일 업로드
-    @ApiOperation(value = "단일 파일 업로드", notes = "사용자 권한 필요", authorizations = {@Authorization("Authorization")})
+    @AuthTemporary
+    @ApiOperation(value = "단일 파일 업로드", notes = "액세스 토큰 필요", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
                     + "(error code: 110000)", response = ExceptionResponse.class),
@@ -128,12 +130,13 @@ public class UploadController {
     }
 
     // 다중 파일 업로드
+    @AuthTemporary
     @ApiImplicitParams(
             @ApiImplicitParam(name = "files", required = true, paramType = "form",
                     dataType = "file",
                     value = "multipart/form-data 형식의 파일 리스트 (key name = `files`)")
     )
-    @ApiOperation(value = "다중 파일 업로드", notes = "사용자 권한 필요\n\n**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
+    @ApiOperation(value = "다중 파일 업로드", notes = "액세스 토큰 필요\n\n**Swagger에서 파일 다중 선택이 불가능함.** \n" + "- 파일 개수는 최대 10개", authorizations = {
             @Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
