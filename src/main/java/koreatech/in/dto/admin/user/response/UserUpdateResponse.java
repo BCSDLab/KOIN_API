@@ -3,11 +3,8 @@ package koreatech.in.dto.admin.user.response;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.domain.User.User;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -26,4 +23,13 @@ public class UserUpdateResponse {
             , example = "정보혁"
     )
     private String name;
+
+    @ApiModelProperty(notes = "닉네임", example = "사장님 닉네임")
+    private String nickname;
+
+    @ApiModelProperty(notes = "휴대전화", example = "010-0000-0000")
+    private String phone_number;
+
+    @ApiModelProperty(notes = "성별")
+    private Integer gender;
 }
