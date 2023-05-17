@@ -308,8 +308,11 @@ public class AdminUserController {
                     "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
-            @ApiResponse(code = 409, message = "- 조회한 회원의 신원이 사장님이 아닐 때 (code: 101018)", response = ExceptionResponse.class),
-            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
+            @ApiResponse(code = 409, message = "- 조회한 회원의 신원이 사장님이 아닐 때 (code: 101018) \n" +
+                    "- 중복된 닉네임일 때 (code: 101002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 유효한 성별이 아닐 때 (code: 101020) \n" +
+                    "- 유효한 이메일이 아닐 때 (code: 101013) \n" +
+                    "- 유효한 사업자 번호가 아닐 때(code: 101021)", response = ExceptionResponse.class)
     })
     @ParamValid
     @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.PUT)

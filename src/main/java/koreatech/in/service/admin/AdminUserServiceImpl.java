@@ -1,21 +1,8 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
-import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
-import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.sql.SQLException;
-
-import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
-import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -524,22 +512,24 @@ public class AdminUserServiceImpl implements AdminUserService {
             existingOwner.setId(userId);
             existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
             existingOwner.updateAll(owner);
-            adminUserMapper.updateOwner(existingOwner);
-            adminUserMapper.updateUser(existingOwner);
+            updateInDBFor(existingOwner);
         }
         return OwnerConverter.INSTANCE.toOwnerUpdateResponse(existingOwner);
     }
+    private void updateInDBFor(Owner owner) {
+        adminUserMapper.updateOwner(owner);
+        adminUserMapper.updateUser(owner);
+    }
     private void isValidateRequest(Owner owner){
+        validateGender(owner.getGender());
         validateEmailUniqueness(owner.getEmail());
-
         validateNicknameUniqueness(owner.getNickname());
-
         validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
     }
     private void validateEmailUniqueness(String email) {
         if (email != null) {
             if (adminUserMapper.isEmailAlreadyUsed(email) > 0) {
-                throw new ConflictException(new ErrorMessage("email duplicate", 0));
+                throw new BaseException(EMAIL_DUPLICATED);
             }
         }
     }
@@ -547,7 +537,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private void validateNicknameUniqueness(String nickname) {
         if (nickname != null) {
             if (adminUserMapper.isNickNameAlreadyUsed(nickname) > 0) {
-                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
+                throw new BaseException(NICKNAME_DUPLICATE);
             }
         }
     }
@@ -555,8 +545,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
         if (company_registration_number != null) {
             if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0) {
-                throw new ConflictException(new ErrorMessage("company_registration_number duplicate", 2));
+                throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
             }
+        }
+    }
+
+    private void validateGender(Integer gender) {
+        if (gender != null && !(gender == 0 || gender == 1)) {
+            throw new BaseException(GENDER_INVALID);
         }
     }
 
