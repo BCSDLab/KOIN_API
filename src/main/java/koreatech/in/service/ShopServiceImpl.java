@@ -64,7 +64,7 @@ public class ShopServiceImpl implements ShopService {
         List<ShopMenuProfile> unhiddenMenuProfiles = getUnhiddenMenuProfilesBy(menuProfiles);
         List<ShopCategory> categoryNames = shopMapper.getMenuCategoryNamesByShopId(shopId);
 
-        return AllMenusOfShopResponse.from(unhiddenMenuProfiles, categoryNames);
+        return AllMenusOfShopResponse.of(unhiddenMenuProfiles, categoryNames);
     }
 
     private List<ShopMenuProfile> getUnhiddenMenuProfilesBy(List<ShopMenuProfile> menuProfiles) {

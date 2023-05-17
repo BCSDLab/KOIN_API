@@ -74,7 +74,7 @@ public class AllMenusOfShopResponse {
         }
     }
 
-    public static AllMenusOfShopResponse from(List<ShopMenuProfile> shopMenuProfiles, List<ShopCategory> categoryNames) {
+    public static AllMenusOfShopResponse of(List<ShopMenuProfile> shopMenuProfiles, List<ShopCategory> categoryNames) {
         List<Category> category = new ArrayList<>();
         List<Integer> categoryIds = shopMenuProfiles.stream()
                 .map(ShopMenuProfile::getCategory_ids)
