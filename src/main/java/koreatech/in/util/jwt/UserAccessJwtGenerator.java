@@ -1,11 +1,10 @@
 package koreatech.in.util.jwt;
 
 import io.jsonwebtoken.Jwts;
-import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserAccessJwtGenerator extends AbstractJwtGenerator<Integer> {
+public class UserAccessJwtGenerator extends AccessJwtGenerator<Integer> {
     private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 72;
 
     @Override
@@ -24,11 +23,6 @@ public class UserAccessJwtGenerator extends AbstractJwtGenerator<Integer> {
 
     protected String makeSubject(Integer data) {
         return String.valueOf(data);
-    }
-
-    @Override
-    protected final SecretKey getKey() {
-        return super.jwtKeyManager.getAccessKey();
     }
 
     @Override
