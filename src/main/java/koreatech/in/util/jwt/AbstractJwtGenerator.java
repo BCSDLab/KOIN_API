@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public abstract class AbstractJwtGenerator<T> implements JwtGenerator<T> {
-    @Autowired()
+    @Autowired
     protected JwtKeyManager jwtKeyManager;
 
     protected abstract long getTokenValidHour();
