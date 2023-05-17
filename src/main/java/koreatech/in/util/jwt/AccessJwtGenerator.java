@@ -8,7 +8,7 @@ public class AccessJwtGenerator<T> extends AbstractJwtGenerator<T> {
 
     @Override
     protected long getTokenValidHour() {
-        throw new RuntimeException("추상 클래스의 메서드를 호출함.");
+        throw new RuntimeException("클래스의 구현하지않은 메서드를 호출함.");
     }
 
     @Override
@@ -18,11 +18,11 @@ public class AccessJwtGenerator<T> extends AbstractJwtGenerator<T> {
 
     @Override
     protected T toData(String subject) throws IllegalStateException {
-        throw new RuntimeException("추상 클래스의 메서드를 호출함.");
+        throw new RuntimeException("클래스의 구현하지않은 메서드를 호출함.");
     }
 
     @Override
     public String generateToken(T data) {
-        throw new RuntimeException("추상 클래스의 메서드를 호출함.");
+        throw new RuntimeException("클래스의 구현하지않은 메서드를 호출함.");
     }
 }
