@@ -20,6 +20,7 @@ import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
+import koreatech.in.dto.normal.user.owner.response.VerifyCodeResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
@@ -29,6 +30,7 @@ import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,6 +55,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private JwtValidator jwtValidator;
+
+    @Autowired
+    private TemporaryAccessJwtGenerator temporaryAccessJwtGenerator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -84,7 +89,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public void certificate(VerifyCodeRequest verifyCodeRequest) {
+    public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
 
         OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification.getEmail());
@@ -93,6 +98,8 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.setIs_authed(true);
 
         putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+        String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
+        return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
 
     @Transactional
