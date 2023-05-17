@@ -508,12 +508,12 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         isValidateRequest(owner);
 
-        if (existingOwner.needToUpdate(owner)) {
-            existingOwner.setId(userId);
-            existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
-            existingOwner.updateAll(owner);
-            updateInDBFor(existingOwner);
-        }
+
+        existingOwner.setId(userId);
+        existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+        existingOwner.update(owner);
+        updateInDBFor(existingOwner);
+
         return OwnerConverter.INSTANCE.toOwnerUpdateResponse(existingOwner);
     }
     private void updateInDBFor(Owner owner) {
@@ -544,7 +544,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
         if (company_registration_number != null) {
-            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0) {
+            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0){
                 throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
             }
         }
