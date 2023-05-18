@@ -4,6 +4,7 @@ import koreatech.in.domain.Shop.*;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
+import koreatech.in.dto.normal.shop.request.CreateShopRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
 import koreatech.in.dto.normal.shop.response.*;
@@ -46,6 +47,11 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         Owner owner = (Owner) jwtValidator.validate();
 
         return AllShopsOfOwnerResponse.from(shopMapper.getShopProfilesByOwnerId(owner.getId()));
+    }
+
+    @Override
+    public void createShop(CreateShopRequest request) {
+
     }
 
     @Override
