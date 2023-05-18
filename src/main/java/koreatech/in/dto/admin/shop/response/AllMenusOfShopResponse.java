@@ -1,5 +1,10 @@
 package koreatech.in.dto.admin.shop.response;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.Shop.ShopCategory;
@@ -7,11 +12,6 @@ import koreatech.in.domain.Shop.ShopMenuProfile;
 import koreatech.in.mapstruct.admin.shop.AdminShopMenuConverter;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter @Builder
 @ApiModel("AdminAllMenusOfShopResponse")
@@ -89,9 +89,11 @@ public class AllMenusOfShopResponse {
                     AllMenusOfShopResponse.Category.builder()
                             .id(categoryIndex)
                             .name(
-                                    categoryNames.stream()
-                                            .filter(categoryName -> categoryName.getId().equals(categoryIndex))
-                                            .collect(Collectors.toList()).get(0).getName()
+                                categoryNames.stream()
+                                    .filter(categoryName -> categoryName.getId().equals(categoryIndex))
+                                    .findFirst()
+                                    .orElse(ShopCategory.builder().name("미분류").build())
+                                    .getName()
                             )
                             .menus(
                                     shopMenuProfiles.stream()
