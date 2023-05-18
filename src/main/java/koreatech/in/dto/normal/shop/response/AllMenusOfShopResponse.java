@@ -90,7 +90,9 @@ public class AllMenusOfShopResponse {
                             .name(
                                     categoryNames.stream()
                                             .filter(categoryName -> categoryName.getId().equals(categoryIndex))
-                                            .collect(Collectors.toList()).get(0).getName()
+                                            .findFirst()
+                                            .orElse(ShopCategory.builder().name("미분류").build())
+                                            .getName()
                             )
                             .menus(
                                     shopMenuProfiles.stream()
