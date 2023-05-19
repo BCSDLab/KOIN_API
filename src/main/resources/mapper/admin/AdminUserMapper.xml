@@ -368,21 +368,27 @@
     <select id="isCompanyRegistrationNumberAlreadyUsed" resultType="Integer">
         select count(*)
         from koin.owners
-        where company_registration_number = #{company_registration_number};
+        where company_registration_number = #{company_registration_number}
+          AND user_id != #{userId}
+            LIMIT 1;
     </select>
 
     <select id="isEmailAlreadyUsed" resultType="Integer">
         select count(*)
         from koin.users
         where email = #{email}
-          and is_deleted = 0 limit 1;
+          AND is_deleted = 0
+          AND id != #{userId}
+            LIMIT 1;
     </select>
 
-    <select id="isNickNameAlreadyUsed" resultType="Integer">
-        select count(*)
-        from koin.users
-        where nickname = #{nickname}
-          and is_deleted = 0 limit 1;
+    <select id="isNickNameAlreadyUsedExceptId" resultType="Integer">
+        SELECT COUNT(*)
+        FROM koin.users
+        WHERE nickname = #{nickname}
+          AND is_deleted = 0
+          AND id != #{userId}
+            LIMIT 1;
     </select>
 
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User">

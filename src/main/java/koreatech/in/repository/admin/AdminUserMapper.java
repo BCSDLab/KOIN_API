@@ -23,8 +23,8 @@ public interface AdminUserMapper {
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
     void updateOwner(@Param("owner") Owner owner);
     void updateUser(@Param("user") User user);
-    Integer isCompanyRegistrationNumberAlreadyUsed(String company_registration_number);
-    Integer isNickNameAlreadyUsed(String nickname);
-    Integer isEmailAlreadyUsed(String email);
+    Integer isCompanyRegistrationNumberAlreadyUsed(String company_registration_number, Integer userId);
+    Integer isNickNameAlreadyUsed(String nickname, Integer userId);
+    Integer isEmailAlreadyUsed(String email, Integer userId);
     void updateOwnerGrantShopByOwnerId(Integer ownerId);
 }

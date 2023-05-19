@@ -506,7 +506,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         Owner existingOwner = (Owner) user;
         Owner owner = OwnerConverter.INSTANCE.toOwner(request);
 
-        isValidateRequest(owner);
+        isValidateRequest(owner, userId);
 
 
         existingOwner.setId(userId);
@@ -520,38 +520,38 @@ public class AdminUserServiceImpl implements AdminUserService {
         adminUserMapper.updateOwner(owner);
         adminUserMapper.updateUser(owner);
     }
-    private void isValidateRequest(Owner owner){
-        validateGender(owner.getGender());
-        validateEmailUniqueness(owner.getEmail());
-        validateNicknameUniqueness(owner.getNickname());
-        validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
+    private void isValidateRequest(Owner owner,Integer userId){
+        validateGender(owner);
+        validateEmailUniqueness(owner, userId);
+        validateNicknameUniqueness(owner, userId);
+        validateCompanyRegistrationNumberUniqueness(owner, userId);
     }
-    private void validateEmailUniqueness(String email) {
-        if (email != null) {
-            if (adminUserMapper.isEmailAlreadyUsed(email) > 0) {
+    private void validateEmailUniqueness(Owner owner, Integer userId) {
+        if (owner.getEmail() != null) {
+            if (adminUserMapper.isEmailAlreadyUsed(owner.getEmail(), userId) > 0) {
                 throw new BaseException(EMAIL_DUPLICATED);
             }
         }
     }
 
-    private void validateNicknameUniqueness(String nickname) {
-        if (nickname != null) {
-            if (adminUserMapper.isNickNameAlreadyUsed(nickname) > 0) {
+    private void validateNicknameUniqueness(Owner owner,Integer userId) {
+        if (owner.getNickname() != null) {
+            if (adminUserMapper.isNickNameAlreadyUsed(owner.getNickname(), userId) > 0) {
                 throw new BaseException(NICKNAME_DUPLICATE);
             }
         }
     }
 
-    private void validateCompanyRegistrationNumberUniqueness(String company_registration_number) {
-        if (company_registration_number != null) {
-            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(company_registration_number) > 0){
+    private void validateCompanyRegistrationNumberUniqueness(Owner owner, Integer userId) {
+        if (owner.getCompany_registration_number() != null) {
+            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(owner.getCompany_registration_number(),userId) > 0){
                 throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
             }
         }
     }
 
-    private void validateGender(Integer gender) {
-        if (gender != null && !(gender == 0 || gender == 1)) {
+    private void validateGender(Owner owner) {
+        if (owner.getGender() != null && !(owner.getGender() == 0 || owner.getGender() == 1)) {
             throw new BaseException(GENDER_INVALID);
         }
     }
