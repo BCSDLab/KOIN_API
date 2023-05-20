@@ -506,7 +506,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         Owner existingOwner = (Owner) user;
         Owner owner = OwnerConverter.INSTANCE.toOwner(request);
 
-        isValidateRequest(owner, userId);
+        isValidateRequest(owner, existingOwner, userId);
 
 
         existingOwner.setId(userId);
@@ -516,44 +516,57 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         return OwnerConverter.INSTANCE.toOwnerUpdateResponse(existingOwner);
     }
+
     private void updateInDBFor(Owner owner) {
         adminUserMapper.updateOwner(owner);
         adminUserMapper.updateUser(owner);
     }
-    private void isValidateRequest(Owner owner,Integer userId){
-        validateGender(owner);
-        validateEmailUniqueness(owner, userId);
-        validateNicknameUniqueness(owner, userId);
-        validateCompanyRegistrationNumberUniqueness(owner, userId);
-    }
-    private void validateEmailUniqueness(Owner owner, Integer userId) {
-        if (owner.getEmail() != null) {
-            if (adminUserMapper.isEmailAlreadyUsed(owner.getEmail(), userId) > 0) {
-                throw new BaseException(EMAIL_DUPLICATED);
-            }
+
+    private void isValidateRequest(Owner owner, Owner existingOwner, Integer userId) {
+        if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
+            validateGender(owner);
+        }
+        if (owner.getEmail() != null && !owner.getEmail().equals(existingOwner.getEmail())) {
+            validateEmailUniqueness(owner, userId);
+        }
+        if (owner.getNickname() != null && !owner.getNickname().equals(existingOwner.getNickname())) {
+            validateNicknameUniqueness(owner, userId);
+        }
+        if (owner.getCompany_registration_number() != null && !owner.getCompany_registration_number().equals(existingOwner.getCompany_registration_number())) {
+            validateCompanyRegistrationNumberUniqueness(owner, userId);
         }
     }
 
-    private void validateNicknameUniqueness(Owner owner,Integer userId) {
-        if (owner.getNickname() != null) {
-            if (adminUserMapper.isNickNameAlreadyUsed(owner.getNickname(), userId) > 0) {
-                throw new BaseException(NICKNAME_DUPLICATE);
-            }
-        }
+    private void validateEmailUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getEmail())
+                .filter(email -> adminUserMapper.isEmailAlreadyUsed(email, userId) > 0)
+                .ifPresent(email -> {
+                    throw new BaseException(EMAIL_DUPLICATED);
+                });
+    }
+
+    private void validateNicknameUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getNickname())
+                .filter(nickname -> adminUserMapper.isNickNameAlreadyUsed(nickname, userId) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
     }
 
     private void validateCompanyRegistrationNumberUniqueness(Owner owner, Integer userId) {
-        if (owner.getCompany_registration_number() != null) {
-            if (adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(owner.getCompany_registration_number(),userId) > 0){
-                throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
-            }
-        }
+        Optional.ofNullable(owner.getCompany_registration_number())
+                .filter(registrationNumber -> adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(registrationNumber, userId) > 0)
+                .ifPresent(registrationNumber -> {
+                    throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
+                });
     }
 
     private void validateGender(Owner owner) {
-        if (owner.getGender() != null && !(owner.getGender() == 0 || owner.getGender() == 1)) {
-            throw new BaseException(GENDER_INVALID);
-        }
+        Optional.ofNullable(owner.getGender())
+                .filter(gender -> !(gender == 0 || gender == 1))
+                .ifPresent(gender -> {
+                    throw new BaseException(GENDER_INVALID);
+                });
     }
 
     @Override
