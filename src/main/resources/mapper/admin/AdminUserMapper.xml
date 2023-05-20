@@ -382,7 +382,7 @@
             LIMIT 1;
     </select>
 
-    <select id="isNickNameAlreadyUsedExceptId" resultType="Integer">
+    <select id="isNickNameAlreadyUsed" resultType="Integer">
         SELECT COUNT(*)
         FROM koin.users
         WHERE nickname = #{nickname}
