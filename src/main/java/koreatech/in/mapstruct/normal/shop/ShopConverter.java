@@ -1,6 +1,8 @@
 package koreatech.in.mapstruct.normal.shop;
 
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.Shop.ShopProfile;
+import koreatech.in.dto.normal.shop.request.CreateShopRequest;
 import koreatech.in.dto.normal.shop.response.AllShopsResponse;
 import koreatech.in.dto.normal.shop.response.ShopResponse;
 import org.mapstruct.Mapper;
@@ -15,4 +17,7 @@ public interface ShopConverter {
 
     @Mapping(target = "category_ids", expression = "java(shopProfile.getShopCategoryIds())")
     AllShopsResponse.Shop toAllShopsResponse$Shop(ShopProfile shopProfile);
+
+    @Mapping(source = "ownerId", target = "shop_id")
+    Shop toShop(CreateShopRequest request, Integer ownerId);
 }

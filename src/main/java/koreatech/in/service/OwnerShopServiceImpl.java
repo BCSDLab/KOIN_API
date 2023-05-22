@@ -51,7 +51,40 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Override
     public void createShop(CreateShopRequest request) {
+        Owner owner = (Owner) jwtValidator.validate();
 
+        /*
+             INSERT 대상 테이블
+             - shops
+             - shop_opens
+             - shop_category_map
+             - shop_images
+         */
+
+        // ======= shops 테이블 =======
+        Shop shop = ShopConverter.INSTANCE.toShop(request, owner.getId());
+        //shop.setOwnerId(owner.getId());
+        shopMapper.createShop(shop);
+
+        // ======= shop_opens 테이블 =======
+        List<ShopOpen> shopOpens = generateShopOpensAndGetForCreate(request.getOpen(), shop.getId());
+        shopMapper.createShopOpens(shopOpens);
+
+        // ======= shop_category_map 테이블 =======
+        checkShopCategoriesExistInDatabase(request.getCategory_ids());
+
+        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMapsAndGet(shop.getId(), request.getCategory_ids());
+        shopMapper.createShopCategoryMaps(shopCategoryMaps);
+
+        // ======= shop_images 테이블 =======
+        List<ShopImage> shopImages = generateShopImagesAndGet(shop.getId(), request.getImage_urls());
+        shopMapper.createShopImages(shopImages);
+    }
+
+    private List<ShopOpen> generateShopOpensAndGetForCreate(List<CreateShopRequest.Open> opens, Integer shopId) {
+        return opens.stream()
+                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForCreate(open, shopId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -111,7 +144,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
         return opens.stream()
-                .map(open -> ShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForUpdate(open, shopId))
                 .collect(Collectors.toList());
     }
 
