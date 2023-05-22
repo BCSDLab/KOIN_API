@@ -26,6 +26,8 @@ public interface ShopMapper {
 
     void updateShop(@Param("shop") Shop shop);
 
+    void createShopOpens(@Param("shopOpens") List<ShopOpen> shopOpens);
+
     void updateShopOpens(@Param("shopOpens") List<ShopOpen> shopOpens);
 
     ShopCategory getShopCategoryById(@Param("id") Integer id);

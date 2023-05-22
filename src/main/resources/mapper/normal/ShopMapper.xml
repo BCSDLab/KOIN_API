@@ -330,6 +330,33 @@
             `id` = #{shop.id}
     </update>
 
+    <insert id="createShopOpens" parameterType="koreatech.in.domain.Shop.ShopOpen">
+        INSERT INTO `koin`.`shop_opens` (
+            `shop_id`,
+            `day_of_week`,
+            `closed`,
+            `open_time`,
+            `close_time`,
+            `is_deleted`,
+            `created_at`,
+            `updated_at`
+        )
+        VALUES (
+        <foreach collection="shopOpens" item="shopOpen" separator=",">
+            (
+                #{shopOpen.shop_id},
+                #{shopOpen.day_of_week},
+                #{shopOpen.closed},
+                #{shopOpen.open_time},
+                #{shopOpen.close_time},
+                #{shopOpen.is_deleted},
+                #{shopOpen.created_at},
+                #{shopOpen.updated_at}
+            )
+        </foreach>
+        )
+    </insert>
+
     <update id="updateShopOpens" parameterType="list">
         <foreach collection="shopOpens" item="item" separator=";">
             UPDATE `koin`.`shop_opens`
