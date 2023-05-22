@@ -272,6 +272,47 @@
             AND `is_deleted` = 0
     </select>
 
+    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop">
+        INSERT INTO `koin`.`shops` (
+            `owner_id`,
+            `name`,
+            `internal_name`,
+            `chosung`,
+            `phone`,
+            `address`,
+            `description`,
+            `delivery`,
+            `delivery_price`,
+            `pay_card`,
+            `pay_bank`,
+            `is_deleted`,
+            `created_at`,
+            `updated_at`,
+            `is_event`,
+            `remarks`,
+            `hit`
+        )
+        VALUES (
+            #{shop.owner_id},
+            #{shop.name},
+            #{shop.internal_name},
+            #{shop.chosung},
+            #{shop.phone},
+            #{shop.address},
+            #{shop.description},
+            #{shop.delivery},
+            #{shop.delivery_price},
+            #{shop.pay_card},
+            #{shop.pay_bank},
+            #{shop.is_deleted},
+            #{shop.created_at},
+            #{shop.updated_at},
+            #{shop.is_event},
+            #{shop.remarks},
+            #{shop.hit}
+       )
+    </insert>
+
     <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
         UPDATE `koin`.`shops`
         SET

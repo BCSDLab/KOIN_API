@@ -22,6 +22,8 @@ public interface ShopMapper {
 
     List<Shop> getShopByOwnerId(@Param("ownerId") Integer ownerId);
 
+    void createShop(@Param("shop") Shop shop);
+
     void updateShop(@Param("shop") Shop shop);
 
     void updateShopOpens(@Param("shopOpens") List<ShopOpen> shopOpens);
