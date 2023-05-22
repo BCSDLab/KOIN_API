@@ -36,7 +36,7 @@ public class CreateShopRequest {
             "- not null \n" +
             "- 리스트의 길이는 7(1주일 요일 개수) 이어야 함 \n" +
             "- day_of_week은 각각 `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` 이어야 함", required = true)
-    private List<koreatech.in.dto.admin.shop.request.CreateShopRequest.Open> open = new ArrayList<>();
+    private List<Open> open = new ArrayList<>();
 
     @Size(min = 1, max = 100, message = "주소의 길이는 1자 이상 100자 이하입니다.")
     @NotNull(message = "주소는 필수입니다.")
@@ -126,7 +126,7 @@ public class CreateShopRequest {
 
         Set<DayOfWeek> dayOfWeeksWithoutDuplication = new HashSet<>();
 
-        for (koreatech.in.dto.admin.shop.request.CreateShopRequest.Open open : this.open) {
+        for (Open open : this.open) {
             DayOfWeek dayOfWeek = open.getDay_of_week();
             Boolean closed = open.getClosed();
             String openTime = open.getOpen_time();
