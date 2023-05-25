@@ -1,6 +1,7 @@
 package koreatech.in.domain.Shop;
 
 import koreatech.in.dto.admin.shop.request.UpdateShopRequest;
+import koreatech.in.dto.normal.shop.request.CreateShopRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -67,6 +68,19 @@ public class Shop {
     }
 
     public void update(koreatech.in.dto.normal.shop.request.UpdateShopRequest request) { // normal update shop request dto
+        this.name = request.getName();
+        this.phone = request.getPhone();
+        this.address = request.getAddress();
+        this.description = request.getDescription();
+        this.delivery = request.getDelivery();
+        this.delivery_price = request.getDelivery_price();
+        this.pay_card = request.getPay_card();
+        this.pay_bank = request.getPay_bank();
+        this.internal_name = this.name.replace(" ", "").toLowerCase();
+        this.chosung = this.internal_name.substring(0, 1);
+    }
+
+    public void update(CreateShopRequest request) {
         this.name = request.getName();
         this.phone = request.getPhone();
         this.address = request.getAddress();

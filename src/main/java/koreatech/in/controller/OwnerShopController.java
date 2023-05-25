@@ -46,17 +46,18 @@ public class OwnerShopController {
 
     // =============================================== 상점 =================================================
 
-    @ApiOperation(value = "상점 생성", notes = "- 사장님 권한만 허용\n- 인증 정보에 대한 신원이 해당 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
+    @ApiOperation(value = "상점 생성", notes = "- 사장님 권한만 허용", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
                     "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
                     "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class)
     })
+    @ParamValid
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<ShopResponse> createShop(@ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid CreateShopRequest request, BindingResult bindingResult) {
+    ResponseEntity<EmptyResponse> createShop(@ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid CreateShopRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
 
         ownerShopService.createShop(request);

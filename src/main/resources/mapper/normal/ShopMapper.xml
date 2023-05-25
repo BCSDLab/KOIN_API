@@ -273,7 +273,7 @@
     </select>
 
     <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop">
-        INSERT INTO `koin`.`shops` (
+        INSERT IGNORE INTO `koin`.`shops` (
             `owner_id`,
             `name`,
             `internal_name`,
@@ -284,13 +284,7 @@
             `delivery`,
             `delivery_price`,
             `pay_card`,
-            `pay_bank`,
-            `is_deleted`,
-            `created_at`,
-            `updated_at`,
-            `is_event`,
-            `remarks`,
-            `hit`
+            `pay_bank`
         )
         VALUES (
             #{shop.owner_id},
@@ -303,14 +297,11 @@
             #{shop.delivery},
             #{shop.delivery_price},
             #{shop.pay_card},
-            #{shop.pay_bank},
-            #{shop.is_deleted},
-            #{shop.created_at},
-            #{shop.updated_at},
-            #{shop.is_event},
-            #{shop.remarks},
-            #{shop.hit}
+            #{shop.pay_bank}
        )
+        <selectKey keyProperty="shop.id" resultType="java.lang.Integer" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
     <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
@@ -330,31 +321,24 @@
             `id` = #{shop.id}
     </update>
 
-    <insert id="createShopOpens" parameterType="koreatech.in.domain.Shop.ShopOpen">
-        INSERT INTO `koin`.`shop_opens` (
+    <insert id="createShopOpens" parameterType="list">
+        INSERT IGNORE INTO `koin`.`shop_opens` (
             `shop_id`,
             `day_of_week`,
             `closed`,
             `open_time`,
-            `close_time`,
-            `is_deleted`,
-            `created_at`,
-            `updated_at`
+            `close_time`
         )
-        VALUES (
-        <foreach collection="shopOpens" item="shopOpen" separator=",">
+        VALUES
+        <foreach collection="shopOpens" item="item" separator=",">
             (
-                #{shopOpen.shop_id},
-                #{shopOpen.day_of_week},
-                #{shopOpen.closed},
-                #{shopOpen.open_time},
-                #{shopOpen.close_time},
-                #{shopOpen.is_deleted},
-                #{shopOpen.created_at},
-                #{shopOpen.updated_at}
+                #{item.shop_id},
+                #{item.day_of_week},
+                #{item.closed},
+                #{item.open_time},
+                #{item.close_time}
             )
         </foreach>
-        )
     </insert>
 
     <update id="updateShopOpens" parameterType="list">

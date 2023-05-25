@@ -63,7 +63,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         // ======= shops 테이블 =======
         Shop shop = ShopConverter.INSTANCE.toShop(request, owner.getId());
-        //shop.setOwnerId(owner.getId());
+        shop.update(request);
         shopMapper.createShop(shop);
 
         // ======= shop_opens 테이블 =======

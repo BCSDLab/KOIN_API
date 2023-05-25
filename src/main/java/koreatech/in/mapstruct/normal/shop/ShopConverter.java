@@ -18,6 +18,6 @@ public interface ShopConverter {
     @Mapping(target = "category_ids", expression = "java(shopProfile.getShopCategoryIds())")
     AllShopsResponse.Shop toAllShopsResponse$Shop(ShopProfile shopProfile);
 
-    @Mapping(source = "ownerId", target = "shop_id")
+    @Mapping(source = "ownerId", target = "owner_id")
     Shop toShop(CreateShopRequest request, Integer ownerId);
 }
