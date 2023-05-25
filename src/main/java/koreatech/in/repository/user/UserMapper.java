@@ -2,6 +2,7 @@ package koreatech.in.repository.user;
 
 import java.sql.SQLException;
 import java.util.List;
+
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import org.apache.ibatis.annotations.Param;
@@ -36,4 +37,6 @@ public interface UserMapper {
     User getUserById(@Param("id") int id);
 
     Boolean isEmailAlreadyExist(EmailAddress emailAddress);
+
+    Integer isNickNameAlreadyUsed(@Param("nickname") String nickname, @Param("userId") Integer userId);
 }
