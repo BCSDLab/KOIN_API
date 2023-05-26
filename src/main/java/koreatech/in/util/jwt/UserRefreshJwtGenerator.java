@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.repository.AuthenticationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,14 +46,12 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     protected void validateData(String token,  Integer data) {
         try {
             String tokenInRedis = redisAuthenticationMapper.getRefreshToken(data);
-            if (token.equals(tokenInRedis)) {
-                return;
+            if (!token.equals(tokenInRedis)) {
+                throw new BaseException(ExceptionInformation.FORBIDDEN);
             }
         } catch (IOException e) {
             throw new ExpiredJwtException(null, null, null, e);
-
         }
-        throw new ExpiredJwtException(null, null, null);
     }
 
     @Override
