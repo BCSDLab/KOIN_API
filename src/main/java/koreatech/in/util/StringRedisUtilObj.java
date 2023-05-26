@@ -93,4 +93,12 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
     public void deleteData(String key) {
         redisTemplate.delete(key);
     }
+
+    public static String makeOwnerKeyFor(String emailAddress) {
+        return redisOwnerAuthPrefix + emailAddress;
+    }
+
+    public static String makeOwnerShopKeyFor(Integer ownerId) {
+        return redisOwnerShopPrefix + ownerId;
+    }
 }
