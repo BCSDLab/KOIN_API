@@ -1,6 +1,8 @@
 package koreatech.in.util;
 
 import java.util.concurrent.TimeUnit;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     @Override
     public void setDataAsString(String key, Object data) throws IOException {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String value = data instanceof String ? (String) data : objectMapper.writeValueAsString(data);
         valOps.set(key, value);
     }
