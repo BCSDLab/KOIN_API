@@ -30,6 +30,7 @@ import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class OwnerServiceImpl implements OwnerService {
     private static final String CERTIFICATION_CODE = "certification-code";
 
     @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Autowired
     private SesMailSender sesMailSender;
@@ -223,25 +224,35 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void removeRedisFrom(EmailAddress emailAddress) {
-        stringRedisUtilStr.deleteData(StringRedisUtilStr.makeOwnerKeyFor(emailAddress.getEmailAddress()));
+        stringRedisUtilObj.deleteData(StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress()));
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
-        Gson gson = new GsonBuilder().create();
+        try {
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerKeyFor(emailAddress),
+                    ownerInVerification, 2L, TimeUnit.HOURS);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
-        stringRedisUtilStr.setDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
-                gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
+    private void putRedisForRequestShop(OwnerShop ownerShop) {
+        try {
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerShopKeyFor(ownerShop.getOwner_id()), ownerShop);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
-        Gson gson = new GsonBuilder().create();
-        String json;
+        Object json;
         try {
-            json = stringRedisUtilStr.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
+            json = stringRedisUtilObj.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress), OwnerInVerification.class);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
+
+        OwnerInVerification ownerInRedis = (OwnerInVerification) json;
         validateRedis(ownerInRedis);
 
         return ownerInRedis;
