@@ -9,7 +9,6 @@ import io.swagger.annotations.Authorization;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
-import io.swagger.models.auth.In;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
@@ -31,11 +30,9 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
-import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.admin.AdminUserService;
@@ -91,6 +88,7 @@ public class AdminUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @AuthExcept
     @ApiOperation(
             value = "액세스 토큰 재발급"
             , notes = "- 어드민 권한만 허용"
@@ -110,7 +108,7 @@ public class AdminUserController {
         } catch (Exception exception) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-
+        //TODO Refresh Token을 통해 Admin인지 판단.
         TokenRefreshResponse tokenRefreshResponse = adminUserService.refresh(request);
         return new ResponseEntity<>(tokenRefreshResponse, HttpStatus.CREATED);
     }
