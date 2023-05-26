@@ -297,7 +297,10 @@ public class OwnerServiceImpl implements OwnerService {
             insertUserAndUpdateId(owner);
 
             ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
+
+            if (owner.hasRegistrationInformation()) {
+                ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
