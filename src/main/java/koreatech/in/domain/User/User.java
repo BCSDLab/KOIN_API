@@ -5,6 +5,8 @@ import static koreatech.in.exception.ExceptionInformation.USER_HAS_NOT_WITHDRAWN
 import static koreatech.in.exception.ExceptionInformation.USER_HAS_WITHDRAWN;
 
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
@@ -91,10 +93,12 @@ public class User {
         }
     }
 
+    @JsonIgnore
     public boolean isStudent() {
         return this.getClass().equals(Student.class);
     }
 
+    @JsonIgnore
     public boolean isOwner() {
         return this.getClass().equals(Owner.class);
     }
@@ -107,14 +111,17 @@ public class User {
         return this.id.equals(id);
     }
 
+    @JsonIgnore
     public boolean isAuthenticated() {
         return is_authed != null && is_authed.equals(true);
     }
 
+    @JsonIgnore
     public boolean isAuthTokenExpired() {
         return auth_expired_at != null && (auth_expired_at.getTime() < (new Date()).getTime());
     }
 
+    @JsonIgnore
     public boolean isAwaitingEmailAuthentication() {
         return !isAuthenticated()
                 && this.auth_token != null
@@ -122,16 +129,19 @@ public class User {
                 && !isAuthTokenExpired();
     }
 
+    @JsonIgnore
     public boolean isResetTokenExpired() {
         return this.reset_expired_at != null && (this.reset_expired_at.getTime() < (new Date()).getTime());
     }
 
+    @JsonIgnore
     public boolean isAwaitingToFindPassword() {
         return this.reset_token != null
                 && this.reset_expired_at != null
                 && !isResetTokenExpired();
     }
 
+    @JsonIgnore
     public boolean isWithdrawn() {
         return this.is_deleted;
     }
@@ -176,6 +186,7 @@ public class User {
         this.password = password;
     }
 
+    @JsonIgnore
     public boolean isUserAuthed() { return is_authed == null ? false : is_authed; }
 
     public boolean equals(User user){
@@ -186,6 +197,7 @@ public class User {
         setUser_type(UserType.mappingFor(this));
     }
 
+    @JsonIgnore
     public String getText() {
         if(getUser_type() == null) {
             enrichUserType();
