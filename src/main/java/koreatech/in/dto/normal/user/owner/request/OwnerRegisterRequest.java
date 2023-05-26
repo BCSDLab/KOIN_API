@@ -52,7 +52,7 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
 
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "휴대폰 번호\n"
-            + "not null"
+            + "- not null"
             + "- 휴대폰 번호 형식이여야 함"
             ,example = "010-0000-0000"
             ,required = true
@@ -60,14 +60,14 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
     private String phoneNumber;
 
     @NotNull(message = "상점 선택은 필수입니다.")
-    @ApiModelProperty(notes = "상점 ID\n"
-            + "not null"
+    @ApiModelProperty(notes = "상점 ID \n"
+            + "- not null"
             ,required = true)
     private Integer shopId;
 
     @NotNull(message = "상점 선택은 필수입니다.")
-    @ApiModelProperty(notes = "상점명"
-            + "not null"
+    @ApiModelProperty(notes = "상점명 \n"
+            + "- not null"
             ,required = true)
     private String shopName;
 }
