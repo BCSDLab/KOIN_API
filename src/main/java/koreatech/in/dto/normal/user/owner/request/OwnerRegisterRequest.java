@@ -51,4 +51,14 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
     )
     @Valid
     private List<AttachmentUrlRequest> attachmentUrls;
+
+    @NotNull(message = "상점 선택은 필수입니다.")
+    @ApiModelProperty(notes = "상점 ID\n"
+            ,required = true)
+    private Integer shopId;
+
+    @NotNull(message = "상점 선택은 필수입니다.")
+    @ApiModelProperty(notes = "상점명"
+            ,required = true)
+    private String shopName;
 }
