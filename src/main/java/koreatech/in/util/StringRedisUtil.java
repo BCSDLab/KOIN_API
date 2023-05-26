@@ -19,7 +19,7 @@ public abstract class StringRedisUtil<T> {
 
     public abstract void setDataAsString(String key, T data) throws IOException;
 
-    public abstract void setDataAsString(String key, T data, Long time, TimeUnit timeUnit);
+    public abstract void setDataAsString(String key, T data, Long time, TimeUnit timeUnit) throws IOException;
 
     public abstract T getDataAsString(String key, Class<? extends T> classType) throws IOException;
 
