@@ -508,6 +508,81 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public OwnerUpdateResponse updateOwner(Integer userId, OwnerUpdateRequest request) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+
+        Owner existingOwner = (Owner) user;
+        Owner owner = OwnerConverter.INSTANCE.toOwner(request);
+
+        isValidateRequest(owner, existingOwner, userId);
+
+
+        existingOwner.setId(userId);
+        existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+        existingOwner.update(owner);
+        updateInDBFor(existingOwner);
+
+        return OwnerConverter.INSTANCE.toOwnerUpdateResponse(existingOwner);
+    }
+
+    private void updateInDBFor(Owner owner) {
+        adminUserMapper.updateOwner(owner);
+        adminUserMapper.updateUser(owner);
+    }
+
+    private void isValidateRequest(Owner owner, Owner existingOwner, Integer userId) {
+        if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
+            validateGender(owner);
+        }
+        if (owner.getEmail() != null && !owner.getEmail().equals(existingOwner.getEmail())) {
+            validateEmailUniqueness(owner, userId);
+        }
+        if (owner.getNickname() != null && !owner.getNickname().equals(existingOwner.getNickname())) {
+            validateNicknameUniqueness(owner, userId);
+        }
+        if (owner.getCompany_registration_number() != null && !owner.getCompany_registration_number().equals(existingOwner.getCompany_registration_number())) {
+            validateCompanyRegistrationNumberUniqueness(owner, userId);
+        }
+    }
+
+    private void validateEmailUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getEmail())
+                .filter(email -> adminUserMapper.isEmailAlreadyUsed(email, userId) > 0)
+                .ifPresent(email -> {
+                    throw new BaseException(EMAIL_DUPLICATED);
+                });
+    }
+
+    private void validateNicknameUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getNickname())
+                .filter(nickname -> adminUserMapper.isNickNameAlreadyUsed(nickname, userId) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getCompany_registration_number())
+                .filter(registrationNumber -> adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(registrationNumber, userId) > 0)
+                .ifPresent(registrationNumber -> {
+                    throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
+                });
+    }
+
+    private void validateGender(Owner owner) {
+        Optional.ofNullable(owner.getGender())
+                .filter(gender -> !(gender == 0 || gender == 1))
+                .ifPresent(gender -> {
+                    throw new BaseException(GENDER_INVALID);
+                });
+    }
+
+    @Override
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
