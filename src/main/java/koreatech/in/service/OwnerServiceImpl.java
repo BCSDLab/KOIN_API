@@ -104,11 +104,13 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-
         // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
-        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
 
         validateSufficientInformationForRegistration(ownerRegisterRequest);
+
+        OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
+
+        Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
 
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
