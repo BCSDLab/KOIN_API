@@ -122,7 +122,8 @@ public class OwnerController {
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
-                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)",
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000) \n\n"
+                            + "- 사업자등록번호, 첨부파일 둘 중 하나만 있을 경우 (error code: 100000)",
                     response = RequestDataInvalidResponse.class)
     })
     @ApiOperation(value = "회원가입 요청")
