@@ -101,7 +101,8 @@ public enum ExceptionInformation {
     PRICE_OF_MENU_IS_REQUIRED("메뉴의 가격 정보는 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     DUPLICATE_OPTIONS_EXIST_IN_MENU("메뉴에서 중복되는 옵션명이 있습니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
     SEARCH_TYPE_SHOULD_NOT_BE_NULL_WHEN_QUERY_IS_NOT_NULL("검색 내용이 존재할 경우 검색 대상은 필수입니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
-    UPLOAD_FILE_URL_INVALID("코인 파일 저장 형식(static.koreatech.in)이 아닙니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
+    UPLOAD_FILE_URL_INVALID("코인 파일 저장 형식(static.koreatech.in)이 아닙니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY),
+    OWNER_REGISTRATION_INFORMATION_INSUFFICIENT("사업자등록번호와 첨부파일 모두 필요합니다.", 100000, HttpStatus.UNPROCESSABLE_ENTITY);
 
     ExceptionInformation(String message, Integer code, HttpStatus httpStatus) {
         this.message = message;
