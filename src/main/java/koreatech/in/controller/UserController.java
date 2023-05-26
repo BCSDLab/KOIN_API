@@ -90,6 +90,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @AuthExcept
     @ApiOperation(
             value = "액세스 토큰 재발급"
             , notes = "- 사용자 권한 허용"
