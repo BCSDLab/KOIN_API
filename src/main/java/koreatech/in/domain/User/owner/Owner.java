@@ -4,6 +4,8 @@ import java.util.List;
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
+import koreatech.in.dto.global.AttachmentUrlRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,5 +42,26 @@ public class Owner extends User {
     public void enrichAuthComplete() {
         setUser_type(UserType.OWNER);
         setIs_authed(false);
+    }
+
+    public boolean hasRegistrationInformation() {
+        return this.company_registration_number != null;
+    }
+
+    public static boolean hasRegistrationInformation(OwnerRegisterRequest request) {
+        return hasCompanyNumber(request) && hasAttachmentUrls(request);
+    }
+
+    public static boolean isInsufficientRegisterRequest(OwnerRegisterRequest request) {
+        return hasCompanyNumber(request) ^ hasAttachmentUrls(request);
+    }
+
+    public static boolean hasCompanyNumber(OwnerRegisterRequest request) {
+        return request.getCompanyNumber() != null;
+    }
+
+    public static boolean hasAttachmentUrls(OwnerRegisterRequest request) {
+        List<AttachmentUrlRequest> requestAttachments = request.getAttachmentUrls();
+        return request.getAttachmentUrls() != null && !requestAttachments.isEmpty();
     }
 }
