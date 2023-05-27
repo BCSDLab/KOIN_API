@@ -1,6 +1,7 @@
 package koreatech.in.domain.BokDuck;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.dto.admin.land.request.UpdateLandRequest;
@@ -218,6 +219,7 @@ public class Land {
         return this.id.equals(id);
     }
 
+    @JsonIgnore
     public boolean isSoftDeleted() {
         if (this.is_deleted == null) {
             return false;
