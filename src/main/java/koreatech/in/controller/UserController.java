@@ -205,6 +205,7 @@ public class UserController {
     }
 
     @ApiOff
+    @ApiIgnore
     @ParamValid
     @Auth(role = Auth.Role.OWNER)
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
