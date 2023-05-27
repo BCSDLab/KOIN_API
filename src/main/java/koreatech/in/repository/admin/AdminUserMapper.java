@@ -11,14 +11,20 @@ import java.util.List;
 @Repository
 public interface AdminUserMapper {
     User getUserById(@Param("id") Integer id);
+
     User getUndeletedUserByEmail(@Param("email") String email);
     void deleteUserLogicallyById(@Param("id") Integer id);
     void undeleteUserLogicallyById(@Param("id") Integer id);
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
+    void updateOwnerAuthorById(Integer ownerId);
     Owner getFullOwnerById(@Param("id") Integer id);
-
     List<Integer> getShopsIdByOwnerId(Integer id);
-
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
+    void updateOwner(@Param("owner") Owner owner);
+    void updateUser(@Param("user") User user);
+    Integer isCompanyRegistrationNumberAlreadyUsed(@Param("company_registration_number") String company_registration_number,@Param("userId") Integer userId);
+    Integer isNickNameAlreadyUsed(@Param("nickname") String nickname, @Param("userId") Integer userId);
+    Integer isEmailAlreadyUsed(@Param("email") String email,@Param("userId") Integer userId);
+    void updateOwnerGrantShopByOwnerId(Integer ownerId);
 }

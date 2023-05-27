@@ -12,8 +12,8 @@ public enum ExceptionInformation {
     BAD_ACCESS("잘못된 접근입니다.", 100001, HttpStatus.UNAUTHORIZED),
     PAGE_NOT_FOUND("유효하지 않은 페이지입니다.", 100002, HttpStatus.NOT_FOUND),
     FORBIDDEN("권한이 없습니다.", 100003, HttpStatus.FORBIDDEN),
-    ACCESS_TOKEN_EXPIRED("토큰의 유효시간이 만료되었습니다. 다시 로그인해주세요.", 100004, HttpStatus.UNAUTHORIZED),
-    ACCESS_TOKEN_CHANGED("토큰이 변경되었습니다. 다시 로그인해주세요.", 100005, HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED("토큰의 유효시간이 만료되었습니다. 다시 로그인해주세요.", 100004, HttpStatus.UNAUTHORIZED),
+//    ACCESS_TOKEN_CHANGED("토큰이 변경되었습니다. 다시 로그인해주세요.", 100005, HttpStatus.UNAUTHORIZED),
 
     // ======= 코인 회원 (학생, 사장님) =======
     USER_NOT_FOUND("회원이 존재하지 않습니다.", 101000, HttpStatus.UNAUTHORIZED),
@@ -35,6 +35,9 @@ public enum ExceptionInformation {
     STUDENT_MAJOR_INVALID("학생의 전공 형식이 아닙니다.", 101016, HttpStatus.UNPROCESSABLE_ENTITY),
     NOT_STUDENT("회원의 신원이 학생이 아닙니다.", 101017, HttpStatus.CONFLICT),
     NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101018, HttpStatus.CONFLICT),
+    AUTHENTICATED_USER("인증된 회원입니다.", 101019, HttpStatus.CONFLICT),
+    GENDER_INVALID("유효한 성별이 아닙니다.", 101020, HttpStatus.UNPROCESSABLE_ENTITY),
+    COMPANY_REGISTRATION_NUMBER_DUPLICATE("이미 존재하는 사업자 번호입니다.", 101021, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
@@ -71,6 +74,7 @@ public enum ExceptionInformation {
     CERTIFICATION_CODE_EXPIRED("코드 인증 기한이 경과되었습니다.", 121001, HttpStatus.GONE),
     CERTIFICATION_CODE_INVALID("인증 코드가 일치하지 않습니다.", 121002, HttpStatus.UNPROCESSABLE_ENTITY),
     OWNER_ATTACHMENT_NOT_FOUND("존재하지 않는 첨부파일입니다.", 121003, HttpStatus.NOT_FOUND),
+    OWNER_NOT_FOUND("사장님이 존재하지 않습니다",121004,HttpStatus.NOT_FOUND),
 
     // ======= 파일 업로드 =======
     VERSION_TYPE_NOT_FOUND("존재하지 않는 버전의 타입입니다. 다시 시도해주세요.", 122000, HttpStatus.NOT_FOUND),

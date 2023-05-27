@@ -2,6 +2,7 @@ package koreatech.in.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
+import koreatech.in.dto.normal.user.owner.response.VerifyCodeResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
@@ -28,6 +30,7 @@ import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +55,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private JwtValidator jwtValidator;
+
+    @Autowired
+    private TemporaryAccessJwtGenerator temporaryAccessJwtGenerator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -83,7 +89,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public void certificate(VerifyCodeRequest verifyCodeRequest) {
+    public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
 
         OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification.getEmail());
@@ -92,6 +98,8 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.setIs_authed(true);
 
         putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+        String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
+        return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
 
     @Transactional
@@ -221,14 +229,18 @@ public class OwnerServiceImpl implements OwnerService {
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         Gson gson = new GsonBuilder().create();
 
-        stringRedisUtilStr.valOps.set(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
+        stringRedisUtilStr.setDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
                 gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
         Gson gson = new GsonBuilder().create();
-        String json = stringRedisUtilStr.valOps.get(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
-
+        String json;
+        try {
+            json = stringRedisUtilStr.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
         OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
         validateRedis(ownerInRedis);
 

@@ -335,8 +335,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
         menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
+        List<ShopCategory> categoryNames = shopMapper.getMenuCategoryNamesByShopId(shopId);
 
-        return AllMenusOfShopResponse.from(menuProfiles);
+        return AllMenusOfShopResponse.of(menuProfiles, categoryNames);
     }
 
     @Override
