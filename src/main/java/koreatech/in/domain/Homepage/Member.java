@@ -1,6 +1,7 @@
 package koreatech.in.domain.Homepage;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.dto.admin.member.request.UpdateMemberRequest;
@@ -61,6 +62,7 @@ public class Member {
         this.image_url = request.getImage_url();
     }
 
+    @JsonIgnore
     public boolean isSoftDeleted() {
         if (this.is_deleted == null) {
             return false;
