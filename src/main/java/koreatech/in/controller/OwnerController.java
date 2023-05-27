@@ -21,6 +21,7 @@ import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
+import koreatech.in.dto.normal.user.owner.response.VerifyCodeResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.OwnerService;
@@ -97,7 +98,7 @@ public class OwnerController {
     @RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
+    ResponseEntity<VerifyCodeResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
                                              BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
@@ -105,8 +106,8 @@ public class OwnerController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        ownerService.certificate(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        VerifyCodeResponse verifyCodeResponse = ownerService.certificate(request);
+        return new ResponseEntity<>(verifyCodeResponse, HttpStatus.OK);
     }
 
     @ApiResponses({

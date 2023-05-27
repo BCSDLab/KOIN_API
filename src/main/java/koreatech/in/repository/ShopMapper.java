@@ -1,7 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.Shop.*;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -53,6 +53,8 @@ public interface ShopMapper {
     List<ShopMenuCategory> getMenuCategoriesByShopId(@Param("shopId") Integer shopId);
 
     ShopMenuCategory getMenuCategoryById(@Param("id") Integer id);
+
+    List<ShopCategory> getMenuCategoryNamesByShopId(@Param("shopId") Integer id);
 
     List<ShopMenu> getMenusUsingCategoryByMenuCategoryId(@Param("menuCategoryId") Integer menuCategoryId);
 

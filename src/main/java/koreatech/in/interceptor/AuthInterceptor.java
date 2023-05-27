@@ -1,8 +1,16 @@
 package koreatech.in.interceptor;
 
+import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
+import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
+import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
+
+import java.lang.reflect.Method;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.AuthTemporary;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.exception.BaseException;
@@ -16,12 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
-
-import static koreatech.in.exception.ExceptionInformation.*;
 
 public class AuthInterceptor extends HandlerInterceptorAdapter {
     @Autowired
@@ -68,6 +70,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             throw new BaseException(FORBIDDEN);
         }
 
+
         Auth auth = actualClass.getAnnotation(Auth.class);
         if (auth == null || auth.role() == Auth.Role.NONE) {
             return true;
@@ -79,7 +82,14 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
         // 아래에서부턴 권한이 필요하다.
 
-        User user = jwtValidator.validate(request.getHeader("Authorization"));
+        String authorizationHeader = request.getHeader("Authorization");
+
+
+        if (actualMethod.isAnnotationPresent(AuthTemporary.class)) {
+            return isValidToken(authorizationHeader);
+        }
+
+        User user = jwtValidator.validate(authorizationHeader);
 
         if (user == null) {
             throw new BaseException(BAD_ACCESS);
@@ -207,6 +217,13 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             }
         }
 
+        return true;
+    }
+
+    private boolean isValidToken(String authorizationHeader) {
+        if(!jwtValidator.isValidAccessTokenIn(authorizationHeader)) {
+            throw new BaseException(TOKEN_EXPIRED);
+        }
         return true;
     }
 

@@ -16,6 +16,7 @@ import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyEmailRequest;
 import koreatech.in.dto.normal.user.owner.response.OwnerResponse;
+import koreatech.in.dto.normal.user.owner.response.VerifyCodeResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -119,4 +120,7 @@ public interface OwnerConverter {
             @Mapping(source = "attachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
     })
     Owner toOwner(OwnerUpdateRequest ownerUpdateRequest);
+
+    @Mapping(source = "temporaryAccessToken", target = "accessToken")
+    VerifyCodeResponse toVerifyCodeResponse(String temporaryAccessToken);
 }

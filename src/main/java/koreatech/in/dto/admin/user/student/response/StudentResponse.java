@@ -1,4 +1,4 @@
-package koreatech.in.dto.admin.user.student;
+package koreatech.in.dto.admin.user.student.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

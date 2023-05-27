@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopCategory;
 import koreatech.in.domain.Shop.ShopCategoryMap;
 import koreatech.in.domain.Shop.ShopImage;
 import koreatech.in.domain.Shop.ShopMenu;
@@ -335,8 +336,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         List<ShopMenuProfile> menuProfiles = shopMapper.getMenuProfilesByShopId(shopId);
         menuProfiles.forEach(ShopMenuProfile::decideWhetherSingleOrNot);
+        List<ShopCategory> categoryNames = shopMapper.getMenuCategoryNamesByShopId(shopId);
 
-        return AllMenusOfShopResponse.from(menuProfiles);
+        return AllMenusOfShopResponse.of(menuProfiles, categoryNames);
     }
 
     @Override

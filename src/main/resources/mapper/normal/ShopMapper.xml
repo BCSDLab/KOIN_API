@@ -471,6 +471,22 @@
             AND `is_deleted` = 0
     </select>
 
+    <select id="getMenuCategoryNamesByShopId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopCategory">
+        SELECT DISTINCT `t1`.`id` AS `id`,
+                        `t1`.`name` AS `name`
+        FROM (
+                 SELECT *
+                 FROM `koin`.`shop_menu_categories`
+                 WHERE
+                     `shop_id` = #{shopId}
+                   AND `is_deleted` = 0
+             ) `t1`
+                 LEFT JOIN `koin`.`shop_menus` `t2`
+                           ON `t1`.`shop_id` = `t2`.`shop_id`
+                 LEFT JOIN `koin`.`shop_menu_category_map` `t3`
+                           ON `t1`.`id` = `t3`.`shop_menu_category_id`
+    </select>
+
     <select id="getMenusUsingCategoryByMenuCategoryId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenu">
         SELECT *
         FROM `koin`.`shop_menus`
