@@ -1,6 +1,7 @@
 package koreatech.in.domain.User.owner;
 
 import java.util.List;
+
 import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserType;
@@ -9,7 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 @NoArgsConstructor
 public class Owner extends User {
@@ -34,6 +36,15 @@ public class Owner extends User {
         super.update(owner);
         if (owner.email != null) {
             this.email = owner.email;
+        }
+        if(owner.company_registration_number!=null){
+            this.company_registration_number=owner.company_registration_number;
+        }
+        if(owner.grant_shop!=null){
+            this.grant_shop=owner.grant_shop;
+        }
+        if(owner.grant_event!=null){
+            this.grant_event=owner.grant_event;
         }
     }
 

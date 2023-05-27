@@ -23,6 +23,8 @@ import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -295,5 +297,33 @@ public class AdminUserController {
     public @ResponseBody
     ResponseEntity<OwnerResponse> getOwner(@ApiParam(value = "owner_id", required = true) @PathVariable("id") int id) {
         return new ResponseEntity<>(adminUserService.getOwner(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "특정 사장님 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 조회한 회원이 존재하지 않을 때 (code: 101003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 조회한 회원의 신원이 사장님이 아닐 때 (code: 101018) \n" +
+                    "- 중복된 닉네임일 때 (code: 101002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 유효한 성별이 아닐 때 (code: 101020) \n" +
+                    "- 유효한 이메일이 아닐 때 (code: 101013) \n" +
+                    "- 유효한 사업자 번호가 아닐 때(code: 101021)", response = ExceptionResponse.class)
+    })
+    @ParamValid
+    @RequestMapping(value = "/admin/users/owner/{id}", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<OwnerUpdateResponse> updateOwner(
+            @ApiParam(value = "user_id", required = true) @PathVariable("id") Integer userId,
+            @RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) throws Exception {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        return new ResponseEntity<>(adminUserService.updateOwner(userId, request),HttpStatus.OK);
     }
 }
