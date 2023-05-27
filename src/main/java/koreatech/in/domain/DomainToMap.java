@@ -1,7 +1,6 @@
 package koreatech.in.domain;
 
-import org.apache.commons.lang.StringUtils;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -11,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import koreatech.in.domain.BokDuck.Land;
 
 public class DomainToMap {
 
@@ -43,6 +43,11 @@ public class DomainToMap {
         BeanInfo info = Introspector.getBeanInfo(vo.getClass());
         for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
             Method reader = pd.getReadMethod();
+
+            if (ignoredMethod(vo, reader)) {
+                continue;
+            }
+
             if (reader != null) {
                 if(arrExceptKeys != null && arrExceptKeys.length > 0 && isContain(arrExceptKeys, pd.getName())) continue;
                 if(!containNull && reader.invoke(vo) == null) continue;
@@ -57,6 +62,12 @@ public class DomainToMap {
         }
         return result;
     }
+
+    //Json Ignore이 달린 메서드들을 예외처리 함. (부수효과를 대비하여 Land의 경우만 처리함.)
+    private static boolean ignoredMethod(Object vo, Method reader) {
+        return vo instanceof Land && reader.isAnnotationPresent(JsonIgnore.class);
+    }
+
     public static Map<String, Object> domainToMapWithExcept(Object vo, String[] arrExceptKeys) throws Exception {
         return domainToMapWithExcept(vo, arrExceptKeys, true);
     }
