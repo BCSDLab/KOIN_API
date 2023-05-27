@@ -1,13 +1,13 @@
 package koreatech.in.domain.Shop;
 
+import java.util.Date;
+import java.util.Objects;
+
 import koreatech.in.dto.admin.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.request.CreateShopRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.*;
 
 @Getter @Builder
 @NoArgsConstructor
@@ -80,15 +80,7 @@ public class Shop {
         this.chosung = this.internal_name.substring(0, 1);
     }
 
-    public void update(CreateShopRequest request) {
-        this.name = request.getName();
-        this.phone = request.getPhone();
-        this.address = request.getAddress();
-        this.description = request.getDescription();
-        this.delivery = request.getDelivery();
-        this.delivery_price = request.getDelivery_price();
-        this.pay_card = request.getPay_card();
-        this.pay_bank = request.getPay_bank();
+    public void informationUpdate() {
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
     }

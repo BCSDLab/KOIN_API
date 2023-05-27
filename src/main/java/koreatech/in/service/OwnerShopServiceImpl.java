@@ -1,27 +1,49 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Shop.*;
+import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
+import static koreatech.in.exception.ExceptionInformation.SHOP_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_MAXIMUM_EXCEED;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_USING_CATEGORY_EXIST;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopCategoryMap;
+import koreatech.in.domain.Shop.ShopImage;
+import koreatech.in.domain.Shop.ShopMenu;
+import koreatech.in.domain.Shop.ShopMenuCategory;
+import koreatech.in.domain.Shop.ShopMenuCategoryMap;
+import koreatech.in.domain.Shop.ShopMenuDetail;
+import koreatech.in.domain.Shop.ShopMenuImage;
+import koreatech.in.domain.Shop.ShopMenuProfile;
+import koreatech.in.domain.Shop.ShopOpen;
+import koreatech.in.domain.Shop.ShopProfile;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
 import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
 import koreatech.in.dto.normal.shop.request.CreateShopRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
 import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.response.*;
+import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllShopsOfOwnerResponse;
+import koreatech.in.dto.normal.shop.response.MenuResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
 import koreatech.in.mapstruct.normal.shop.ShopOpenConverter;
 import koreatech.in.repository.ShopMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -63,7 +85,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
         // ======= shops 테이블 =======
         Shop shop = ShopConverter.INSTANCE.toShop(request, owner.getId());
-        shop.update(request);
+        shop.informationUpdate();
         shopMapper.createShop(shop);
 
         // ======= shop_opens 테이블 =======
