@@ -535,11 +535,10 @@
         WHERE email= #{emailAddress}
     </select>
 
-    <select id="isNickNameAlreadyUsed" resultType="Integer">
+    <select id="getNicknameUsedCount" resultType="Integer">
         SELECT COUNT(*)
         FROM koin.users
         WHERE nickname = #{nickname}
-          AND is_deleted = 0
           AND id != #{userId}
             LIMIT 1;
     </select>

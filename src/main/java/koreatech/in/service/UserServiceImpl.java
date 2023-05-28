@@ -246,7 +246,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateInUpdate(Student student, Student studentInToken) {
-        if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
+        /*if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
             validateNicknameUniqueness(student);
         }
         if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
@@ -254,7 +254,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         if (student.getMajor() != null && !student.getMajor().equals(studentInToken.getMajor())) {
             validateMajor(student);
-        }
+        }*/
+        validateNicknameUniqueness(student);
+
+        validateStudentNumber(student);
+        validateMajor(student);
     }
 
     private Student getStudentInToken() {
@@ -290,7 +294,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
                 Optional.ofNullable(owner.getNickname())
-                        .filter(nickname -> userMapper.isNickNameAlreadyUsed(nickname, owner.getUser_id()) > 0)
+                        .filter(nickname -> userMapper.getNicknameUsedCount(nickname, owner.getUser_id()) > 0)
                         .ifPresent(nickname -> {
                             throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
                         });
@@ -427,7 +431,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void validateNicknameUniqueness(Student student) {
         Optional.ofNullable(student.getNickname())
-                .filter(nickname -> userMapper.isNickNameAlreadyUsed(nickname, student.getId()) > 0)
+                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
                 .ifPresent(nickname -> {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
