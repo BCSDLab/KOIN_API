@@ -13,6 +13,7 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -212,8 +213,8 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    private void validateSufficientInformationForRegistration(OwnerRegisterRequest ownerRegisterRequest) {
-        if (Owner.isInsufficientRegisterRequest(ownerRegisterRequest)) {
+    private void validateSufficientInformationForRegistration(OwnerRegisterRequest request) {
+        if (!request.isSufficientRegisterRequest()) {
             throw new BaseException(ExceptionInformation.OWNER_REGISTRATION_INFORMATION_INSUFFICIENT);
         }
     }
