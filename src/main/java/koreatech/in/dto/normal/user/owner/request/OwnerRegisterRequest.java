@@ -34,6 +34,7 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
     @ApiModelProperty(notes = "사업자 등록 번호 \n"
             + "- required = false \n"
             + "- 사업자 등록 번호 형식이어야 함"
+            + "- 사업자등록번호와 첨부파일에 대해 아무것도 입력 안하거나 혹은 모두 입력하거나 둘 중 하나에 만족해야 함."
             , example = "012-34-56789"
             , required = false
     )
