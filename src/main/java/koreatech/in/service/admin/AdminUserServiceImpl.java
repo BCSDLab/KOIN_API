@@ -304,7 +304,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
         student.setIs_authed(selectUser.getIs_authed());
 
-        isValidRequest(student, selectUser,id);
+        validateRequest(student, selectUser, id);
 
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -317,7 +317,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         return StudentConverter.INSTANCE.toStudentUpdateResponse(selectUser);
     }
 
-    private void isValidRequest(Student student, Student selectUser, int id) {
+    private void validateRequest(Student student, Student selectUser, int id) {
         if (student.getGender() != null && !student.getGender().equals(selectUser.getGender())) {
             validateGender(student);
         }
@@ -530,7 +530,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         existingOwner.setId(userId);
         existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
 
-        isValidateRequest(owner, existingOwner,userId);
+        validateRequest(owner, existingOwner,userId);
         existingOwner.update(owner);
         updateInDBFor(existingOwner);
 
@@ -542,7 +542,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         adminUserMapper.updateUser(owner);
     }
 
-    private void isValidateRequest(Owner owner, Owner existingOwner, Integer userId) {
+    private void validateRequest(Owner owner, Owner existingOwner, Integer userId) {
         if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
             validateGender(owner);
         }
