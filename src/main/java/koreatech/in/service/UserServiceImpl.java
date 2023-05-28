@@ -246,19 +246,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateInUpdate(Student student, Student studentInToken) {
-        /*if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
-            validateNicknameUniqueness(student);
+        if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
+            validateNicknameUniqueness(student,studentInToken.getId());
         }
         if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
             validateStudentNumber(student);
         }
         if (student.getMajor() != null && !student.getMajor().equals(studentInToken.getMajor())) {
             validateMajor(student);
-        }*/
-        validateNicknameUniqueness(student);
-
-        validateStudentNumber(student);
-        validateMajor(student);
+        }
     }
 
     private Student getStudentInToken() {
@@ -431,6 +427,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void validateNicknameUniqueness(Student student) {
         Optional.ofNullable(student.getNickname())
                 .filter(nickname -> userMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
+    }
+    private void validateNicknameUniqueness(Student student,Integer userId) {
+        Optional.ofNullable(student.getNickname())
+                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
                 .ifPresent(nickname -> {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
