@@ -15,13 +15,16 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-import java.io.IOException;
+
 import java.sql.SQLException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
@@ -34,6 +37,8 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
+import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
@@ -62,6 +67,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static koreatech.in.domain.DomainToMap.domainToMap;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -497,6 +505,81 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
 
         return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
+    }
+
+    @Override
+    public OwnerUpdateResponse updateOwner(Integer userId, OwnerUpdateRequest request) {
+        User user = Optional.ofNullable(adminUserMapper.getUserById(userId))
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+
+        if (!user.isOwner()) {
+            throw new BaseException(NOT_OWNER);
+        }
+
+        Owner existingOwner = (Owner) user;
+        Owner owner = OwnerConverter.INSTANCE.toOwner(request);
+
+        isValidateRequest(owner, existingOwner, userId);
+
+
+        existingOwner.setId(userId);
+        existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+        existingOwner.update(owner);
+        updateInDBFor(existingOwner);
+
+        return OwnerConverter.INSTANCE.toOwnerUpdateResponse(existingOwner);
+    }
+
+    private void updateInDBFor(Owner owner) {
+        adminUserMapper.updateOwner(owner);
+        adminUserMapper.updateUser(owner);
+    }
+
+    private void isValidateRequest(Owner owner, Owner existingOwner, Integer userId) {
+        if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
+            validateGender(owner);
+        }
+        if (owner.getEmail() != null && !owner.getEmail().equals(existingOwner.getEmail())) {
+            validateEmailUniqueness(owner, userId);
+        }
+        if (owner.getNickname() != null && !owner.getNickname().equals(existingOwner.getNickname())) {
+            validateNicknameUniqueness(owner, userId);
+        }
+        if (owner.getCompany_registration_number() != null && !owner.getCompany_registration_number().equals(existingOwner.getCompany_registration_number())) {
+            validateCompanyRegistrationNumberUniqueness(owner, userId);
+        }
+    }
+
+    private void validateEmailUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getEmail())
+                .filter(email -> adminUserMapper.isEmailAlreadyUsed(email, userId) > 0)
+                .ifPresent(email -> {
+                    throw new BaseException(EMAIL_DUPLICATED);
+                });
+    }
+
+    private void validateNicknameUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getNickname())
+                .filter(nickname -> adminUserMapper.isNickNameAlreadyUsed(nickname, userId) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(Owner owner, Integer userId) {
+        Optional.ofNullable(owner.getCompany_registration_number())
+                .filter(registrationNumber -> adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(registrationNumber, userId) > 0)
+                .ifPresent(registrationNumber -> {
+                    throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
+                });
+    }
+
+    private void validateGender(Owner owner) {
+        Optional.ofNullable(owner.getGender())
+                .filter(gender -> !(gender == 0 || gender == 1))
+                .ifPresent(gender -> {
+                    throw new BaseException(GENDER_INVALID);
+                });
     }
 
     @Override

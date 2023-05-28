@@ -261,8 +261,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return (Student) validatedUser;
     }
 
-    // TODO owner 정보 업데이트
-    // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
+    // 기획되지 않은 기능이라 사용하지 않음.
     @Override
     @Deprecated
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
