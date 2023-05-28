@@ -70,4 +70,20 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             + "- not null"
             ,required = true)
     private String shopName;
+
+    public boolean hasRegistrationInformation() {
+        return hasCompanyNumber() && hasAttachmentUrls();
+    }
+
+    public boolean isSufficientRegisterRequest() {
+        return !(hasCompanyNumber() ^ hasAttachmentUrls());
+    }
+
+    private boolean hasCompanyNumber() {
+        return this.companyNumber != null;
+    }
+
+    private boolean hasAttachmentUrls() {
+        return this.attachmentUrls != null && this.attachmentUrls.isEmpty();
+    }
 }
