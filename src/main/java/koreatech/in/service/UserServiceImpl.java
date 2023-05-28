@@ -288,11 +288,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User selectUser = userMapper.getUserByNickname(owner.getNickname());
 
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
-                Optional.ofNullable(owner.getNickname())
-                        .filter(nickname -> userMapper.getNicknameUsedCount(nickname, owner.getUser_id()) > 0)
-                        .ifPresent(nickname -> {
-                            throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
-                        });
+                throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
         }
 
