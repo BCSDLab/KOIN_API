@@ -10,6 +10,7 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
+import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
@@ -72,7 +73,7 @@ public interface OwnerConverter {
             @Mapping(source = "name", target = "name"),
             @Mapping(source = "phoneNumber", target = "phone_number"),
     })
-    Owner toRestrictedOwner(OwnerRegisterRequest ownerRegisterRequest);
+    OwnerPartition toOwnerPartition(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
     default List<OwnerAttachment> convertAttachments(List<AttachmentUrlRequest> attachmentUrls) {
@@ -141,8 +142,8 @@ public interface OwnerConverter {
     VerifyCodeResponse toVerifyCodeResponse(String temporaryAccessToken);
 
     default Owner toNewOwner(OwnerRegisterRequest ownerRegisterRequest) {
-        if (!Owner.hasRegistrationInformation(ownerRegisterRequest)) {
-            return toRestrictedOwner(ownerRegisterRequest);
+        if (!ownerRegisterRequest.hasRegistrationInformation()) {
+            return toOwnerPartition(ownerRegisterRequest);
         }
         return toOwner(ownerRegisterRequest);
     }
