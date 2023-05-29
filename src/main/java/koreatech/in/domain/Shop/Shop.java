@@ -80,7 +80,7 @@ public class Shop {
         this.chosung = this.internal_name.substring(0, 1);
     }
 
-    public void informationUpdate() {
+    public void nameUpdate() {
         this.internal_name = this.name.replace(" ", "").toLowerCase();
         this.chosung = this.internal_name.substring(0, 1);
     }
