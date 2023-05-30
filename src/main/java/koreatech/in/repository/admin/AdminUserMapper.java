@@ -1,7 +1,9 @@
 package koreatech.in.repository.admin;
 
+import koreatech.in.domain.Criteria.UserCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +23,6 @@ public interface AdminUserMapper {
     List<Integer> getShopsIdByOwnerId(Integer id);
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
     void updateOwnerGrantShopByOwnerId(Integer ownerId);
+    Integer getTotalCountOfStudentsByCondition(@Param("userCriteria") UserCriteria userCriteria);
+    List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("userCriteria") UserCriteria userCriteria);
 }
