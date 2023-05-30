@@ -299,12 +299,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         Student selectUser = (Student) user;
         Student student = StudentConverter.INSTANCE.toStudent(studentUpdateRequest);
+        student.setId(id);
 
         student.setIdentity(selectUser.getIdentity());//identity 수정 막음.
         student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
         student.setIs_authed(selectUser.getIs_authed());
 
-        validateRequest(student, selectUser, id);
+        validateRequest(student, selectUser);
 
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -317,12 +318,12 @@ public class AdminUserServiceImpl implements AdminUserService {
         return StudentConverter.INSTANCE.toStudentUpdateResponse(selectUser);
     }
 
-    private void validateRequest(Student student, Student selectUser, int id) {
+    private void validateRequest(Student student, Student selectUser) {
         if (student.getGender() != null && !student.getGender().equals(selectUser.getGender())) {
             validateGender(student);
         }
         if (student.getNickname() != null && !student.getNickname().equals(selectUser.getNickname())) {
-            validateNicknameDuplication(student,id);
+            validateNicknameDuplication(student);
         }
         if (student.getStudent_number() != null && !student.getStudent_number().equals(selectUser.getStudent_number())) {
             validateStudentNumber(student);
@@ -338,9 +339,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
     }
 
-    private void validateNicknameDuplication(Student student, int id) {
+    private void validateNicknameDuplication(Student student) {
         Optional.ofNullable(student.getNickname())
-                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, id) > 0)
+                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
                 .ifPresent(nickname -> {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
@@ -529,8 +530,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         existingOwner.setId(userId);
         existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+        owner.setUser_id(userId);
 
-        validateRequest(owner, existingOwner,userId);
+        validateRequest(owner, existingOwner);
         existingOwner.update(owner);
         updateInDBFor(existingOwner);
 
@@ -542,40 +544,40 @@ public class AdminUserServiceImpl implements AdminUserService {
         adminUserMapper.updateUser(owner);
     }
 
-    private void validateRequest(Owner owner, Owner existingOwner, Integer userId) {
+    private void validateRequest(Owner owner, Owner existingOwner) {
         if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
             validateGender(owner);
         }
         if (owner.getEmail() != null && !owner.getEmail().equals(existingOwner.getEmail())) {
-            validateEmailUniqueness(owner,userId);
+            validateEmailUniqueness(owner);
         }
         if (owner.getNickname() != null && !owner.getNickname().equals(existingOwner.getNickname())) {
-            validateNicknameUniqueness(owner,userId);
+            validateNicknameUniqueness(owner);
         }
         if (owner.getCompany_registration_number() != null && !owner.getCompany_registration_number().equals(existingOwner.getCompany_registration_number())) {
-            validateCompanyRegistrationNumberUniqueness(owner,userId);
+            validateCompanyRegistrationNumberUniqueness(owner);
         }
     }
 
-    private void validateEmailUniqueness(Owner owner, Integer userId) {
+    private void validateEmailUniqueness(Owner owner) {
         Optional.ofNullable(owner.getEmail())
-                .filter(email -> adminUserMapper.getEmailUsedCount(email, userId) > 0)
+                .filter(email -> adminUserMapper.getEmailUsedCount(email, owner.getUser_id()) > 0)
                 .ifPresent(email -> {
                     throw new BaseException(EMAIL_DUPLICATED);
                 });
     }
 
-    private void validateNicknameUniqueness(Owner owner,Integer userId) {
+    private void validateNicknameUniqueness(Owner owner) {
         Optional.ofNullable(owner.getNickname())
-                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, userId) > 0)
+                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, owner.getUser_id()) > 0)
                 .ifPresent(nickname -> {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
     }
 
-    private void validateCompanyRegistrationNumberUniqueness(Owner owner,Integer userId) {
+    private void validateCompanyRegistrationNumberUniqueness(Owner owner) {
         Optional.ofNullable(owner.getCompany_registration_number())
-                .filter(registrationNumber -> adminUserMapper.getCompanyRegistrationNumberUsedCount(registrationNumber, userId) > 0)
+                .filter(registrationNumber -> adminUserMapper.getCompanyRegistrationNumberUsedCount(registrationNumber, owner.getUser_id()) > 0)
                 .ifPresent(registrationNumber -> {
                     throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
                 });
