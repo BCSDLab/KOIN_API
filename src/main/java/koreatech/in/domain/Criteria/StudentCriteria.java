@@ -9,7 +9,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Setter
 public class StudentCriteria extends Criteria{
 
-    private Boolean isAuthed;
+    private Boolean is_authed;
 
     private String nickname;
 

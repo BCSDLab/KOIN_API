@@ -260,17 +260,15 @@
         FROM `koin`.`users`
         WHERE `user_type` = 'STUDENT'
 
-        <trim prefixOverrides="AND">
-            <if test="criteria.is_authed != null">
-                AND `is_authed` = #{criteria.is_authed}
-            </if>
-            <if test="criteria.nickname != null">
-                AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
-            </if>
-            <if test="criteria.email != null">
-                AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
-            </if>
-        </trim>
+        <if test="criteria.is_authed != null">
+            AND `is_authed` = #{criteria.is_authed}
+        </if>
+        <if test="criteria.nickname != null">
+            AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+        </if>
+        <if test="criteria.email != null">
+            AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+        </if>
     </select>
 
     <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerResultMap">
@@ -357,17 +355,15 @@
                  FROM `koin`.`users`
                  WHERE `user_type` = 'STUDENT'
 
-                 <trim prefixOverrides="AND">
-                     <if test="criteria.is_authed != null">
-                         AND `is_authed` = #{criteria.is_authed}
-                     </if>
-                     <if test="criteria.nickname != null">
-                         AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
-                     </if>
-                     <if test="criteria.email != null">
-                         AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
-                     </if>
-                 </trim>
+                <if test="criteria.is_authed != null">
+                    AND `is_authed` = #{criteria.is_authed}
+                </if>
+                <if test="criteria.nickname != null">
+                    AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+                </if>
+                <if test="criteria.email != null">
+                    AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+                </if>
 
             LIMIT #{begin}, #{criteria.limit}
         ) `t1`
