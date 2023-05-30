@@ -16,6 +16,7 @@ import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 
 public interface AdminUserService {
     LoginResponse login(LoginRequest request) throws Exception;
@@ -24,7 +25,7 @@ public interface AdminUserService {
 
 //    Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
 
-    List<User> getUserListForAdmin(UserCriteria userCriteria) throws Exception;
+    StudentsResponse getStudents(UserCriteria userCriteria) throws Exception;
 
     User getUserForAdmin(int id) throws Exception;
 

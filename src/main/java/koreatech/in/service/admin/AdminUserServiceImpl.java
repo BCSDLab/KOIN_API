@@ -48,6 +48,7 @@ import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
@@ -186,8 +187,17 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getUserListForAdmin(UserCriteria userCriteria) throws Exception {
-        return userMapper.getUserListForAdmin(userCriteria.getCursor(), userCriteria.getLimit(), userCriteria.getUserType().name());
+    public StudentsResponse getStudents(UserCriteria userCriteria) throws Exception {
+        Integer totalCount = adminUserMapper.getTotalCountOfStudentsByCondition(userCriteria);
+        Integer totalPage = userCriteria.extractTotalPage(totalCount);
+        Integer currentPage = userCriteria.getPage();
+
+        if (currentPage > totalPage) {
+            throw new BaseException(PAGE_NOT_FOUND);
+        }
+
+        List<Student> students = adminUserMapper.getStudentsByCondition(userCriteria.getCursor(), userCriteria);
+        return StudentsResponse.of(totalCount, totalPage, currentPage, students);
     }
 
     @Override

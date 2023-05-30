@@ -10,8 +10,6 @@ import springfox.documentation.annotations.ApiIgnore;
 @Setter
 public class UserCriteria extends Criteria{
 
-    private UserType userType;
-
     private Boolean isAuthed;
 
     private String nickname;
