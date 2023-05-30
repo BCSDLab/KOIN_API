@@ -33,6 +33,7 @@ import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 import koreatech.in.dto.normal.user.request.UpdateUserRequest;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
@@ -157,9 +158,9 @@ public class AdminUserController {
     }
 
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/students", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<List<User>> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
+    ResponseEntity<StudentsResponse> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
         return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
     }
 
