@@ -12,27 +12,23 @@ import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
 import java.sql.SQLException;
 
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.ErrorMessage;
-import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
@@ -187,16 +183,16 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public StudentsResponse getStudents(UserCriteria userCriteria) throws Exception {
-        Integer totalCount = adminUserMapper.getTotalCountOfStudentsByCondition(userCriteria);
-        Integer totalPage = userCriteria.extractTotalPage(totalCount);
-        Integer currentPage = userCriteria.getPage();
+    public StudentsResponse getStudents(StudentCriteria criteria) throws Exception {
+        Integer totalCount = adminUserMapper.getTotalCountOfStudentsByCondition(criteria);
+        Integer totalPage = criteria.extractTotalPage(totalCount);
+        Integer currentPage = criteria.getPage();
 
         if (currentPage > totalPage) {
             throw new BaseException(PAGE_NOT_FOUND);
         }
 
-        List<Student> students = adminUserMapper.getStudentsByCondition(userCriteria.getCursor(), userCriteria);
+        List<Student> students = adminUserMapper.getStudentsByCondition(criteria.getCursor(), criteria);
         return StudentsResponse.of(totalCount, totalPage, currentPage, students);
     }
 

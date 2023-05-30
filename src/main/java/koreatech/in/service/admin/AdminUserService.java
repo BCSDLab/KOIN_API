@@ -1,9 +1,8 @@
 package koreatech.in.service.admin;
 
-import java.util.List;
 import java.util.Map;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
@@ -25,7 +24,7 @@ public interface AdminUserService {
 
 //    Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
 
-    StudentsResponse getStudents(UserCriteria userCriteria) throws Exception;
+    StudentsResponse getStudents(StudentCriteria criteria) throws Exception;
 
     User getUserForAdmin(int id) throws Exception;
 

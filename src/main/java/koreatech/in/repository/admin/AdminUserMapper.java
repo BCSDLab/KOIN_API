@@ -1,6 +1,6 @@
 package koreatech.in.repository.admin;
 
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
@@ -23,6 +23,6 @@ public interface AdminUserMapper {
     List<Integer> getShopsIdByOwnerId(Integer id);
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
     void updateOwnerGrantShopByOwnerId(Integer ownerId);
-    Integer getTotalCountOfStudentsByCondition(@Param("userCriteria") UserCriteria userCriteria);
-    List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("userCriteria") UserCriteria userCriteria);
+    Integer getTotalCountOfStudentsByCondition(@Param("criteria") StudentCriteria criteria);
+    List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("criteria") StudentCriteria criteria);
 }

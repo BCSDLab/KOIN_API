@@ -35,8 +35,8 @@ public class StudentsResponse {
         @ApiModelProperty(notes = "이메일")
         private String email;
 
-        @ApiModelProperty(notes = "익명 닉네임")
-        private String anonymous_nickname;
+        @ApiModelProperty(notes = "닉네임")
+        private String nickname;
 
         @ApiModelProperty(notes = "이름")
         private String name;

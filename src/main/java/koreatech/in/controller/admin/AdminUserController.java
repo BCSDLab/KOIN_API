@@ -16,7 +16,7 @@ import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
@@ -158,7 +158,7 @@ public class AdminUserController {
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/students", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<StudentsResponse> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
+    ResponseEntity<StudentsResponse> getUserList(@ModelAttribute("criteria") StudentCriteria criteria) throws Exception {
         return new ResponseEntity<>(adminUserService.getStudents(criteria), HttpStatus.OK);
     }
 

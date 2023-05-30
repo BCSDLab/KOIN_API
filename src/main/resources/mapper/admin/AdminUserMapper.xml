@@ -255,20 +255,20 @@
         </trim>
     </select>
 
-    <select id="getTotalCountOfStudentsByCondition" parameterType="koreatech.in.domain.Criteria.UserCriteria" resultType="integer">
+    <select id="getTotalCountOfStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`users`
         WHERE `user_type` = 'STUDENT'
 
         <trim prefixOverrides="AND">
-            <if test="userCriteria.is_authed != null">
-                AND `is_authed` = #{userCriteria.is_authed}
+            <if test="criteria.is_authed != null">
+                AND `is_authed` = #{criteria.is_authed}
             </if>
-            <if test="userCriteria.nickname != null">
-                AND `nickname` LIKE CONCAT('%', REPLACE(#{userCriteria.nickname}, ' ', ''), '%')
+            <if test="criteria.nickname != null">
+                AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
             </if>
-            <if test="userCriteria.email != null">
-                AND `email` LIKE CONCAT('%', REPLACE(#{userCriteria.email}, ' ', ''), '%')
+            <if test="criteria.email != null">
+                AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
             </if>
         </trim>
     </select>
@@ -343,7 +343,7 @@
             ON `t1`.`id` = `t2`.`user_id`
     </select>
 
-    <select id="getStudentsByCondition" parameterType="koreatech.in.domain.Criteria.UserCriteria" resultMap="StudentResultMap">
+    <select id="getStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultMap="StudentResultMap">
         SELECT
             `t1`.`id` AS `users.id`,
             `t1`.`email` AS `users.email`,
@@ -358,18 +358,18 @@
                  WHERE `user_type` = 'STUDENT'
 
                  <trim prefixOverrides="AND">
-                     <if test="userCriteria.is_authed != null">
-                         AND `is_authed` = #{userCriteria.is_authed}
+                     <if test="criteria.is_authed != null">
+                         AND `is_authed` = #{criteria.is_authed}
                      </if>
-                     <if test="userCriteria.nickname != null">
-                         AND `nickname` LIKE CONCAT('%', REPLACE(#{userCriteria.nickname}, ' ', ''), '%')
+                     <if test="criteria.nickname != null">
+                         AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
                      </if>
-                     <if test="userCriteria.email != null">
-                         AND `email` LIKE CONCAT('%', REPLACE(#{userCriteria.email}, ' ', ''), '%')
+                     <if test="criteria.email != null">
+                         AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
                      </if>
                  </trim>
 
-            LIMIT #{begin}, #{condition.limit}
+            LIMIT #{begin}, #{criteria.limit}
         ) `t1`
 
             LEFT JOIN `koin`.`students` `t2`
