@@ -131,21 +131,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return refreshToken;
         }
 
-        return createAndSetRefreshToken(userId);
+        return generateRefreshToken(userId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
         return redisAuthenticationMapper.getRefreshToken(userId);
     }
 
-    private String createAndSetRefreshToken(Integer userId) {
-        String newRefreshToken = generateRefreshToken(userId);
+    private String generateRefreshToken(Integer userId) {
+        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
         setRefreshTokenToRedis(newRefreshToken, userId);
         return newRefreshToken;
-    }
-
-    private String generateRefreshToken(Integer userId) {
-        return userRefreshJwtGenerator.generateToken(userId);
     }
 
     private void checkAuthenticationStatus(User user) {
