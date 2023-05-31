@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
@@ -581,8 +582,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
-        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
-        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+        RefreshResult refreshResult = makeRefreshResult(tokenUserId);
+
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
+    }
+
+    private RefreshResult makeRefreshResult(Integer userId) {
+        return RefreshResult.builder()
+                .accessToken(generateAccessToken(userId))
+                .refreshToken(generateRefreshToken(userId))
+                .build();
     }
 
     private void validateAdmin(Integer tokenUserId) {
