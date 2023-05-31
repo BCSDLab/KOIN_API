@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
@@ -24,8 +24,8 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.normal.auth.TokenRefreshResponse;
 import koreatech.in.dto.normal.auth.TokenRefreshRequest;
+import koreatech.in.dto.normal.auth.TokenRefreshResponse;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         LoginResult loginResult = LoginResult
                 .builder()
                 .accessToken(generateAccessToken(user.getId()))
-                .refreshToken(getOrCreateRefreshToken(user.getId()))
+                .refreshToken(getRefreshToken(user.getId()))
                 .userType(user.getUser_type().name())
                 .build();
 
@@ -125,27 +125,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userAccessJwtGenerator.generateToken(userId);
     }
 
-    private String getOrCreateRefreshToken(Integer userId) throws IOException {
-        String refreshToken = getRefreshToken(userId);
-        if (!isDBTokenExpired(refreshToken)) {
-            return refreshToken;
+    private String getRefreshToken(Integer userId) throws IOException {
+        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        if (isExpired(refreshToken)) {
+            return generateRefreshToken(userId);
         }
 
-        return createAndSetRefreshToken(userId);
-    }
-
-    private String getRefreshToken(Integer userId) throws IOException {
-        return redisAuthenticationMapper.getRefreshToken(userId);
-    }
-
-    private String createAndSetRefreshToken(Integer userId) {
-        String newRefreshToken = generateRefreshToken(userId);
-        setRefreshTokenToRedis(newRefreshToken, userId);
-        return newRefreshToken;
+        return refreshToken;
     }
 
     private String generateRefreshToken(Integer userId) {
-        return userRefreshJwtGenerator.generateToken(userId);
+        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+
+        return newRefreshToken;
     }
 
     private void checkAuthenticationStatus(User user) {
@@ -160,12 +153,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private boolean isDBTokenExpired(String refreshToken) {
+    private boolean isExpired(String refreshToken) {
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
-    }
-
-    private void setRefreshTokenToRedis(String accessToken, Integer userId) {
-        redisAuthenticationMapper.setRefreshToken(accessToken, userId);
     }
 
     @Override
@@ -397,8 +386,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
 
-        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
-        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+        RefreshResult refreshResult = makeRefreshResult(tokenUserId);
+
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
+    }
+
+    private RefreshResult makeRefreshResult(Integer userId) {
+        return RefreshResult.builder()
+                .accessToken(generateAccessToken(userId))
+                .refreshToken(generateRefreshToken(userId))
+                .build();
     }
 
     private User getUserByEmail(String email) {

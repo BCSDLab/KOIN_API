@@ -2,6 +2,8 @@ package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
 import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
+import static koreatech.in.exception.ExceptionInformation.COMPANY_REGISTRATION_NUMBER_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.EMAIL_DUPLICATED;
 import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
 import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
@@ -15,18 +17,15 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-
-import java.sql.SQLException;
-
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import io.swagger.models.auth.In;
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.UserCriteria;
@@ -68,9 +67,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -122,7 +118,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         LoginResult loginResult = LoginResult
                 .builder()
                 .accessToken(generateAccessToken(user.getId()))
-                .refreshToken(getOrCreateRefreshToken(user.getId()))
+                .refreshToken(getRefreshToken(user.getId()))
                 .build();
 
         return AuthConverter.INSTANCE.toLoginResponse(loginResult);
@@ -132,36 +128,24 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userAccessJwtGenerator.generateToken(adminId);
     }
 
-    private String getOrCreateRefreshToken(Integer userId) throws IOException {
-        String refreshToken = getRefreshToken(userId);
-        if (!isDBTokenExpired(refreshToken)) {
-            return refreshToken;
-        }
-
-        return createAndSetRefreshToken(userId);
-    }
-
     private String getRefreshToken(Integer userId) throws IOException {
         String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        if (isExpired(refreshToken)) {
+            return generateRefreshToken(userId);
+        }
+
         return refreshToken;
     }
 
-    private String createAndSetRefreshToken(Integer userId) {
-        String newRefreshToken = generateRefreshToken(userId);
-        setRefreshTokenToRedis(newRefreshToken, userId);
+    private String generateRefreshToken(Integer userId) {
+        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+
         return newRefreshToken;
     }
 
-    private String generateRefreshToken(Integer userId) {
-        return userRefreshJwtGenerator.generateToken(userId);
-    }
-
-    private boolean isDBTokenExpired(String refreshToken) {
+    private boolean isExpired(String refreshToken) {
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
-    }
-
-    private void setRefreshTokenToRedis(String accessToken, Integer userId) {
-        redisAuthenticationMapper.setRefreshToken(accessToken, userId);
     }
 
     @Override
@@ -598,8 +582,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
-        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
-        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+        RefreshResult refreshResult = makeRefreshResult(tokenUserId);
+
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
+    }
+
+    private RefreshResult makeRefreshResult(Integer userId) {
+        return RefreshResult.builder()
+                .accessToken(generateAccessToken(userId))
+                .refreshToken(generateRefreshToken(userId))
+                .build();
     }
 
     private void validateAdmin(Integer tokenUserId) {
