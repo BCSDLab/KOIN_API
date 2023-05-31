@@ -155,7 +155,14 @@ public class AdminUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "학생 리스트 조회 (페이지네이션)", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)" , response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/admin/students", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<StudentsResponse> getUserList(@ModelAttribute("criteria") StudentCriteria criteria) throws Exception {
