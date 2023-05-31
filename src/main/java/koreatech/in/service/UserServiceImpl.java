@@ -136,7 +136,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private String generateRefreshToken(Integer userId) {
         String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
-        setRefreshTokenToRedis(newRefreshToken, userId);
+        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+
         return newRefreshToken;
     }
 
@@ -154,10 +155,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private boolean isExpired(String refreshToken) {
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
-    }
-
-    private void setRefreshTokenToRedis(String accessToken, Integer userId) {
-        redisAuthenticationMapper.setRefreshToken(accessToken, userId);
     }
 
     @Override
