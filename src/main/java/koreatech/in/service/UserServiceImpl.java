@@ -386,11 +386,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
 
-        RefreshResult refreshResult = RefreshResult.builder()
-                .accessToken(generateAccessToken(tokenUserId))
-                .refreshToken(generateRefreshToken(tokenUserId))
-                .build();
+        RefreshResult refreshResult = makeRefreshResult(tokenUserId);
+
         return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
+    }
+
+    private RefreshResult makeRefreshResult(Integer userId) {
+        return RefreshResult.builder()
+                .accessToken(generateAccessToken(userId))
+                .refreshToken(generateRefreshToken(userId))
+                .build();
     }
 
     private User getUserByEmail(String email) {
