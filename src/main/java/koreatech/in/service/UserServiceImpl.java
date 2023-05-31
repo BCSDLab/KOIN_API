@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.ErrorMessage;
@@ -201,7 +202,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void encodePasswordFor(Student student) {
-        if(student.getPassword() == null) {
+        if (student.getPassword() == null) {
             return;
         }
 
@@ -213,7 +214,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Integer userId = jwtValidator.validate().getId();
         Student student = studentMapper.getStudentById(userId);
 
-        if(student == null){
+        if (student == null) {
             throw new BaseException(USER_NOT_FOUND);
         }
 
@@ -225,7 +226,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Student student = UserConverter.INSTANCE.toStudent(studentUpdateRequest);
         Student studentInToken = getStudentInToken();
 
-        validateInUpdate(student);
+        validateInUpdate(student, studentInToken);
         enrichInUpdateFor(student);
 
         studentInToken.update(student);
@@ -244,17 +245,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         studentMapper.updateStudent(studentInToken);
     }
 
-    private void validateInUpdate(Student student) {
-        validateNicknameUniqueness(student);
-
-        validateStudentNumber(student);
-        validateMajor(student);
+    private void validateInUpdate(Student student, Student studentInToken) {
+        if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
+            validateNicknameUniqueness(student,studentInToken.getId());
+        }
+        if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
+            validateStudentNumber(student);
+        }
+        if (student.getMajor() != null && !student.getMajor().equals(studentInToken.getMajor())) {
+            validateMajor(student);
+        }
     }
 
     private Student getStudentInToken() {
         User validatedUser = jwtValidator.validate();
 
-        if(!(validatedUser instanceof Student)) {
+        if (!(validatedUser instanceof Student)) {
             throw new BaseException(ExceptionInformation.BAD_ACCESS);
         }
 
@@ -280,6 +286,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         // 닉네임 중복 체크
         if (owner.getNickname() != null) {
             User selectUser = userMapper.getUserByNickname(owner.getNickname());
+
             if (selectUser != null && !user_old.getId().equals(selectUser.getId())) {
                 throw new ConflictException(new ErrorMessage("nickname duplicate", 1));
             }
@@ -341,7 +348,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         AuthResult authResult = AuthResult.from(user);
 
-        if(authResult.isSuccess()) {
+        if (authResult.isSuccess()) {
             user.enrichForAuthed();
             userMapper.updateUser(user);
 
@@ -379,7 +386,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void checkExists(CheckExistsEmailRequest checkExistsEmailRequest) {
         EmailAddress emailAddress = UserConverter.INSTANCE.toEmailAddress(checkExistsEmailRequest);
 
-        if(userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
+        if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
     }
@@ -399,7 +406,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
-    private void validateInRegister(Student student){
+    private void validateInRegister(Student student) {
         EmailAddress studentEmail = EmailAddress.from(student.getEmail());
         studentEmail.validatePortalEmail();
 
@@ -414,21 +421,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateNicknameUniqueness(Student student) {
-        if(student.getNickname() == null) {
-            return;
-        }
-
-        if (isExistOtherUser(student, userMapper.getUserByNickname(student.getNickname()))) {
-            throw new BaseException(NICKNAME_DUPLICATE);
-        }
+        Optional.ofNullable(student.getNickname())
+                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
     }
-
-    private static boolean isExistOtherUser(User registerUser, User selectUser) {
-        return selectUser != null && !registerUser.equals(selectUser);
+    private void validateNicknameUniqueness(Student student,Integer userId) {
+        Optional.ofNullable(student.getNickname())
+                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
     }
 
     private void validateMajor(Student student) {
-        if(student.getMajor() == null) {
+        if (student.getMajor() == null) {
             return;
         }
         if (!student.isMajorValidated()) {
@@ -437,7 +445,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateStudentNumber(Student student) {
-        if(student.getStudent_number() == null) {
+        if (student.getStudent_number() == null) {
             return;
         }
         if (!student.isStudentNumberValidated()) {
@@ -445,7 +453,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, EmailAddress emailAddress){
+    private void sendAuthTokenByEmailForAuthenticate(String authToken, String contextPath, EmailAddress emailAddress) {
         emailAddress.validateSendable();
 
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
@@ -467,7 +475,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return model;
     }
 
-    private void createInDBFor(Student student){
+    private void createInDBFor(Student student) {
         try {
             userMapper.insertUser(student);
             studentMapper.insertStudent(student);

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.swagger.models.auth.In;
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
@@ -220,7 +221,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (user.isAuthenticated()) {
             throw new BaseException(AUTHENTICATED_USER);
         }
-        if(shopId != null) {
+        if (shopId != null) {
             updateShopOwnerId(ownerId, shopId);
         }
         adminUserMapper.updateOwnerAuthorById(ownerId);
@@ -298,12 +299,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         Student selectUser = (Student) user;
         Student student = StudentConverter.INSTANCE.toStudent(studentUpdateRequest);
+        student.setId(id);
 
         student.setIdentity(selectUser.getIdentity());//identity 수정 막음.
         student.setIs_graduated(selectUser.getIs_graduated());//is_graduated 수정 막음.
         student.setIs_authed(selectUser.getIs_authed());
 
-        isValidRequest(student);
+        validateRequest(student, selectUser);
 
         if (student.getPassword() != null) {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
@@ -316,36 +318,43 @@ public class AdminUserServiceImpl implements AdminUserService {
         return StudentConverter.INSTANCE.toStudentUpdateResponse(selectUser);
     }
 
-    private void isValidRequest(Student student) {
-        isValidGender(student.getGender());
-        isDuplicateNickname(student.getNickname());
-        isValidStudentNumber(student.getStudent_number());
-        isValidMajor(student.getMajor());
+    private void validateRequest(Student student, Student selectUser) {
+        if (student.getGender() != null && !student.getGender().equals(selectUser.getGender())) {
+            validateGender(student);
+        }
+        if (student.getNickname() != null && !student.getNickname().equals(selectUser.getNickname())) {
+            validateNicknameDuplication(student);
+        }
+        if (student.getStudent_number() != null && !student.getStudent_number().equals(selectUser.getStudent_number())) {
+            validateStudentNumber(student);
+        }
+        if (student.getMajor() != null && !student.getMajor().equals(selectUser.getMajor())) {
+            validateMajor(student);
+        }
     }
 
-    private void isValidGender(Integer gender) {
-        if (gender != null && !(gender == 0 || gender == 1)) {
+    private void validateGender(Student student) {
+        if (student.getGender() != null && !(student.getGender() == 0 || student.getGender() == 1)) {
             throw new BaseException(GENDER_INVALID);
         }
     }
 
-    private void isDuplicateNickname(String nickname) {
-        if (nickname != null) {
-            Optional.ofNullable(userMapper.getUserByNickname(nickname))
-                    .ifPresent(existUser -> {
-                        throw new BaseException(NICKNAME_DUPLICATE);
-                    });
-        }
+    private void validateNicknameDuplication(Student student) {
+        Optional.ofNullable(student.getNickname())
+                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
+                .ifPresent(nickname -> {
+                    throw new BaseException(NICKNAME_DUPLICATE);
+                });
     }
 
-    private void isValidStudentNumber(String studentNumber) {
-        if (studentNumber != null && !UserCode.isValidatedStudentNumber(0, studentNumber)) {//현재 identity를 사용하지 않기 때문에 기존 코드를 위해 재학생 코드인 0으로 할당.
+    private void validateStudentNumber(Student student) {
+        if (student.getStudent_number() != null && !UserCode.isValidatedStudentNumber(0, student.getStudent_number())) {//현재 identity를 사용하지 않기 때문에 기존 코드를 위해 재학생 코드인 0으로 할당.
             throw new BaseException(STUDENT_NUMBER_INVALID);
         }
     }
 
-    private void isValidMajor(String major) {
-        if (major != null && !UserCode.isValidatedDeptNumber(major)) {
+    private void validateMajor(Student student) {
+        if (student.getMajor() != null && !UserCode.isValidatedDeptNumber(student.getMajor())) {
             throw new BaseException(STUDENT_MAJOR_INVALID);
         }
     }
@@ -494,12 +503,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional(readOnly = true)
     public OwnerResponse getOwner(int ownerId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId))
-            .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         if (!user.isOwner()) {
             throw new BaseException(NOT_OWNER);
         }
-        Owner owner = (Owner)user;
+        Owner owner = (Owner) user;
 
         List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
         List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
@@ -519,11 +528,11 @@ public class AdminUserServiceImpl implements AdminUserService {
         Owner existingOwner = (Owner) user;
         Owner owner = OwnerConverter.INSTANCE.toOwner(request);
 
-        isValidateRequest(owner, existingOwner, userId);
-
-
         existingOwner.setId(userId);
         existingOwner.setUser_id(userId);//id의 값이 null이므로 user_id로 값을 변경해줌.
+        owner.setUser_id(userId);
+
+        validateRequest(owner, existingOwner);
         existingOwner.update(owner);
         updateInDBFor(existingOwner);
 
@@ -535,40 +544,40 @@ public class AdminUserServiceImpl implements AdminUserService {
         adminUserMapper.updateUser(owner);
     }
 
-    private void isValidateRequest(Owner owner, Owner existingOwner, Integer userId) {
+    private void validateRequest(Owner owner, Owner existingOwner) {
         if (owner.getGender() != null && !owner.getGender().equals(existingOwner.getGender())) {
             validateGender(owner);
         }
         if (owner.getEmail() != null && !owner.getEmail().equals(existingOwner.getEmail())) {
-            validateEmailUniqueness(owner, userId);
+            validateEmailUniqueness(owner);
         }
         if (owner.getNickname() != null && !owner.getNickname().equals(existingOwner.getNickname())) {
-            validateNicknameUniqueness(owner, userId);
+            validateNicknameUniqueness(owner);
         }
         if (owner.getCompany_registration_number() != null && !owner.getCompany_registration_number().equals(existingOwner.getCompany_registration_number())) {
-            validateCompanyRegistrationNumberUniqueness(owner, userId);
+            validateCompanyRegistrationNumberUniqueness(owner);
         }
     }
 
-    private void validateEmailUniqueness(Owner owner, Integer userId) {
+    private void validateEmailUniqueness(Owner owner) {
         Optional.ofNullable(owner.getEmail())
-                .filter(email -> adminUserMapper.isEmailAlreadyUsed(email, userId) > 0)
+                .filter(email -> adminUserMapper.getEmailUsedCount(email, owner.getUser_id()) > 0)
                 .ifPresent(email -> {
                     throw new BaseException(EMAIL_DUPLICATED);
                 });
     }
 
-    private void validateNicknameUniqueness(Owner owner, Integer userId) {
+    private void validateNicknameUniqueness(Owner owner) {
         Optional.ofNullable(owner.getNickname())
-                .filter(nickname -> adminUserMapper.isNickNameAlreadyUsed(nickname, userId) > 0)
+                .filter(nickname -> adminUserMapper.getNicknameUsedCount(nickname, owner.getUser_id()) > 0)
                 .ifPresent(nickname -> {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
     }
 
-    private void validateCompanyRegistrationNumberUniqueness(Owner owner, Integer userId) {
+    private void validateCompanyRegistrationNumberUniqueness(Owner owner) {
         Optional.ofNullable(owner.getCompany_registration_number())
-                .filter(registrationNumber -> adminUserMapper.isCompanyRegistrationNumberAlreadyUsed(registrationNumber, userId) > 0)
+                .filter(registrationNumber -> adminUserMapper.getCompanyRegistrationNumberUsedCount(registrationNumber, owner.getUser_id()) > 0)
                 .ifPresent(registrationNumber -> {
                     throw new BaseException(COMPANY_REGISTRATION_NUMBER_DUPLICATE);
                 });
@@ -601,4 +610,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     private void deleteRefreshTokenInDB(Integer userId) {
         redisAuthenticationMapper.deleteRefreshToken(userId);
     }
+
+
 }
