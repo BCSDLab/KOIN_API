@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         LoginResult loginResult = LoginResult
                 .builder()
                 .accessToken(generateAccessToken(user.getId()))
-                .refreshToken(getOrCreateRefreshToken(user.getId()))
+                .refreshToken(getRefreshToken(user.getId()))
                 .userType(user.getUser_type().name())
                 .build();
 
@@ -125,17 +125,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userAccessJwtGenerator.generateToken(userId);
     }
 
-    private String getOrCreateRefreshToken(Integer userId) throws IOException {
-        String refreshToken = getRefreshToken(userId);
-        if (!isDBTokenExpired(refreshToken)) {
-            return refreshToken;
+    private String getRefreshToken(Integer userId) throws IOException {
+        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        if (isExpired(refreshToken)) {
+            return generateRefreshToken(userId);
         }
 
-        return generateRefreshToken(userId);
-    }
-
-    private String getRefreshToken(Integer userId) throws IOException {
-        return redisAuthenticationMapper.getRefreshToken(userId);
+        return refreshToken;
     }
 
     private String generateRefreshToken(Integer userId) {
@@ -156,7 +152,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private boolean isDBTokenExpired(String refreshToken) {
+    private boolean isExpired(String refreshToken) {
         return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
     }
 
