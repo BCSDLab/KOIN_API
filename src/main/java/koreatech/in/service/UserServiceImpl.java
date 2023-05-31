@@ -261,8 +261,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return (Student) validatedUser;
     }
 
-    // TODO owner 정보 업데이트
-    // TODO 23.02.12. 박한수 개편 필요.. (사장님 관련 UPDATE는 아직 건드리지 않았음.)
+    // 기획되지 않은 기능이라 사용하지 않음.
     @Override
     @Deprecated
     public Map<String, Object> updateOwnerInformation(Owner owner) throws Exception {
@@ -388,21 +387,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
-        User userInHeader = jwtValidator.validate();
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
-        validateEqualUser(userInHeader, tokenUserId);
 
         String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
-
-
         return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
-    }
-
-    private void validateEqualUser(User userInHeader, Integer tokenUserId) {
-        if(!userInHeader.hasSameId(tokenUserId)) {
-            throw new BaseException(ExceptionInformation.BAD_ACCESS);
-        }
     }
 
     private User getUserByEmail(String email) {

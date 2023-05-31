@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface AdminUserMapper {
     User getUserById(@Param("id") Integer id);
+
     User getUndeletedUserByEmail(@Param("email") String email);
     void deleteUserLogicallyById(@Param("id") Integer id);
     void undeleteUserLogicallyById(@Param("id") Integer id);
@@ -22,6 +23,11 @@ public interface AdminUserMapper {
     Owner getFullOwnerById(@Param("id") Integer id);
     List<Integer> getShopsIdByOwnerId(Integer id);
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
+    void updateOwner(@Param("owner") Owner owner);
+    void updateUser(@Param("user") User user);
+    Integer isCompanyRegistrationNumberAlreadyUsed(@Param("company_registration_number") String company_registration_number,@Param("userId") Integer userId);
+    Integer isNickNameAlreadyUsed(@Param("nickname") String nickname, @Param("userId") Integer userId);
+    Integer isEmailAlreadyUsed(@Param("email") String email,@Param("userId") Integer userId);
     void updateOwnerGrantShopByOwnerId(Integer ownerId);
     Integer getTotalCountOfStudentsByCondition(@Param("criteria") StudentCriteria criteria);
     List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("criteria") StudentCriteria criteria);

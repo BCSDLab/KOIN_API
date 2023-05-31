@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
@@ -90,6 +91,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @AuthExcept
     @ApiOperation(
             value = "액세스 토큰 재발급"
             , notes = "- 사용자 권한 허용"
@@ -202,6 +204,8 @@ public class UserController {
         return new ResponseEntity<>(studentResponse, HttpStatus.CREATED);
     }
 
+    @ApiOff
+    @ApiIgnore
     @ParamValid
     @Auth(role = Auth.Role.OWNER)
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})

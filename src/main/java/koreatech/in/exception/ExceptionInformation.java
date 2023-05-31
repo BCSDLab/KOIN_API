@@ -37,6 +37,7 @@ public enum ExceptionInformation {
     NOT_OWNER("회원의 신원이 사장님이 아닙니다.", 101018, HttpStatus.CONFLICT),
     AUTHENTICATED_USER("인증된 회원입니다.", 101019, HttpStatus.CONFLICT),
     GENDER_INVALID("유효한 성별이 아닙니다.", 101020, HttpStatus.UNPROCESSABLE_ENTITY),
+    COMPANY_REGISTRATION_NUMBER_DUPLICATE("이미 존재하는 사업자 번호입니다.", 101021, HttpStatus.CONFLICT),
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
@@ -73,6 +74,7 @@ public enum ExceptionInformation {
     CERTIFICATION_CODE_EXPIRED("코드 인증 기한이 경과되었습니다.", 121001, HttpStatus.GONE),
     CERTIFICATION_CODE_INVALID("인증 코드가 일치하지 않습니다.", 121002, HttpStatus.UNPROCESSABLE_ENTITY),
     OWNER_ATTACHMENT_NOT_FOUND("존재하지 않는 첨부파일입니다.", 121003, HttpStatus.NOT_FOUND),
+    OWNER_NOT_FOUND("사장님이 존재하지 않습니다",121004,HttpStatus.NOT_FOUND),
 
     // ======= 파일 업로드 =======
     VERSION_TYPE_NOT_FOUND("존재하지 않는 버전의 타입입니다. 다시 시도해주세요.", 122000, HttpStatus.NOT_FOUND),
