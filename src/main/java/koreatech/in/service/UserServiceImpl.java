@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
@@ -24,8 +24,8 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserResponseType;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.student.Student;
-import koreatech.in.dto.normal.auth.TokenRefreshResponse;
 import koreatech.in.dto.normal.auth.TokenRefreshRequest;
+import koreatech.in.dto.normal.auth.TokenRefreshResponse;
 import koreatech.in.dto.normal.user.request.AuthTokenRequest;
 import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
 import koreatech.in.dto.normal.user.request.FindPasswordRequest;
@@ -393,8 +393,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
 
-        String newToken = userAccessJwtGenerator.generateToken(tokenUserId);
-        return AuthConverter.INSTANCE.toTokenRefreshResponse(newToken);
+        RefreshResult refreshResult = RefreshResult.builder()
+                .accessToken(generateAccessToken(tokenUserId))
+                .refreshToken(generateRefreshToken(tokenUserId))
+                .build();
+        return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
     }
 
     private User getUserByEmail(String email) {
@@ -485,9 +488,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         model.put("resetToken", resetToken);
         model.put(CONTEXT_PATH, contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION,
+                StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT,
+                text);
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
