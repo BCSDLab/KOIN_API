@@ -411,7 +411,7 @@
         WHERE `id` = #{user.id}
     </update>
 
-    <select id="isCompanyRegistrationNumberAlreadyUsed" resultType="Integer">
+    <select id="getCompanyRegistrationNumberUsedCount" resultType="Integer">
         select count(*)
         from koin.owners
         where company_registration_number = #{company_registration_number}
@@ -419,20 +419,18 @@
             LIMIT 1;
     </select>
 
-    <select id="isEmailAlreadyUsed" resultType="Integer">
+    <select id="getEmailUsedCount" resultType="Integer">
         select count(*)
         from koin.users
         where email = #{email}
-          AND is_deleted = 0
           AND id != #{userId}
             LIMIT 1;
     </select>
 
-    <select id="isNickNameAlreadyUsed" resultType="Integer">
+    <select id="getNicknameUsedCount" resultType="Integer">
         SELECT COUNT(*)
         FROM koin.users
         WHERE nickname = #{nickname}
-          AND is_deleted = 0
           AND id != #{userId}
             LIMIT 1;
     </select>
