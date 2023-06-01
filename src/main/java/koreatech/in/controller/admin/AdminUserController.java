@@ -168,7 +168,7 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/students", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<StudentsResponse> getUserList(@ModelAttribute("criteria") StudentCriteria criteria) throws Exception {
+    ResponseEntity<StudentsResponse> getStudents(@ModelAttribute("criteria") StudentCriteria criteria) throws Exception {
         return new ResponseEntity<>(adminUserService.getStudents(criteria), HttpStatus.OK);
     }
 

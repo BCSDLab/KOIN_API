@@ -29,22 +29,22 @@ public class StudentsResponse {
     @Getter
     @Builder
     public static class Students {
-        @ApiModelProperty(notes = "고유 id")
+        @ApiModelProperty(notes = "고유 id", example = "10", required = true)
         private Integer id;
 
-        @ApiModelProperty(notes = "이메일")
+        @ApiModelProperty(notes = "이메일", example = "koin123@koreatech.ac.kr", required = true)
         private String email;
 
-        @ApiModelProperty(notes = "닉네임")
+        @ApiModelProperty(notes = "닉네임", example = "bbo")
         private String nickname;
 
-        @ApiModelProperty(notes = "이름")
+        @ApiModelProperty(notes = "이름", example = "정보혁")
         private String name;
 
-        @ApiModelProperty(notes = "전공")
+        @ApiModelProperty(notes = "전공", example = "컴퓨터공학부")
         private String major;
 
-        @ApiModelProperty(notes = "학번")
+        @ApiModelProperty(notes = "학번", example = "2029136012")
         private String student_number;
     }
 
