@@ -1,17 +1,27 @@
 package koreatech.in.dto.normal.shop.request;
 
+import static koreatech.in.exception.ExceptionInformation.DUPLICATE_DAY_OF_WEEK_INFORMATION_EXISTS;
+import static koreatech.in.exception.ExceptionInformation.LENGTH_OF_OPENS_MUST_BE_7;
+import static koreatech.in.exception.ExceptionInformation.TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED;
+
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.exception.BaseException;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.time.DayOfWeek;
-import java.util.*;
-
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 @ApiModel("CreateShopRequest")
@@ -45,7 +55,7 @@ public class CreateShopRequest {
             "- 1자 이상 100자 이하", example = "충청남도 천안시 동남구 병천면 충절로 1600", required = true)
     private String address;
 
-    @PositiveOrZero(message = "배달 금액은 0원 이상 2147483647원 이하여야합니다.")
+    @PositiveOrZero(message = "배달 금액은 0원 이상이어야 합니다.")
     @ApiModelProperty(notes = "배달 금액 \n" +
             "- 0 이상 2147483647 이하 \n" +
             "- null일 경우 0으로 저장됨", example = "1000")
