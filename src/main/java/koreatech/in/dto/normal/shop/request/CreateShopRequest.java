@@ -6,9 +6,7 @@ import static koreatech.in.exception.ExceptionInformation.TIME_INFORMATION_IS_RE
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -134,24 +132,20 @@ public class CreateShopRequest {
             throw new BaseException(LENGTH_OF_OPENS_MUST_BE_7);
         }
 
-        Set<DayOfWeek> dayOfWeeksWithoutDuplication = new HashSet<>();
+        boolean hasEmptyTimeInformation = this.open.stream()
+            .filter(open -> !open.getClosed())
+            .anyMatch(open -> open.getOpen_time() == null || open.getClose_time() == null);
 
-        for (Open open : this.open) {
-            DayOfWeek dayOfWeek = open.getDay_of_week();
-            Boolean closed = open.getClosed();
-            String openTime = open.getOpen_time();
-            String closeTime = open.getClose_time();
-
-            if (!closed) {
-                if (openTime == null || closeTime == null) {
-                    throw new BaseException(TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED);
-                }
-            }
-
-            dayOfWeeksWithoutDuplication.add(dayOfWeek);
+        if (hasEmptyTimeInformation) {
+            throw new BaseException(TIME_INFORMATION_IS_REQUIRED_UNLESS_CLOSED);
         }
 
-        if (dayOfWeeksWithoutDuplication.size() != 7) {
+        boolean hasDuplicateDayOfWeek = this.open.stream()
+            .map(Open::getDay_of_week)
+            .distinct()
+            .count() != 7;
+
+        if (hasDuplicateDayOfWeek) {
             throw new BaseException(DUPLICATE_DAY_OF_WEEK_INFORMATION_EXISTS);
         }
     }
