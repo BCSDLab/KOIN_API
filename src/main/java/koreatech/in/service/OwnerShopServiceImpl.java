@@ -90,22 +90,22 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     private void createShopOpensTable(CreateShopRequest request, Shop shop) {
-        List<ShopOpen> shopOpens = generateShopOpensAndGetForCreate(request.getOpen(), shop.getId());
+        List<ShopOpen> shopOpens = generateShopOpens(request.getOpen(), shop.getId());
         shopMapper.createShopOpens(shopOpens);
     }
 
     private void createShopCategoryMapTable(CreateShopRequest request, Shop shop) {
-        checkShopCategoriesExistInDatabase(request.getCategory_ids());
-        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMapsAndGet(shop.getId(), request.getCategory_ids());
+        shopCategoriesExist(request.getCategory_ids());
+        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMaps(shop.getId(), request.getCategory_ids());
         shopMapper.createShopCategoryMaps(shopCategoryMaps);
     }
 
     private void createShopImages(CreateShopRequest request, Shop shop) {
-        List<ShopImage> shopImages = generateShopImagesAndGet(shop.getId(), request.getImage_urls());
+        List<ShopImage> shopImages = generateShopImages(shop.getId(), request.getImage_urls());
         shopMapper.createShopImages(shopImages);
     }
 
-    private List<ShopOpen> generateShopOpensAndGetForCreate(List<CreateShopRequest.Open> opens, Integer shopId) {
+    private List<ShopOpen> generateShopOpens(List<CreateShopRequest.Open> opens, Integer shopId) {
         return opens.stream()
                 .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForCreate(open, shopId))
                 .collect(Collectors.toList());
@@ -137,12 +137,12 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
 
         // ======= shop_category_map 테이블 =======
-        checkShopCategoriesExistInDatabase(request.getCategory_ids());
+        shopCategoriesExist(request.getCategory_ids());
 
         List<ShopCategoryMap> existingShopCategoryMaps = shopMapper.getShopCategoryMapsByShopId(existingShop.getId());
 
         // IGNORE에 의하여 (shop_id, shop_category_id)가 중복일 경우는 insert가 무시된다.
-        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMapsAndGet(existingShop.getId(), request.getCategory_ids());
+        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMaps(existingShop.getId(), request.getCategory_ids());
         shopMapper.createShopCategoryMaps(requestedCategoryMaps);
 
         // 기존에 있던 관계들에서 요청된 관계들을 제거하면 삭제해야할 관계들을 알아낼 수 있다.
@@ -155,7 +155,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         // ======= shop_images 테이블 =======
         List<ShopImage> existingShopImages = shopMapper.getShopImagesByShopId(existingShop.getId());
 
-        List<ShopImage> requestedShopImages = generateShopImagesAndGet(existingShop.getId(), request.getImage_urls());
+        List<ShopImage> requestedShopImages = generateShopImages(existingShop.getId(), request.getImage_urls());
         if (!requestedShopImages.isEmpty()) {
             shopMapper.createShopImages(requestedShopImages);
         }
@@ -172,14 +172,14 @@ public class OwnerShopServiceImpl implements OwnerShopService {
                 .collect(Collectors.toList());
     }
 
-    private void checkShopCategoriesExistInDatabase(List<Integer> shopCategoryIds) {
+    private void shopCategoriesExist(List<Integer> shopCategoryIds) {
         shopCategoryIds.forEach(categoryId -> {
             Optional.ofNullable(shopMapper.getShopCategoryById(categoryId))
                     .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
         });
     }
 
-    private List<ShopCategoryMap> generateShopCategoryMapsAndGet(Integer shopId, List<Integer> shopCategoryIds) {
+    private List<ShopCategoryMap> generateShopCategoryMaps(Integer shopId, List<Integer> shopCategoryIds) {
         return shopCategoryIds.stream()
                 .map(shopCategoryId -> ShopCategoryMap.of(shopId, shopCategoryId))
                 .collect(Collectors.toList());
@@ -190,7 +190,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         return existingShopCategoryMaps;
     }
 
-    private List<ShopImage> generateShopImagesAndGet(Integer shopId, List<String> imageUrls) {
+    private List<ShopImage> generateShopImages(Integer shopId, List<String> imageUrls) {
         return imageUrls.stream()
                 .map(url -> ShopImage.of(shopId, url))
                 .collect(Collectors.toList());
