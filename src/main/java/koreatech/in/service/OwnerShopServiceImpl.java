@@ -74,32 +74,33 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Override
     public void createShop(CreateShopRequest request) {
+        Shop shop = createShopsTable(request);
+        createShopOpensTable(request, shop);
+        createShopCategoryMapTable(request, shop);
+        createShopImages(request, shop);
+    }
+
+    private Shop createShopsTable(CreateShopRequest request) {
         Owner owner = (Owner) jwtValidator.validate();
-
-        /*
-             INSERT 대상 테이블
-             - shops
-             - shop_opens
-             - shop_category_map
-             - shop_images
-         */
-
-        // ======= shops 테이블 =======
         Shop shop = ShopConverter.INSTANCE.toShop(request, owner.getId());
         shop.nameUpdate();
         shopMapper.createShop(shop);
 
-        // ======= shop_opens 테이블 =======
+        return shop;
+    }
+
+    private void createShopOpensTable(CreateShopRequest request, Shop shop) {
         List<ShopOpen> shopOpens = generateShopOpensAndGetForCreate(request.getOpen(), shop.getId());
         shopMapper.createShopOpens(shopOpens);
+    }
 
-        // ======= shop_category_map 테이블 =======
+    private void createShopCategoryMapTable(CreateShopRequest request, Shop shop) {
         checkShopCategoriesExistInDatabase(request.getCategory_ids());
-
         List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMapsAndGet(shop.getId(), request.getCategory_ids());
         shopMapper.createShopCategoryMaps(shopCategoryMaps);
+    }
 
-        // ======= shop_images 테이블 =======
+    private void createShopImages(CreateShopRequest request, Shop shop) {
         List<ShopImage> shopImages = generateShopImagesAndGet(shop.getId(), request.getImage_urls());
         shopMapper.createShopImages(shopImages);
     }
