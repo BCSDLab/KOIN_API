@@ -273,7 +273,7 @@
     </select>
 
     <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop">
-        INSERT IGNORE INTO `koin`.`shops` (
+        INSERT INTO `koin`.`shops` (
             `owner_id`,
             `name`,
             `internal_name`,
@@ -322,7 +322,7 @@
     </update>
 
     <insert id="createShopOpens" parameterType="list">
-        INSERT IGNORE INTO `koin`.`shop_opens` (
+        INSERT INTO `koin`.`shop_opens` (
             `shop_id`,
             `day_of_week`,
             `closed`,
