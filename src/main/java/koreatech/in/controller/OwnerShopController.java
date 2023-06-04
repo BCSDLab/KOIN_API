@@ -1,5 +1,19 @@
 package koreatech.in.controller;
 
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -21,20 +35,10 @@ import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
 import koreatech.in.dto.normal.shop.response.AllShopsOfOwnerResponse;
 import koreatech.in.dto.normal.shop.response.MenuResponse;
 import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.OwnerShopService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.validation.Valid;
+import koreatech.in.util.StringXssChecker;
 
 @Auth(role = Auth.Role.OWNER, authority = Auth.Authority.SHOP)
 @Api(tags = "(Normal) Owner Shop", description = "상점 (점주 전용)")
@@ -58,6 +62,12 @@ public class OwnerShopController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public @ResponseBody
     ResponseEntity<EmptyResponse> createShop(@ApiParam(name = "상점 정보 JSON", required = true) @RequestBody @Valid CreateShopRequest request, BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
         request.checkDataConstraintViolation(); // javax validation으로 판단할 수 없는 제약조건 검사
 
         ownerShopService.createShop(request);
