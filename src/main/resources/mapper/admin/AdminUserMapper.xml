@@ -248,8 +248,23 @@
         </trim>
     </select>
 
-    <select id="getUnauthenticatedOwnersByCondition"
-            parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerResultMap">
+    <select id="getTotalCountOfStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`users`
+        WHERE `user_type` = 'STUDENT'
+
+        <if test="criteria.is_authed != null">
+            AND `is_authed` = #{criteria.is_authed}
+        </if>
+        <if test="criteria.nickname != null">
+            AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+        </if>
+        <if test="criteria.email != null">
+            AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+        </if>
+    </select>
+
+    <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerResultMap">
         SELECT
         `t1`.`id` AS `users.id`,
         `t1`.`email` AS `users.email`,
@@ -317,6 +332,37 @@
 
         LEFT JOIN `koin`.`owners` `t2`
         ON `t1`.`id` = `t2`.`user_id`
+    </select>
+
+    <select id="getStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultMap="StudentResultMap">
+        SELECT
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+
+            `t2`.`student_number` AS `students.student_number`,
+            `t2`.`major` AS `students.major`
+        FROM (
+                 SELECT *
+                 FROM `koin`.`users`
+                 WHERE `user_type` = 'STUDENT'
+
+                <if test="criteria.is_authed != null">
+                    AND `is_authed` = #{criteria.is_authed}
+                </if>
+                <if test="criteria.nickname != null">
+                    AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+                </if>
+                <if test="criteria.email != null">
+                    AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+                </if>
+
+            LIMIT #{begin}, #{criteria.limit}
+        ) `t1`
+
+            LEFT JOIN `koin`.`students` `t2`
+            ON `t1`.`id` = `t2`.`user_id`
     </select>
 
     <update id="updateOwnerAuthorById">

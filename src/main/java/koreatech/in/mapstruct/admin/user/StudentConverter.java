@@ -4,6 +4,7 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -24,4 +25,6 @@ public interface StudentConverter {
             @Mapping(source = "is_graduated", target = "isGraduated")
     })
     StudentUpdateResponse toStudentUpdateResponse(Student student);
+
+    StudentsResponse.Students toStudentsResponse$Students(Student student);
 }

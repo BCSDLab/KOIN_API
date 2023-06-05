@@ -17,6 +17,13 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
+import java.sql.SQLException;
+
+import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
+import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,7 +35,7 @@ import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
@@ -47,6 +54,7 @@ import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.NotFoundException;
@@ -170,8 +178,17 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getUserListForAdmin(UserCriteria userCriteria) throws Exception {
-        return userMapper.getUserListForAdmin(userCriteria.getCursor(), userCriteria.getLimit(), userCriteria.getUserType().name());
+    public StudentsResponse getStudents(StudentCriteria criteria) throws Exception {
+        Integer totalCount = adminUserMapper.getTotalCountOfStudentsByCondition(criteria);
+        Integer totalPage = criteria.extractTotalPage(totalCount);
+        Integer currentPage = criteria.getPage();
+
+        if (currentPage > totalPage) {
+            throw new BaseException(PAGE_NOT_FOUND);
+        }
+
+        List<Student> students = adminUserMapper.getStudentsByCondition(criteria.getCursor(), criteria);
+        return StudentsResponse.of(totalCount, totalPage, currentPage, students);
     }
 
     @Override
