@@ -9,6 +9,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
+import koreatech.in.annotation.OwnerRegistrationInfomation;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.request.UserRegisterRequest;
 import lombok.Getter;
@@ -18,6 +20,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@OwnerRegistrationInfomation(
+        companyNumber = "companyNumber",
+        attachmentUrls = "attachmentUrls"
+)
 public class OwnerRegisterRequest extends UserRegisterRequest {
 
     @NotBlank(message = "이름은 필수입니다.")
@@ -71,20 +77,4 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
             + "- not null"
             ,required = true)
     private String shopName;
-
-    public boolean hasRegistrationInformation() {
-        return hasCompanyNumber() && hasAttachmentUrls();
-    }
-
-    public boolean isSufficientRegisterRequest() {
-        return !(hasCompanyNumber() ^ hasAttachmentUrls());
-    }
-
-    private boolean hasCompanyNumber() {
-        return this.companyNumber != null;
-    }
-
-    private boolean hasAttachmentUrls() {
-        return this.attachmentUrls != null && this.attachmentUrls.isEmpty();
-    }
 }
