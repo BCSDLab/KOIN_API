@@ -6,16 +6,17 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import java.util.List;
+
 import java.util.Map;
 import javax.validation.Valid;
+
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
 import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.UserCriteria;
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.EmptyResponse;
@@ -33,6 +34,7 @@ import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
+import koreatech.in.dto.admin.user.student.response.StudentsResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.admin.AdminUserService;
@@ -156,11 +158,18 @@ public class AdminUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
-    @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
+    @ApiOperation(value = "학생 리스트 조회 (페이지네이션)", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)" , response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/students", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<List<User>> getUserList(@ModelAttribute("criteria") UserCriteria criteria) throws Exception {
-        return new ResponseEntity<>(adminUserService.getUserListForAdmin(criteria), HttpStatus.OK);
+    ResponseEntity<StudentsResponse> getStudents(@ModelAttribute("criteria") StudentCriteria criteria) throws Exception {
+        return new ResponseEntity<>(adminUserService.getStudents(criteria), HttpStatus.OK);
     }
 
     @ParamValid

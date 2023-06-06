@@ -47,7 +47,7 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
         try {
             String tokenInRedis = redisAuthenticationMapper.getRefreshToken(data);
             if (!token.equals(tokenInRedis)) {
-                throw new BaseException(ExceptionInformation.FORBIDDEN);
+                throw new BaseException(ExceptionInformation.TOKEN_EXPIRED);
             }
         } catch (IOException e) {
             throw new ExpiredJwtException(null, null, null, e);

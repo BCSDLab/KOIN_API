@@ -1,6 +1,7 @@
 package koreatech.in.mapstruct.admin.auto;
 
 import koreatech.in.domain.Auth.LoginResult;
+import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
@@ -18,6 +19,5 @@ public interface AuthConverter {
     @Mapping(source = "refreshToken", target = "token")
     RefreshToken toToken(TokenRefreshRequest request);
 
-    @Mapping(source = "newToken", target = "accessToken")
-    TokenRefreshResponse toTokenRefreshResponse(String newToken);
+    TokenRefreshResponse toTokenRefreshResponse(RefreshResult refreshResult);
 }

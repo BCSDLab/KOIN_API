@@ -1,6 +1,5 @@
 package koreatech.in.domain.Criteria;
 
-import koreatech.in.domain.User.UserType;
 import lombok.Getter;
 import lombok.Setter;
 import springfox.documentation.annotations.ApiIgnore;
@@ -8,11 +7,9 @@ import springfox.documentation.annotations.ApiIgnore;
 @ApiIgnore
 @Getter
 @Setter
-public class UserCriteria extends Criteria{
+public class StudentCriteria extends Criteria{
 
-    private UserType userType;
-
-    private Boolean isAuthed;
+    private Boolean is_authed;
 
     private String nickname;
 

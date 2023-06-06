@@ -1,7 +1,9 @@
 package koreatech.in.repository.admin;
 
+import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -23,8 +25,10 @@ public interface AdminUserMapper {
     List<Integer> getAttachmentsIdByOwnerId(Integer id);
     void updateOwner(@Param("owner") Owner owner);
     void updateUser(@Param("user") User user);
-    Integer isCompanyRegistrationNumberAlreadyUsed(@Param("company_registration_number") String company_registration_number,@Param("userId") Integer userId);
-    Integer isNickNameAlreadyUsed(@Param("nickname") String nickname, @Param("userId") Integer userId);
-    Integer isEmailAlreadyUsed(@Param("email") String email,@Param("userId") Integer userId);
+    Integer getCompanyRegistrationNumberUsedCount(@Param("company_registration_number") String company_registration_number,@Param("userId") Integer userId);
+    Integer getNicknameUsedCount(@Param("nickname") String nickname, @Param("userId") Integer userId);
+    Integer getEmailUsedCount(@Param("email") String email,@Param("userId") Integer userId);
     void updateOwnerGrantShopByOwnerId(Integer ownerId);
+    Integer getTotalCountOfStudentsByCondition(@Param("criteria") StudentCriteria criteria);
+    List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("criteria") StudentCriteria criteria);
 }
