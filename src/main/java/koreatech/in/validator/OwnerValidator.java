@@ -13,17 +13,17 @@ public class OwnerValidator implements ConstraintValidator<OwnerRegistrationInfo
 
     @Override
     public void initialize(OwnerRegistrationInfomation constraintAnnotation) {
-        companyNumber = constraintAnnotation.companyNumber();
-        attachmentUrls = constraintAnnotation.attachmentUrls();
+        this.companyNumber = constraintAnnotation.companyNumber();
+        this.attachmentUrls = constraintAnnotation.attachmentUrls();
     }
 
     @Override
-    public boolean isValid(OwnerRegisterRequest o, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(OwnerRegisterRequest ownerRegisterRequest, ConstraintValidatorContext constraintValidatorContext) {
         try {
-            String property = BeanUtils.getProperty(o, companyNumber);
-            String property1 = BeanUtils.getProperty(o, attachmentUrls);
+            String companyNumberName = BeanUtils.getProperty(ownerRegisterRequest, companyNumber);
+            String attachmentUrlsName = BeanUtils.getProperty(ownerRegisterRequest, attachmentUrls);
 
-            return !(property == null ^ property1 == null);
+            return !(companyNumberName == null ^ attachmentUrlsName == null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
