@@ -142,7 +142,7 @@ public interface OwnerConverter {
     VerifyCodeResponse toVerifyCodeResponse(String temporaryAccessToken);
 
     default Owner toNewOwner(OwnerRegisterRequest ownerRegisterRequest) {
-        if (!ownerRegisterRequest.hasRegistrationInformation()) {
+        if (ownerRegisterRequest.getCompanyNumber() == null) {
             return toOwnerPartition(ownerRegisterRequest);
         }
         return toOwner(ownerRegisterRequest);

@@ -108,8 +108,6 @@ public class OwnerServiceImpl implements OwnerService {
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
         // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
 
-        validateSufficientInformationForRegistration(ownerRegisterRequest);
-
         OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
 
         Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
@@ -210,12 +208,6 @@ public class OwnerServiceImpl implements OwnerService {
 
         if (!attachmentInDB.getOwnerId().equals(userId)) {
             throw new BaseException(ExceptionInformation.FORBIDDEN);
-        }
-    }
-
-    private void validateSufficientInformationForRegistration(OwnerRegisterRequest request) {
-        if (!request.isSufficientRegisterRequest()) {
-            throw new BaseException(ExceptionInformation.OWNER_REGISTRATION_INFORMATION_INSUFFICIENT);
         }
     }
 
