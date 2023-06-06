@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: A feature with a list of APIs
+about: Service's Bug report.
 title: ''
 labels: "bug"
 assignees: ''
