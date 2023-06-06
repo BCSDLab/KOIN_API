@@ -6,10 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
+@ToString
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AttachmentUrlRequest {
 
