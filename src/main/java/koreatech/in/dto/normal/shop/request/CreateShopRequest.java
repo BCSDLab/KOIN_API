@@ -82,7 +82,8 @@ public class CreateShopRequest {
     @NotEmpty(message = "소속시킬 상점 카테고리는 최소 1개 선택하여야합니다.")
     @ApiModelProperty(notes = "상점 카테고리 고유 id 리스트 \n" +
             "- not null \n" +
-            "- 최소 1개", required = true)
+            "- 최소 1개 \n" +
+            "- 예시 : [1, 4]", allowableValues = "1, 2, 3, 4, 5", required = true)
     private List<Integer> category_ids = new ArrayList<>();
 
     @Size(max = 10, message = "상점 이미지 개수 제한은 최대 10개입니다.")
