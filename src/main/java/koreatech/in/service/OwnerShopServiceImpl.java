@@ -1,26 +1,50 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Shop.*;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
-import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
-import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
-import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
-import koreatech.in.dto.normal.shop.response.*;
-import koreatech.in.exception.BaseException;
-import koreatech.in.mapstruct.normal.shop.ShopConverter;
-import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
-import koreatech.in.mapstruct.normal.shop.ShopOpenConverter;
-import koreatech.in.repository.ShopMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
+import static koreatech.in.exception.ExceptionInformation.SHOP_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_MAXIMUM_EXCEED;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_USING_CATEGORY_EXIST;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static koreatech.in.exception.ExceptionInformation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopCategory;
+import koreatech.in.domain.Shop.ShopCategoryMap;
+import koreatech.in.domain.Shop.ShopImage;
+import koreatech.in.domain.Shop.ShopMenu;
+import koreatech.in.domain.Shop.ShopMenuCategory;
+import koreatech.in.domain.Shop.ShopMenuCategoryMap;
+import koreatech.in.domain.Shop.ShopMenuDetail;
+import koreatech.in.domain.Shop.ShopMenuImage;
+import koreatech.in.domain.Shop.ShopMenuProfile;
+import koreatech.in.domain.Shop.ShopOpen;
+import koreatech.in.domain.Shop.ShopProfile;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.dto.normal.shop.request.CreateMenuCategoryRequest;
+import koreatech.in.dto.normal.shop.request.CreateMenuRequest;
+import koreatech.in.dto.normal.shop.request.CreateShopRequest;
+import koreatech.in.dto.normal.shop.request.UpdateMenuRequest;
+import koreatech.in.dto.normal.shop.request.UpdateShopRequest;
+import koreatech.in.dto.normal.shop.response.AllMenuCategoriesOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.normal.shop.response.AllShopsOfOwnerResponse;
+import koreatech.in.dto.normal.shop.response.MenuResponse;
+import koreatech.in.dto.normal.shop.response.ShopResponse;
+import koreatech.in.exception.BaseException;
+import koreatech.in.mapstruct.normal.shop.ShopConverter;
+import koreatech.in.mapstruct.normal.shop.ShopMenuConverter;
+import koreatech.in.mapstruct.normal.shop.ShopOpenConverter;
+import koreatech.in.repository.ShopMapper;
 
 @Service
 @Transactional
@@ -49,6 +73,45 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
+    public void createShop(CreateShopRequest request) {
+        Shop shop = createShopsTable(request);
+        createShopOpensTable(request, shop);
+        createShopCategoryMapTable(request, shop);
+        createShopImages(request, shop);
+    }
+
+    private Shop createShopsTable(CreateShopRequest request) {
+        Owner owner = (Owner) jwtValidator.validate();
+        Shop shop = ShopConverter.INSTANCE.toShop(request, owner.getId());
+        shop.nameUpdate();
+        shopMapper.createShop(shop);
+
+        return shop;
+    }
+
+    private void createShopOpensTable(CreateShopRequest request, Shop shop) {
+        List<ShopOpen> shopOpens = generateShopOpens(request.getOpen(), shop.getId());
+        shopMapper.createShopOpens(shopOpens);
+    }
+
+    private void createShopCategoryMapTable(CreateShopRequest request, Shop shop) {
+        shopCategoriesExist(request.getCategory_ids());
+        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMaps(shop.getId(), request.getCategory_ids());
+        shopMapper.createShopCategoryMaps(shopCategoryMaps);
+    }
+
+    private void createShopImages(CreateShopRequest request, Shop shop) {
+        List<ShopImage> shopImages = generateShopImages(shop.getId(), request.getImage_urls());
+        shopMapper.createShopImages(shopImages);
+    }
+
+    private List<ShopOpen> generateShopOpens(List<CreateShopRequest.Open> opens, Integer shopId) {
+        return opens.stream()
+                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForCreate(open, shopId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void updateShop(Integer shopId, UpdateShopRequest request) {
         Shop existingShop = getShopById(shopId);
         checkAuthorityAboutShop(existingShop);
@@ -74,12 +137,12 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
 
         // ======= shop_category_map 테이블 =======
-        checkShopCategoriesExistInDatabase(request.getCategory_ids());
+        shopCategoriesExist(request.getCategory_ids());
 
         List<ShopCategoryMap> existingShopCategoryMaps = shopMapper.getShopCategoryMapsByShopId(existingShop.getId());
 
         // IGNORE에 의하여 (shop_id, shop_category_id)가 중복일 경우는 insert가 무시된다.
-        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMapsAndGet(existingShop.getId(), request.getCategory_ids());
+        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMaps(existingShop.getId(), request.getCategory_ids());
         shopMapper.createShopCategoryMaps(requestedCategoryMaps);
 
         // 기존에 있던 관계들에서 요청된 관계들을 제거하면 삭제해야할 관계들을 알아낼 수 있다.
@@ -92,7 +155,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         // ======= shop_images 테이블 =======
         List<ShopImage> existingShopImages = shopMapper.getShopImagesByShopId(existingShop.getId());
 
-        List<ShopImage> requestedShopImages = generateShopImagesAndGet(existingShop.getId(), request.getImage_urls());
+        List<ShopImage> requestedShopImages = generateShopImages(existingShop.getId(), request.getImage_urls());
         if (!requestedShopImages.isEmpty()) {
             shopMapper.createShopImages(requestedShopImages);
         }
@@ -105,18 +168,18 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
         return opens.stream()
-                .map(open -> ShopOpenConverter.INSTANCE.toShopOpen(open, shopId))
+                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForUpdate(open, shopId))
                 .collect(Collectors.toList());
     }
 
-    private void checkShopCategoriesExistInDatabase(List<Integer> shopCategoryIds) {
+    private void shopCategoriesExist(List<Integer> shopCategoryIds) {
         shopCategoryIds.forEach(categoryId -> {
             Optional.ofNullable(shopMapper.getShopCategoryById(categoryId))
                     .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
         });
     }
 
-    private List<ShopCategoryMap> generateShopCategoryMapsAndGet(Integer shopId, List<Integer> shopCategoryIds) {
+    private List<ShopCategoryMap> generateShopCategoryMaps(Integer shopId, List<Integer> shopCategoryIds) {
         return shopCategoryIds.stream()
                 .map(shopCategoryId -> ShopCategoryMap.of(shopId, shopCategoryId))
                 .collect(Collectors.toList());
@@ -127,7 +190,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         return existingShopCategoryMaps;
     }
 
-    private List<ShopImage> generateShopImagesAndGet(Integer shopId, List<String> imageUrls) {
+    private List<ShopImage> generateShopImages(Integer shopId, List<String> imageUrls) {
         return imageUrls.stream()
                 .map(url -> ShopImage.of(shopId, url))
                 .collect(Collectors.toList());

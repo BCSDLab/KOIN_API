@@ -14,6 +14,7 @@ import java.util.*;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
+@ApiModel("AdminCreateShopRequest")
 public class CreateShopRequest {
     @Size(min = 1, max = 15, message = "가게명의 길이는 1자 이상 15자 이하입니다.")
     @NotNull(message = "가게명은 필수입니다.")
