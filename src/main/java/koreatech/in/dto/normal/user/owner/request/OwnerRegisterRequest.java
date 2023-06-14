@@ -66,15 +66,11 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
     )
     private String phoneNumber;
 
-    @NotNull(message = "상점 선택은 필수입니다.")
     @ApiModelProperty(notes = "상점 ID \n"
-            + "- not null"
-            ,required = true)
+            ,required = false)
     private Integer shopId;
 
-    @NotNull(message = "상점 선택은 필수입니다.")
     @ApiModelProperty(notes = "상점명 \n"
-            + "- not null"
-            ,required = true)
+            ,required = false)
     private String shopName;
 }
