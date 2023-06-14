@@ -272,6 +272,38 @@
             AND `is_deleted` = 0
     </select>
 
+    <insert id="createShop" parameterType="koreatech.in.domain.Shop.Shop">
+        INSERT INTO `koin`.`shops` (
+            `owner_id`,
+            `name`,
+            `internal_name`,
+            `chosung`,
+            `phone`,
+            `address`,
+            `description`,
+            `delivery`,
+            `delivery_price`,
+            `pay_card`,
+            `pay_bank`
+        )
+        VALUES (
+            #{shop.owner_id},
+            #{shop.name},
+            #{shop.internal_name},
+            #{shop.chosung},
+            #{shop.phone},
+            #{shop.address},
+            #{shop.description},
+            #{shop.delivery},
+            #{shop.delivery_price},
+            #{shop.pay_card},
+            #{shop.pay_bank}
+       )
+        <selectKey keyProperty="shop.id" resultType="java.lang.Integer" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
     <update id="updateShop" parameterType="koreatech.in.domain.Shop.Shop">
         UPDATE `koin`.`shops`
         SET
@@ -288,6 +320,26 @@
         WHERE
             `id` = #{shop.id}
     </update>
+
+    <insert id="createShopOpens" parameterType="list">
+        INSERT INTO `koin`.`shop_opens` (
+            `shop_id`,
+            `day_of_week`,
+            `closed`,
+            `open_time`,
+            `close_time`
+        )
+        VALUES
+        <foreach collection="shopOpens" item="item" separator=",">
+            (
+                #{item.shop_id},
+                #{item.day_of_week},
+                #{item.closed},
+                #{item.open_time},
+                #{item.close_time}
+            )
+        </foreach>
+    </insert>
 
     <update id="updateShopOpens" parameterType="list">
         <foreach collection="shopOpens" item="item" separator=";">
