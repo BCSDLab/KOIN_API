@@ -23,9 +23,13 @@ public class OwnerValidator implements ConstraintValidator<OwnerRegistrationInfo
             String companyNumberName = BeanUtils.getProperty(ownerRegisterRequest, companyNumber);
             String attachmentUrlsName = BeanUtils.getProperty(ownerRegisterRequest, attachmentUrls);
 
-            return !(companyNumberName == null ^ attachmentUrlsName == null);
+            return isValidOptionalRegisrationInfo(companyNumberName, attachmentUrlsName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isValidOptionalRegisrationInfo(String companyNumber, String attachmentUrls) {
+        return !(companyNumber == null ^ attachmentUrls == null);
     }
 }
