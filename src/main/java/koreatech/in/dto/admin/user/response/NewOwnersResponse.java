@@ -1,6 +1,7 @@
 package koreatech.in.dto.admin.user.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
@@ -39,11 +40,20 @@ public class NewOwnersResponse {
         @ApiModelProperty(notes = "이름")
         private String name;
 
+        @ApiModelProperty(notes = "전화번호")
+        private String phone_number;
+
+        @ApiModelProperty(notes = "요청한 상점ID")
+        private String shop_id;
+
+        @ApiModelProperty(notes = "요청한 상점명")
+        private String shop_name;
+
         @ApiModelProperty(notes = "가입 신청 일자", example = "2023-01-01 12:01:02", required = true)
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private Date created_at;
     }
-
+    //DTO변환은 서비스에서 진행할 수 있도록 수정.
     public static NewOwnersResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<Owner> owners) {
         return NewOwnersResponse.builder()
                 .total_count(totalCount)
