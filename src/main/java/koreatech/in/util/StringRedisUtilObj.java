@@ -1,6 +1,8 @@
 package koreatech.in.util;
 
 import java.util.concurrent.TimeUnit;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,10 @@ import java.util.Set;
 
 @Component
 public class StringRedisUtilObj extends StringRedisUtil<Object> {
+
+    private static final String redisOwnerAuthPrefix = "owner@";
+    private static final String redisOwnerShopPrefix = "owner_shop@";
+
     @Resource(name = "redisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -24,13 +30,16 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     @Override
     public void setDataAsString(String key, Object data) throws IOException {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String value = data instanceof String ? (String) data : objectMapper.writeValueAsString(data);
         valOps.set(key, value);
     }
 
     @Override
-    public void setDataAsString(String key, Object data, Long time, TimeUnit timeUnit) {
-        valOps.set(key, data, time, timeUnit);
+    public void setDataAsString(String key, Object data, Long time, TimeUnit timeUnit) throws IOException {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        String value = data instanceof String ? (String) data : objectMapper.writeValueAsString(data);
+        valOps.set(key, value, time, timeUnit);
     }
 
     private String getDataAsString(String key) {
@@ -86,5 +95,13 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     public void deleteData(String key) {
         redisTemplate.delete(key);
+    }
+
+    public static String makeOwnerKeyFor(String emailAddress) {
+        return redisOwnerAuthPrefix + emailAddress;
+    }
+
+    public static String makeOwnerShopKeyFor(Integer ownerId) {
+        return redisOwnerShopPrefix + ownerId;
     }
 }

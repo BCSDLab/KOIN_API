@@ -10,6 +10,8 @@ import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
+import koreatech.in.domain.User.owner.OwnerPartition;
+import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -59,11 +61,19 @@ public interface OwnerConverter {
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "name", target = "name"),
-
+            @Mapping(source = "phoneNumber", target = "phone_number"),
             @Mapping(source = "attachmentUrls", target = "attachments", qualifiedByName = "convertAttachments"),
             @Mapping(source = "companyNumber", target = "company_registration_number"),
     })
     Owner toOwner(OwnerRegisterRequest ownerRegisterRequest);
+
+    @Mappings({
+            @Mapping(source = "password", target = "password"),
+            @Mapping(source = "email", target = "email"),
+            @Mapping(source = "name", target = "name"),
+            @Mapping(source = "phoneNumber", target = "phone_number"),
+    })
+    OwnerPartition toOwnerPartition(OwnerRegisterRequest ownerRegisterRequest);
 
     @Named("convertAttachments")
     default List<OwnerAttachment> convertAttachments(List<AttachmentUrlRequest> attachmentUrls) {
@@ -121,6 +131,20 @@ public interface OwnerConverter {
     })
     Owner toOwner(OwnerUpdateRequest ownerUpdateRequest);
 
+    @Mappings({
+            @Mapping(source = "ownerId", target = "owner_id"),
+            @Mapping(source = "ownerRegisterRequest.shopId", target = "shop_id"),
+            @Mapping(source = "ownerRegisterRequest.shopName", target = "shop_name")
+    })
+    OwnerShop toOwnerShop(Integer ownerId, OwnerRegisterRequest ownerRegisterRequest);
+
     @Mapping(source = "temporaryAccessToken", target = "accessToken")
     VerifyCodeResponse toVerifyCodeResponse(String temporaryAccessToken);
+
+    default Owner toNewOwner(OwnerRegisterRequest ownerRegisterRequest) {
+        if (ownerRegisterRequest.getCompanyNumber() == null) {
+            return toOwnerPartition(ownerRegisterRequest);
+        }
+        return toOwner(ownerRegisterRequest);
+    }
 }

@@ -1,7 +1,5 @@
 package koreatech.in.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -15,6 +13,8 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
+import koreatech.in.domain.User.owner.OwnerPartition;
+import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -30,6 +30,7 @@ import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class OwnerServiceImpl implements OwnerService {
     private static final String CERTIFICATION_CODE = "certification-code";
 
     @Autowired
-    private StringRedisUtilStr stringRedisUtilStr;
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Autowired
     private SesMailSender sesMailSender;
@@ -105,9 +106,12 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-
         // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
-        Owner owner = OwnerConverter.INSTANCE.toOwner(ownerRegisterRequest);
+
+        OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
+
+        Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
+
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
@@ -116,6 +120,9 @@ public class OwnerServiceImpl implements OwnerService {
         encodePassword(owner);
 
         createInDBFor(owner);
+
+        OwnerShop ownerShop = ownerConverter.toOwnerShop(owner.getId(), ownerRegisterRequest);
+        putRedisForRequestShop(ownerShop);
 
         slackNotiSender.noticeRegisterComplete(owner);
 
@@ -223,25 +230,35 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void removeRedisFrom(EmailAddress emailAddress) {
-        stringRedisUtilStr.deleteData(StringRedisUtilStr.makeOwnerKeyFor(emailAddress.getEmailAddress()));
+        stringRedisUtilObj.deleteData(StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress()));
     }
 
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
-        Gson gson = new GsonBuilder().create();
+        try {
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerKeyFor(emailAddress),
+                    ownerInVerification, 2L, TimeUnit.HOURS);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
-        stringRedisUtilStr.setDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress),
-                gson.toJson(ownerInVerification), 2L, TimeUnit.HOURS);
+    private void putRedisForRequestShop(OwnerShop ownerShop) {
+        try {
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerShopKeyFor(ownerShop.getOwner_id()), ownerShop);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     private OwnerInVerification getOwnerInRedis(String emailAddress) {
-        Gson gson = new GsonBuilder().create();
-        String json;
+        Object json;
         try {
-            json = stringRedisUtilStr.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress));
+            json = stringRedisUtilObj.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress), OwnerInVerification.class);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        OwnerInVerification ownerInRedis = gson.fromJson(json, OwnerInVerification.class);
+
+        OwnerInVerification ownerInRedis = (OwnerInVerification) json;
         validateRedis(ownerInRedis);
 
         return ownerInRedis;
@@ -273,7 +290,10 @@ public class OwnerServiceImpl implements OwnerService {
             insertUserAndUpdateId(owner);
 
             ownerMapper.insertOwner(owner);
-            ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
+
+            if (owner.hasRegistrationInformation()) {
+                ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

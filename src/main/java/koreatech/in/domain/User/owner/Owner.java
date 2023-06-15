@@ -52,4 +52,8 @@ public class Owner extends User {
         setUser_type(UserType.OWNER);
         setIs_authed(false);
     }
+
+    public boolean hasRegistrationInformation() {
+        return this.company_registration_number != null;
+    }
 }

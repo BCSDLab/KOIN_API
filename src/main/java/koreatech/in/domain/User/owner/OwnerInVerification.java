@@ -1,6 +1,10 @@
 package koreatech.in.domain.User.owner;
 
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
@@ -8,11 +12,17 @@ import koreatech.in.util.DateUtil;
 import lombok.Getter;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OwnerInVerification extends Owner {
 
+    @JsonProperty("certification_code")
     private final String certificationCode;
 
-    private OwnerInVerification(String certificationCode, Boolean isAuthed, Date authExpiredAt, String emailAddress) {
+    @JsonCreator
+    private OwnerInVerification(@JsonProperty("certification_code") String certificationCode,
+                                @JsonProperty("is_authed") Boolean isAuthed,
+                                @JsonProperty("auth_expired_at") Date authExpiredAt,
+                                @JsonProperty("email") String emailAddress) {
         this.certificationCode = certificationCode;
         this.is_authed = isAuthed;
         this.auth_expired_at = authExpiredAt;
