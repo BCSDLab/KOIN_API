@@ -38,9 +38,11 @@ import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.EmailAddress;
+import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
@@ -51,6 +53,7 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
+import koreatech.in.dto.admin.user.response.PageResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
@@ -62,6 +65,7 @@ import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
+import koreatech.in.mapstruct.admin.user.UserConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -69,6 +73,7 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.UserAccessJwtGenerator;
 import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +113,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AuthenticationMapper redisAuthenticationMapper;
+
+    @Autowired
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
@@ -488,16 +496,23 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional(readOnly = true)
     public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
-        Integer totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
-        Integer totalPage = condition.extractTotalPage(totalCount);
-        Integer currentPage = condition.getPage();
+        List<OwnerShop> ownerShops = getOwnerShopsFromRedis();
 
-        if (currentPage > totalPage) {
-            throw new BaseException(PAGE_NOT_FOUND);
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, ownerShops.size());
+        //1. 사장님 정보 db에서 가져오기
+        //2. NewOwnersResponse MapStruct로 생성해서 사장님정보, pageInfo넘기기
+       List<Owner>adminUserMapper.getOwnersById(pageInfo);
+
+        return null;
+        //return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
+    }
+
+    private List<OwnerShop> getOwnerShopsFromRedis() {
+        try {
+            return (List<OwnerShop>) stringRedisUtilObj.getDataListAsString("owner_shop@", OwnerShop.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        List<Owner> owners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition.getCursor(), condition);
-        return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
     }
 
     @Override
