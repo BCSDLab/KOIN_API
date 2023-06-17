@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CORSFilter implements Filter {
+    private static final String CLIENT_ORIGIN_HEADER = "Origin";
 
     @Autowired
     private AllowedDomains allowedDomains;
@@ -22,24 +23,23 @@ public class CORSFilter implements Filter {
             throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
-//        String clientURL = request.getRequestURL().toString();
-//        String serverURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
 
-
-//        URI clientURI = new URI(clientURL);
-//        String clientBaseURL = clientURI.getScheme() + "://" + clientURI.getAuthority();
-
-        // 활용하기
-        String requestHost = request.getHeader("Host");
-        if (allowedDomains.canAllow(requestHost)) {
-            response.setHeader("Access-Control-Allow-Origin", requestHost);
+        if (allowedDomains.include(getClientURL(request), getServerURL(request))) {
+            response.setHeader("Access-Control-Allow-Origin", getClientURL(request));
         }
 
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT");
         response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers",
-                "X-Requested-With, Origin, Content-Type, Accept, Authorization, password");
+        response.setHeader("Access-Control-Allow-Headers","X-Requested-With, Origin, Content-Type, Accept, Authorization, password");
         chain.doFilter(req, res);
+    }
+
+    private String getClientURL(HttpServletRequest request) {
+        return request.getHeader(CLIENT_ORIGIN_HEADER);
+    }
+
+    private String getServerURL(HttpServletRequest request) {
+        return request.getScheme() + Origin.SCHEME_SEPARATOR + request.getServerName() + Origin.PORT_SEPARATOR + request.getServerPort();
     }
 
     public void init(FilterConfig filterConfig) {
@@ -47,4 +47,5 @@ public class CORSFilter implements Filter {
 
     public void destroy() {
     }
+
 }
