@@ -4,6 +4,10 @@ import java.net.URI;
 import java.util.Objects;
 
 public class Origin {
+    public static final String SCHEME_SEPARATOR = "://";
+    public static final String PORT_SEPARATOR = ":";
+
+    public static final int EMPTY_PORT = -1;
     private final URI uri;
 
     private Origin(URI uri) {
@@ -37,13 +41,9 @@ public class Origin {
     }
 
     public boolean isPortEmpty() {
-        return this.uri.getPort() == -1;
+        return this.uri.getPort() == EMPTY_PORT;
     }
 
-//    private boolean isSubDomain(URI clinetURI) {
-//        return clinetURI.getHost().endsWith(this.uri.getHost());
-//    }
-//
     private boolean isEqualHost(Origin other) {
         return this.uri.getHost().equals(other.uri.getHost());
     }
@@ -56,13 +56,14 @@ public class Origin {
         try {
             return URI.create(url);
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException(String.format("allowed.origins의 %s가 표준에 맞지 않습니다.", url));
+            throw new IllegalArgumentException(String.format("allowed.origins의 %s가 규칙에 맞지 않습니다.", url));
         } catch (NullPointerException exception) {
             throw new IllegalArgumentException(String.format("allowed.origins의 %s가 비어있습니다.", url));
         }
     }
 
     public Origin withEmptyPort() {
-        return Origin.from(this.uri.getScheme() + "://" + this.uri.getHost());
+        return Origin.from(this.uri.getScheme() + SCHEME_SEPARATOR + this.uri.getHost());
     }
+
 }
