@@ -102,6 +102,8 @@ public interface AdminShopMapper {
 
     void updateMenu(@Param("menu") ShopMenu menu);
 
+    void updateMenuCategory(@Param("shopMenuCategory") ShopMenuCategory shopMenuCategory);
+
     List<ShopMenuDetail> getMenuDetailsByMenuId(@Param("menuId") Integer menuId);
 
     void deleteMenuDetails(@Param("menuDetails") List<ShopMenuDetail> menuDetails);
@@ -117,4 +119,5 @@ public interface AdminShopMapper {
     void revealMenuById(@Param("menuId") Integer menuId);
 
     void updateShopOwnerId(@Param("ownerId") Integer ownerId, @Param("shopId") Integer shopId);
+
 }

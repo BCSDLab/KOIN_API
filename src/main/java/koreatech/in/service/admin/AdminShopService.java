@@ -30,6 +30,8 @@ public interface AdminShopService {
 
     AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
 
+    void updateMenuCategory(Integer shopId, UpdateShopMenuCategoryRequest request);
+
     void deleteMenuCategory(Integer shopId, Integer menuCategoryId);
 
     void createMenu(Integer shopId, CreateShopMenuRequest request);
@@ -45,4 +47,5 @@ public interface AdminShopService {
     void hideMenu(Integer shopId, Integer menuId);
 
     void revealMenu(Integer shopId, Integer menuId);
+
 }

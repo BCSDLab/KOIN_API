@@ -9,7 +9,10 @@ import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.admin.shop.request.*;
 import koreatech.in.dto.admin.shop.response.*;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.admin.AdminShopService;
+import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -264,6 +267,32 @@ public class AdminShopController {
     ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = shopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "특정 상점의 메뉴 카테고리 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000) \n" +
+                    "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n" +
+                    "  - 만약 categoryId에 대한 카테고리가, shopId에 대한 상점에 속해있는 카테고리가 아닌 경우도 포함", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 메뉴가 존재하여 삭제할 수 없는 경우 (code: 104012)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "{shopId}/menus/categories", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> updateMenuCategory(
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid UpdateShopMenuCategoryRequest request, BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        shopService.updateMenuCategory(shopId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "특정 상점의 메뉴 카테고리 삭제", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})

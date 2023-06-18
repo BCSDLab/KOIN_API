@@ -1,9 +1,52 @@
 package koreatech.in.service.admin;
 
-import koreatech.in.domain.Shop.*;
-import koreatech.in.dto.admin.shop.request.*;
-import koreatech.in.dto.admin.shop.response.*;
-import koreatech.in.exception.*;
+import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_ALREADY_DELETED;
+import static koreatech.in.exception.ExceptionInformation.SHOP_CATEGORY_NAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.SHOP_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_MAXIMUM_EXCEED;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_CATEGORY_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_USING_CATEGORY_EXIST;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_DELETED;
+import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.SHOP_USING_CATEGORY_EXIST;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopCategory;
+import koreatech.in.domain.Shop.ShopCategoryMap;
+import koreatech.in.domain.Shop.ShopImage;
+import koreatech.in.domain.Shop.ShopMenu;
+import koreatech.in.domain.Shop.ShopMenuCategory;
+import koreatech.in.domain.Shop.ShopMenuCategoryMap;
+import koreatech.in.domain.Shop.ShopMenuDetail;
+import koreatech.in.domain.Shop.ShopMenuImage;
+import koreatech.in.domain.Shop.ShopMenuProfile;
+import koreatech.in.domain.Shop.ShopOpen;
+import koreatech.in.domain.Shop.ShopProfile;
+import koreatech.in.dto.admin.shop.request.CreateShopCategoryRequest;
+import koreatech.in.dto.admin.shop.request.CreateShopMenuCategoryRequest;
+import koreatech.in.dto.admin.shop.request.CreateShopMenuRequest;
+import koreatech.in.dto.admin.shop.request.CreateShopRequest;
+import koreatech.in.dto.admin.shop.request.ShopCategoriesCondition;
+import koreatech.in.dto.admin.shop.request.ShopsCondition;
+import koreatech.in.dto.admin.shop.request.UpdateShopCategoryRequest;
+import koreatech.in.dto.admin.shop.request.UpdateShopMenuCategoryRequest;
+import koreatech.in.dto.admin.shop.request.UpdateShopMenuRequest;
+import koreatech.in.dto.admin.shop.request.UpdateShopRequest;
+import koreatech.in.dto.admin.shop.response.AllMenuCategoriesOfShopResponse;
+import koreatech.in.dto.admin.shop.response.AllMenusOfShopResponse;
+import koreatech.in.dto.admin.shop.response.ShopCategoriesResponse;
+import koreatech.in.dto.admin.shop.response.ShopCategoryResponse;
+import koreatech.in.dto.admin.shop.response.ShopMenuResponse;
+import koreatech.in.dto.admin.shop.response.ShopResponse;
+import koreatech.in.dto.admin.shop.response.ShopsResponse;
+import koreatech.in.exception.BaseException;
 import koreatech.in.mapstruct.admin.shop.AdminShopCategoryConverter;
 import koreatech.in.mapstruct.admin.shop.AdminShopConverter;
 import koreatech.in.mapstruct.admin.shop.AdminShopMenuConverter;
@@ -12,11 +55,6 @@ import koreatech.in.repository.admin.AdminShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Service
 @Transactional
@@ -325,6 +363,18 @@ public class AdminShopServiceImpl implements AdminShopService {
     }
 
     @Override
+    public void updateMenuCategory(Integer shopId, UpdateShopMenuCategoryRequest request) {
+        ShopMenuCategory menuCategory = AdminShopMenuConverter.INSTANCE.toMenuCategory(shopId, request);
+        validatesExist(menuCategory);
+
+        adminShopMapper.updateMenuCategory(menuCategory);
+    }
+
+    private void validatesShopId(Integer shopId) {
+        getShopById(shopId);
+    }
+
+    @Override
     public void deleteMenuCategory(Integer shopId, Integer menuCategoryId) {
         getShopById(shopId); // 상점 존재 여부 체크
         checkMenuCategoryExistIdAndShopId(menuCategoryId, shopId);
@@ -336,6 +386,12 @@ public class AdminShopServiceImpl implements AdminShopService {
         }
 
         adminShopMapper.deleteMenuCategoryById(menuCategoryId);
+    }
+
+    private void validatesExist(ShopMenuCategory menuCategory) {
+
+        validatesShopId(menuCategory.getShop_id());
+        checkMenuCategoryExistIdAndShopId(menuCategory.getId(), menuCategory.getShop_id());
     }
 
     private void checkMenuCategoryExistIdAndShopId(Integer menuCategoryId, Integer shopId) {
