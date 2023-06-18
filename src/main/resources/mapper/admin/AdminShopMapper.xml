@@ -90,6 +90,12 @@
         )
     </select>
 
+    <update id="updateMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory">
+        UPDATE `koin`.`shop_menu_categories`
+        SET `name` = #{shopMenuCategory.name}
+        WHERE `id` = #{shopMenuCategory.id}
+    </update>
+
     <update id="deleteShopCategoryById" parameterType="integer">
         UPDATE `koin`.`shop_categories`
         SET `is_deleted` = 1
