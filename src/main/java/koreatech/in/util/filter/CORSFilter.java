@@ -26,6 +26,7 @@ public class CORSFilter implements Filter {
 
         if (allowedDomains.include(getClientURL(request), getServerURL(request))) {
             response.setHeader("Access-Control-Allow-Origin", getClientURL(request));
+            response.setHeader("Access-Control-Allow-Credentials", "true");
         }
 
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT");
