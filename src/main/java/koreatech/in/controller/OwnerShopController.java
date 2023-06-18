@@ -2,6 +2,7 @@ package koreatech.in.controller;
 
 import javax.validation.Valid;
 
+import koreatech.in.dto.normal.shop.request.UpdateMenuCategoryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -162,6 +163,34 @@ public class OwnerShopController {
     ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = ownerShopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상점 메뉴 카테고리 수정", notes = "- 사장님 권한만 허용\n- 인증 정보에 대한 신원이 해당 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(
+                    code = 401 , message
+                    = "- 잘못된 접근일 때 (code: 100001) \n"
+                    + "- 액세스 토큰이 만료되었을 때 (code: 100004) \n"
+                    , response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 해당 상점에 중복되는 이름의 메뉴 카테고리가 이미 존재할 때 (code: 104011) \n", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @ParamValid
+    @RequestMapping(value = "/{shopId}/menus/categories", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> updateMenuCategory(
+            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid UpdateMenuCategoryRequest request, BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        ownerShopService.updateMenuCategory(shopId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "상점의 메뉴 카테고리 삭제", notes = "- 사장님 권한만 허용\n- 인증 정보에 대한 신원이 해당 상점의 점주가 아니라면 403(Forbidden) 응답", authorizations = {@Authorization("Authorization")})
