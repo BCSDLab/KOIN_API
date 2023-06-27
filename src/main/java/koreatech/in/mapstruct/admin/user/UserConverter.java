@@ -14,7 +14,8 @@ public interface UserConverter {
     @Mappings({
             @Mapping(source = "source.page", target = "currentPage"),
             @Mapping(source = "source.limit", target = "limit"),
-            @Mapping(source = "totalCount", target = "totalCount")
+            @Mapping(source = "totalCount", target = "totalCount"),
+            @Mapping(source = "currentCount", target = "currentCount")
     })
-    PageInfo toPageInfo(NewOwnersCondition source, Integer totalCount);
+    PageInfo toPageInfo(NewOwnersCondition source, Integer totalCount, Integer currentCount);
 }
