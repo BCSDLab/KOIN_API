@@ -19,24 +19,24 @@ public class CORSFilter implements Filter {
     @Autowired
     private AllowedDomains allowedDomains;
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletResponse response = (HttpServletResponse) res;
-        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+        String clientOrigin = getClientOrigin(servletRequest);
 
-        if (allowedDomains.include(getClientOrigin(request))) {
-            response.setHeader("Access-Control-Allow-Origin", getClientOrigin(request));
-            response.setHeader("Access-Control-Allow-Credentials", "true");
+        if (allowedDomains.include(clientOrigin)) {
+            httpServletResponse.setHeader("Access-Control-Allow-Origin", clientOrigin);
+            httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
         }
 
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers","X-Requested-With, Origin, Content-Type, Accept, Authorization, password");
-        chain.doFilter(req, res);
+        httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT");
+        httpServletResponse.setHeader("Access-Control-Max-Age", "3600");
+        httpServletResponse.setHeader("Access-Control-Allow-Headers","X-Requested-With, Origin, Content-Type, Accept, Authorization, password");
+        chain.doFilter(servletRequest, servletResponse);
     }
 
-    private String getClientOrigin(HttpServletRequest request) {
-        return request.getHeader(CLIENT_ORIGIN_HEADER);
+    private String getClientOrigin(ServletRequest servletRequest) {
+        return ((HttpServletRequest) servletRequest).getHeader(CLIENT_ORIGIN_HEADER);
     }
 
     public void init(FilterConfig filterConfig) {
