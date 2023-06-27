@@ -17,8 +17,6 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-import java.sql.SQLException;
-
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
@@ -42,6 +40,7 @@ import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
@@ -53,7 +52,6 @@ import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
-import koreatech.in.dto.admin.user.response.PageResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
 import koreatech.in.dto.admin.user.student.response.StudentResponse;
 import koreatech.in.dto.admin.user.student.response.StudentUpdateResponse;
@@ -84,6 +82,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class AdminUserServiceImpl implements AdminUserService {
+    public static final String OWNER_SHOP_REDIS_PREFIX = "owner_shop@";
     @Autowired
     private UserMapper userMapper;
 
@@ -496,23 +495,40 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional(readOnly = true)
     public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
-        List<OwnerShop> ownerShops = getOwnerShopsFromRedis();
+        int totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
 
-        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, ownerShops.size());
-        //1. 사장님 정보 db에서 가져오기
-        //2. NewOwnersResponse MapStruct로 생성해서 사장님정보, pageInfo넘기기
-       List<Owner>adminUserMapper.getOwnersById(pageInfo);
+        List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
 
-        return null;
-        //return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
+        getOwnerShopsFromRedis(unauthenticatedOwners);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, unauthenticatedOwners.size());
+
+        List<NewOwnersResponse.NewOwner> newOwner = OwnerConverter.INSTANCE.toNewOwnerResponse$NewOwners(unauthenticatedOwners);
+
+        NewOwnersResponse response = OwnerConverter.INSTANCE.toNewOwnersResponse(pageInfo, newOwner);
+
+        return response;
     }
 
-    private List<OwnerShop> getOwnerShopsFromRedis() {
-        try {
-            return (List<OwnerShop>) stringRedisUtilObj.getDataListAsString("owner_shop@", OwnerShop.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private void getOwnerShopsFromRedis(List<OwnerIncludingShop> owners) {
+        for (OwnerIncludingShop owner : owners) {
+            OwnerShop ownerShop;
+
+            try {
+               ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (ownerShop != null) {
+                owner.setShop_id(ownerShop.getShop_id());
+                owner.setShop_name(ownerShop.getShop_name());
+            }
         }
+    }
+
+    private String getKeyForRedis(Integer id) {
+        return OWNER_SHOP_REDIS_PREFIX + id;
     }
 
     @Override
