@@ -1,6 +1,6 @@
 package koreatech.in.util.filter;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +9,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AllowedDomains {
-    private static final String LINE_DELIMITER = ",";
-
     private final Set<Origin> allowedOrigins;
 
     @Autowired
-    public AllowedDomains(@Value("${allowed.origins}") String allowDomainsLine) {
-        this.allowedOrigins = makeOrigins(allowDomainsLine);
+    public AllowedDomains(@Value("#{'${allowed.origins}'.split(',')}") List<String> allowDomains) {
+        this.allowedOrigins = makeOrigins(allowDomains);
     }
 
     public boolean include(String clientOrigin) {
@@ -26,10 +24,8 @@ public class AllowedDomains {
         return allowedOrigins.contains(Origin.from(clientOrigin));
     }
 
-    private Set<Origin> makeOrigins(String allowDomainLine) {
-        return Arrays.stream(allowDomainLine.split(LINE_DELIMITER))
-                .map(Origin::from)
-                .collect(Collectors.toSet());
+    private Set<Origin> makeOrigins(List<String> allowDomains) {
+        return allowDomains.stream().map(Origin::from).collect(Collectors.toSet());
     }
 
 }
