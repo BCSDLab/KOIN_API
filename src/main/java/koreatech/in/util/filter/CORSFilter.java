@@ -17,14 +17,14 @@ public class CORSFilter implements Filter {
     private static final String CLIENT_ORIGIN_HEADER = "Origin";
 
     @Autowired
-    private AllowedDomains allowedDomains;
+    private AllowedOrigins allowedOrigins;
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         String clientOrigin = getClientOrigin(servletRequest);
 
-        if (allowedDomains.include(clientOrigin)) {
+        if (allowedOrigins.include(clientOrigin)) {
             httpServletResponse.setHeader("Access-Control-Allow-Origin", clientOrigin);
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
         }

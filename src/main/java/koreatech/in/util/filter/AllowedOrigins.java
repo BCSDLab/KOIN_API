@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AllowedDomains {
+public class AllowedOrigins {
     private final Set<Origin> allowedOrigins;
 
     @Autowired
-    public AllowedDomains(@Value("#{'${allowed.origins}'.split(',')}") List<String> allowDomains) {
+    public AllowedOrigins(@Value("#{'${allowed.origins}'.split(',')}") List<String> allowDomains) {
         this.allowedOrigins = makeOrigins(allowDomains);
     }
 
