@@ -53,18 +53,4 @@ public class NewOwnersResponse {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private Date created_at;
     }
-    //DTO변환은 서비스에서 진행할 수 있도록 수정.
-    public static NewOwnersResponse of(Integer totalCount, Integer totalPage, Integer currentPage, List<Owner> owners) {
-        return NewOwnersResponse.builder()
-                .total_count(totalCount)
-                .total_page(totalPage)
-                .current_page(currentPage)
-                .current_count(owners.size())
-                .owners(
-                        owners.stream()
-                                .map(OwnerConverter.INSTANCE::toNewOwnersResponse$NewOwner)
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
 }
