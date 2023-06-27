@@ -11,9 +11,8 @@ public class Origin {
     private static final String HTTP = "http";
     private static final int DEFAULT_HTTPS_PORT = 443;
     private static final int DEFAULT_HTTP_PORT = 80;
+    private static final int EMPTY_PORT = -1;
 
-
-    public static final int EMPTY_PORT = -1;
     private final URI uri;
 
     private Origin(URI uri) {
@@ -51,11 +50,11 @@ public class Origin {
             if (uri.getPort() != EMPTY_PORT) {
                 return uri;
             }
-
             return new URIBuilder().setScheme(uri.getScheme())
                     .setHost(uri.getHost())
                     .setPort(makePortFrom(uri.getScheme()))
                     .build();
+
         } catch (IllegalArgumentException | URISyntaxException exception) {
             throw new IllegalArgumentException(String.format("origin의 %s가 규칙에 맞지 않습니다.", url));
         } catch (NullPointerException exception) {
