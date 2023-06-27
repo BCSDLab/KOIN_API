@@ -11,12 +11,14 @@ import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
 public class PageInfo {
     Integer totalPage;
     Integer totalCount;
+    Integer currentCount;
     Integer currentPage;
     Integer limit;
 
     @Builder
-    private PageInfo(Integer totalCount, Integer currentPage, Integer limit) {
+    private PageInfo(Integer totalCount, Integer currentCount, Integer currentPage, Integer limit) {
         this.totalCount = totalCount;
+        this.currentCount = currentCount;
         this.currentPage = currentPage;
         this.limit = limit;
         this.totalPage = extractTotalPage();
