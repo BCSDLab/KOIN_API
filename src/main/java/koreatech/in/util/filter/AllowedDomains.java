@@ -20,19 +20,12 @@ public class AllowedDomains {
         this.allowedOriginsWithEmptyPort = makeOriginsWithEmptyPort(allowDomainsLine);
     }
 
-    public boolean include(String clientOrigin, String serverOrigin) {
+    public boolean include(String clientOrigin) {
         if(clientOrigin == null || clientOrigin.isEmpty()) {
             return false;
         }
-        if (isSameOrigin(clientOrigin, serverOrigin)) {
-            return true;
-        }
-
+        
         return isAllowedUrl(Origin.from(clientOrigin));
-    }
-
-    private boolean isSameOrigin(String clientUrl, String serverUrl) {
-        return clientUrl.equals(serverUrl);
     }
 
     private boolean isAllowedUrl(Origin clinetOrigin) {

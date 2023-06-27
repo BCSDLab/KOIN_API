@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class Origin {
     public static final String SCHEME_SEPARATOR = "://";
-    public static final String PORT_SEPARATOR = ":";
 
     public static final int EMPTY_PORT = -1;
     private final URI uri;

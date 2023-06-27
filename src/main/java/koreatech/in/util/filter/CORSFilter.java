@@ -24,7 +24,7 @@ public class CORSFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
 
-        if (allowedDomains.include(getClientOrigin(request), getServerOrigin(request))) {
+        if (allowedDomains.include(getClientOrigin(request))) {
             response.setHeader("Access-Control-Allow-Origin", getClientOrigin(request));
             response.setHeader("Access-Control-Allow-Credentials", "true");
         }
@@ -37,10 +37,6 @@ public class CORSFilter implements Filter {
 
     private String getClientOrigin(HttpServletRequest request) {
         return request.getHeader(CLIENT_ORIGIN_HEADER);
-    }
-
-    private String getServerOrigin(HttpServletRequest request) {
-        return request.getScheme() + Origin.SCHEME_SEPARATOR + request.getServerName() + Origin.PORT_SEPARATOR + request.getServerPort();
     }
 
     public void init(FilterConfig filterConfig) {
