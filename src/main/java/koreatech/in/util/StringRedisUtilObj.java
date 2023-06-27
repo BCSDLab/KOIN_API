@@ -49,7 +49,7 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
     }
 
     public ArrayList<?> getDataListAsString(String prefix, Class<?> classType) throws IOException {
-        Set<String> keys = redisTemplate.keys("owner_shop@*");
+        Set<String> keys = redisTemplate.keys(prefix + "*");
         List<Object> objects = valOps.multiGet(keys);
 
         if (objects == null || objects.isEmpty()) {
