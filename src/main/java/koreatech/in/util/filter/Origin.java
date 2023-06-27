@@ -9,6 +9,7 @@ import org.apache.http.client.utils.URIBuilder;
 public class Origin {
     private static final String HTTPS = "https";
     private static final String HTTP = "http";
+
     private static final int DEFAULT_HTTPS_PORT = 443;
     private static final int DEFAULT_HTTP_PORT = 80;
     private static final int EMPTY_PORT = -1;
