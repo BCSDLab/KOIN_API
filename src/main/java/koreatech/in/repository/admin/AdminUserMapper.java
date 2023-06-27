@@ -3,6 +3,7 @@ package koreatech.in.repository.admin;
 import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import org.apache.ibatis.annotations.Param;
@@ -18,7 +19,7 @@ public interface AdminUserMapper {
     void deleteUserLogicallyById(@Param("id") Integer id);
     void undeleteUserLogicallyById(@Param("id") Integer id);
     Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
-    List<Owner> getUnauthenticatedOwnersByCondition(@Param("begin") Integer begin, @Param("condition") NewOwnersCondition condition);
+    List<OwnerIncludingShop> getUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     void updateOwnerAuthorById(Integer ownerId);
     Owner getFullOwnerById(@Param("id") Integer id);
     List<Integer> getShopsIdByOwnerId(Integer id);
