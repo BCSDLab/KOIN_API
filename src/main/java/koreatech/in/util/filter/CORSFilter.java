@@ -39,9 +39,11 @@ public class CORSFilter implements Filter {
         return ((HttpServletRequest) servletRequest).getHeader(CLIENT_ORIGIN_HEADER);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
     }
 
+    @Override
     public void destroy() {
     }
 
