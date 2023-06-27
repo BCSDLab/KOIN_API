@@ -487,6 +487,12 @@
                            ON `t1`.`id` = `t3`.`shop_menu_category_id`
     </select>
 
+    <update id="updateMenuCategory" parameterType="koreatech.in.domain.Shop.ShopMenuCategory">
+        UPDATE `koin`.`shop_menu_categories`
+        SET `name` = #{shopMenuCategory.name}
+        WHERE `id` = #{shopMenuCategory.id}
+    </update>
+
     <select id="getMenusUsingCategoryByMenuCategoryId" parameterType="integer" resultType="koreatech.in.domain.Shop.ShopMenu">
         SELECT *
         FROM `koin`.`shop_menus`

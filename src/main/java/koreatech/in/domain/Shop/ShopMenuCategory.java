@@ -1,14 +1,15 @@
 package koreatech.in.domain.Shop;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.util.Date;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Getter
-@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class ShopMenuCategory {
     private Integer id;
     private Integer shop_id;

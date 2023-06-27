@@ -58,6 +58,8 @@ public interface ShopMapper {
 
     List<ShopMenu> getMenusUsingCategoryByMenuCategoryId(@Param("menuCategoryId") Integer menuCategoryId);
 
+    void updateMenuCategory(@Param("shopMenuCategory") ShopMenuCategory shopMenuCategory);
+
     void deleteMenuCategoryById(@Param("id") Integer id);
 
     void createMenu(@Param("menu") ShopMenu menu);

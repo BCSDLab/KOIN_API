@@ -3,16 +3,18 @@ package koreatech.in.mapstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 import koreatech.in.domain.Shop.Shop;
+import koreatech.in.domain.Shop.ShopMenuCategory;
 import koreatech.in.domain.User.Domain;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.LocalParts;
 import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
+import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.global.AttachmentUrlRequest;
+import koreatech.in.dto.normal.shop.request.UpdateMenuCategoryRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -147,4 +149,8 @@ public interface OwnerConverter {
         }
         return toOwner(ownerRegisterRequest);
     }
+
+    @Mapping(source = "shopId", target="shop_id")
+    ShopMenuCategory toMenuCategory(Integer shopId, UpdateMenuCategoryRequest request);
+
 }
