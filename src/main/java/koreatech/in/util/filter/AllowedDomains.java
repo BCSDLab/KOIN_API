@@ -20,15 +20,15 @@ public class AllowedDomains {
         this.allowedOriginsWithEmptyPort = makeOriginsWithEmptyPort(allowDomainsLine);
     }
 
-    public boolean include(String clientUrl, String serverUrl) {
-        if(clientUrl == null || clientUrl.isEmpty()) {
+    public boolean include(String clientOrigin, String serverOrigin) {
+        if(clientOrigin == null || clientOrigin.isEmpty()) {
             return false;
         }
-        if (isSameOrigin(clientUrl, serverUrl)) {
+        if (isSameOrigin(clientOrigin, serverOrigin)) {
             return true;
         }
 
-        return isAllowedUrl(Origin.from(clientUrl));
+        return isAllowedUrl(Origin.from(clientOrigin));
     }
 
     private boolean isSameOrigin(String clientUrl, String serverUrl) {
