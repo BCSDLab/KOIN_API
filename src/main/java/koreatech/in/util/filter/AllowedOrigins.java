@@ -3,6 +3,7 @@ package koreatech.in.util.filter;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class AllowedOrigins {
     }
 
     public boolean include(String clientOrigin) {
-        if (clientOrigin == null || clientOrigin.isEmpty()) {
+        if (StringUtils.isEmpty(clientOrigin)) {
             return false;
         }
 
