@@ -1,10 +1,17 @@
 package koreatech.in.util.filter;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 
 public class Origin {
-    public static final String SCHEME_SEPARATOR = "://";
+    private static final String HTTPS = "https";
+    private static final String HTTP = "http";
+    private static final int DEFAULT_HTTPS_PORT = 443;
+    private static final int DEFAULT_HTTP_PORT = 80;
+
 
     public static final int EMPTY_PORT = -1;
     private final URI uri;
@@ -14,7 +21,7 @@ public class Origin {
     }
 
     public static Origin from(String url) {
-        return new Origin(makeURI(url));
+        return new Origin(makeURI(url.toLowerCase()));
     }
 
     @Override
@@ -27,7 +34,9 @@ public class Origin {
         }
         Origin other = (Origin) o;
 
-        return isEqualScheme(other) && isEqualHost(other) && isEqualPort(other);
+        return this.uri.getScheme().equals(other.uri.getScheme())
+                && this.uri.getHost().equals(other.uri.getHost())
+                && this.uri.getPort() == other.uri.getPort();
     }
 
     @Override
@@ -35,34 +44,37 @@ public class Origin {
         return Objects.hash(uri.getScheme(), uri.getHost(), uri.getPort());
     }
 
-    private boolean isEqualPort(Origin other) {
-        return this.uri.getPort() == other.uri.getPort();
-    }
-
-    public boolean isPortEmpty() {
-        return this.uri.getPort() == EMPTY_PORT;
-    }
-
-    private boolean isEqualHost(Origin other) {
-        return this.uri.getHost().equals(other.uri.getHost());
-    }
-
-    private boolean isEqualScheme(Origin other) {
-        return this.uri.getScheme().equals(other.uri.getScheme());
-    }
-
     private static URI makeURI(String url) {
         try {
-            return URI.create(url);
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException(String.format("allowed.origins의 %s가 규칙에 맞지 않습니다.", url));
+            URI uri = URI.create(url);
+
+            if (uri.getPort() != EMPTY_PORT) {
+                return uri;
+            }
+
+            return new URIBuilder().setScheme(uri.getScheme())
+                    .setHost(uri.getHost())
+                    .setPort(makePortFrom(uri.getScheme()))
+                    .build();
+        } catch (IllegalArgumentException | URISyntaxException exception) {
+            throw new IllegalArgumentException(String.format("origin의 %s가 규칙에 맞지 않습니다.", url));
         } catch (NullPointerException exception) {
-            throw new IllegalArgumentException(String.format("allowed.origins의 %s가 비어있습니다.", url));
+            throw new IllegalArgumentException(String.format("origin의 %s가 비어있습니다.", url));
         }
     }
 
-    public Origin withEmptyPort() {
-        return Origin.from(this.uri.getScheme() + SCHEME_SEPARATOR + this.uri.getHost());
+    private static int makePortFrom(String scheme) {
+        if (StringUtils.isEmpty(scheme)) {
+            throw new IllegalArgumentException();
+        }
+
+        if (HTTPS.equals(scheme)) {
+            return DEFAULT_HTTPS_PORT;
+        }
+        if (HTTP.equals(scheme)) {
+            return DEFAULT_HTTP_PORT;
+        }
+        return EMPTY_PORT;
     }
 
 }
