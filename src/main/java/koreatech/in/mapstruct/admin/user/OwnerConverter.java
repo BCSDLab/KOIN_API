@@ -1,6 +1,9 @@
 package koreatech.in.mapstruct.admin.user;
 
+import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerIncludingShop;
+import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
@@ -19,8 +22,6 @@ import java.util.List;
 public interface OwnerConverter {
     OwnerConverter INSTANCE = Mappers.getMapper(OwnerConverter.class);
 
-    NewOwnersResponse.NewOwner toNewOwnersResponse$NewOwner(Owner owner);
-
     Owner toOwner(OwnerUpdateRequest owner);
 
     OwnerUpdateResponse toOwnerUpdateResponse(Owner owner);
@@ -31,6 +32,28 @@ public interface OwnerConverter {
         @Mapping(source = "shopsId", target = "shopsId")
     })
     OwnerResponse toOwnerResponse(Owner owner, List<Integer> shopsId, List<Integer> attachmentsId);
+
+    @Mappings({
+        @Mapping(source = "id",target = "id"),
+        @Mapping(source = "email",target = "email"),
+        @Mapping(source = "name",target = "name"),
+        @Mapping(source = "phone_number",target = "phone_number"),
+        @Mapping(source = "shop_id",target = "shop_id"),
+        @Mapping(source = "shop_name",target = "shop_name"),
+        @Mapping(source = "created_at",target = "created_at"),
+    })
+    NewOwnersResponse.NewOwner toNewOwnerResponse$NewOwner(OwnerIncludingShop owner);
+
+    List<NewOwnersResponse.NewOwner> toNewOwnerResponse$NewOwners(List<OwnerIncludingShop> owners);
+
+    @Mappings({
+            @Mapping(source = "pageInfo.totalPage", target = "total_page"),
+            @Mapping(source = "pageInfo.totalCount", target = "total_count"),
+            @Mapping(source = "pageInfo.currentPage", target = "current_page"),
+            @Mapping(source = "pageInfo.currentCount", target = "current_count"),
+            @Mapping(source = "newOwner", target = "owners")
+    })
+    NewOwnersResponse toNewOwnersResponse(PageInfo pageInfo, List<NewOwnersResponse.NewOwner> newOwner);
 /*
     @Named("convertAttachments")
     default List<Integer> convertAttachments(List<Integer> attachmentsId) {
