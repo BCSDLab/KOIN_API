@@ -253,6 +253,8 @@
         FROM `koin`.`users`
         WHERE `user_type` = 'STUDENT'
 
+            AND `is_deleted` = 0
+
         <if test="criteria.is_authed != null">
             AND `is_authed` = #{criteria.is_authed}
         </if>
@@ -347,6 +349,8 @@
                  SELECT *
                  FROM `koin`.`users`
                  WHERE `user_type` = 'STUDENT'
+
+                    AND `is_deleted` = 0
 
                 <if test="criteria.is_authed != null">
                     AND `is_authed` = #{criteria.is_authed}
