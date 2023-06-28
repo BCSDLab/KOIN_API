@@ -217,7 +217,7 @@
     </delete>
 
     <select id="getTotalCountOfUnauthenticatedOwnersByCondition"
-            parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultType="integer">
+            parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultType="integer">
         SELECT COUNT(*)
         FROM `koin`.`users`
 
@@ -258,7 +258,7 @@
         </if>
     </select>
 
-    <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.NewOwnersCondition" resultMap="OwnerIncludingShopResultMap">
+    <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultMap="OwnerIncludingShopResultMap">
         SELECT
         `users`.`id` AS `users.id`,
         `users`.`email` AS `users.email`,
@@ -410,6 +410,75 @@
         WHERE nickname = #{nickname}
           AND id != #{userId}
             LIMIT 1;
+    </select>
+
+    <select id="getTotalCountOfOwnersByCondition"
+            parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`users`
+
+        <where>
+            <!-- 사장님만 조회 -->
+            `user_type` = 'OWNER'
+            <!-- 삭제되지 않은 회원만 조회 -->
+            AND `is_deleted` = 0
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultMap="OwnerResultMap">
+        SELECT
+        `users`.`id` AS `users.id`,
+        `users`.`email` AS `users.email`,
+        `users`.`password` AS `users.password`,
+        `users`.`nickname` AS `users.nickname`,
+        `users`.`name` AS `users.name`,
+        `users`.`phone_number` AS `users.phone_number`,
+        `users`.`user_type` AS `users.user_type`,
+        `users`.`gender` AS `users.gender`,
+        `users`.`is_authed` AS `users.is_authed`,
+        `users`.`last_logged_at` AS `users.last_logged_at`,
+        `users`.`profile_image_url` AS `users.profile_image_url`,
+        `users`.`auth_token` AS `users.auth_token`,
+        `users`.`auth_expired_at` AS `users.auth_expired_at`,
+        `users`.`reset_token` AS `users.reset_token`,
+        `users`.`reset_expired_at` AS `users.reset_expired_at`,
+        `users`.`is_deleted` AS `users.is_deleted`,
+        `users`.`created_at` AS `users.created_at`,
+        `users`.`updated_at` AS `users.updated_at`,
+
+        `owners`.`company_registration_number` AS `owners.company_registration_number`,
+        `owners`.`grant_shop` AS `owners.grant_shop`,
+        `owners`.`grant_event` AS `owners.grant_event`
+
+        FROM `koin`.`users` `users`
+
+        LEFT JOIN `koin`.`owners` `owners`
+        ON `users`.`id` = `owners`.`user_id`
+
+        <where>
+            `user_type` = 'OWNER'
+            AND `is_deleted` = 0
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+
+        <if test="condition.sort != null">
+            ORDER BY
+            <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`created_at` ASC</if>
+            <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`created_at` DESC</if>
+        </if>
+
+        LIMIT #{condition.cursor}, #{condition.limit}
     </select>
 
     <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User">
