@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class OwnerIncludingShop extends Owner {
-    Integer shop_id;
-    String shop_name;
+    private Integer shop_id;
+    private String shop_name;
 }
