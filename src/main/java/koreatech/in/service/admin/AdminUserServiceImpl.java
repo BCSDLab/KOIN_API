@@ -534,6 +534,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    @Transactional
     public OwnersResponse getOwners(OwnersCondition condition) {
         int totalCount = adminUserMapper.getTotalCountOfOwnersByCondition(condition);
 
