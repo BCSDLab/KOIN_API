@@ -569,6 +569,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         return response;
     }
 
+    private void getAuthedShopsFromDB(List<Owner> owners) {
+        for (Owner owner : owners) {
+            List<Shop> shops = adminShopMapper.getShopsByOwnerId(owner.getId());
+
+            if (shops != null) {
+                owner.setShops(shops);
+            }
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public OwnerResponse getOwner(int ownerId) {
