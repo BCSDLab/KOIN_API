@@ -8,6 +8,7 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.AuthedOwnersResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
@@ -62,4 +63,6 @@ public interface AdminUserService {
     TokenRefreshResponse refresh(TokenRefreshRequest request);
 
     OwnersResponse getOwners(OwnersCondition criteria);
+
+    AuthedOwnersResponse getAuthedOwners(OwnersCondition condition);
 }
