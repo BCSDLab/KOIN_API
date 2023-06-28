@@ -313,6 +313,8 @@ public class AdminUserController {
     @RequestMapping(value = "/admin/users/owners", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<OwnersResponse> getOwners(@ModelAttribute("condition") OwnersCondition condition) {
+        condition.checkDataConstraintViolation();
+        
         return new ResponseEntity<>(adminUserService.getOwners(condition), HttpStatus.OK);
     }
 
