@@ -40,7 +40,7 @@ public interface OwnerConverter {
         @Mapping(source = "phone_number",target = "phone_number"),
         @Mapping(source = "shop_id",target = "shop_id"),
         @Mapping(source = "shop_name",target = "shop_name"),
-        @Mapping(source = "created_at",target = "created_at"),
+        @Mapping(source = "created_at",target = "created_at")
     })
     NewOwnersResponse.NewOwner toNewOwnerResponse$NewOwner(OwnerIncludingShop owner);
 
@@ -51,9 +51,29 @@ public interface OwnerConverter {
             @Mapping(source = "pageInfo.totalCount", target = "total_count"),
             @Mapping(source = "pageInfo.currentPage", target = "current_page"),
             @Mapping(source = "pageInfo.currentCount", target = "current_count"),
-            @Mapping(source = "newOwner", target = "owners")
+            @Mapping(source = "newOwners", target = "owners")
     })
-    NewOwnersResponse toNewOwnersResponse(PageInfo pageInfo, List<NewOwnersResponse.NewOwner> newOwner);
+    NewOwnersResponse toNewOwnersResponse(PageInfo pageInfo, List<NewOwnersResponse.NewOwner> newOwners);
+
+    @Mappings({
+            @Mapping(source = "id",target = "id"),
+            @Mapping(source = "email",target = "email"),
+            @Mapping(source = "name",target = "name"),
+            @Mapping(source = "phone_number",target = "phone_number"),
+            @Mapping(source = "created_at",target = "created_at")
+    })
+    OwnersResponse.Owner toOwnersResponse$Owner(Owner ownerByCondition);
+
+    List<OwnersResponse.Owner> toOwnersResponse$Owners(List<Owner> ownersByCondition);
+
+    @Mappings({
+            @Mapping(source = "pageInfo.totalPage", target = "total_page"),
+            @Mapping(source = "pageInfo.totalCount", target = "total_count"),
+            @Mapping(source = "pageInfo.currentPage", target = "current_page"),
+            @Mapping(source = "pageInfo.currentCount", target = "current_count"),
+            @Mapping(source = "owners", target = "owners")
+    })
+    OwnersResponse toOwnersResponse(PageInfo pageInfo, List<OwnersResponse.Owner> owners);
 /*
     @Named("convertAttachments")
     default List<Integer> convertAttachments(List<Integer> attachmentsId) {
