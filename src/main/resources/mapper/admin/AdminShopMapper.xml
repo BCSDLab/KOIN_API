@@ -856,6 +856,15 @@
         </foreach>
     </delete>
 
+    <select id="getShopsByOwnerId" parameterType="integer" resultType="koreatech.in.domain.Shop.Shop">
+        SELECT *
+        FROM `koin`.`shops`
+        WHERE
+            `owner_id` = #{ownerId}
+          AND `is_deleted` =  0
+    </select>
+
+
     <resultMap id="ShopProfile" type="koreatech.in.domain.Shop.ShopProfile">
         <id property="id" column="shops.id"/>
         <result property="name" column="shops.name"/>
