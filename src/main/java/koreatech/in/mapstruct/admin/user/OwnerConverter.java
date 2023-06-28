@@ -7,6 +7,7 @@ import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
+import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
