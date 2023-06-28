@@ -47,8 +47,9 @@ import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
+import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
@@ -494,7 +495,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
+    public NewOwnersResponse getNewOwners(OwnersCondition condition) {
         int totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
 
         List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
@@ -529,6 +530,21 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private String getKeyForRedis(Integer id) {
         return OWNER_SHOP_REDIS_PREFIX + id;
+    }
+
+    @Override
+    public OwnersResponse getOwners(OwnersCondition condition) {
+        int totalCount = adminUserMapper.getTotalCountOfOwnersByCondition(condition);
+
+        List<Owner> ownersByCondition = adminUserMapper.getOwnersByCondition(condition);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, ownersByCondition.size());
+
+        List<OwnersResponse.Owner> owners = OwnerConverter.INSTANCE.toOwnersResponse$Owners(ownersByCondition);
+
+        OwnersResponse response = OwnerConverter.INSTANCE.toOwnersResponse(pageInfo, owners);
+
+        return response;
     }
 
     @Override
