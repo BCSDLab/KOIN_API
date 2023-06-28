@@ -39,6 +39,7 @@ import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
+import koreatech.in.domain.User.owner.AuthedOwner;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.owner.OwnerShop;
@@ -552,7 +553,17 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional(readOnly = true)
     public AuthedOwnersResponse getAuthedOwners(OwnersCondition condition) {
-        return null;
+        int totalCount = adminUserMapper.getTotalCountOfAuthedOwnersByCondition(condition);
+
+        List<AuthedOwner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
+
+        List<AuthedOwnersResponse.AuthedOwner> owners = OwnerConverter.INSTANCE.toAuthedOwnersResponse$AuthedOwners(authedOwners);
+
+        OwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
+
+        return response;
     }
 
     @Override
