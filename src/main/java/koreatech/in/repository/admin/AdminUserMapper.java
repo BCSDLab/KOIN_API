@@ -34,4 +34,6 @@ public interface AdminUserMapper {
     List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("criteria") StudentCriteria criteria);
     Integer getTotalCountOfOwnersByCondition(@Param("condition") OwnersCondition condition);
     List<Owner> getOwnersByCondition(@Param("condition") OwnersCondition condition);
+    Integer getTotalCountOfAuthedOwnersByCondition(@Param("condition") OwnersCondition condition);
+    List<Owner> getAuthedOwnersByCondition(@Param("condition") OwnersCondition condition);
 }
