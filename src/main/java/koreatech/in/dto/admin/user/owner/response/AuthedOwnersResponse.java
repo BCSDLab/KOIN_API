@@ -49,4 +49,13 @@ public class AuthedOwnersResponse {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private Date created_at;
     }
+
+    @Getter
+    @Builder
+    public static class Shop {
+        @ApiModelProperty(notes = "상점ID")
+        private Integer shop_id;
+        @ApiModelProperty(notes = "상점명")
+        private String shop_name;
+    }
 }
