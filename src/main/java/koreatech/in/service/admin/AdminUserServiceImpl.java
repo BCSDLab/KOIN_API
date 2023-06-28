@@ -35,11 +35,11 @@ import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
-import koreatech.in.domain.User.owner.AuthedOwner;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.owner.OwnerShop;
@@ -67,6 +67,7 @@ import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.mapstruct.admin.user.UserConverter;
+import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -555,13 +556,15 @@ public class AdminUserServiceImpl implements AdminUserService {
     public AuthedOwnersResponse getAuthedOwners(OwnersCondition condition) {
         int totalCount = adminUserMapper.getTotalCountOfAuthedOwnersByCondition(condition);
 
-        List<AuthedOwner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
+        List<Owner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
+
+        getAuthedShopsFromDB(authedOwners);
 
         PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
 
         List<AuthedOwnersResponse.AuthedOwner> owners = OwnerConverter.INSTANCE.toAuthedOwnersResponse$AuthedOwners(authedOwners);
 
-        OwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
+        AuthedOwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
 
         return response;
     }
