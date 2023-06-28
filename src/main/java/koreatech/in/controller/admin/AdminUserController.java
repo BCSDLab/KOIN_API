@@ -26,8 +26,9 @@ import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
+import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
@@ -285,14 +286,36 @@ public class AdminUserController {
     }
 
     @ApiOperation(value = "가입 신청한 사장님 리스트 조회 (페이지네이션)", authorizations = {@Authorization("Authorization")})
-    @RequestMapping(value = "/admin/new-owners", method = RequestMethod.GET)
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)" , response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/users/new-owners", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<NewOwnersResponse> getNewOwners(NewOwnersCondition condition) {
+    ResponseEntity<NewOwnersResponse> getNewOwners(OwnersCondition condition) {
         condition.checkDataConstraintViolation();
 
         NewOwnersResponse response = adminUserService.getNewOwners(condition);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "사장 리스트 조회 (페이지네이션)", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                    "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                    "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)" , response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/users/owners", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<OwnersResponse> getOwners(@ModelAttribute("condition") OwnersCondition condition) {
+        return new ResponseEntity<>(adminUserService.getOwners(condition), HttpStatus.OK);
+    }
+
     @ApiOperation(value = "특정 사장님 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization(value="Authorization")})
     @ApiResponses({
         @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
