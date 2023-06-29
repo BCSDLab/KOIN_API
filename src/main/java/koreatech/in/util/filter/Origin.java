@@ -3,15 +3,9 @@ package koreatech.in.util.filter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 public class Origin {
-    private static final String HTTPS = "https";
-    private static final String HTTP = "http";
-
-    private static final int DEFAULT_HTTPS_PORT = 443;
-    private static final int DEFAULT_HTTP_PORT = 80;
     private static final int EMPTY_PORT = -1;
 
     private final URI uri;
@@ -53,7 +47,7 @@ public class Origin {
             }
             return new URIBuilder().setScheme(uri.getScheme())
                     .setHost(uri.getHost())
-                    .setPort(makePortFrom(uri.getScheme()))
+                    .setPort(Scheme.getDefaultPortFor(uri.getScheme()))
                     .build();
 
         } catch (IllegalArgumentException | URISyntaxException exception) {
@@ -61,20 +55,6 @@ public class Origin {
         } catch (NullPointerException exception) {
             throw new IllegalArgumentException(String.format("origin의 %s가 비어있습니다.", url));
         }
-    }
-
-    private static int makePortFrom(String scheme) {
-        if (StringUtils.isEmpty(scheme)) {
-            throw new IllegalArgumentException();
-        }
-
-        if (HTTPS.equals(scheme)) {
-            return DEFAULT_HTTPS_PORT;
-        }
-        if (HTTP.equals(scheme)) {
-            return DEFAULT_HTTP_PORT;
-        }
-        return EMPTY_PORT;
     }
 
 }
