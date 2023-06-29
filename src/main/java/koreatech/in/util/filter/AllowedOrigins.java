@@ -10,23 +10,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AllowedOrigins {
-    private final Set<Origin> allowedOrigins;
+    private final Set<Origin> origins;
 
     @Autowired
-    public AllowedOrigins(@Value("#{'${allowed.origins}'.split(',')}") List<String> allowDomains) {
-        this.allowedOrigins = makeOrigins(allowDomains);
+    public AllowedOrigins(@Value("#{'${allowed.origins}'.split(',')}") List<String> allowedOrigins) {
+        this.origins = transformOrigins(allowedOrigins);
     }
 
     public boolean include(String clientOrigin) {
         if (StringUtils.isEmpty(clientOrigin)) {
             return false;
         }
-
-        return allowedOrigins.contains(Origin.from(clientOrigin));
+        return origins.contains(Origin.from(clientOrigin));
     }
 
-    private Set<Origin> makeOrigins(List<String> allowDomains) {
-        return allowDomains.stream().map(Origin::from).collect(Collectors.toSet());
+    private Set<Origin> transformOrigins(List<String> allowDomains) {
+        return allowDomains.stream()
+                .map(Origin::from)
+                .collect(Collectors.toSet());
     }
 
 }
