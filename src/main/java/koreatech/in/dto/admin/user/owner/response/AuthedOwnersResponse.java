@@ -42,20 +42,20 @@ public class AuthedOwnersResponse {
         @ApiModelProperty(notes = "전화번호")
         private String phone_number;
 
-        @ApiModelProperty(notes = "연결된 상점ID와 상점명")
-        private List<AuthedOwnersResponse.Shop> shops;
+        /*@ApiModelProperty(notes = "연결된 상점ID와 상점명")
+        private List<AuthedOwnersResponse.Shop> shops;*/
 
         @ApiModelProperty(notes = "가입 신청 일자", example = "2023-01-01 12:01:02", required = true)
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private Date created_at;
     }
 
-    @Getter
+/*    @Getter
     @Builder
     public static class Shop {
         @ApiModelProperty(notes = "상점ID")
         private Integer shop_id;
         @ApiModelProperty(notes = "상점명")
         private String shop_name;
-    }
+    }*/
 }

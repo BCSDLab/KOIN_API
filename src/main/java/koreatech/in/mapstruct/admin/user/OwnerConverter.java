@@ -76,12 +76,12 @@ public interface OwnerConverter {
             @Mapping(source = "email",target = "email"),
             @Mapping(source = "name",target = "name"),
             @Mapping(source = "phone_number",target = "phone_number"),
-            @Mapping(source = "shops", target = "shops"),
+//            @Mapping(source = "shops", target = "shops"),
             @Mapping(source = "created_at",target = "created_at")
     })
     AuthedOwnersResponse.AuthedOwner toAuthedOwnersResponse$AuthedOwner(Owner authedOwner);
 
-    default AuthedOwnersResponse.Shop mapShop(Shop shop) {
+/*    default AuthedOwnersResponse.Shop mapShop(Shop shop) {
         if (shop == null) {
             return null;
         }
@@ -91,7 +91,7 @@ public interface OwnerConverter {
                 .build();
     }
 
-    List<AuthedOwnersResponse.Shop> mapShops(List<Shop> shops);
+    List<AuthedOwnersResponse.Shop> mapShops(List<Shop> shops);*/
 
     List<AuthedOwnersResponse.AuthedOwner> toAuthedOwnersResponse$AuthedOwners(List<Owner> authedOwners);
 
