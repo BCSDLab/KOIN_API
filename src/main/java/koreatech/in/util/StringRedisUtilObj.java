@@ -48,7 +48,7 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
         return value.orElse(null);
     }
 
-    public ArrayList<?> getDataListAsString(String prefix, Class<?> classType) throws IOException {
+    public <T> ArrayList<? extends T> getDataListAsString(String prefix, Class<T> classType) throws IOException {
         Set<String> keys = redisTemplate.keys(prefix + "*");
         List<Object> objects = valOps.multiGet(keys);
 

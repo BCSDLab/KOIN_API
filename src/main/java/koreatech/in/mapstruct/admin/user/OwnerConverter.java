@@ -57,14 +57,7 @@ public interface OwnerConverter {
             @Mapping(source = "newOwners", target = "owners")
     })
     NewOwnersResponse toNewOwnersResponse(PageInfo pageInfo, List<NewOwnersResponse.NewOwner> newOwners);
-
-    @Mappings({
-            @Mapping(source = "id",target = "id"),
-            @Mapping(source = "email",target = "email"),
-            @Mapping(source = "name",target = "name"),
-            @Mapping(source = "phone_number",target = "phone_number"),
-            @Mapping(source = "created_at",target = "created_at")
-    })
+    
     OwnersResponse.Owner toOwnersResponse$Owner(Owner ownerByCondition);
 
     List<OwnersResponse.Owner> toOwnersResponse$Owners(List<Owner> ownersByCondition);
