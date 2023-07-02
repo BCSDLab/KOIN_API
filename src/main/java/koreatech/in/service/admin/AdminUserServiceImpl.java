@@ -558,7 +558,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         List<Owner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
 
-        getAuthedShopsFromDB(authedOwners);
+        //enrichAuthedOwnersFromDB(authedOwners);
 
         PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
 
@@ -569,7 +569,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         return response;
     }
 
-    private void getAuthedShopsFromDB(List<Owner> owners) {
+    private void enrichAuthedOwnersFromDB(List<Owner> owners) {
         for (Owner owner : owners) {
             List<Shop> shops = adminShopMapper.getShopsByOwnerId(owner.getId());
 
