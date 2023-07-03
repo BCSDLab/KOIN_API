@@ -120,4 +120,5 @@ public interface AdminShopMapper {
 
     void updateShopOwnerId(@Param("ownerId") Integer ownerId, @Param("shopId") Integer shopId);
 
+    List<Shop> getShopsByOwnerId(@Param("ownerId") Integer id);
 }

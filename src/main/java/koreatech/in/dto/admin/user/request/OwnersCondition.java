@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
-public class NewOwnersCondition extends Criteria {
+public class OwnersCondition extends Criteria {
     @ApiParam("검색 대상 \n" +
              "- query가 null이 아닐 경우 null이면 안됨 \n" +
              "- 다음중 하나로만 요청 가능 \n" +

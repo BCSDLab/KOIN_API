@@ -1,5 +1,6 @@
 package koreatech.in.util;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -45,6 +46,23 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
     private String getDataAsString(String key) {
         Optional<String> value = Optional.ofNullable((String) valOps.get(key));
         return value.orElse(null);
+    }
+
+    public <T> ArrayList<? extends T> getDataListAsString(String prefix, Class<T> classType) throws IOException {
+        Set<String> keys = redisTemplate.keys(prefix + "*");
+        List<Object> objects = valOps.multiGet(keys);
+
+        if (objects == null || objects.isEmpty()) {
+            return null;
+        }
+
+        ArrayList ret = new ArrayList();
+
+        for (Object item : objects) {
+            ret.add(objectMapper.readValue((String) item, classType));
+        }
+
+        return ret;
     }
 
     @Override

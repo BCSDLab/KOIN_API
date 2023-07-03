@@ -17,8 +17,6 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-import java.sql.SQLException;
-
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
@@ -37,17 +35,23 @@ import koreatech.in.domain.Auth.RefreshToken;
 import koreatech.in.domain.Authority;
 import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Shop.Shop;
 import koreatech.in.domain.User.EmailAddress;
+import koreatech.in.domain.User.PageInfo;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.UserCode;
 import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.domain.User.owner.OwnerIncludingShop;
+import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.AuthedOwnersResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
+import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.response.OwnerResponse;
@@ -62,6 +66,8 @@ import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
+import koreatech.in.mapstruct.admin.user.UserConverter;
+import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -69,6 +75,7 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.UserAccessJwtGenerator;
 import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +86,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class AdminUserServiceImpl implements AdminUserService {
+    public static final String OWNER_SHOP_REDIS_PREFIX = "owner_shop@";
     @Autowired
     private UserMapper userMapper;
 
@@ -108,6 +116,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private AuthenticationMapper redisAuthenticationMapper;
+
+    @Autowired
+    private StringRedisUtilObj stringRedisUtilObj;
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
@@ -487,17 +498,85 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
-        Integer totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
-        Integer totalPage = condition.extractTotalPage(totalCount);
-        Integer currentPage = condition.getPage();
+    public NewOwnersResponse getNewOwners(OwnersCondition condition) {
+        int totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
 
-        if (currentPage > totalPage) {
-            throw new BaseException(PAGE_NOT_FOUND);
+        List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
+
+        enrichOwnerFromRedis(unauthenticatedOwners);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, unauthenticatedOwners.size());
+
+        List<NewOwnersResponse.NewOwner> newOwner = OwnerConverter.INSTANCE.toNewOwnerResponse$NewOwners(unauthenticatedOwners);
+
+        NewOwnersResponse response = OwnerConverter.INSTANCE.toNewOwnersResponse(pageInfo, newOwner);
+
+        return response;
+    }
+
+    private void enrichOwnerFromRedis(List<OwnerIncludingShop> owners) {
+        for (OwnerIncludingShop owner : owners) {
+            OwnerShop ownerShop;
+
+            try {
+               ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (ownerShop != null) {
+                owner.setShop_id(ownerShop.getShop_id());
+                owner.setShop_name(ownerShop.getShop_name());
+            }
         }
+    }
 
-        List<Owner> owners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition.getCursor(), condition);
-        return NewOwnersResponse.of(totalCount, totalPage, currentPage, owners);
+    private String getKeyForRedis(Integer id) {
+        return OWNER_SHOP_REDIS_PREFIX + id;
+    }
+
+    @Override
+    @Transactional
+    public OwnersResponse getOwners(OwnersCondition condition) {
+        int totalCount = adminUserMapper.getTotalCountOfOwnersByCondition(condition);
+
+        List<Owner> ownersByCondition = adminUserMapper.getOwnersByCondition(condition);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, ownersByCondition.size());
+
+        List<OwnersResponse.Owner> owners = OwnerConverter.INSTANCE.toOwnersResponse$Owners(ownersByCondition);
+
+        OwnersResponse response = OwnerConverter.INSTANCE.toOwnersResponse(pageInfo, owners);
+
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthedOwnersResponse getAuthedOwners(OwnersCondition condition) {
+        int totalCount = adminUserMapper.getTotalCountOfAuthedOwnersByCondition(condition);
+
+        List<Owner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
+
+        //enrichAuthedOwnersFromDB(authedOwners);
+
+        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
+
+        List<AuthedOwnersResponse.AuthedOwner> owners = OwnerConverter.INSTANCE.toAuthedOwnersResponse$AuthedOwners(authedOwners);
+
+        AuthedOwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
+
+        return response;
+    }
+
+    private void enrichAuthedOwnersFromDB(List<Owner> owners) {
+        for (Owner owner : owners) {
+            List<Shop> shops = adminShopMapper.getShopsByOwnerId(owner.getId());
+
+            if (shops != null) {
+                owner.setShops(shops);
+            }
+        }
     }
 
     @Override

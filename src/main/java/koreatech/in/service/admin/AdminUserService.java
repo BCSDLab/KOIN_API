@@ -8,9 +8,11 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
+import koreatech.in.dto.admin.user.owner.response.AuthedOwnersResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
+import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
-import koreatech.in.dto.admin.user.request.NewOwnersCondition;
+import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
 import koreatech.in.dto.admin.user.student.request.StudentUpdateRequest;
@@ -50,7 +52,7 @@ public interface AdminUserService {
 
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
 
-    NewOwnersResponse getNewOwners(NewOwnersCondition condition);
+    NewOwnersResponse getNewOwners(OwnersCondition condition);
 
     void allowOwnerPermission(Integer ownerId, Integer shopId);
 
@@ -59,4 +61,8 @@ public interface AdminUserService {
     OwnerUpdateResponse updateOwner(Integer userId, OwnerUpdateRequest request);
 
     TokenRefreshResponse refresh(TokenRefreshRequest request);
+
+    OwnersResponse getOwners(OwnersCondition criteria);
+
+    AuthedOwnersResponse getAuthedOwners(OwnersCondition condition);
 }
