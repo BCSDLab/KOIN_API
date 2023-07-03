@@ -503,7 +503,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
 
-        enrichOwnerFromRedis(unauthenticatedOwners);
+        getOwnerShopsFromRedis(unauthenticatedOwners);
 
         PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, unauthenticatedOwners.size());
 
@@ -514,7 +514,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         return response;
     }
 
-    private void enrichOwnerFromRedis(List<OwnerIncludingShop> owners) {
+    private void getOwnerShopsFromRedis(List<OwnerIncludingShop> owners) {
         for (OwnerIncludingShop owner : owners) {
             OwnerShop ownerShop;
 
