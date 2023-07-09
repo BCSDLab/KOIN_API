@@ -1,7 +1,7 @@
 package koreatech.in.util.jwt.key;
 
-import com.google.gson.JsonObject;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -143,11 +143,9 @@ public class JwtKeyManager {
     }
 
     private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
-        JsonObject encodedKeysJson = new JsonObject();
-
-        encodedKeysJson.addProperty(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()));
-        encodedKeysJson.addProperty(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()));
-
-        return (DBObject) JSON.parse(encodedKeysJson.toString());
+        return BasicDBObjectBuilder.start()
+                .add(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()))
+                .add(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()))
+                .get();
     }
 }
