@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
@@ -69,15 +68,13 @@ public class JwtKeyManager {
         Optional<DBObject> jwtKeysInDBOptional = Optional.ofNullable(secretKeyCollection.findOne());
 
         if (!jwtKeysInDBOptional.isPresent()) {
-            return createAndInsertDB(secretKeyCollection);
+            return createKeys(secretKeyCollection);
         }
 
-        DBObject jwtKeysInDB = jwtKeysInDBOptional.get();
-
-        if(!needAnyKeyUpdate(jwtKeysInDB)) {
-            return maintainKeysOnly(jwtKeysInDB);
+        if (!needAnyKeyUpdate(jwtKeysInDBOptional.get())) {
+            return maintainKeysOnly(jwtKeysInDBOptional.get());
         }
-        return upsertJWTKeys(secretKeyCollection, jwtKeysInDB);
+        return upsertJWTKeys(secretKeyCollection, jwtKeysInDBOptional.get());
     }
 
     private JWTKeys upsertJWTKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
@@ -98,14 +95,14 @@ public class JwtKeyManager {
         return JWTKeys.of(decode(accessKey), decode(refreshKey));
     }
 
-    private JWTKeys createAndInsertDB(DBCollection secretKeyCollection) {
+    private JWTKeys createKeys(DBCollection secretKeyCollection) {
         JWTKeys newJwtKeys = createKeys();
         secretKeyCollection.insert(toDBObjectWithEncode(newJwtKeys));
         return newJwtKeys;
     }
 
     private SecretKey enrichKeyFor(DBObject jwtKeysInDB, String keyFieldName) {
-        if(needKeyCreate(jwtKeysInDB, keyFieldName)) {
+        if (needKeyCreate(jwtKeysInDB, keyFieldName)) {
             return createKey(keyFieldName);
         }
 
@@ -140,13 +137,9 @@ public class JwtKeyManager {
     private SecretKey createKey(String keyFieldName) {
         try {
             return decode(redisAuthenticationMapper.getDeprecatedKey(keyFieldName));
-        } catch(IOException exception) {
-            return createKey();
+        } catch (IOException exception) {
+            return Keys.secretKeyFor(signatureAlgorithm);
         }
-    }
-
-    private SecretKey createKey() {
-        return Keys.secretKeyFor(signatureAlgorithm);
     }
 
     private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
