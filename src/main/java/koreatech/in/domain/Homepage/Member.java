@@ -2,25 +2,31 @@ package koreatech.in.domain.Homepage;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.annotation.ValidationGroups;
-
-import javax.validation.constraints.NotNull;
 import java.util.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import koreatech.in.annotation.ValidationGroups;
 
 public class Member {
     @ApiModelProperty(notes = "고유 id", example = "10")
+    @Max(value = 10000000, groups = ValidationGroups.CreateAdmin.class, message = "id는 10000000 이하의 숫자만 가능합니다.")
     private Integer id;
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "이름은 비워둘 수 없습니다.")
+    @Max(value = 50, groups = ValidationGroups.CreateAdmin.class, message = "이름은 50자 이하로 입력해주세요.")
     @ApiModelProperty(notes = "이름", example = "최박김")
     private String name;
+    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "학번은 20자 이하로 입력해주세요.")
     @ApiModelProperty(notes = "학번", example = "2019136001")
     private String student_number;
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "소속 트랙은 비워둘 수 없습니다.")
+    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "소속 트랙은 20자 이하로 입력해주세요.")
     @ApiModelProperty(notes = "소속 트랙", example = "BackEnd")
     private String track;
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "직급은 비워둘 수 없습니다.")
+    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "직급은 20자 이하로 입력해주세요.")
     @ApiModelProperty(notes = "직급", example = "Mentor")
     private String position;
+    @Max(value = 100, groups = ValidationGroups.CreateAdmin.class, message = "이메일은 100자 이하로 입력해주세요.")
     @ApiModelProperty(notes = "이메일", example = "babaisu@koreatech.ac.kr")
     private String email;
     @ApiModelProperty(notes = "이미지 링크", example = "http://url.com")
