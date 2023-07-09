@@ -3,6 +3,7 @@ package koreatech.in.repository;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
+import koreatech.in.util.jwt.key.JwtKeyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -32,10 +33,12 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId);
     }
 
-    @Override
-    public String getKey() throws IOException {
+    public String getDeprecatedKey(String keyName) throws IOException {
+        if(!JwtKeyManager.REFRESH_KEY_FIELD_NAME.equals(keyName)) {
+            throw new IOException("Refresh Key는 Redis에 저장되어있지 않습니다.");
+        }
+
         return stringRedisUtilStr.getDataAsString(SECRET_KEY);
     }
-
 
 }

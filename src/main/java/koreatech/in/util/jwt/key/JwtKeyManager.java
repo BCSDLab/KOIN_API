@@ -1,4 +1,4 @@
-package koreatech.in.util.jwt;
+package koreatech.in.util.jwt.key;
 
 import com.google.gson.JsonObject;
 import com.mongodb.BasicDBObject;
@@ -23,8 +23,8 @@ import org.springframework.util.StringUtils;
 @Component
 public class JwtKeyManager {
     //TODO AccessKeyManager, RefreshKeyManager로 분리하기.  (KeyManager Interface -> AbastractKeyManager -> {AccKeyMangner, RefKeyManager}
-    private static final String ACCESS_KEY_FIELD_NAME = "access_key";
-    private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
+    public static final String ACCESS_KEY_FIELD_NAME = "access_key";
+    public static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
 
     @Autowired
@@ -138,22 +138,10 @@ public class JwtKeyManager {
     }
 
     private SecretKey createKey(String keyFieldName) {
-        Optional<String> keyFromRedis = getKeyFor(keyFieldName);
-
-        if(keyFromRedis.isPresent()) {
-            return decode(keyFromRedis.get());
-        }
-        return createKey();
-    }
-
-    private Optional<String> getKeyFor(String keyFieldName) {
-        if(!ACCESS_KEY_FIELD_NAME.equals(keyFieldName)) {
-            return Optional.empty();
-        }
         try {
-            return Optional.ofNullable(redisAuthenticationMapper.getKey());
-        } catch (IOException ignored) {
-            return Optional.empty();
+            return decode(redisAuthenticationMapper.getDeprecatedKey(keyFieldName));
+        } catch(IOException exception) {
+            return createKey();
         }
     }
 
