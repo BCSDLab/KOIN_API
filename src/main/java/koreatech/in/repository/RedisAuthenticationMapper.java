@@ -19,11 +19,13 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
 
     private static final String redisLoginTokenKeyPrefix = "user:";
 
+    @Override
     public void setRefreshToken(String refreshToken, Integer userId) {
         stringRedisUtilStr.setDataAsString(redisLoginTokenKeyPrefix + userId, refreshToken,
                 TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS), TimeUnit.HOURS);
     }
 
+    @Override
     public String getRefreshToken(Integer userId) throws IOException {
         return stringRedisUtilStr.getDataAsString(redisLoginTokenKeyPrefix + userId);
     }
@@ -33,7 +35,8 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId);
     }
 
-    public Optional<String> getDeprecatedKey(String keyName) {
+    @Override
+    public Optional<String> getDeprecatedJWTKey(String keyName) {
         if (JwtKeyManager.REFRESH_KEY_FIELD_NAME.equals(keyName)) {
             return Optional.empty();
         }

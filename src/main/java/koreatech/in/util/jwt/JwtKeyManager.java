@@ -67,12 +67,12 @@ public class JwtKeyManager {
     private JWTKeys createKeys(DBCollection secretKeyCollection) {
         JWTKeys newJwtKeys = JWTKeys.of(createKey(ACCESS_KEY_FIELD_NAME), createKey(REFRESH_KEY_FIELD_NAME));
 
-        secretKeyCollection.insert(toDBObjectWithEncode(newJwtKeys));
+        secretKeyCollection.insert(makeDBObject(newJwtKeys));
         return newJwtKeys;
     }
 
     private SecretKey createKey(String keyFieldName) {
-        Optional<String> deprecatedKey = redisAuthenticationMapper.getDeprecatedKey(keyFieldName);
+        Optional<String> deprecatedKey = redisAuthenticationMapper.getDeprecatedJWTKey(keyFieldName);
         if(!deprecatedKey.isPresent()) {
             return Keys.secretKeyFor(signatureAlgorithm);
         }
@@ -96,7 +96,7 @@ public class JwtKeyManager {
                 updateKey(jwtKeysInDB, ACCESS_KEY_FIELD_NAME),
                 updateKey(jwtKeysInDB, REFRESH_KEY_FIELD_NAME)
         );
-        secretKeyCollection.update(new BasicDBObject(), toDBObjectWithEncode(updatedKeys), true, false);
+        secretKeyCollection.update(new BasicDBObject(), makeDBObject(updatedKeys), true, false);
 
         return updatedKeys;
     }
@@ -128,7 +128,7 @@ public class JwtKeyManager {
         return new SecretKeySpec(decodedKey, OFFSET, decodedKey.length, signatureAlgorithm.getJcaName());
     }
 
-    private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
+    private DBObject makeDBObject(JWTKeys jwtKeys) {
         return BasicDBObjectBuilder.start()
                 .add(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()))
                 .add(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()))
