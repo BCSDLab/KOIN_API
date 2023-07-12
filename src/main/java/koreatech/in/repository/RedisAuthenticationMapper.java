@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
-import koreatech.in.util.jwt.JwtKeyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +36,7 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
 
     @Override
     public Optional<String> getDeprecatedJWTKey(String keyName) {
-        if (JwtKeyManager.REFRESH_KEY_FIELD_NAME.equals(keyName)) {
+        if (!SECRET_KEY.equals(keyName)) {
             return Optional.empty();
         }
 

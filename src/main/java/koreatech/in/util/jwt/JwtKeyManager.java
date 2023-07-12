@@ -1,5 +1,7 @@
 package koreatech.in.util.jwt;
 
+import static koreatech.in.repository.RedisAuthenticationMapper.SECRET_KEY;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -20,11 +22,11 @@ import org.springframework.util.StringUtils;
 
 @Component
 public class JwtKeyManager {
-    //TODO AccessKeyManager, RefreshKeyManager로 분리하기.  (KeyManager Interface -> AbastractKeyManager -> {AccKeyMangner, RefKeyManager}
-    public static final String ACCESS_KEY_FIELD_NAME = "access_key";
-    public static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
+    private static final String ACCESS_KEY_FIELD_NAME = "access_key";
+    private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
-    public static final int OFFSET = 0;
+
+    private static final int OFFSET = 0;
 
     @Autowired
     private AuthenticationMapper redisAuthenticationMapper;
@@ -65,7 +67,9 @@ public class JwtKeyManager {
     }
 
     private JWTKeys createKeys(DBCollection secretKeyCollection) {
-        JWTKeys newJwtKeys = JWTKeys.of(createKey(ACCESS_KEY_FIELD_NAME), createKey(REFRESH_KEY_FIELD_NAME));
+        JWTKeys newJwtKeys = JWTKeys.of(
+                createKey(SECRET_KEY), //Access Token의 키가 deprecated된 저장소에 있다면 가져오고 없다면 새로 만든다.
+                Keys.secretKeyFor(signatureAlgorithm));//Refresh Token의 키는 다른 저장소에 있지 않아, 새로 만든다.
 
         secretKeyCollection.insert(makeDBObject(newJwtKeys));
         return newJwtKeys;
