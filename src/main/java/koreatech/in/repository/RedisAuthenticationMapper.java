@@ -1,6 +1,7 @@
 package koreatech.in.repository;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
 import koreatech.in.util.jwt.JwtKeyManager;
@@ -21,7 +22,6 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
     public void setRefreshToken(String refreshToken, Integer userId) {
         stringRedisUtilStr.setDataAsString(redisLoginTokenKeyPrefix + userId, refreshToken,
                 TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS), TimeUnit.HOURS);
-
     }
 
     public String getRefreshToken(Integer userId) throws IOException {
@@ -33,12 +33,16 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
         stringRedisUtilStr.deleteData(redisLoginTokenKeyPrefix + userId);
     }
 
-    public String getDeprecatedKey(String keyName) throws IOException {
-        if(!JwtKeyManager.REFRESH_KEY_FIELD_NAME.equals(keyName)) {
-            throw new IOException("Refresh Key는 Redis에 저장되어있지 않습니다.");
+    public Optional<String> getDeprecatedKey(String keyName) {
+        if (JwtKeyManager.REFRESH_KEY_FIELD_NAME.equals(keyName)) {
+            return Optional.empty();
         }
 
-        return stringRedisUtilStr.getDataAsString(SECRET_KEY);
+        try {
+            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(SECRET_KEY));
+        } catch (IOException exception) {
+            return Optional.empty();
+        }
     }
 
 }

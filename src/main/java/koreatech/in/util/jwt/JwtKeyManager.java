@@ -6,7 +6,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
@@ -52,31 +51,44 @@ public class JwtKeyManager {
 
     private JWTKeys getKeys() {
         DBCollection secretKeyCollection = mongoTemplate.getCollection(SECRET_KEY_COLLECTION);
-        Optional<DBObject> jwtKeysInDBOptional = Optional.ofNullable(secretKeyCollection.findOne());
+        Optional<DBObject> jwtKeys = Optional.ofNullable(secretKeyCollection.findOne());
 
-        if (!jwtKeysInDBOptional.isPresent()) {
+        if (!jwtKeys.isPresent()) {
             return createKeys(secretKeyCollection);
         }
 
-        if (needAnyKeyUpdate(jwtKeysInDBOptional.get())) {
-            return updateKeys(secretKeyCollection, jwtKeysInDBOptional.get());
+        if (needAnyKeyUpdate(jwtKeys.get())) {
+            return updateKeys(secretKeyCollection, jwtKeys.get());
         }
 
-        return getKeys(jwtKeysInDBOptional.get());
+        return getKeys(jwtKeys.get());
     }
 
     private JWTKeys createKeys(DBCollection secretKeyCollection) {
-        JWTKeys newJwtKeys = JWTKeys.of(
-                createKey(ACCESS_KEY_FIELD_NAME),
-                createKey(REFRESH_KEY_FIELD_NAME)
-        );
+        JWTKeys newJwtKeys = JWTKeys.of(createKey(ACCESS_KEY_FIELD_NAME), createKey(REFRESH_KEY_FIELD_NAME));
 
         secretKeyCollection.insert(toDBObjectWithEncode(newJwtKeys));
         return newJwtKeys;
     }
 
+    private SecretKey createKey(String keyFieldName) {
+        Optional<String> deprecatedKey = redisAuthenticationMapper.getDeprecatedKey(keyFieldName);
+        if(!deprecatedKey.isPresent()) {
+            return Keys.secretKeyFor(signatureAlgorithm);
+        }
+        return decode(deprecatedKey.get());
+    }
+
     private boolean needAnyKeyUpdate(DBObject jwtKeysInDB) {
         return needKeyCreate(jwtKeysInDB, ACCESS_KEY_FIELD_NAME) || needKeyCreate(jwtKeysInDB, REFRESH_KEY_FIELD_NAME);
+    }
+
+    private boolean needKeyCreate(DBObject jwtKeysInDB, String fieldName) {
+        if (!(jwtKeysInDB.containsField(fieldName))) {
+            return true;
+        }
+
+        return !StringUtils.isEmpty(jwtKeysInDB.get(fieldName));
     }
 
     private JWTKeys updateKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
@@ -89,21 +101,6 @@ public class JwtKeyManager {
         return updatedKeys;
     }
 
-    private JWTKeys getKeys(DBObject jwtKeysInDB) {
-        String accessKey = (String) jwtKeysInDB.get(ACCESS_KEY_FIELD_NAME);
-        String refreshKey = (String) jwtKeysInDB.get(REFRESH_KEY_FIELD_NAME);
-
-        return JWTKeys.of(decode(accessKey), decode(refreshKey));
-    }
-
-    private SecretKey createKey(String keyFieldName) {
-        try {
-            return decode(redisAuthenticationMapper.getDeprecatedKey(keyFieldName));
-        } catch (IOException exception) {
-            return Keys.secretKeyFor(signatureAlgorithm);
-        }
-    }
-
     private SecretKey updateKey(DBObject jwtKeysInDB, String keyFieldName) {
         if (needKeyCreate(jwtKeysInDB, keyFieldName)) {
             return createKey(keyFieldName);
@@ -112,13 +109,11 @@ public class JwtKeyManager {
         return decode((String) jwtKeysInDB.get(keyFieldName));
     }
 
-    private boolean needKeyCreate(DBObject jwtKeysInDB, String fieldName) {
-        if (!(jwtKeysInDB.containsField(fieldName))) {
-            return true;
-        }
+    private JWTKeys getKeys(DBObject jwtKeysInDB) {
+        String accessKey = (String) jwtKeysInDB.get(ACCESS_KEY_FIELD_NAME);
+        String refreshKey = (String) jwtKeysInDB.get(REFRESH_KEY_FIELD_NAME);
 
-        Object fieldKey = jwtKeysInDB.get(fieldName);
-        return !(fieldKey instanceof String) || ((String) fieldKey).isEmpty();
+        return JWTKeys.of(decode(accessKey), decode(refreshKey));
     }
 
     private static String encode(SecretKey secretKey) {
