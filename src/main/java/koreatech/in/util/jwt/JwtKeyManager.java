@@ -25,6 +25,7 @@ public class JwtKeyManager {
     public static final String ACCESS_KEY_FIELD_NAME = "access_key";
     public static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
+    public static final int OFFSET = 0;
 
     @Autowired
     private AuthenticationMapper redisAuthenticationMapper;
@@ -129,7 +130,7 @@ public class JwtKeyManager {
             return null;
         }
         byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
+        return new SecretKeySpec(decodedKey, OFFSET, decodedKey.length, signatureAlgorithm.getJcaName());
     }
 
     private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
