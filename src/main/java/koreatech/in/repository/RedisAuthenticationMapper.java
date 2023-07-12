@@ -3,7 +3,7 @@ package koreatech.in.repository;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
-import koreatech.in.util.jwt.key.JwtKeyManager;
+import koreatech.in.util.jwt.JwtKeyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
