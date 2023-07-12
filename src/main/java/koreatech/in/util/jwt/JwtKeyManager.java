@@ -1,4 +1,4 @@
-package koreatech.in.util.jwt.key;
+package koreatech.in.util.jwt;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
