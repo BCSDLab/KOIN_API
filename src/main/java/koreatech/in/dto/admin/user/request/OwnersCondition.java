@@ -31,14 +31,28 @@ public class OwnersCondition extends Criteria {
               "  - `CREATED_AT_DESC` (최신순)")
     private Sort sort;
 
-    private enum SearchType {
+    @ApiParam("유저 권한 타입 \n"
+            + "- null 가능, null일 경우 기본 값 ALL \n"
+            + "- 다음 중 하나로만 요청 가능 \n"
+            + " - `ALL` \n"
+            + " - `AUTHED` \n"
+            + " - `UNAUTHED`")
+    private AuthType auth_type = AuthType.ALL;
+
+    public enum SearchType {
         EMAIL,
         NAME
     }
 
-    private enum Sort {
+    public enum Sort {
         CREATED_AT_ASC,
         CREATED_AT_DESC
+    }
+
+    private enum AuthType {
+        ALL,
+        AUTHED,
+        UNAUTHED
     }
 
     public void checkDataConstraintViolation() {
