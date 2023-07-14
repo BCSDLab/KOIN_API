@@ -47,10 +47,10 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
-import koreatech.in.dto.admin.user.owner.response.AuthedOwnersResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
@@ -498,7 +498,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public NewOwnersResponse getNewOwners(OwnersCondition condition) {
+    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
         int totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
 
         List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
@@ -547,24 +547,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<OwnersResponse.Owner> owners = OwnerConverter.INSTANCE.toOwnersResponse$Owners(ownersByCondition);
 
         OwnersResponse response = OwnerConverter.INSTANCE.toOwnersResponse(pageInfo, owners);
-
-        return response;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public AuthedOwnersResponse getAuthedOwners(OwnersCondition condition) {
-        int totalCount = adminUserMapper.getTotalCountOfAuthedOwnersByCondition(condition);
-
-        List<Owner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
-
-        //enrichAuthedOwnersFromDB(authedOwners);
-
-        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
-
-        List<AuthedOwnersResponse.AuthedOwner> owners = OwnerConverter.INSTANCE.toAuthedOwnersResponse$AuthedOwners(authedOwners);
-
-        AuthedOwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
 
         return response;
     }
