@@ -3,6 +3,7 @@ package koreatech.in.service;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +45,12 @@ public class OwnerServiceImpl implements OwnerService {
 
     private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
     private static final String CERTIFICATION_CODE = "certification-code";
+    private static final String EMAIL_ADDRESS = "email-address";
+    private static final String YEAR = "year";
+    private static final String MONTH = "month";
+    private static final String DAY_OF_MONTH = "day_of_month";
+    private static final String HOUR = "hour";
+    private static final String MINUTE = "minute";
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -71,6 +78,43 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private OwnerMapper ownerMapper;
+
+    @Override
+    public void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest) {
+        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
+        validateEmailUniqueness(emailAddress);
+
+        CertificationCode certificationCode = RandomGenerator.getCertificationCode();
+        OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
+
+        emailAddress.validateSendable();
+
+        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
+        sendMailWithTimes(emailAddress, certificationCode);
+
+        slackNotiSender.noticeEmailVerification(ownerInVerification);
+    }
+
+    private void sendMailWithTimes(EmailAddress emailAddress, CertificationCode certificationCode) {
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
+                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT, mailFormWithTimes(certificationCode,emailAddress.getEmailAddress()));
+
+    }
+
+    private String mailFormWithTimes(CertificationCode certificationCode, String emailAddress) {
+        LocalDateTime now = LocalDateTime.now();
+        Map<String, Object> model = new HashMap<>();
+        model.put(CERTIFICATION_CODE, certificationCode.getValue());
+        model.put(EMAIL_ADDRESS, emailAddress);
+        model.put(YEAR,now.getYear());
+        model.put(MONTH, now.getMonthValue());
+        model.put(DAY_OF_MONTH, now.getDayOfMonth());
+        model.put(HOUR, now.getHour());
+        model.put(MINUTE, now.getMinute());
+
+        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
+                StandardCharsets.UTF_8.name(), model);
+    }
 
     @Override
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
