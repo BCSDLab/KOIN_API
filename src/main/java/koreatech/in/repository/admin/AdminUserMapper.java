@@ -5,6 +5,7 @@ import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.student.Student;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.request.OwnersCondition;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -18,8 +19,8 @@ public interface AdminUserMapper {
     User getUndeletedUserByEmail(@Param("email") String email);
     void deleteUserLogicallyById(@Param("id") Integer id);
     void undeleteUserLogicallyById(@Param("id") Integer id);
-    Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") OwnersCondition condition);
-    List<OwnerIncludingShop> getUnauthenticatedOwnersByCondition(@Param("condition") OwnersCondition condition);
+    Integer getTotalCountOfUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
+    List<OwnerIncludingShop> getUnauthenticatedOwnersByCondition(@Param("condition") NewOwnersCondition condition);
     void updateOwnerAuthorById(Integer ownerId);
     Owner getFullOwnerById(@Param("id") Integer id);
     List<Integer> getShopsIdByOwnerId(Integer id);
@@ -34,6 +35,4 @@ public interface AdminUserMapper {
     List<Student> getStudentsByCondition(@Param("begin") Integer begin, @Param("criteria") StudentCriteria criteria);
     Integer getTotalCountOfOwnersByCondition(@Param("condition") OwnersCondition condition);
     List<Owner> getOwnersByCondition(@Param("condition") OwnersCondition condition);
-    Integer getTotalCountOfAuthedOwnersByCondition(@Param("condition") OwnersCondition condition);
-    List<Owner> getAuthedOwnersByCondition(@Param("condition") OwnersCondition condition);
 }
