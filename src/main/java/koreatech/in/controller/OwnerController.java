@@ -49,7 +49,7 @@ public class OwnerController {
             @ApiResponse(
                     code = 409,
                     message = "- 이미 인증이 완료된 이메일일 경우 (code: 101011) \n\n"
-                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
+                            + "- 사장님 신원의 이메일이 아닐 경우 (code: 101022)",
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,

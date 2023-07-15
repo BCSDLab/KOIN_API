@@ -535,6 +535,13 @@
         WHERE email= #{emailAddress}
     </select>
 
+    <select id="isOwnerEmail" parameterType="koreatech.in.domain.User.EmailAddress" resultType="Boolean">
+        SELECT IF (count(*) != 0, 1, 0)
+        FROM koin.users
+        <bind name="emailAddress" value="_parameter.getEmailAddress()"/>
+        WHERE email= #{emailAddress} AND user_type = "OWNER"
+    </select>
+
     <select id="getNicknameUsedCount" resultType="Integer">
         SELECT COUNT(*)
         FROM koin.users

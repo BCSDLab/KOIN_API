@@ -38,6 +38,8 @@ public enum ExceptionInformation {
     AUTHENTICATED_USER("인증된 회원입니다.", 101019, HttpStatus.CONFLICT),
     GENDER_INVALID("유효한 성별이 아닙니다.", 101020, HttpStatus.UNPROCESSABLE_ENTITY),
     COMPANY_REGISTRATION_NUMBER_DUPLICATE("이미 존재하는 사업자 번호입니다.", 101021, HttpStatus.CONFLICT),
+    NOT_OWNER_EMAIL("사장님 신원의 이메일이 아닙니다.", 101022, HttpStatus.CONFLICT),
+
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),

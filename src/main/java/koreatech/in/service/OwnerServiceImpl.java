@@ -83,7 +83,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
-        validateEmailUniqueness(emailAddress);
+        validateEmailFromOwner(emailAddress);
 
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
@@ -94,6 +94,12 @@ public class OwnerServiceImpl implements OwnerService {
         sendMailWithTimes(emailAddress, certificationCode);
 
         slackNotiSender.noticeEmailVerification(ownerInVerification);
+    }
+
+    private void validateEmailFromOwner(EmailAddress emailAddress) {
+        if (!userMapper.isOwnerEmail(emailAddress)) {
+            throw new BaseException(ExceptionInformation.NOT_OWNER_EMAIL);
+        }
     }
 
     private void sendMailWithTimes(EmailAddress emailAddress, CertificationCode certificationCode) {
