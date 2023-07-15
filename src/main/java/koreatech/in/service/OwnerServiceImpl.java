@@ -44,11 +44,12 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 public class OwnerServiceImpl implements OwnerService {
 
     private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
+    private static final String OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION = "mail/change_password_certificate_number.vm";
     private static final String CERTIFICATION_CODE = "certification-code";
     private static final String EMAIL_ADDRESS = "email-address";
     private static final String YEAR = "year";
     private static final String MONTH = "month";
-    private static final String DAY_OF_MONTH = "day_of_month";
+    private static final String DAY_OF_MONTH = "day-of-month";
     private static final String HOUR = "hour";
     private static final String MINUTE = "minute";
 
@@ -112,7 +113,7 @@ public class OwnerServiceImpl implements OwnerService {
         model.put(HOUR, now.getHour());
         model.put(MINUTE, now.getMinute());
 
-        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
+        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
                 StandardCharsets.UTF_8.name(), model);
     }
 
