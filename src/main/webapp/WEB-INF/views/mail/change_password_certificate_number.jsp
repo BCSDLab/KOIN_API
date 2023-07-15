@@ -24,10 +24,7 @@
     </div>
     <div style="margin-top: 15px; z-index: 2; color: #252525; font-family: 'Noto Sans CJK KR', Arial, sans-serif; font-size: 28px; font-style: normal; font-weight: 500; line-height: normal;">
         <b>
-            <emailColoredText style="color: #175C8E">
-                ${email-address}
-            </emailColoredText>
-            님 안녕하세요,
+            <emailColoredText style="color: #175C8E">'${email-address}'</emailColoredText>님 안녕하세요,
         </b>
     </div>
     <div style="margin-top: 7px; z-index: 2; text-align: left; color: #252525; font-family: 'Noto Sans CJK KR', Arial, sans-serif; font-size: 20px; font-style: normal; font-weight: 400; line-height: 32px;">
