@@ -62,7 +62,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
-    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password_certificate_button.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
     public static final String AUTH_TOKEN = "authToken";
