@@ -90,10 +90,19 @@ public class OwnerServiceImpl implements OwnerService {
 
         emailAddress.validateSendable();
 
-        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
+        putRedisToChangePassword(emailAddress.getEmailAddress(), ownerInVerification);
         sendMailWithTimes(emailAddress, certificationCode);
 
         slackNotiSender.noticeEmailVerification(ownerInVerification);
+    }
+
+    private void putRedisToChangePassword(String emailAddress, OwnerInVerification ownerInVerification) {
+        try {
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress),
+                    ownerInVerification, 2L, TimeUnit.HOURS);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     private void validateEmailFromOwner(EmailAddress emailAddress) {
