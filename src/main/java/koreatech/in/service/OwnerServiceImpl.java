@@ -6,15 +6,16 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
+import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
-import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -80,56 +81,37 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private OwnerMapper ownerMapper;
 
-    @Override
+    @Autowired
+    private MailService mailService;
+
     public void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
         validateEmailFromOwner(emailAddress);
+        String key = StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress.getEmailAddress());
+        putRedis(emailAddress, key);
+        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
+                SesMailSender.OWNER_FIND_PASSWORD_EMAIL_VERIFICATION_SUBJECT);
+        slackNotiSender.noticeEmailVerification(OwnerInVerification.of(certificationCode, emailAddress));
+    }
 
+    private void validateEmailFromOwner(EmailAddress emailAddress) {
+        User user = Optional.ofNullable(userMapper.getUserByEmail(emailAddress.getEmailAddress()))
+                .orElseThrow(() -> new BaseException(ExceptionInformation.NOT_EXIST_EMAIL));
+        if (user.isStudent()) {
+            throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
+        }
+    }
+
+    private void putRedis(EmailAddress emailAddress, String key) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
 
         emailAddress.validateSendable();
-
-        putRedisToChangePassword(emailAddress.getEmailAddress(), ownerInVerification);
-        sendMailWithTimes(emailAddress, certificationCode);
-
-        slackNotiSender.noticeEmailVerification(ownerInVerification);
-    }
-
-    private void putRedisToChangePassword(String emailAddress, OwnerInVerification ownerInVerification) {
         try {
-            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress),
-                    ownerInVerification, 2L, TimeUnit.HOURS);
+            stringRedisUtilObj.setDataAsString(key, ownerInVerification, 2L, TimeUnit.HOURS);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
-    }
-
-    private void validateEmailFromOwner(EmailAddress emailAddress) {
-        if (!userMapper.isOwnerEmail(emailAddress)) {
-            throw new BaseException(ExceptionInformation.NOT_OWNER_EMAIL);
-        }
-    }
-
-    private void sendMailWithTimes(EmailAddress emailAddress, CertificationCode certificationCode) {
-        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
-                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT, mailFormWithTimes(certificationCode,emailAddress.getEmailAddress()));
-
-    }
-
-    private String mailFormWithTimes(CertificationCode certificationCode, String emailAddress) {
-        LocalDateTime now = LocalDateTime.now();
-        Map<String, Object> model = new HashMap<>();
-        model.put(CERTIFICATION_CODE, certificationCode.getValue());
-        model.put(EMAIL_ADDRESS, emailAddress);
-        model.put(YEAR,now.getYear());
-        model.put(MONTH, now.getMonthValue());
-        model.put(DAY_OF_MONTH, now.getDayOfMonth());
-        model.put(HOUR, now.getHour());
-        model.put(MINUTE, now.getMinute());
-
-        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
-                StandardCharsets.UTF_8.name(), model);
     }
 
     @Override
