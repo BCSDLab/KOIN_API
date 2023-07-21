@@ -12,6 +12,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -27,12 +28,19 @@ public class MailService {
     public CertificationCode sendMailWithTimes(EmailAddress emailAddress, String formLocation, String purpose) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         LocalDateTime now = LocalDateTime.now();
-        String mailFormWithTimes = mailFormForWithTimes(certificationCode,now,emailAddress,formLocation);
-        sendMailFor(emailAddress, certificationCode, mailFormWithTimes, purpose);
+        String mailFormWithTimes = mailFormWithTimes(certificationCode,now,emailAddress,formLocation);
+        sendMailFor(emailAddress, mailFormWithTimes, purpose);
         return certificationCode;
     }
 
-    private String mailFormForWithTimes(CertificationCode certificationCode, LocalDateTime time,
+    public CertificationCode sendMail(EmailAddress emailAddress, String formLocation, String purpose) {
+        CertificationCode certificationCode = RandomGenerator.getCertificationCode();
+        String mailForm = mailFormFor(certificationCode, formLocation);
+        sendMailFor(emailAddress, mailForm, purpose);
+        return certificationCode;
+    }
+
+    private String mailFormWithTimes(CertificationCode certificationCode, LocalDateTime time,
                                         EmailAddress emailAddress, String formLocation) {
         Map<String, Object> model = Mail.builder()
                 .certificationCode(certificationCode.getValue())
@@ -43,21 +51,19 @@ public class MailService {
                 StandardCharsets.UTF_8.name(), model);
     }
 
-    private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode,
-                             String mailForm, String purpose) {
+    private void sendMailFor(EmailAddress emailAddress, String mailForm, String purpose) {
 
         sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
                 purpose, mailForm);
     }
-/*
-    private String mailFormFor(CertificationCode certificationCode) {
 
-        Map<String, Object> model = new HashMap<>();
-        model.put(CERTIFICATION_CODE, certificationCode.getValue());
+    private String mailFormFor(CertificationCode certificationCode, String formLocation) {
 
-        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
+        Map<String, Object> model = Mail.builder()
+                        .certificationCode(certificationCode.getValue())
+                        .build();
+
+        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
     }
-
- */
 }

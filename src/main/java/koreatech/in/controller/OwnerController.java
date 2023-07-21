@@ -47,8 +47,8 @@ public class OwnerController {
 
     @ApiResponses({
             @ApiResponse(
-                    code = 409,
-                    message ="- 사장님 신원의 이메일이 아닐 경우 (code: 101022)",
+                    code = 404,
+                    message ="- 존재하지 않는 이메일일 경우 (code: 101022)",
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 422,
