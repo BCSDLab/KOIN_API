@@ -39,6 +39,4 @@ public interface UserMapper {
     Boolean isEmailAlreadyExist(EmailAddress emailAddress);
 
     Integer getNicknameUsedCount(@Param("nickname") String nickname, @Param("userId") Integer userId);
-
-    boolean isOwnerEmail(EmailAddress emailAddress);
 }

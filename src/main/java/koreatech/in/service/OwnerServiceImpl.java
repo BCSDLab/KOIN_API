@@ -1,11 +1,7 @@
 package koreatech.in.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
@@ -39,20 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
 
     private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
     private static final String OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION = "mail/change_password_certificate_number.vm";
-    private static final String CERTIFICATION_CODE = "certification-code";
-    private static final String EMAIL_ADDRESS = "email-address";
-    private static final String YEAR = "year";
-    private static final String MONTH = "month";
-    private static final String DAY_OF_MONTH = "day-of-month";
-    private static final String HOUR = "hour";
-    private static final String MINUTE = "minute";
+    private static final Long STORAGE_TIME = 2L;
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -111,7 +100,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         emailAddress.validateSendable();
         try {
-            stringRedisUtilObj.setDataAsString(key, ownerInVerification, 2L, TimeUnit.HOURS);
+            stringRedisUtilObj.setDataAsString(key, ownerInVerification, STORAGE_TIME, TimeUnit.HOURS);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -278,7 +267,7 @@ public class OwnerServiceImpl implements OwnerService {
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         try {
             stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerKeyFor(emailAddress),
-                    ownerInVerification, 2L, TimeUnit.HOURS);
+                    ownerInVerification, STORAGE_TIME, TimeUnit.HOURS);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

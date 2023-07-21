@@ -61,7 +61,7 @@ public class OwnerController {
     })
     @ApiOperation(value = "비밀번호 변경 인증번호 전송 요청")
     @AuthExcept
-    @RequestMapping(value = "/owners/password/verification/email", method = RequestMethod.POST)
+    @RequestMapping(value = "/owner/find/password/verification", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> verifyEmailToChangePassword(@RequestBody @Valid VerifyEmailRequest request,
@@ -91,7 +91,7 @@ public class OwnerController {
 
             )
     })
-    @ApiOperation(value = "인증번호 전송 요청")
+    @ApiOperation(value = "회원가입 인증번호 전송 요청")
     @AuthExcept
     @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
