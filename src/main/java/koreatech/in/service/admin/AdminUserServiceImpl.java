@@ -17,11 +17,6 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
-import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,7 +62,6 @@ import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.mapstruct.admin.user.UserConverter;
-import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -115,7 +109,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private UserRefreshJwtGenerator userRefreshJwtGenerator;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -148,7 +142,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
-        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        String refreshToken = authenticationMapper.getRefreshToken(userId);
         if (isExpired(refreshToken)) {
             return generateRefreshToken(userId);
         }
@@ -158,7 +152,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private String generateRefreshToken(Integer userId) {
         String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
-        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+        authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
     }
@@ -696,7 +690,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private void deleteRefreshTokenInDB(Integer userId) {
-        redisAuthenticationMapper.deleteRefreshToken(userId);
+        authenticationMapper.deleteRefreshToken(userId);
     }
 
 

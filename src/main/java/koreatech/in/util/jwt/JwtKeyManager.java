@@ -29,7 +29,7 @@ public class JwtKeyManager {
     private static final int OFFSET = 0;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -76,7 +76,7 @@ public class JwtKeyManager {
     }
 
     private SecretKey createKey(String keyFieldName) {
-        Optional<String> deprecatedKey = redisAuthenticationMapper.getDeprecatedJWTKey(keyFieldName);
+        Optional<String> deprecatedKey = authenticationMapper.getDeprecatedJWTKey(keyFieldName);
         if(!deprecatedKey.isPresent()) {
             return Keys.secretKeyFor(signatureAlgorithm);
         }
