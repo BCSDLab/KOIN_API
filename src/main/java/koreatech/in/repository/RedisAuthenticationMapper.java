@@ -1,7 +1,6 @@
 package koreatech.in.repository;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +37,11 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
     }
 
     @Override
-    public Optional<String> getDeprecatedAccessTokenKey() {
+    public String getDeprecatedAccessTokenKey() {
         try {
-            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(DEPRECATED_ACCESS_TOKEN_KEY_NAME));
+            return stringRedisUtilStr.getDataAsString(DEPRECATED_ACCESS_TOKEN_KEY_NAME);
         } catch (IOException exception) {
-            return Optional.empty();
+            return null;
         }
     }
 

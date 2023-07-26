@@ -78,11 +78,12 @@ public class JwtKeyManager {
     }
 
     private SecretKey getOrCreateKey() {
-        Optional<String> deprecatedKey = authenticationMapper.getDeprecatedAccessTokenKey();
-        if(!deprecatedKey.isPresent()) {
+        String savedAccessKey = authenticationMapper.getDeprecatedAccessTokenKey();
+
+        if(savedAccessKey == null) {
             return Keys.secretKeyFor(signatureAlgorithm);
         }
-        return decode(deprecatedKey.get());
+        return decode(savedAccessKey);
     }
 
     private boolean needAnyKeyUpdate(DBObject jwtKeysInDB) {
