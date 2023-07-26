@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private OwnerMapper ownerMapper;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
-        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        String refreshToken = authenticationMapper.getRefreshToken(userId);
         if (isExpired(refreshToken)) {
             return generateRefreshToken(userId);
         }
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private String generateRefreshToken(Integer userId) {
         String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
-        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+        authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
     }
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void deleteRefreshTokenInDB(Integer userId) {
-        redisAuthenticationMapper.deleteRefreshToken(userId);
+        authenticationMapper.deleteRefreshToken(userId);
     }
 
     @Override

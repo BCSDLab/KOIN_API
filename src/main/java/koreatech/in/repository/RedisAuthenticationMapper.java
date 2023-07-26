@@ -5,13 +5,15 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.util.StringRedisUtilStr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
+@Primary
 @Repository
 public class RedisAuthenticationMapper implements AuthenticationMapper {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
-    public static final String SECRET_KEY = "secretKey";
+    public static final String DEPRECATED_ACCESS_TOKEN_KEY_NAME = "secretKey";
 
     @Autowired
     private StringRedisUtilStr stringRedisUtilStr;
@@ -35,13 +37,9 @@ public class RedisAuthenticationMapper implements AuthenticationMapper {
     }
 
     @Override
-    public Optional<String> getDeprecatedJWTKey(String keyName) {
-        if (!SECRET_KEY.equals(keyName)) {
-            return Optional.empty();
-        }
-
+    public Optional<String> getDeprecatedAccessTokenKey() {
         try {
-            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(SECRET_KEY));
+            return Optional.ofNullable(stringRedisUtilStr.getDataAsString(DEPRECATED_ACCESS_TOKEN_KEY_NAME));
         } catch (IOException exception) {
             return Optional.empty();
         }

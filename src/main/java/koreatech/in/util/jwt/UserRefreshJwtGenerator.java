@@ -17,7 +17,7 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Override
     public String generateToken(Integer data) {
@@ -45,7 +45,7 @@ public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
     @Override
     protected void validateData(String token,  Integer data) {
         try {
-            String tokenInRedis = redisAuthenticationMapper.getRefreshToken(data);
+            String tokenInRedis = authenticationMapper.getRefreshToken(data);
             if (!token.equals(tokenInRedis)) {
                 throw new BaseException(ExceptionInformation.TOKEN_EXPIRED);
             }

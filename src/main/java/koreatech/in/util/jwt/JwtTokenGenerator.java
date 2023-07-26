@@ -27,7 +27,7 @@ public class JwtTokenGenerator {
     private static final int ACCESS_TOKEN_VALID_HOUR = 2;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private JwtKeyManager jwtKeyManager;
@@ -70,7 +70,7 @@ public class JwtTokenGenerator {
 
             int userId = Integer.parseInt(body.getSubject());
 
-            String redisToken = redisAuthenticationMapper.getRefreshToken(userId);
+            String redisToken = authenticationMapper.getRefreshToken(userId);
             if (refreshToken.equals(redisToken)) {
                 return userId;
             }
