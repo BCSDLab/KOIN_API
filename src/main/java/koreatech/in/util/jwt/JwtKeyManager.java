@@ -1,7 +1,5 @@
 package koreatech.in.util.jwt;
 
-import static koreatech.in.repository.RedisAuthenticationMapper.SECRET_KEY;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -66,17 +64,21 @@ public class JwtKeyManager {
         return getKeys(jwtKeys.get());
     }
 
+    /*
+    * Access Token의 키가 deprecated된 저장소에 있다면 가져오고 그렇지 않다면 새로 만든다.
+    * Refresh Token의 키는 다른 저장소에 있지 않아, 새로 만든다.
+    * */
     private JWTKeys createKeys(DBCollection secretKeyCollection) {
         JWTKeys newJwtKeys = JWTKeys.of(
-                createKey(SECRET_KEY), //Access Token의 키가 deprecated된 저장소에 있다면 가져오고 없다면 새로 만든다.
-                Keys.secretKeyFor(signatureAlgorithm));//Refresh Token의 키는 다른 저장소에 있지 않아, 새로 만든다.
+                getOrCreateKey(),
+                Keys.secretKeyFor(signatureAlgorithm));
 
         secretKeyCollection.insert(makeDBObject(newJwtKeys));
         return newJwtKeys;
     }
 
-    private SecretKey createKey(String keyFieldName) {
-        Optional<String> deprecatedKey = authenticationMapper.getDeprecatedJWTKey(keyFieldName);
+    private SecretKey getOrCreateKey() {
+        Optional<String> deprecatedKey = authenticationMapper.getDeprecatedAccessTokenKey();
         if(!deprecatedKey.isPresent()) {
             return Keys.secretKeyFor(signatureAlgorithm);
         }
@@ -107,7 +109,7 @@ public class JwtKeyManager {
 
     private SecretKey updateKey(DBObject jwtKeysInDB, String keyFieldName) {
         if (needKeyCreate(jwtKeysInDB, keyFieldName)) {
-            return createKey(keyFieldName);
+            return getOrCreateKey();
         }
 
         return decode((String) jwtKeysInDB.get(keyFieldName));
