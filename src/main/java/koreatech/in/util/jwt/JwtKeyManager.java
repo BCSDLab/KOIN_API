@@ -122,11 +122,11 @@ public class JwtKeyManager {
         return JWTKeys.of(decode(accessKey), decode(refreshKey));
     }
 
-    private static String encode(SecretKey secretKey) {
+    private String encode(SecretKey secretKey) {
         return Base64.getEncoder().encodeToString(secretKey.getEncoded());
     }
 
-    private static SecretKey decode(String encodedKey) {
+    private SecretKey decode(String encodedKey) {
         if (!StringUtils.hasText(encodedKey)) {
             return null;
         }
