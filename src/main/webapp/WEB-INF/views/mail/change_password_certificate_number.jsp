@@ -13,13 +13,7 @@ PUBLIC "-//W3C//Ddiv XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/Dd
 
 <body style="margin: 0; padding: 0;">
 <table cellpadding="0" cellspacing="0"
-       style="background: #FFF; position: relative; padding-left: 120px; border: 2px solid; width: 1280px; height: 874px;">
-    <tr>
-        <td>
-            <img src="https://team-kap-koin-storage.s3.ap-northeast-2.amazonaws.com/assets/img/logo_background.png"
-                 style="right: 0px; position: absolute; z-index: 1;"/>
-        </td>
-    </tr>
+       style="padding-left: 120px; border: 2px solid; width: 1280px; height: 874px; background-image: url(https://team-kap-koin-storage.s3.ap-northeast-2.amazonaws.com/assets/img/logo_background.png); background-repeat: no-repeat; background-position-x: right;">
     <tr>
         <td>
             <img src="https://team-kap-koin-storage.s3.ap-northeast-2.amazonaws.com/assets/img/logo_primary.png"
