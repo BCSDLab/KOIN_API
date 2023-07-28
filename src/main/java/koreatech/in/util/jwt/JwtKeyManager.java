@@ -7,7 +7,6 @@ import com.mongodb.DBObject;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.util.Base64;
-import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,22 +45,22 @@ public class JwtKeyManager {
 
     @PostConstruct
     public void KeySetter() {
-        this.jwtKeys = getKeys();
+        this.jwtKeys = makeKeys();
     }
 
-    private JWTKeys getKeys() {
+    private JWTKeys makeKeys() {
         DBCollection secretKeyCollection = mongoTemplate.getCollection(SECRET_KEY_COLLECTION);
-        Optional<DBObject> jwtKeys = Optional.ofNullable(secretKeyCollection.findOne());
+        DBObject savedJwtKeys = secretKeyCollection.findOne();
 
-        if (!jwtKeys.isPresent()) {
+        if (savedJwtKeys == null) {
             return createKeys(secretKeyCollection);
         }
 
-        if (needAnyKeyUpdate(jwtKeys.get())) {
-            return updateKeys(secretKeyCollection, jwtKeys.get());
+        if (needAnyKeyUpdate(savedJwtKeys)) {
+            return updateKeys(secretKeyCollection, savedJwtKeys);
         }
 
-        return getKeys(jwtKeys.get());
+        return getKeysInDB(savedJwtKeys);
     }
 
     /*
@@ -70,14 +69,14 @@ public class JwtKeyManager {
     * */
     private JWTKeys createKeys(DBCollection secretKeyCollection) {
         JWTKeys newJwtKeys = JWTKeys.of(
-                getOrCreateKey(),
+                getOrCreateAccessTokenKey(),
                 Keys.secretKeyFor(signatureAlgorithm));
 
         secretKeyCollection.insert(makeDBObject(newJwtKeys));
         return newJwtKeys;
     }
 
-    private SecretKey getOrCreateKey() {
+    private SecretKey getOrCreateAccessTokenKey() {
         String savedAccessKey = authenticationMapper.getDeprecatedAccessTokenKey();
 
         if(savedAccessKey == null) {
@@ -110,17 +109,24 @@ public class JwtKeyManager {
 
     private SecretKey updateKey(DBObject jwtKeysInDB, String keyFieldName) {
         if (needKeyCreate(jwtKeysInDB, keyFieldName)) {
-            return getOrCreateKey();
+            return getOrCreateAccessTokenKey();
         }
 
         return decode((String) jwtKeysInDB.get(keyFieldName));
     }
 
-    private JWTKeys getKeys(DBObject jwtKeysInDB) {
+    private JWTKeys getKeysInDB(DBObject jwtKeysInDB) {
         String accessKey = (String) jwtKeysInDB.get(ACCESS_KEY_FIELD_NAME);
         String refreshKey = (String) jwtKeysInDB.get(REFRESH_KEY_FIELD_NAME);
 
         return JWTKeys.of(decode(accessKey), decode(refreshKey));
+    }
+
+    private DBObject makeDBObject(JWTKeys jwtKeys) {
+        return BasicDBObjectBuilder.start()
+                .add(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()))
+                .add(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()))
+                .get();
     }
 
     private String encode(SecretKey secretKey) {
@@ -133,13 +139,6 @@ public class JwtKeyManager {
         }
         byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
         return new SecretKeySpec(decodedKey, OFFSET, decodedKey.length, signatureAlgorithm.getJcaName());
-    }
-
-    private DBObject makeDBObject(JWTKeys jwtKeys) {
-        return BasicDBObjectBuilder.start()
-                .add(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()))
-                .add(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()))
-                .get();
     }
 
 }
