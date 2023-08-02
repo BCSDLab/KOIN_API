@@ -13,7 +13,6 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
-import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -29,8 +28,8 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.StringRedisUtilStr;
 import koreatech.in.util.StringRedisUtilObj;
+import koreatech.in.util.StringRedisUtilStr;
 import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,17 +105,12 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-        // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
-
         OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
 
         Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
-
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
-        validateEmailUniqueness(ownerEmailAddress);
-        validateOwnerInRedis(ownerEmailAddress);
-
+        validateRegistration(owner, ownerEmailAddress);
         encodePassword(owner);
 
         createInDBFor(owner);
@@ -127,6 +121,12 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeRegisterComplete(owner);
 
         removeRedisFrom(ownerEmailAddress);
+    }
+
+    private void validateRegistration(Owner owner, EmailAddress ownerEmailAddress) {
+        validateEmailUniqueness(ownerEmailAddress);
+        validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
+        validateOwnerInRedis(ownerEmailAddress);
     }
 
     @Override
@@ -214,6 +214,12 @@ public class OwnerServiceImpl implements OwnerService {
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
+        }
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(String companyRegistrationNumber) {
+        if (ownerMapper.isCompanyRegistrationNumberExist(companyRegistrationNumber)) {
+            throw new BaseException(ExceptionInformation.COMPANY_REGISTRATION_NUMBER_DUPLICATE);
         }
     }
 
