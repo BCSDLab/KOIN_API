@@ -78,12 +78,14 @@ public class OwnerServiceImpl implements OwnerService {
         validateEmailFromOwner(emailAddress);
 
         String key = StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress.getEmailAddress());
-        putRedis(emailAddress, key);
 
         CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
                 SesMailSender.OWNER_FIND_PASSWORD_EMAIL_VERIFICATION_SUBJECT);
 
-        slackNotiSender.noticeEmailVerification(OwnerInVerification.of(certificationCode, emailAddress));
+        OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
+        putRedis(emailAddress, key, ownerInVerification);
+
+        slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
     private void validateEmailFromOwner(EmailAddress emailAddress) {
@@ -94,10 +96,7 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    private void putRedis(EmailAddress emailAddress, String key) {
-        CertificationCode certificationCode = RandomGenerator.getCertificationCode();
-        OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
-
+    private void putRedis(EmailAddress emailAddress, String key, OwnerInVerification ownerInVerification) {
         emailAddress.validateSendable();
         try {
             stringRedisUtilObj.setDataAsString(key, ownerInVerification, STORAGE_TIME, TimeUnit.HOURS);
@@ -112,12 +111,14 @@ public class OwnerServiceImpl implements OwnerService {
         validateEmailUniqueness(emailAddress);
 
         String key = StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress());
-        putRedis(emailAddress,key);
 
         CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_CERTIFICATE_FORM_LOCATION,
                 SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT);
 
-        slackNotiSender.noticeEmailVerification(OwnerInVerification.of(certificationCode, emailAddress));
+        OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
+        putRedis(emailAddress,key, ownerInVerification);
+
+        slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
     @Override
