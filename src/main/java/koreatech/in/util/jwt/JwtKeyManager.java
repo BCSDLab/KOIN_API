@@ -94,7 +94,7 @@ public class JwtKeyManager {
             return true;
         }
 
-        return !StringUtils.isEmpty(jwtKeysInDB.get(fieldName));
+        return StringUtils.isEmpty(jwtKeysInDB.get(fieldName));
     }
 
     private JWTKeys updateKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
