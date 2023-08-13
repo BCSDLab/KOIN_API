@@ -12,5 +12,5 @@ public interface AuthenticationMapper {
     void deleteRefreshToken(Integer userId);
     //TODO 사장님 인증 + 메모리DB 부분도 여기로 추출할 것
 
-    String getDeprecatedAccessTokenKey();
+    String getKey() throws IOException;
 }
