@@ -1,15 +1,12 @@
 package koreatech.in.util.jwt;
 
-import com.google.gson.JsonObject;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import java.io.IOException;
 import java.util.Base64;
-import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,13 +19,14 @@ import org.springframework.util.StringUtils;
 
 @Component
 public class JwtKeyManager {
-    //TODO AccessKeyManager, RefreshKeyManager로 분리하기.  (KeyManager Interface -> AbastractKeyManager -> {AccKeyMangner, RefKeyManager}
     private static final String ACCESS_KEY_FIELD_NAME = "access_key";
     private static final String REFRESH_KEY_FIELD_NAME = "refresh_key";
     private static final String SECRET_KEY_COLLECTION = "secret_key";
 
+    private static final int OFFSET = 0;
+
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -46,127 +44,101 @@ public class JwtKeyManager {
     }
 
     @PostConstruct
-    public void KeySetterForV2() {
+    public void KeySetter() {
+        this.jwtKeys = makeKeys();
+    }
+
+    private JWTKeys makeKeys() {
         DBCollection secretKeyCollection = mongoTemplate.getCollection(SECRET_KEY_COLLECTION);
+        DBObject savedJwtKeys = secretKeyCollection.findOne();
 
-        this.jwtKeys = enrichKeysAndSetDB(secretKeyCollection);
-    }
-
-    private static String encode(SecretKey secretKey) {
-        byte[] rawData = secretKey.getEncoded();
-        return Base64.getEncoder().encodeToString(rawData);
-    }
-
-    private static SecretKey decode(String encodedKey) {
-        if (!StringUtils.hasText(encodedKey)) {
-            return null;
-        }
-        byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, signatureAlgorithm.getJcaName());
-    }
-
-    private JWTKeys enrichKeysAndSetDB(DBCollection secretKeyCollection) {
-        Optional<DBObject> jwtKeysInDBOptional = Optional.ofNullable(secretKeyCollection.findOne());
-
-        if (!jwtKeysInDBOptional.isPresent()) {
-            return createAndInsertDB(secretKeyCollection);
+        if (savedJwtKeys == null) {
+            return createKeys(secretKeyCollection);
         }
 
-        DBObject jwtKeysInDB = jwtKeysInDBOptional.get();
-
-        if(!needAnyKeyUpdate(jwtKeysInDB)) {
-            return maintainKeysOnly(jwtKeysInDB);
+        if (needAnyKeyUpdate(savedJwtKeys)) {
+            return updateKeys(secretKeyCollection, savedJwtKeys);
         }
-        return upsertJWTKeys(secretKeyCollection, jwtKeysInDB);
+
+        return getKeysInDB(savedJwtKeys);
     }
 
-    private JWTKeys upsertJWTKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
-        JWTKeys enrichedJwtKeys = JWTKeys.of(
-                enrichKeyFor(jwtKeysInDB, ACCESS_KEY_FIELD_NAME),
-                enrichKeyFor(jwtKeysInDB, REFRESH_KEY_FIELD_NAME)
-        );
+    /*
+    * Access Token의 키가 deprecated된 저장소에 있다면 가져오고 그렇지 않다면 새로 만든다.
+    * Refresh Token의 키는 다른 저장소에 있지 않아, 새로 만든다.
+    * */
+    private JWTKeys createKeys(DBCollection secretKeyCollection) {
+        JWTKeys newJwtKeys = JWTKeys.of(
+                getOrCreateAccessTokenKey(),
+                Keys.secretKeyFor(signatureAlgorithm));
 
-        secretKeyCollection.update(new BasicDBObject(), toDBObjectWithEncode(enrichedJwtKeys), true, false);
-
-        return enrichedJwtKeys;
-    }
-
-    private JWTKeys maintainKeysOnly(DBObject jwtKeysInDB) {
-        String accessKey = getKeyFor(jwtKeysInDB, ACCESS_KEY_FIELD_NAME);
-        String refreshKey = getKeyFor(jwtKeysInDB, REFRESH_KEY_FIELD_NAME);
-
-        return JWTKeys.of(decode(accessKey), decode(refreshKey));
-    }
-
-    private JWTKeys createAndInsertDB(DBCollection secretKeyCollection) {
-        JWTKeys newJwtKeys = createKeys();
-        secretKeyCollection.insert(toDBObjectWithEncode(newJwtKeys));
+        secretKeyCollection.insert(makeDBObject(newJwtKeys));
         return newJwtKeys;
     }
 
-    private SecretKey enrichKeyFor(DBObject jwtKeysInDB, String keyFieldName) {
-        if(needKeyCreate(jwtKeysInDB, keyFieldName)) {
-            return createKey(keyFieldName);
-        }
+    private SecretKey getOrCreateAccessTokenKey() {
+        String savedAccessKey = authenticationMapper.getDeprecatedAccessTokenKey();
 
-        return decode(getKeyFor(jwtKeysInDB, keyFieldName));
+        if(savedAccessKey == null) {
+            return Keys.secretKeyFor(signatureAlgorithm);
+        }
+        return decode(savedAccessKey);
     }
 
     private boolean needAnyKeyUpdate(DBObject jwtKeysInDB) {
         return needKeyCreate(jwtKeysInDB, ACCESS_KEY_FIELD_NAME) || needKeyCreate(jwtKeysInDB, REFRESH_KEY_FIELD_NAME);
     }
 
-    private Boolean needKeyCreate(DBObject jwtKeysInDB, String fieldName) {
+    private boolean needKeyCreate(DBObject jwtKeysInDB, String fieldName) {
         if (!(jwtKeysInDB.containsField(fieldName))) {
             return true;
         }
-        Object fieldKey = jwtKeysInDB.get(fieldName);
 
-        if (!(fieldKey instanceof String)) {
-            return true;
+        return !StringUtils.isEmpty(jwtKeysInDB.get(fieldName));
+    }
+
+    private JWTKeys updateKeys(DBCollection secretKeyCollection, DBObject jwtKeysInDB) {
+        JWTKeys updatedKeys = JWTKeys.of(
+                updateKey(jwtKeysInDB, ACCESS_KEY_FIELD_NAME),
+                updateKey(jwtKeysInDB, REFRESH_KEY_FIELD_NAME)
+        );
+        secretKeyCollection.update(new BasicDBObject(), makeDBObject(updatedKeys), true, false);
+
+        return updatedKeys;
+    }
+
+    private SecretKey updateKey(DBObject jwtKeysInDB, String keyFieldName) {
+        if (needKeyCreate(jwtKeysInDB, keyFieldName)) {
+            return getOrCreateAccessTokenKey();
         }
-        return ((String) fieldKey).isEmpty();
+
+        return decode((String) jwtKeysInDB.get(keyFieldName));
     }
 
-    private String getKeyFor(DBObject jwtKeysInDB, String fieldName) {
-        return (String) jwtKeysInDB.get(fieldName);
+    private JWTKeys getKeysInDB(DBObject jwtKeysInDB) {
+        String accessKey = (String) jwtKeysInDB.get(ACCESS_KEY_FIELD_NAME);
+        String refreshKey = (String) jwtKeysInDB.get(REFRESH_KEY_FIELD_NAME);
+
+        return JWTKeys.of(decode(accessKey), decode(refreshKey));
     }
 
-    private JWTKeys createKeys() {
-        return JWTKeys.of(createKey(ACCESS_KEY_FIELD_NAME),
-                createKey(REFRESH_KEY_FIELD_NAME));
+    private DBObject makeDBObject(JWTKeys jwtKeys) {
+        return BasicDBObjectBuilder.start()
+                .add(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()))
+                .add(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()))
+                .get();
     }
 
-    private SecretKey createKey(String keyFieldName) {
-        Optional<String> keyFromRedis = getKeyFor(keyFieldName);
+    private String encode(SecretKey secretKey) {
+        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    }
 
-        if(keyFromRedis.isPresent()) {
-            return decode(keyFromRedis.get());
+    private SecretKey decode(String encodedKey) {
+        if (!StringUtils.hasText(encodedKey)) {
+            return null;
         }
-        return createKey();
+        byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+        return new SecretKeySpec(decodedKey, OFFSET, decodedKey.length, signatureAlgorithm.getJcaName());
     }
 
-    private Optional<String> getKeyFor(String keyFieldName) {
-        if(!ACCESS_KEY_FIELD_NAME.equals(keyFieldName)) {
-            return Optional.empty();
-        }
-        try {
-            return Optional.ofNullable(redisAuthenticationMapper.getKey());
-        } catch (IOException ignored) {
-            return Optional.empty();
-        }
-    }
-
-    private SecretKey createKey() {
-        return Keys.secretKeyFor(signatureAlgorithm);
-    }
-
-    private DBObject toDBObjectWithEncode(JWTKeys jwtKeys) {
-        JsonObject encodedKeysJson = new JsonObject();
-
-        encodedKeysJson.addProperty(ACCESS_KEY_FIELD_NAME, encode(jwtKeys.getAccessKey()));
-        encodedKeysJson.addProperty(REFRESH_KEY_FIELD_NAME, encode(jwtKeys.getRefreshKey()));
-
-        return (DBObject) JSON.parse(encodedKeysJson.toString());
-    }
 }
