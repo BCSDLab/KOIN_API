@@ -32,12 +32,12 @@ public class OwnersCondition extends Criteria {
     private Sort sort;
 
     @ApiParam("유저 권한 타입 \n"
-            + "- null 가능, null일 경우 기본 값 ALL \n"
+            + "- null 가능, null일 경우 기본 값 모든 사장님(AUTHED + UNAUTHED) 리스트 \n"
             + "- 다음 중 하나로만 요청 가능 \n"
-            + " - `ALL` \n"
+            + " - `null` \n"
             + " - `AUTHED` \n"
             + " - `UNAUTHED`")
-    private AuthType auth_type = AuthType.ALL;
+    private AuthType auth_type;
 
     public enum SearchType {
         EMAIL,
@@ -50,7 +50,6 @@ public class OwnersCondition extends Criteria {
     }
 
     private enum AuthType {
-        ALL,
         AUTHED,
         UNAUTHED
     }
