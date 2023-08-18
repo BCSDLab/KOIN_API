@@ -429,15 +429,17 @@
             `user_type` = 'OWNER'
             <!-- 삭제되지 않은 회원만 조회 -->
             AND `users`.`is_deleted` = 0
-            <!-- 검색 타입이 인증된 사장일 때 -->
-            <if test='condition.auth_type.name().equals("AUTHED")'>
-                AND `users`.`is_authed` = 1
-                AND `owners`.`grant_shop` = 1
-            </if>
-            <!-- 검색 타입이 미인증 사장일 때 -->
-            <if test='condition.auth_type.name().equals("UNAUTHED")'>
-                AND `users`.`is_authed` = 0
-                AND `owners`.`grant_shop` = 0
+            <if test="condition.auth_type != null">
+                <!-- 검색 타입이 인증된 사장일 때 -->
+                <if test='condition.auth_type.name().equals("AUTHED")'>
+                    AND `users`.`is_authed` = 1
+                    AND `owners`.`grant_shop` = 1
+                </if>
+                <!-- 검색 타입이 미인증 사장일 때 -->
+                <if test='condition.auth_type.name().equals("UNAUTHED")'>
+                    AND `users`.`is_authed` = 0
+                    AND `owners`.`grant_shop` = 0
+                </if>
             </if>
             <if test="condition.query != null">
                 AND (
@@ -483,15 +485,18 @@
             `user_type` = 'OWNER'
             <!-- 삭제되지 않은 회원만 조회 -->
             AND `users`.`is_deleted` = 0
-            <!-- 검색 타입이 인증된 사장일 때 -->
-            <if test='condition.auth_type.name().equals("AUTHED")'>
-                AND `users`.`is_authed` = 1
-                AND `owners`.`grant_shop` = 1
-            </if>
-            <!-- 검색 타입이 미인증 사장일 때 -->
-            <if test='condition.auth_type.name().equals("UNAUTHED")'>
-                AND `users`.`is_authed` = 0
-                AND `owners`.`grant_shop` = 0
+            <!-- 검색 타입이 null(모든 사장 조회)가 아닐 때-->
+            <if test="condition.auth_type != null">
+                <!-- 검색 타입이 인증된 사장일 때 -->
+                <if test='condition.auth_type.name().equals("AUTHED")'>
+                    AND `users`.`is_authed` = 1
+                    AND `owners`.`grant_shop` = 1
+                </if>
+                <!-- 검색 타입이 미인증 사장일 때 -->
+                <if test='condition.auth_type.name().equals("UNAUTHED")'>
+                    AND `users`.`is_authed` = 0
+                    AND `owners`.`grant_shop` = 0
+                </if>
             </if>
             <if test="condition.query != null">
                 AND (
