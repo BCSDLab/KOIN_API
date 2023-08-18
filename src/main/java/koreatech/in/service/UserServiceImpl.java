@@ -62,7 +62,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
-    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password.vm";
+    private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password_certificate_button.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
     public static final String AUTH_TOKEN = "authToken";
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private OwnerMapper ownerMapper;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private StudentMapper studentMapper;
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
-        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        String refreshToken = authenticationMapper.getRefreshToken(userId);
         if (isExpired(refreshToken)) {
             return generateRefreshToken(userId);
         }
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private String generateRefreshToken(Integer userId) {
         String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
-        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+        authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
     }
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void deleteRefreshTokenInDB(Integer userId) {
-        redisAuthenticationMapper.deleteRefreshToken(userId);
+        authenticationMapper.deleteRefreshToken(userId);
     }
 
     @Override
