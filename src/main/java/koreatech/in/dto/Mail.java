@@ -1,11 +1,12 @@
 package koreatech.in.dto;
 
-import koreatech.in.domain.User.EmailAddress;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Builder
 public class Mail {
 
     private static final String CERTIFICATION_CODE = "certification-code";
@@ -17,42 +18,27 @@ public class Mail {
     private static final String MINUTE = "minute";
 
 
-    private String certificationCode;
+    private final String certificationCode;
 
-    private EmailAddress emailAddress;
+    private final String emailAddress;
 
-    private LocalDateTime time;
+    private final LocalDateTime time;
 
-    private Map<String, Object> model;
+    private final Map<String, Object> model = new HashMap<>();
 
-    private Mail() {
-        model = new HashMap<>();
-    }
-
-    public static Mail builder() {
-        return new Mail();
-    }
-
-    public Mail certificationCode(String certificationCode) {
+    public Map<String, Object> convertToMapWithTimes(Mail mail) {
         model.put(CERTIFICATION_CODE, certificationCode);
-        return this;
-    }
-
-    public Mail emailAddress(String emailAddress) {
         model.put(EMAIL_ADDRESS, emailAddress);
-        return this;
+        model.put(YEAR, time.getYear());
+        model.put(MONTH, time.getMonthValue());
+        model.put(DAY_OF_MONTH, time.getDayOfMonth());
+        model.put(HOUR, time.getHour());
+        model.put(MINUTE, time.getMinute());
+        return model;
     }
 
-    public Mail dateTime(LocalDateTime dateTime) {
-        model.put(YEAR, dateTime.getYear());
-        model.put(MONTH, dateTime.getMonthValue());
-        model.put(DAY_OF_MONTH, dateTime.getDayOfMonth());
-        model.put(HOUR, dateTime.getHour());
-        model.put(MINUTE, dateTime.getMinute());
-        return this;
-    }
-
-    public Map<String, Object> build() {
+    public Map<String, Object> convertToMap(Mail mail) {
+        model.put(CERTIFICATION_CODE, certificationCode);
         return model;
     }
 }

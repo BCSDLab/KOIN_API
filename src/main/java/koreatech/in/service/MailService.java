@@ -17,8 +17,6 @@ import java.util.Map;
 @Service
 public class MailService {
 
-    private static final String CERTIFICATION_CODE = "certification-code";
-
     @Autowired
     private VelocityEngine velocityEngine;
     @Autowired
@@ -41,11 +39,14 @@ public class MailService {
 
     private String mailFormWithTimes(CertificationCode certificationCode, LocalDateTime time,
                                         EmailAddress emailAddress, String formLocation) {
-        Map<String, Object> model = Mail.builder()
+        Mail mail = Mail.builder()
                 .certificationCode(certificationCode.getValue())
                 .emailAddress(emailAddress.getEmailAddress())
-                .dateTime(time)
+                .time(time)
                 .build();
+
+        Map<String, Object> model = mail.convertToMapWithTimes(mail);
+
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
     }
@@ -58,9 +59,11 @@ public class MailService {
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
 
-        Map<String, Object> model = Mail.builder()
+        Mail mail = Mail.builder()
                         .certificationCode(certificationCode.getValue())
                         .build();
+
+        Map<String, Object> model = mail.convertToMap(mail);
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
