@@ -1,4 +1,4 @@
-package koreatech.in.dto;
+package koreatech.in.dto.normal.mail;
 
 import lombok.Builder;
 

@@ -13,6 +13,7 @@ import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.domain.User.owner.OwnerShop;
+import koreatech.in.dto.normal.mail.MailForm;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -36,11 +37,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static koreatech.in.dto.normal.mail.MailForm.*;
+
 @Service
 public class OwnerServiceImpl implements OwnerService {
-
-    private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
-    private static final String OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION = "mail/change_password_certificate_number.vm";
     private static final Long STORAGE_TIME = 2L;
 
     @Autowired
@@ -79,8 +79,8 @@ public class OwnerServiceImpl implements OwnerService {
 
         String key = StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress.getEmailAddress());
 
-        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
-                SesMailSender.OWNER_FIND_PASSWORD_EMAIL_VERIFICATION_SUBJECT);
+        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_FIND_PASSWORD_MAIL_FORM.getPath(),
+                OWNER_FIND_PASSWORD_MAIL_FORM.getSubject());
 
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
         putRedis(emailAddress, key, ownerInVerification);
@@ -112,8 +112,8 @@ public class OwnerServiceImpl implements OwnerService {
 
         String key = StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress());
 
-        CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_CERTIFICATE_FORM_LOCATION,
-                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT);
+        CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_REGISTRATION_MAIL_FORM.getPath(),
+                OWNER_REGISTRATION_MAIL_FORM.getSubject());
 
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
         putRedis(emailAddress,key, ownerInVerification);

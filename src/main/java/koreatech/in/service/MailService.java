@@ -2,7 +2,7 @@ package koreatech.in.service;
 
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.CertificationCode;
-import koreatech.in.dto.Mail;
+import koreatech.in.dto.normal.mail.Mail;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import org.apache.velocity.app.VelocityEngine;
