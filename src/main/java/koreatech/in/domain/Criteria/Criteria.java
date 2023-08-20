@@ -7,6 +7,8 @@ import springfox.documentation.annotations.ApiIgnore;
 @ApiIgnore
 @Getter
 public class Criteria {
+    public static final int MAX_LIMIT = 50;
+    public static final int MIN_LIMIT = 1;
     @ApiParam(value = "페이지 \n" +
             "- null일 경우 기본값: 1 \n" +
             "- 1 미만의 값으로 요청할 경우 1로 요청됨")
@@ -17,7 +19,13 @@ public class Criteria {
     private Integer limit = 10;
 
     public void setLimit(Integer limit) {
-        this.limit = limit > 50 ? 50 : limit;
+        if (limit > MAX_LIMIT) {
+            this.limit = MAX_LIMIT;
+        } else if (limit < MIN_LIMIT) {
+            this.limit = MIN_LIMIT;
+        } else {
+            this.limit = limit;
+        }
     }
 
     public void setPage(Integer page) {
