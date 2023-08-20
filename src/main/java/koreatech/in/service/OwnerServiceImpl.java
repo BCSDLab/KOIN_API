@@ -89,9 +89,8 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void validateEmailFromOwner(EmailAddress emailAddress) {
-        User user = Optional.ofNullable(userMapper.getUserByEmail(emailAddress.getEmailAddress()))
-                .orElseThrow(() -> new BaseException(ExceptionInformation.NOT_EXIST_EMAIL));
-        if (user.isStudent()) {
+        User user = userMapper.getUserByEmail(emailAddress.getEmailAddress());
+        if (user == null || user.isStudent()) {
             throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
         }
     }
