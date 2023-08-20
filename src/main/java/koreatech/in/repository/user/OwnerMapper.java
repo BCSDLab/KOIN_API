@@ -16,9 +16,9 @@ public interface OwnerMapper {
 
     void insertOwner(Owner owner);
 
-    void safeDeleteOwner(Owner owner);
+//    void safeDeleteOwner(Owner owner);
 
-    void deleteOwner(Integer id);
+//    void deleteOwner(Integer id);
 
     OwnerAttachment getOwnerAttachmentById(Long id);
 
@@ -30,4 +30,6 @@ public interface OwnerMapper {
     void insertOwnerAttachment(OwnerAttachment attachment);
 
     void deleteOwnerAttachmentsLogically(OwnerAttachments ownerAttachments);
+
+    boolean isCompanyRegistrationNumberExist(String companyRegistrationNumber);
 }

@@ -113,4 +113,12 @@
         SET is_deleted = TRUE
         WHERE id = #{id}
     </update>
+
+
+    <select id="isCompanyRegistrationNumberExist" resultType="boolean">
+        SELECT IF (count(*) != 0, 1, 0)
+        FROM koin.owners
+        WHERE company_registration_number = #{companyRegistrationNumber}
+    </select>
+
 </mapper>
