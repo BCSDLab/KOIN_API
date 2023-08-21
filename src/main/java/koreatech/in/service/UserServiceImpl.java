@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
@@ -236,7 +237,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void validateInUpdate(Student student, Student studentInToken) {
         if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
-            validateNicknameUniqueness(student,studentInToken.getId());
+            validateNicknameUniqueness(student, studentInToken.getId());
         }
         if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
             validateStudentNumber(student);
@@ -386,6 +387,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
 
+        User user = getUserById(tokenUserId);
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
+
         RefreshResult refreshResult = makeRefreshResult(tokenUserId);
 
         return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
@@ -400,6 +405,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private User getUserByEmail(String email) {
         return Optional.ofNullable(userMapper.getUserByEmail(email))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+    }
+
+    private User getUserById(int id) {
+        return Optional.ofNullable(userMapper.getUserById(id))
                 .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
@@ -424,7 +434,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
     }
-    private void validateNicknameUniqueness(Student student,Integer userId) {
+
+    private void validateNicknameUniqueness(Student student, Integer userId) {
         Optional.ofNullable(student.getNickname())
                 .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
                 .ifPresent(nickname -> {
