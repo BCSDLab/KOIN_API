@@ -3,34 +3,52 @@ package koreatech.in.domain.Homepage;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import koreatech.in.annotation.ValidationGroups;
 
 public class Member {
     @ApiModelProperty(notes = "고유 id", example = "10")
-    @Max(value = 10000000, groups = ValidationGroups.CreateAdmin.class, message = "id는 10000000 이하의 숫자만 가능합니다.")
     private Integer id;
+
     @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "이름은 비워둘 수 없습니다.")
-    @Max(value = 50, groups = ValidationGroups.CreateAdmin.class, message = "이름은 50자 이하로 입력해주세요.")
-    @ApiModelProperty(notes = "이름", example = "최박김")
+    @NotNull(message = "이름은 필수입니다.")
+    @Size(max = 50, message = "이름의 길이는 최대 50자입니다.")
+    @ApiModelProperty(notes = "이름 \n" +
+            "- not null \n" +
+            "- 최대 50자", example = "홍길동", required = true)
     private String name;
-    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "학번은 20자 이하로 입력해주세요.")
-    @ApiModelProperty(notes = "학번", example = "2019136001")
+
+    @Size(max = 10, message = "학번의 길이는 최대 10자입니다.")
+    @ApiModelProperty(notes = "학번 \n" +
+            "- 최대 10자", example = "2000136000")
     private String student_number;
-    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "소속 트랙은 비워둘 수 없습니다.")
-    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "소속 트랙은 20자 이하로 입력해주세요.")
-    @ApiModelProperty(notes = "소속 트랙", example = "BackEnd")
+
+    @NotNull(message = "트랙은 필수입니다.")
+    @Pattern(regexp = "^(Android|BackEnd|FrontEnd|Game|UI\\/UX)$", message = "트랙의 형식이 올바르지 않습니다.")
+    @ApiModelProperty(notes = "소속 트랙 \n" +
+            "- not null \n" +
+            "- Android, BackEnd, FrontEnd, Game, UI/UX 중 택 1 ", example = "BackEnd", required = true)
     private String track;
-    @NotNull(groups = ValidationGroups.CreateAdmin.class, message = "직급은 비워둘 수 없습니다.")
-    @Max(value = 20, groups = ValidationGroups.CreateAdmin.class, message = "직급은 20자 이하로 입력해주세요.")
-    @ApiModelProperty(notes = "직급", example = "Mentor")
+
+    @NotNull(message = "직급은 필수입니다.")
+    @Pattern(regexp = "^(Mentor|Regular)$", message = "직급의 형식이 올바르지 않습니다.")
+    @ApiModelProperty(notes = "직급 \n" +
+            "- not null \n" +
+            "- Mentor 또는 Regular 중 택 1 ", example = "Regular", required = true)
     private String position;
-    @Max(value = 100, groups = ValidationGroups.CreateAdmin.class, message = "이메일은 100자 이하로 입력해주세요.")
-    @ApiModelProperty(notes = "이메일", example = "babaisu@koreatech.ac.kr")
+
+    @Size(max = 100, message = "이메일의 길이는 최대 100자입니다.")
+    @ApiModelProperty(notes = "이메일 \n" +
+            "- 최대 100자", example = "someone@example.com")
     private String email;
-    @ApiModelProperty(notes = "이미지 링크", example = "http://url.com")
+
+    @Size(max = 65535, message = "이미지 링크의 길이는 최대 65535자입니다.")
+    @ApiModelProperty(notes = "이미지 링크 \n" +
+            "- 최대 65535자", example = "https://example.com")
     private String image_url;
+
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
     @ApiModelProperty(hidden = true)
