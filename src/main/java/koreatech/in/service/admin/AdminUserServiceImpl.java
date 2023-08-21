@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
@@ -513,7 +514,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             OwnerShop ownerShop;
 
             try {
-               ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
+                ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -672,6 +673,10 @@ public class AdminUserServiceImpl implements AdminUserService {
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
+        User user = getUserById(tokenUserId);
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
+
         RefreshResult refreshResult = makeRefreshResult(tokenUserId);
 
         return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
@@ -687,6 +692,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     private void validateAdmin(Integer tokenUserId) {
         Optional.ofNullable(authorityMapper.getAuthorityByUserId(tokenUserId))
                 .orElseThrow(() -> new BaseException(FORBIDDEN));
+    }
+
+    private User getUserById(int id) {
+        return Optional.ofNullable(userMapper.getUserById(id))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void deleteRefreshTokenInDB(Integer userId) {
