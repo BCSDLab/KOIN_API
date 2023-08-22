@@ -26,10 +26,8 @@ public class Member {
     private String student_number;
 
     @NotNull(message = "트랙은 필수입니다.")
-    @Pattern(regexp = "^(Android|BackEnd|FrontEnd|Game|UI\\/UX)$", message = "트랙의 형식이 올바르지 않습니다.")
     @ApiModelProperty(notes = "소속 트랙 \n" +
-            "- not null \n" +
-            "- Android, BackEnd, FrontEnd, Game, UI/UX 중 택 1 ", example = "BackEnd", required = true)
+            "- not null \n", example = "BackEnd", required = true)
     private String track;
 
     @NotNull(message = "직급은 필수입니다.")
