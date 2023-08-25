@@ -420,6 +420,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         validateStudentNumber(student);
         validateMajor(student);
     }
+
     private void validateUniqueness(Student student) {
         validateEmailUniqueness(EmailAddress.from(student.getEmail()));
         validateNicknameUniqueness(student);
@@ -432,8 +433,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     throw new BaseException(NICKNAME_DUPLICATE);
                 });
     }
-
     private void validateNicknameUniqueness(Student student, Integer userId) {
+
         Optional.ofNullable(student.getNickname())
                 .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
                 .ifPresent(nickname -> {
