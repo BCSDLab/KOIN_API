@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
@@ -514,7 +513,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             OwnerShop ownerShop;
 
             try {
-                ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
+               ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(owner.getId()), OwnerShop.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

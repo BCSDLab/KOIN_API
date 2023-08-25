@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
@@ -237,7 +236,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void validateInUpdate(Student student, Student studentInToken) {
         if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
-            validateNicknameUniqueness(student, studentInToken.getId());
+            validateNicknameUniqueness(student,studentInToken.getId());
         }
         if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
             validateStudentNumber(student);
@@ -421,7 +420,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         validateStudentNumber(student);
         validateMajor(student);
     }
-
     private void validateUniqueness(Student student) {
         validateEmailUniqueness(EmailAddress.from(student.getEmail()));
         validateNicknameUniqueness(student);
