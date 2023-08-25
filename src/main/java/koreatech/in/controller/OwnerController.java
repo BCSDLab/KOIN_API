@@ -93,7 +93,7 @@ public class OwnerController {
     })
     @ApiOperation(value = "회원가입 인증번호 전송 요청")
     @AuthExcept
-    @RequestMapping(value = "/owners/registration/send", method = RequestMethod.POST)
+    @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request,
@@ -124,9 +124,9 @@ public class OwnerController {
                             + "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n",
                     response = RequestDataInvalidResponse.class)
     })
-    @ApiOperation(value = "회원가입 인증번호 입력")
+    @ApiOperation(value = "인증번호 입력")
     @AuthExcept
-    @RequestMapping(value = "/owners/registration/verification", method = RequestMethod.POST)
+    @RequestMapping(value = "/owners/verification/code", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<VerifyCodeResponse> verifyCode(@RequestBody @Valid VerifyCodeRequest request,
@@ -159,7 +159,7 @@ public class OwnerController {
     })
     @ApiOperation(value = "회원가입 요청")
     @AuthExcept
-    @RequestMapping(value = "/owners/registration", method = RequestMethod.POST)
+    @RequestMapping(value = "/owners/register", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
     ResponseEntity<EmptyResponse> register(@RequestBody @Valid OwnerRegisterRequest request,
