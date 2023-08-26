@@ -73,6 +73,18 @@ public class OwnerServiceImpl implements OwnerService {
     private OwnerMapper ownerMapper;
 
     @Override
+    public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
+        OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
+        String email = ownerInCertification.getEmail();
+        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyToChangePassword(email),email);
+
+        ownerInRedis.validateFor(ownerInCertification);
+        ownerInRedis.setIs_authed(true);
+
+        putRedisFor(StringRedisUtilObj.makeOwnerKeyToChangePassword(email), ownerInRedis);
+    }
+
+    @Override
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
 
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
@@ -83,7 +95,9 @@ public class OwnerServiceImpl implements OwnerService {
 
         emailAddress.validateSendable();
 
-        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
+        String email = emailAddress.getEmailAddress();
+
+        putRedisFor(StringRedisUtilObj.makeOwnerKeyFor(email), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
         slackNotiSender.noticeEmailVerification(ownerInVerification);
@@ -92,13 +106,13 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-
-        OwnerInVerification ownerInRedis = getOwnerInRedis(ownerInCertification.getEmail());
+        String email = ownerInCertification.getEmail();
+        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyFor(email),email);
 
         ownerInRedis.validateFor(ownerInCertification);
         ownerInRedis.setIs_authed(true);
 
-        putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
+        putRedisFor(StringRedisUtilObj.makeOwnerKeyFor(email), ownerInRedis);
         String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
         return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
@@ -225,7 +239,8 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private void validateOwnerInRedis(EmailAddress emailAddress) {
-        OwnerInVerification ownerInRedis = getOwnerInRedis(emailAddress.getEmailAddress());
+        String email = emailAddress.getEmailAddress();
+        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyFor(email), email);
         ownerInRedis.validateCertificationComplete();
     }
 
@@ -233,9 +248,9 @@ public class OwnerServiceImpl implements OwnerService {
         stringRedisUtilObj.deleteData(StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress()));
     }
 
-    private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
+    private void putRedisFor(String ownerKey, OwnerInVerification ownerInVerification) {
         try {
-            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerKeyFor(emailAddress),
+            stringRedisUtilObj.setDataAsString(ownerKey,
                     ownerInVerification, 2L, TimeUnit.HOURS);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
@@ -250,10 +265,10 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    private OwnerInVerification getOwnerInRedis(String emailAddress) {
+    private OwnerInVerification getOwnerInRedis(String ownerKey, String emailAddress) {
         Object json;
         try {
-            json = stringRedisUtilObj.getDataAsString(StringRedisUtilStr.makeOwnerKeyFor(emailAddress), OwnerInVerification.class);
+            json = stringRedisUtilObj.getDataAsString(ownerKey, OwnerInVerification.class);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }

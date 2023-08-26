@@ -15,6 +15,7 @@ import java.util.Set;
 public class StringRedisUtilStr extends StringRedisUtil<String> {
 
     private static final String redisOwnerAuthPrefix = "owner@";
+    private static final String redisOwnerChangePasswordAuthPrefix = "owner_password_change@";
 
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
@@ -66,5 +67,9 @@ public class StringRedisUtilStr extends StringRedisUtil<String> {
 
     public  static String makeOwnerKeyFor(String emailAddress) {
         return redisOwnerAuthPrefix + emailAddress;
+    }
+
+    public static String makeOwnerKeyToChangePassword(String emailAddress) {
+        return redisOwnerChangePasswordAuthPrefix + emailAddress;
     }
 }

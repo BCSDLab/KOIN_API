@@ -19,6 +19,7 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     private static final String redisOwnerAuthPrefix = "owner@";
     private static final String redisOwnerShopPrefix = "owner_shop@";
+    private static final String redisOwnerChangePasswordAuthPrefix = "owner_password_change@";
 
     @Resource(name = "redisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
@@ -121,5 +122,9 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     public static String makeOwnerShopKeyFor(Integer ownerId) {
         return redisOwnerShopPrefix + ownerId;
+    }
+
+    public static String makeOwnerKeyToChangePassword(String emailAddress) {
+        return redisOwnerChangePasswordAuthPrefix + emailAddress;
     }
 }
