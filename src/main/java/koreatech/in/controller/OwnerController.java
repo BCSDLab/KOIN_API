@@ -66,7 +66,7 @@ public class OwnerController {
     @RequestMapping(value = "/owners/password/reset/send", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<VerifyCodeResponse> verifyCodeToChangePassword(@RequestBody @Valid VerifyCodeRequest request,
+    ResponseEntity<EmptyResponse> verifyCodeToChangePassword(@RequestBody @Valid VerifyCodeRequest request,
                                                   BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
