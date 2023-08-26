@@ -654,6 +654,10 @@ public class AdminUserServiceImpl implements AdminUserService {
         Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
+        User user = getUserById(tokenUserId);
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
+
         RefreshResult refreshResult = makeRefreshResult(tokenUserId);
 
         return AuthConverter.INSTANCE.toTokenRefreshResponse(refreshResult);
@@ -669,6 +673,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     private void validateAdmin(Integer tokenUserId) {
         Optional.ofNullable(authorityMapper.getAuthorityByUserId(tokenUserId))
                 .orElseThrow(() -> new BaseException(FORBIDDEN));
+    }
+
+    private User getUserById(int id) {
+        return Optional.ofNullable(userMapper.getUserById(id))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void deleteRefreshTokenInDB(Integer userId) {
