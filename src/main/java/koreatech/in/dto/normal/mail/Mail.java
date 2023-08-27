@@ -26,7 +26,7 @@ public class Mail {
 
     private final Map<String, Object> model = new HashMap<>();
 
-    public Map<String, Object> convertToMapWithTimes(Mail mail) {
+    public Map<String, Object> convertToMapWithTimes() {
         model.put(CERTIFICATION_CODE, certificationCode);
         model.put(EMAIL_ADDRESS, emailAddress);
         model.put(YEAR, time.getYear());
@@ -37,7 +37,7 @@ public class Mail {
         return model;
     }
 
-    public Map<String, Object> convertToMap(Mail mail) {
+    public Map<String, Object> convertToMap() {
         model.put(CERTIFICATION_CODE, certificationCode);
         return model;
     }

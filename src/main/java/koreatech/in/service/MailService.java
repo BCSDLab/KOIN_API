@@ -45,7 +45,7 @@ public class MailService {
                 .time(time)
                 .build();
 
-        Map<String, Object> model = mail.convertToMapWithTimes(mail);
+        Map<String, Object> model = mail.convertToMapWithTimes();
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
@@ -63,7 +63,7 @@ public class MailService {
                         .certificationCode(certificationCode.getValue())
                         .build();
 
-        Map<String, Object> model = mail.convertToMap(mail);
+        Map<String, Object> model = mail.convertToMap();
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
