@@ -384,7 +384,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        Integer tokenUserId = userRefreshJwtGenerator.getDataFromToken(refreshToken.getToken());
 
         User user = getUserById(tokenUserId);
         user.updateLastLoginTimeToCurrent();

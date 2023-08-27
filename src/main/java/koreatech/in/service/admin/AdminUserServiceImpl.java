@@ -651,7 +651,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        Integer tokenUserId = userRefreshJwtGenerator.getDataFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
         User user = getUserById(tokenUserId);

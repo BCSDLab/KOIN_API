@@ -58,7 +58,7 @@ public class JwtValidator {
             return null;
         }
 
-        return userAccessJwtGenerator.getFromToken(accessToken);
+        return userAccessJwtGenerator.getDataFromToken(accessToken);
     }
 
     private static boolean isAuthHeader(String header) {

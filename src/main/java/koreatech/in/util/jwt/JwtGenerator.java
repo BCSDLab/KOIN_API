@@ -30,7 +30,7 @@ public abstract class JwtGenerator<T> {
 
     protected abstract SecretKey getKey();
 
-    public T getFromToken(String token) {
+    public T getDataFromToken(String token) {
         try {
             T data = getData(token);
             validateData(token, data);
