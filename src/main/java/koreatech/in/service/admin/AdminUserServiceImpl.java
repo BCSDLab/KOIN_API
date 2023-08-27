@@ -70,8 +70,8 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
 import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
+import koreatech.in.util.jwt.UserAccessJwtManager;
+import koreatech.in.util.jwt.UserRefreshJwtManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -103,10 +103,10 @@ public class AdminUserServiceImpl implements AdminUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserAccessJwtGenerator userAccessJwtGenerator;
+    private UserAccessJwtManager userAccessJwtGenerator;
 
     @Autowired
-    private UserRefreshJwtGenerator userRefreshJwtGenerator;
+    private UserRefreshJwtManager userRefreshJwtGenerator;
 
     @Autowired
     private AuthenticationMapper authenticationMapper;
@@ -138,7 +138,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateAccessToken(Integer adminId) {
-        return userAccessJwtGenerator.generateToken(adminId);
+        return userAccessJwtGenerator.generate(adminId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
@@ -151,7 +151,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        String newRefreshToken = userRefreshJwtGenerator.generate(userId);
         authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;

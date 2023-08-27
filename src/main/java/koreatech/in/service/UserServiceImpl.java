@@ -47,8 +47,8 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
+import koreatech.in.util.jwt.UserAccessJwtManager;
+import koreatech.in.util.jwt.UserRefreshJwtManager;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -81,10 +81,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private JwtValidator jwtValidator;
 
     @Autowired
-    private UserAccessJwtGenerator userAccessJwtGenerator;
+    private UserAccessJwtManager userAccessJwtGenerator;
 
     @Autowired
-    private UserRefreshJwtGenerator userRefreshJwtGenerator;
+    private UserRefreshJwtManager userRefreshJwtGenerator;
 
     @Autowired
     private SlackNotiSender slackNotiSender;
@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String generateAccessToken(Integer userId) {
-        return userAccessJwtGenerator.generateToken(userId);
+        return userAccessJwtGenerator.generate(userId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        String newRefreshToken = userRefreshJwtGenerator.generate(userId);
         authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;

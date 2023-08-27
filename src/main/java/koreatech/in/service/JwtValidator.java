@@ -3,8 +3,8 @@ package koreatech.in.service;
 import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
+import koreatech.in.util.jwt.TemporaryAccessJwtManager;
+import koreatech.in.util.jwt.UserAccessJwtManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -17,9 +17,9 @@ public class JwtValidator {
     public static final String AUTHORIZATION = "Authorization";
 
     @Autowired
-    private UserAccessJwtGenerator userAccessJwtGenerator;
+    private UserAccessJwtManager userAccessJwtGenerator;
     @Autowired
-    private TemporaryAccessJwtGenerator temporaryAccessJwtGenerator;
+    private TemporaryAccessJwtManager temporaryAccessJwtGenerator;
     @Autowired
     private UserMapper userMapper;
 
