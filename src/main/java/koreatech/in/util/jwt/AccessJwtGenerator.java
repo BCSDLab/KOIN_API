@@ -4,7 +4,7 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccessJwtGenerator<T> extends AbstractJwtGenerator<T> {
+public class AccessJwtGenerator<T> extends JwtGenerator<T> {
 
     @Override
     protected long getTokenValidHour() {

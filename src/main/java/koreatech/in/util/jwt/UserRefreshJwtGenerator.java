@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRefreshJwtGenerator extends AbstractJwtGenerator<Integer> {
+public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
     @Autowired
