@@ -221,7 +221,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     }
 
     private boolean isValidToken(String authorizationHeader) {
-        if(!jwtValidator.isValidAccessTokenIn(authorizationHeader)) {
+        if(!jwtValidator.isValidTemporaryAccessTokenInHeader(authorizationHeader)) {
             throw new BaseException(TOKEN_EXPIRED);
         }
         return true;

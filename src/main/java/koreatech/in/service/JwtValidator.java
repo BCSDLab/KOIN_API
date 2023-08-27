@@ -3,9 +3,8 @@ package koreatech.in.service;
 import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.jwt.AccessJwtGenerator;
+import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -19,10 +18,8 @@ public class JwtValidator {
 
     @Autowired
     private UserAccessJwtGenerator userAccessJwtGenerator;
-
     @Autowired
-    private AccessJwtGenerator<?> accessJwtGenerator;
-
+    private TemporaryAccessJwtGenerator temporaryAccessJwtGenerator;
     @Autowired
     private UserMapper userMapper;
 
@@ -42,11 +39,11 @@ public class JwtValidator {
         return userMapper.getAuthedUserById(userId);
     }
 
-    public Boolean isValidAccessTokenIn(String header) {
+    public boolean isValidTemporaryAccessTokenInHeader(String header) {
         if(!isAuthHeader(header)) {
             return false;
         }
-        return !accessJwtGenerator.isExpired(makeTokenFrom(header));
+        return !temporaryAccessJwtGenerator.isExpired(makeTokenFromHeader(header));
     }
 
     private Integer getUserId(String header) {
@@ -54,7 +51,7 @@ public class JwtValidator {
             return null;
         }
 
-        String accessToken = makeTokenFrom(header);
+        String accessToken = makeTokenFromHeader(header);
         if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
             return null;
         }
@@ -62,12 +59,11 @@ public class JwtValidator {
         return userAccessJwtGenerator.getDataFromToken(accessToken);
     }
 
-    private static boolean isAuthHeader(String header) {
+    private boolean isAuthHeader(String header) {
         return header != null && header.startsWith(AUTH_PREFIX);
     }
 
-    @NotNull
-    private static String makeTokenFrom(String header) {
+    private String makeTokenFromHeader(String header) {
         return header.substring(AUTH_PREFIX.length());
     }
 

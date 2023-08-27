@@ -26,4 +26,9 @@ public class TemporaryAccessJwtGenerator extends JwtGenerator<Void> {
         return PREV_ACCESS_TOKEN_VALID_HOUR;
     }
 
+    @Override
+    protected SecretKey getKey() {
+        return super.jwtKeyManager.getAccessKey();
+    }
+
 }
