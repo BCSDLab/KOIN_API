@@ -20,29 +20,6 @@ public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
     private AuthenticationMapper authenticationMapper;
 
     @Override
-    public String generateToken(Integer data) {
-        return Jwts.builder()
-                .setSubject(makeSubject(data))
-                .setExpiration(makeExpiration())
-                .signWith(getKey())
-                .compact();
-    }
-
-    @Override
-    protected long getTokenValidHour() {
-        return TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS);
-    }
-
-    private String makeSubject(Integer data) {
-        return String.valueOf(data);
-    }
-
-    @Override
-    protected final SecretKey getKey() {
-        return super.jwtKeyManager.getRefreshKey();
-    }
-
-    @Override
     protected void validateData(String token,  Integer data) {
         try {
             String tokenInRedis = authenticationMapper.getRefreshToken(data);
@@ -61,6 +38,29 @@ public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("subject를 원하는 타입으로 변환할 수 없습니다.");
         }
+    }
+
+    @Override
+    public String generateToken(Integer data) {
+        return Jwts.builder()
+                .setSubject(makeSubject(data))
+                .setExpiration(makeExpiration())
+                .signWith(getKey())
+                .compact();
+    }
+
+    private String makeSubject(Integer data) {
+        return String.valueOf(data);
+    }
+
+    @Override
+    protected long getTokenValidHour() {
+        return TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS);
+    }
+
+    @Override
+    protected final SecretKey getKey() {
+        return super.jwtKeyManager.getRefreshKey();
     }
 
 }
