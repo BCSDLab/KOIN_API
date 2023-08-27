@@ -22,11 +22,11 @@ public abstract class JwtGenerator<T> {
     @Autowired
     protected JwtKeyManager jwtKeyManager;
 
-    protected abstract long getTokenValidHour();
-
     protected Date makeExpiration() {
         return DateUtil.addHoursToJavaUtilDate(new Date(), (int) getTokenValidHour());
     }
+
+    protected abstract long getTokenValidHour();
 
     protected abstract SecretKey getKey();
 
