@@ -16,6 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class JwtValidator {
     private static final String AUTH_PREFIX = "Bearer ";
     public static final String AUTHORIZATION = "Authorization";
+
     @Autowired
     private UserAccessJwtGenerator userAccessJwtGenerator;
 

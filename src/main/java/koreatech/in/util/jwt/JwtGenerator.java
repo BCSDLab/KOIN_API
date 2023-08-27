@@ -60,7 +60,8 @@ public abstract class JwtGenerator<T> {
             Jwts.parser().setSigningKey(getKey()).parseClaimsJws(token);
             return false;
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new BaseException(BAD_ACCESS); //보안상 목적으로 상세하게 표현하지 않는다.
+            //보안상 목적으로 상세하게 표현하지 않는다.
+            throw new BaseException(BAD_ACCESS);
         } catch (ExpiredJwtException e) {
             return true;
         }
