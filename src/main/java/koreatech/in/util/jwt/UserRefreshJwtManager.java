@@ -13,35 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
+public class UserRefreshJwtManager extends JwtManager<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
     @Autowired
     private AuthenticationMapper authenticationMapper;
 
     @Override
-    protected void validateData(String token,  Integer data) {
-        try {
-            String tokenInRedis = authenticationMapper.getRefreshToken(data);
-            if (!token.equals(tokenInRedis)) {
-                throw new BaseException(ExceptionInformation.TOKEN_EXPIRED);
-            }
-        } catch (IOException e) {
-            throw new ExpiredJwtException(null, null, null, e);
-        }
-    }
-
-    @Override
-    protected Integer toData(String subject) throws IllegalStateException {
-        try {
-            return Integer.parseInt(subject);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("subject를 원하는 타입으로 변환할 수 없습니다.");
-        }
-    }
-
-    @Override
-    public String generateToken(Integer data) {
+    public String generate(Integer data) {
         return Jwts.builder()
                 .setSubject(makeSubject(data))
                 .setExpiration(makeExpiration())
@@ -54,13 +33,34 @@ public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
     }
 
     @Override
-    protected long getTokenValidHour() {
+    protected long getExpirationHour() {
         return TimeUnit.DAYS.toHours(REFRESH_TOKEN_VALID_DAYS);
     }
 
     @Override
     protected final SecretKey getKey() {
         return super.jwtKeyManager.getRefreshKey();
+    }
+
+    @Override
+    protected Integer castToData(String subject) throws IllegalStateException {
+        try {
+            return Integer.parseInt(subject);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("subject를 원하는 타입으로 변환할 수 없습니다.");
+        }
+    }
+
+    @Override
+    protected void validateData(String token,  Integer data) {
+        try {
+            String tokenInRedis = authenticationMapper.getRefreshToken(data);
+            if (!token.equals(tokenInRedis)) {
+                throw new BaseException(ExceptionInformation.TOKEN_EXPIRED);
+            }
+        } catch (IOException e) {
+            throw new ExpiredJwtException(null, null, null, e);
+        }
     }
 
 }

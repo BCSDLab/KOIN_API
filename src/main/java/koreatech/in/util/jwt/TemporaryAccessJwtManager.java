@@ -5,16 +5,11 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TemporaryAccessJwtGenerator extends JwtGenerator<Void> {
+public class TemporaryAccessJwtManager extends JwtManager<Void> {
     private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 2;
 
     @Override
-    protected Void toData(String subject) throws IllegalStateException {
-        return null;
-    }
-
-    @Override
-    public String generateToken(Void data) {
+    public String generate(Void data) {
         return Jwts.builder()
                 .setExpiration(makeExpiration())
                 .signWith(getKey())
@@ -22,13 +17,18 @@ public class TemporaryAccessJwtGenerator extends JwtGenerator<Void> {
     }
 
     @Override
-    protected long getTokenValidHour() {
+    protected long getExpirationHour() {
         return PREV_ACCESS_TOKEN_VALID_HOUR;
     }
 
     @Override
     protected SecretKey getKey() {
         return super.jwtKeyManager.getAccessKey();
+    }
+
+    @Override
+    protected Void castToData(String subject) throws IllegalStateException {
+        return null;
     }
 
 }
