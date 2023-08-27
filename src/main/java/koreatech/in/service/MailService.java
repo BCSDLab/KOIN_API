@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.domain.Mail.MailForm;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.dto.normal.mail.Mail;
@@ -22,18 +23,18 @@ public class MailService {
     @Autowired
     private SesMailSender sesMailSender;
 
-    public CertificationCode sendMailWithTimes(EmailAddress emailAddress, String formLocation, String purpose) {
+    public CertificationCode sendMailWithTimes(EmailAddress emailAddress, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         LocalDateTime now = LocalDateTime.now();
-        String mailFormWithTimes = mailFormWithTimes(certificationCode,now,emailAddress,formLocation);
-        sendMailFor(emailAddress, mailFormWithTimes, purpose);
+        String mailFormWithTimes = mailFormWithTimes(certificationCode,now,emailAddress, form.getPath());
+        sendMailFor(emailAddress, mailFormWithTimes, form.getSubject());
         return certificationCode;
     }
 
-    public CertificationCode sendMail(EmailAddress emailAddress, String formLocation, String purpose) {
+    public CertificationCode sendMail(EmailAddress emailAddress, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
-        String mailForm = mailFormFor(certificationCode, formLocation);
-        sendMailFor(emailAddress, mailForm, purpose);
+        String mailForm = mailFormFor(certificationCode, form.getPath());
+        sendMailFor(emailAddress, mailForm, form.getSubject());
         return certificationCode;
     }
 

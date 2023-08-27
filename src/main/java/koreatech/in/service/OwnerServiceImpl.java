@@ -76,8 +76,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         String key = StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress.getEmailAddress());
 
-        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_FIND_PASSWORD_MAIL_FORM.getPath(),
-                OWNER_FIND_PASSWORD_MAIL_FORM.getSubject());
+        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_FIND_PASSWORD_MAIL_FORM);
 
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
         putRedis(emailAddress, key, ownerInVerification);
@@ -108,8 +107,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         String key = StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress());
 
-        CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_REGISTRATION_MAIL_FORM.getPath(),
-                OWNER_REGISTRATION_MAIL_FORM.getSubject());
+        CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_REGISTRATION_MAIL_FORM);
 
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
         putRedis(emailAddress,key, ownerInVerification);
