@@ -1,4 +1,4 @@
-package koreatech.in.dto.normal.mail;
+package koreatech.in.domain.Mail;
 
 public enum MailForm {
     OWNER_REGISTRATION_MAIL_FORM("코인 사장님 회원가입 이메일 인증", "mail/owner_certificate_number.vm"),

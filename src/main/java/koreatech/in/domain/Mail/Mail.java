@@ -1,4 +1,4 @@
-package koreatech.in.domain;
+package koreatech.in.domain.Mail;
 
 public class Mail {
     private String mailFrom;
