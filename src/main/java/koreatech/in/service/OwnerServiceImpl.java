@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import koreatech.in.domain.Redis;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
@@ -24,6 +26,7 @@ import koreatech.in.dto.normal.user.owner.response.VerifyCodeResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.mapstruct.OwnerConverter;
+import koreatech.in.repository.RedisOwnerMapper;
 import koreatech.in.repository.user.OwnerMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.RandomGenerator;
@@ -38,6 +41,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+
+import static koreatech.in.domain.Redis.*;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
@@ -72,16 +77,13 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private OwnerMapper ownerMapper;
 
+    @Autowired
+    private RedisOwnerMapper redisOwnerMapper;
+
     @Override
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-        String email = ownerInCertification.getEmail();
-        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyToChangePassword(email),email);
-
-        ownerInRedis.validateFor(ownerInCertification);
-        ownerInRedis.setIs_authed(true);
-
-        putRedisFor(StringRedisUtilObj.makeOwnerKeyToChangePassword(email), ownerInRedis);
+        redisOwnerMapper.changeRedis(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
     }
 
     @Override
@@ -106,13 +108,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-        String email = ownerInCertification.getEmail();
-        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyFor(email),email);
-
-        ownerInRedis.validateFor(ownerInCertification);
-        ownerInRedis.setIs_authed(true);
-
-        putRedisFor(StringRedisUtilObj.makeOwnerKeyFor(email), ownerInRedis);
+        redisOwnerMapper.changeRedis(ownerInCertification, ownerInCertification.getEmail(), ownerAuthPrefix);
         String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
         return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
