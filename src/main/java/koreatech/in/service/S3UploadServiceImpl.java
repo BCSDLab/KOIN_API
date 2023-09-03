@@ -2,11 +2,14 @@ package koreatech.in.service;
 
 import java.util.ArrayList;
 import koreatech.in.domain.Upload.UploadFile;
+import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
+import koreatech.in.dto.normal.upload.request.UploadableUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
+import koreatech.in.dto.normal.upload.response.UploadableUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
 import koreatech.in.mapstruct.normal.upload.UploadFileConverter;
@@ -48,6 +51,14 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFilesResult uploadFilesResult = uploadAndGetUrls(uploadFiles);
 
         return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesResult);
+    }
+
+    public UploadableUrlResponse generatePreSignedUrl(UploadableUrlRequest uploadableUrlRequest) {
+        UploadFileFullPath uploadFileFullPath = UploadFileConverter.INSTANCE.toPreSignedUrl(uploadableUrlRequest);
+
+        String preSignedUrlForPut = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileFullPath.unixValue());
+        UploadFileResult uploadFileResult = UploadFileResult.of(domainName, uploadFileFullPath);
+        return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileResult);
     }
 
     private UploadFilesResult uploadAndGetUrls(UploadFiles uploadFiles) {

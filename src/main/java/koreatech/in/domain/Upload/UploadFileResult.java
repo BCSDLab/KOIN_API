@@ -16,4 +16,9 @@ public class UploadFileResult {
     public static UploadFileResult of(String domainName, UploadFile uploadFile) {
         return new UploadFileResult(domainName + UploadFileFullPath.SLASH +  uploadFile.getFullPath(), uploadFile.getFileName());
     }
+
+    public static UploadFileResult of(String domainName, UploadFileFullPath uploadFileFullPath) {
+        return new UploadFileResult(domainName + UploadFileFullPath.SLASH +  uploadFileFullPath.unixValue(),
+                uploadFileFullPath.getFileFullName());
+    }
 }

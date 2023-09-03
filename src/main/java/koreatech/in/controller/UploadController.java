@@ -10,23 +10,31 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthTemporary;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.normal.upload.request.FileNameRequest;
+import koreatech.in.dto.normal.upload.request.UploadableUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
+import koreatech.in.dto.normal.upload.response.UploadableUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UploadService;
+import koreatech.in.util.StringXssChecker;
 import koreatech.in.util.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -280,4 +288,39 @@ public class UploadController {
 
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
+
+    @AuthTemporary
+    @ApiOperation(value = "파일을 업로드할 수 있는 Url을 생성한다.", notes = "액세스 토큰 필요", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
+                    + "(error code: 110000)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    ResponseEntity<UploadableUrlResponse> getFilePutUrl(
+            @ApiParam(value = "도메인 이름 \n\n"
+                    + "- `items`\n"
+                    + "- `lands`\n"
+                    + "- `circles`\n"
+                    + "- `market`\n"
+                    + "- `shops`\n"
+                    + "- `members`\n"
+                    + "- `owners`\n"
+                    , example = "items", required = true) @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
+            FileNameRequest request) {
+
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception e) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+        UploadableUrlRequest uploadableUrlRequest = new UploadableUrlRequest(
+                enrichDomainPath(domainEnum.name().toLowerCase()), request.getFileName());
+
+        UploadableUrlResponse uploadableUrlResponse = s3uploadService.generatePreSignedUrl(uploadableUrlRequest);
+        return new ResponseEntity<>(uploadableUrlResponse, HttpStatus.CREATED);
+    }
+
 }
