@@ -18,10 +18,10 @@ import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.upload.request.FileNameRequest;
-import koreatech.in.dto.normal.upload.request.UploadableUrlRequest;
+import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
-import koreatech.in.dto.normal.upload.response.UploadableUrlResponse;
+import koreatech.in.dto.normal.upload.response.PreSignedUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
 import koreatech.in.exception.BaseException;
@@ -298,7 +298,7 @@ public class UploadController {
     @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<UploadableUrlResponse> getFilePutUrl(
+    ResponseEntity<PreSignedUrlResponse> getFilePutUrl(
             @ApiParam(value = "도메인 이름 \n\n"
                     + "- `items`\n"
                     + "- `lands`\n"
@@ -316,11 +316,11 @@ public class UploadController {
         } catch (Exception e) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-        UploadableUrlRequest uploadableUrlRequest = new UploadableUrlRequest(
+        PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(
                 enrichDomainPath(domainEnum.name().toLowerCase()), request.getFileName());
 
-        UploadableUrlResponse uploadableUrlResponse = s3uploadService.generatePreSignedUrl(uploadableUrlRequest);
-        return new ResponseEntity<>(uploadableUrlResponse, HttpStatus.CREATED);
+        PreSignedUrlResponse preSignedUrlResponse = s3uploadService.generatePreSignedUrl(preSignedUrlRequest);
+        return new ResponseEntity<>(preSignedUrlResponse, HttpStatus.CREATED);
     }
 
 }

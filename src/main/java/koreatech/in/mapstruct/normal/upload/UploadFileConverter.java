@@ -7,10 +7,10 @@ import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
-import koreatech.in.dto.normal.upload.request.UploadableUrlRequest;
+import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
-import koreatech.in.dto.normal.upload.response.UploadableUrlResponse;
+import koreatech.in.dto.normal.upload.response.PreSignedUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
 import org.mapstruct.Mapper;
@@ -58,15 +58,15 @@ public interface UploadFileConverter {
         return uploadFilesRequest.stream().map((this::toUploadFile)).collect(Collectors.toList());
     }
 
-    default UploadFileFullPath toPreSignedUrl(UploadableUrlRequest uploadableUrlRequest) {
-        return UploadFileFullPath.of(uploadableUrlRequest.getDomainPath(), uploadableUrlRequest.getFileName());
+    default UploadFileFullPath toPreSignedUrl(PreSignedUrlRequest preSignedUrlRequest) {
+        return UploadFileFullPath.of(preSignedUrlRequest.getDomainPath(), preSignedUrlRequest.getFileName());
     }
 
     @Mappings({
             @Mapping(source = "preSignedPutUrl", target = "preSignedUrl"),
             @Mapping(source = "uploadFileResult", target = "fileUrl", qualifiedByName = "convertToFileUrl")
     })
-    UploadableUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileResult uploadFileResult);
+    PreSignedUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileResult uploadFileResult);
 
     @Named("convertToFileUrl")
     default String convertToFileUrl(UploadFileResult uploadFileResult) {

@@ -57,7 +57,6 @@ public class S3Util {
 
     // 파일 업로드
     public void fileUpload(String bucketName, String filePath, byte[] fileData) {
-
         ObjectMetadata metaData = new ObjectMetadata();
         metaData.setContentLength(fileData.length);   //메타데이터 설정 -->원래는 128kB까지 업로드 가능했으나 파일크기만큼 버퍼를 설정시켰다.
 
@@ -97,7 +96,7 @@ public class S3Util {
     }
 
     @RequiredArgsConstructor(staticName = "of")
-    class PreSignedUrlRequest {
+    static class PreSignedUrlRequest {
         private static final int FILE_EXPIRATION_HOUR = 2;
 
         private final String bucketName;

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class UploadableUrlRequest {
+public class PreSignedUrlRequest {
     private final String domainPath;
     private final String fileName;
 }
