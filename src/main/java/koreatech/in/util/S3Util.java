@@ -1,12 +1,14 @@
 package koreatech.in.util;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -15,6 +17,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class S3Util {
 
+    public static final int FILE_EXPIRATION_HOUR = 2;
     private final AmazonS3 conn;
 
     @Autowired
@@ -86,4 +90,32 @@ public class S3Util {
         String imgName = (fileName).replace(File.separatorChar, '/');
         return conn.generatePresignedUrl(new GeneratePresignedUrlRequest(bucketName, imgName)).toString();
     }
+
+    public String getPreSignedPutUrl(String bucketName, String filePath) {
+        return conn.generatePresignedUrl(getGeneratePreSignedUrlRequest(bucketName, filePath)).toString();
+    }
+
+    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = createPreSignedUrlRequest(
+                bucket, fileName);
+        enrichReadAccess(generatePresignedUrlRequest);
+        return generatePresignedUrlRequest;
+    }
+
+    private GeneratePresignedUrlRequest createPreSignedUrlRequest(String bucket, String fileName) {
+        return new GeneratePresignedUrlRequest(bucket, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(makePreSignedUrlExpiration());
+    }
+
+    private void enrichReadAccess(GeneratePresignedUrlRequest generatePresignedUrlRequest) {
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString());
+    }
+
+    private Date makePreSignedUrlExpiration() {
+        return DateUtil.addHoursToJavaUtilDate(new Date(), FILE_EXPIRATION_HOUR);
+    }
+
 }
