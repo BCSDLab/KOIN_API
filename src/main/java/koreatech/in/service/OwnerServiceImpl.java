@@ -97,9 +97,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         emailAddress.validateSendable();
 
-        String email = emailAddress.getEmailAddress();
-
-        putRedisFor(StringRedisUtilObj.makeOwnerKeyFor(email), ownerInVerification);
+        redisOwnerMapper.putRedisFor(ownerAuthPrefix.getKey(emailAddress.getEmailAddress()), ownerInVerification);
         sendMailFor(emailAddress, certificationCode);
 
         slackNotiSender.noticeEmailVerification(ownerInVerification);
@@ -227,30 +225,14 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    private static void validateRedis(OwnerInVerification ownerInRedis) {
-        if (ownerInRedis == null) {
-            throw new BaseException(ExceptionInformation.EMAIL_ADDRESS_SAVE_EXPIRED);
-        }
-        ownerInRedis.validateFields();
-    }
-
     private void validateOwnerInRedis(EmailAddress emailAddress) {
         String email = emailAddress.getEmailAddress();
-        OwnerInVerification ownerInRedis = getOwnerInRedis(StringRedisUtilStr.makeOwnerKeyFor(email), email);
+        OwnerInVerification ownerInRedis = redisOwnerMapper.getOwnerInRedis(ownerAuthPrefix.getKey(email));
         ownerInRedis.validateCertificationComplete();
     }
 
     private void removeRedisFrom(EmailAddress emailAddress) {
         stringRedisUtilObj.deleteData(StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress()));
-    }
-
-    private void putRedisFor(String ownerKey, OwnerInVerification ownerInVerification) {
-        try {
-            stringRedisUtilObj.setDataAsString(ownerKey,
-                    ownerInVerification, 2L, TimeUnit.HOURS);
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
     }
 
     private void putRedisForRequestShop(OwnerShop ownerShop) {
@@ -259,20 +241,6 @@ public class OwnerServiceImpl implements OwnerService {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
-    }
-
-    private OwnerInVerification getOwnerInRedis(String ownerKey, String emailAddress) {
-        Object json;
-        try {
-            json = stringRedisUtilObj.getDataAsString(ownerKey, OwnerInVerification.class);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        OwnerInVerification ownerInRedis = (OwnerInVerification) json;
-        validateRedis(ownerInRedis);
-
-        return ownerInRedis;
     }
 
     private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {

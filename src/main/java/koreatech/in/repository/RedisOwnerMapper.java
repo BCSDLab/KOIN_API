@@ -28,7 +28,7 @@ public class RedisOwnerMapper {
         putRedisFor(key, ownerInRedis);
     }
 
-    private OwnerInVerification getOwnerInRedis(String key) {
+    public OwnerInVerification getOwnerInRedis(String key) {
         Object json;
         try {
             json = stringRedisUtilObj.getDataAsString(key, OwnerInVerification.class);
@@ -49,7 +49,7 @@ public class RedisOwnerMapper {
         ownerInRedis.validateFields();
     }
 
-    private void putRedisFor(String ownerKey, OwnerInVerification ownerInVerification) {
+    public void putRedisFor(String ownerKey, OwnerInVerification ownerInVerification) {
         try {
             stringRedisUtilObj.setDataAsString(ownerKey,
                     ownerInVerification, 2L, TimeUnit.HOURS);
