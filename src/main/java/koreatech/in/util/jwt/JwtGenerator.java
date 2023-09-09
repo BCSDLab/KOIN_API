@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class JwtManager<T> {
+public abstract class JwtGenerator<T> {
     @Autowired
     protected JwtKeyManager jwtKeyManager;
 

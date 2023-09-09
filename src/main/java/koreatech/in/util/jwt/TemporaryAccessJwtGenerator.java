@@ -4,11 +4,12 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserAccessJwtManager extends JwtManager<Integer> {
-    private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 72;
+public class TemporaryAccessJwtGenerator extends JwtGenerator<Void> {
+    private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 2;
 
-    protected String castToSubject(Integer data) {
-        return String.valueOf(data);
+    @Override
+    protected String castToSubject(Void data) {
+        return null;
     }
 
     @Override
@@ -20,5 +21,6 @@ public class UserAccessJwtManager extends JwtManager<Integer> {
     protected SecretKey getKey() {
         return super.jwtKeyManager.getAccessKey();
     }
+
 
 }

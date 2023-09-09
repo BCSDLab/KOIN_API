@@ -71,8 +71,8 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
 import koreatech.in.service.RefreshJwtValidator;
 import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.jwt.UserAccessJwtManager;
-import koreatech.in.util.jwt.UserRefreshJwtManager;
+import koreatech.in.util.jwt.UserAccessJwtGenerator;
+import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -107,10 +107,10 @@ public class AdminUserServiceImpl implements AdminUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserAccessJwtManager userAccessJwtGenerator;
+    private UserAccessJwtGenerator userAccessJwtGenerator;
 
     @Autowired
-    private UserRefreshJwtManager userRefreshJwtGenerator;
+    private UserRefreshJwtGenerator userRefreshJwtGenerator;
 
     @Autowired
     private AuthenticationMapper authenticationMapper;

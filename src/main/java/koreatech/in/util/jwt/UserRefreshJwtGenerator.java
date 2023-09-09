@@ -5,7 +5,7 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRefreshJwtManager extends JwtManager<Integer> {
+public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
     @Override
