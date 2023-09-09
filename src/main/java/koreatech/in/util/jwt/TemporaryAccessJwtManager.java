@@ -22,9 +22,5 @@ public class TemporaryAccessJwtManager extends JwtManager<Void> {
         return super.jwtKeyManager.getAccessKey();
     }
 
-    @Override
-    protected Void castToData(String subject) throws IllegalStateException {
-        return null;
-    }
 
 }

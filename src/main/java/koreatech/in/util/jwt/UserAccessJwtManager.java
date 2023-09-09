@@ -21,12 +21,4 @@ public class UserAccessJwtManager extends JwtManager<Integer> {
         return super.jwtKeyManager.getAccessKey();
     }
 
-    @Override
-    protected Integer castToData(String subject) throws IllegalStateException {
-        try {
-            return Integer.parseInt(subject);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("subject를 원하는 타입으로 변환할 수 없습니다.");
-        }
-    }
 }
