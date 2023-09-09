@@ -69,6 +69,7 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.service.RefreshJwtValidator;
 import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.UserAccessJwtManager;
 import koreatech.in.util.jwt.UserRefreshJwtManager;
@@ -98,6 +99,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private JwtValidator jwtValidator;
+
+    @Autowired
+    private RefreshJwtValidator refreshJwtValidator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -158,7 +162,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private boolean isExpired(String refreshToken) {
-        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+        return (refreshToken == null || refreshJwtValidator.isExpiredToken(refreshToken));
     }
 
     @Override
@@ -651,7 +655,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getDataFromToken(refreshToken.getToken());
+        Integer tokenUserId = refreshJwtValidator.getDataFromToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
         User user = getUserById(tokenUserId);

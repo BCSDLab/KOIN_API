@@ -81,6 +81,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private JwtValidator jwtValidator;
 
     @Autowired
+    private RefreshJwtValidator refreshJwtValidator;
+
+    @Autowired
     private UserAccessJwtManager userAccessJwtGenerator;
 
     @Autowired
@@ -154,7 +157,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private boolean isExpired(String refreshToken) {
-        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+        return (refreshToken == null || refreshJwtValidator.isExpiredToken(refreshToken));
     }
 
     @Override
@@ -384,7 +387,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getDataFromToken(refreshToken.getToken());
+        Integer tokenUserId = refreshJwtValidator.getDataFromToken(refreshToken.getToken());
 
         User user = getUserById(tokenUserId);
         user.updateLastLoginTimeToCurrent();
