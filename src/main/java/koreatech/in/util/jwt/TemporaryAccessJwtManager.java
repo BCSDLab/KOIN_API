@@ -1,6 +1,5 @@
 package koreatech.in.util.jwt;
 
-import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
@@ -9,11 +8,8 @@ public class TemporaryAccessJwtManager extends JwtManager<Void> {
     private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 2;
 
     @Override
-    public String generate(Void data) {
-        return Jwts.builder()
-                .setExpiration(makeExpiration())
-                .signWith(getKey())
-                .compact();
+    protected String castToSubject(Void data) {
+        return null;
     }
 
     @Override

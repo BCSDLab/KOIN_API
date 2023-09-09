@@ -1,12 +1,9 @@
 package koreatech.in.util.jwt;
 
-import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
 import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
+import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -22,30 +19,36 @@ public abstract class JwtManager<T> {
     @Autowired
     protected JwtKeyManager jwtKeyManager;
 
-    public abstract String generate(T data);
+    private final JwtUtil jwtUtil = new JwtUtil();
+
+    public String generate(T data) {
+        SecretKey key = getKey();
+        return jwtUtil.generateToken(castToSubject(data), makeExpiration(), key);
+    }
 
     public Boolean isExpired(String token) {
         try {
-            Jwts.parser().setSigningKey(getKey()).parseClaimsJws(token);
-            return false;
+            return jwtUtil.isExpiredToken(token, getKey());
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
             //보안상 목적으로 상세하게 표현하지 않는다.
             throw new BaseException(BAD_ACCESS);
-        } catch (ExpiredJwtException e) {
-            return true;
         }
     }
 
     public T getDataFromToken(String token) {
         try {
-            T data = getData(token);
+            String subject = jwtUtil.getSubject(token, getKey());
+
+            T data = castToData(subject);
             validateData(token, data);
 
             return data;
-        } catch (JwtException | IllegalArgumentException e){
+        } catch (JwtException | IllegalArgumentException e) {
             throw new BaseException(TOKEN_EXPIRED);
         }
     }
+
+    protected abstract String castToSubject(T data);
 
     protected Date makeExpiration() {
         return DateUtil.addHoursToJavaUtilDate(new Date(), (int) getExpirationHour());
@@ -55,14 +58,6 @@ public abstract class JwtManager<T> {
 
     protected abstract SecretKey getKey();
 
-    private T getData(String token) throws IllegalArgumentException, JwtException {
-        Claims body = Jwts.parser()
-                .setSigningKey(getKey())
-                .parseClaimsJws(token)
-                .getBody();
-
-        return castToData(body.getSubject());
-    }
     abstract protected T castToData(String subject) throws IllegalStateException;
 
     //e.g. Redis의 것과 비교 (optional)

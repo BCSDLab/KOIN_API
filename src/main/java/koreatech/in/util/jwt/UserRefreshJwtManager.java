@@ -2,7 +2,6 @@ package koreatech.in.util.jwt;
 
 
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
@@ -20,15 +19,7 @@ public class UserRefreshJwtManager extends JwtManager<Integer> {
     private AuthenticationMapper authenticationMapper;
 
     @Override
-    public String generate(Integer data) {
-        return Jwts.builder()
-                .setSubject(makeSubject(data))
-                .setExpiration(makeExpiration())
-                .signWith(getKey())
-                .compact();
-    }
-
-    private String makeSubject(Integer data) {
+    protected String castToSubject(Integer data) {
         return String.valueOf(data);
     }
 
