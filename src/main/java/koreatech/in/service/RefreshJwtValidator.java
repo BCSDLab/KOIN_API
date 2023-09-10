@@ -37,14 +37,14 @@ public class RefreshJwtValidator {
         }
     }
 
-    public Integer getDataFromToken(String token) {
+    public Integer getUserIdInToken(String token) {
         try {
             String subject = jwtUtil.getSubject(token, getKey());
 
-            Integer data = castToData(subject);
-            validateData(token, data);
+            Integer userId = castToUserId(subject);
+            validateData(token, userId);
 
-            return data;
+            return userId;
         } catch (JwtException | IllegalArgumentException e) {
             throw new BaseException(TOKEN_EXPIRED);
         }
@@ -54,7 +54,7 @@ public class RefreshJwtValidator {
         return jwtKeyManager.getRefreshKey();
     }
 
-    private Integer castToData(String subject) throws IllegalStateException {
+    private Integer castToUserId(String subject) throws IllegalStateException {
         try {
             return Integer.parseInt(subject);
         } catch (NumberFormatException e) {

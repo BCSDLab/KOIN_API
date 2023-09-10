@@ -48,14 +48,14 @@ public class JwtValidator {
         return userMapper.getAuthedUserById(userId);
     }
 
-    public void validateTemporaryAccessTokenInHeader(String header) {
-        validateToken(makeTokenFromHeader(header), getKey());
-    }
-
     public Integer validateAndGetUserId() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
         return getUserId(request.getHeader(AUTHORIZATION));
+    }
+
+    public void validateTemporaryAccessTokenInHeader(String header) {
+        validateToken(makeTokenFromHeader(header), getKey());
     }
 
     private Integer getUserId(String header) {
