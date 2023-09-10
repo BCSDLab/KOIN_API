@@ -5,6 +5,7 @@ import javax.crypto.SecretKey;
 import koreatech.in.util.DateUtil;
 import koreatech.in.util.jwt.JwtKeyManager;
 import koreatech.in.util.jwt.JwtUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,12 @@ public abstract class JwtGenerator<T> {
     private final JwtUtil jwtUtil = new JwtUtil();
 
     public String generate(T data) {
-        SecretKey key = getKey();
-        return jwtUtil.generateToken(castToSubject(data), makeExpiration(), key);
+        String subject = castToSubject(data);
+        if(StringUtils.isEmpty(subject)) {
+            return jwtUtil.generateToken(makeExpiration(), getKey());
+        }
+
+        return jwtUtil.generateToken(subject, makeExpiration(), getKey());
     }
 
     protected abstract String castToSubject(T data);

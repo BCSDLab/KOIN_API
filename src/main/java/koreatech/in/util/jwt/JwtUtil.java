@@ -10,6 +10,13 @@ import javax.crypto.SecretKey;
 
 public class JwtUtil {
 
+    public String generateToken(Date expiration, SecretKey key) {
+        return Jwts.builder()
+                .setExpiration(expiration)
+                .signWith(key)
+                .compact();
+    }
+
     public String generateToken(String subject, Date expiration, SecretKey key) {
         return Jwts.builder()
                 .setSubject(subject)
