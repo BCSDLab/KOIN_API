@@ -1,12 +1,14 @@
-package koreatech.in.util.jwt;
+package koreatech.in.service;
 
 import java.util.Date;
 import javax.crypto.SecretKey;
 import koreatech.in.util.DateUtil;
+import koreatech.in.util.jwt.JwtKeyManager;
+import koreatech.in.util.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public abstract class JwtGenerator<T> {
     @Autowired
     protected JwtKeyManager jwtKeyManager;

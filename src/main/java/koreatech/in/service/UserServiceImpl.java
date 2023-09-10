@@ -47,8 +47,6 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

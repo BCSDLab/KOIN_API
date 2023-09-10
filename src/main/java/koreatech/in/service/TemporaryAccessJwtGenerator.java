@@ -1,9 +1,9 @@
-package koreatech.in.util.jwt;
+package koreatech.in.service;
 
 import javax.crypto.SecretKey;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class TemporaryAccessJwtGenerator extends JwtGenerator<Void> {
     private static final int PREV_ACCESS_TOKEN_VALID_HOUR = 2;
 

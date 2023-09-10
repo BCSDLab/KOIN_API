@@ -1,10 +1,10 @@
-package koreatech.in.util.jwt;
+package koreatech.in.service;
 
 import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class UserRefreshJwtGenerator extends JwtGenerator<Integer> {
     private static final long REFRESH_TOKEN_VALID_DAYS = 14;
 
