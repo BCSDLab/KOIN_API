@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-//todo AccessJwtValidator, RefreshJwtValidator로 분리
 @Service
 public class JwtValidator {
     private static final String AUTH_PREFIX = "Bearer ";
