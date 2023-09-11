@@ -1,13 +1,10 @@
 package koreatech.in.service;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import koreatech.in.domain.Redis;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
@@ -15,7 +12,6 @@ import koreatech.in.domain.User.owner.OwnerAttachment;
 import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
-import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -32,7 +28,6 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.StringRedisUtilStr;
 import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
@@ -42,7 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import static koreatech.in.domain.Redis.*;
+import static koreatech.in.domain.RedisOwnerKeyPrefix.*;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {

@@ -1,6 +1,6 @@
 package koreatech.in.repository;
 
-import koreatech.in.domain.Redis;
+import koreatech.in.domain.RedisOwnerKeyPrefix;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.exception.BaseException;
@@ -18,8 +18,8 @@ public class RedisOwnerMapper {
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
 
-    public void changeRedis(OwnerInCertification ownerInCertification, String email, Redis redis) {
-        String key = redis.getKey(email);
+    public void changeRedis(OwnerInCertification ownerInCertification, String email, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+        String key = redisOwnerKeyPrefix.getKey(email);
         OwnerInVerification ownerInRedis = getOwnerInRedis(key);
 
         ownerInRedis.validateFor(ownerInCertification);

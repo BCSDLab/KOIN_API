@@ -1,12 +1,12 @@
 package koreatech.in.domain;
 
-public enum Redis {
+public enum RedisOwnerKeyPrefix {
     ownerAuthPrefix("owner@"),
     ownerChangePasswordAuthPrefix("owner_password_change@");
 
     private final String prefixOfKey;
 
-    Redis(String prefixOfKey) {
+    RedisOwnerKeyPrefix(String prefixOfKey) {
         this.prefixOfKey = prefixOfKey;
     }
 
