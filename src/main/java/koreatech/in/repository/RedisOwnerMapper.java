@@ -18,7 +18,7 @@ public class RedisOwnerMapper {
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
 
-    public void changeRedis(OwnerInCertification ownerInCertification, String email, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+    public void changeAuthStatus(OwnerInCertification ownerInCertification, String email, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
         String key = redisOwnerKeyPrefix.getKey(email);
         OwnerInVerification ownerInRedis = getOwnerInRedis(key);
 

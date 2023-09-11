@@ -78,7 +78,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-        redisOwnerMapper.changeRedis(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
+        redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-        redisOwnerMapper.changeRedis(ownerInCertification, ownerInCertification.getEmail(), ownerAuthPrefix);
+        redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerAuthPrefix);
         String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
         return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
