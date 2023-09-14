@@ -28,8 +28,8 @@ public interface UploadFileConverter {
     UploadFileResponse toUploadFileResponse(UploadFileLocation uploadFileLocation);
 
     @Mappings({
-//            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
-            @Mapping(source = "uploadFilesResult", target = "fileUrls", qualifiedByName = "convertUploadFilesResponse")
+//            @Mapping(source = "uploadFilesLocation", target = "files", qualifiedByName = "convertUploadFilesResponse")
+            @Mapping(source = "uploadFilesLocation", target = "fileUrls", qualifiedByName = "convertUploadFilesResponse")
     })
     UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation);
 
@@ -61,7 +61,7 @@ public interface UploadFileConverter {
 
     @Mappings({
             @Mapping(source = "preSignedPutUrl", target = "preSignedUrl"),
-            @Mapping(source = "uploadFileResult", target = "fileUrl", qualifiedByName = "convertToFileUrl")
+            @Mapping(source = "uploadFileLocation", target = "fileUrl", qualifiedByName = "convertToFileUrl")
     })
     PreSignedUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileLocation uploadFileLocation);
 
