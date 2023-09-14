@@ -13,4 +13,5 @@ public interface UploadService {
     UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest);
 
     PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest);
+
 }

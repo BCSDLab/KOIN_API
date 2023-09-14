@@ -7,7 +7,7 @@ import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileLocation;
 import koreatech.in.domain.Upload.UploadFileMetaData;
 import koreatech.in.domain.Upload.UploadFiles;
-import koreatech.in.domain.Upload.UploadFilesResult;
+import koreatech.in.domain.Upload.UploadFilesLocation;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
@@ -31,7 +31,7 @@ public interface UploadFileConverter {
 //            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
             @Mapping(source = "uploadFilesResult", target = "fileUrls", qualifiedByName = "convertUploadFilesResponse")
     })
-    UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
+    UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation);
 
     @Named("convertUploadFilesResponse")
     default List<String> convertUploadFilesResponseResponse(List<UploadFileLocation> uploadFileLocations) {

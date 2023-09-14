@@ -9,7 +9,7 @@ import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileLocation;
 import koreatech.in.domain.Upload.UploadFileMetaData;
 import koreatech.in.domain.Upload.UploadFiles;
-import koreatech.in.domain.Upload.UploadFilesResult;
+import koreatech.in.domain.Upload.UploadFilesLocation;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
@@ -52,9 +52,9 @@ public class S3UploadServiceImpl implements UploadService {
     public UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest) {
         UploadFiles uploadFiles = UploadFileConverter.INSTANCE.toUploadFiles(uploadFilesRequest);
 
-        UploadFilesResult uploadFilesResult = uploadAndGetUrls(uploadFiles);
+        UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
 
-        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesResult);
+        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
     }
 
     public PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest) {
@@ -71,16 +71,16 @@ public class S3UploadServiceImpl implements UploadService {
         return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileLocation);
     }
 
-    private UploadFilesResult uploadAndGetUrls(UploadFiles uploadFiles) {
-        UploadFilesResult uploadFilesResult = UploadFilesResult.from(new ArrayList<>());
+    private UploadFilesLocation uploadAndGetUrls(UploadFiles uploadFiles) {
+        UploadFilesLocation uploadFilesLocation = UploadFilesLocation.from(new ArrayList<>());
 
         for (UploadFile file : uploadFiles.getUploadFiles()) {
             uploadFor(file);
             UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
 
-            uploadFilesResult.append(uploadFileLocation);
+            uploadFilesLocation.append(uploadFileLocation);
         }
-        return uploadFilesResult;
+        return uploadFilesLocation;
     }
 
     private void uploadFor(UploadFile uploadFile) {
