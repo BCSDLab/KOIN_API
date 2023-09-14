@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
+import koreatech.in.domain.Upload.UploadFileLocation;
 import koreatech.in.domain.Upload.UploadFileMetaData;
-import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
@@ -25,7 +25,7 @@ public interface UploadFileConverter {
 
     UploadFileConverter INSTANCE = Mappers.getMapper(UploadFileConverter.class);
 
-    UploadFileResponse toUploadFileResponse(UploadFileResult uploadFileResult);
+    UploadFileResponse toUploadFileResponse(UploadFileLocation uploadFileLocation);
 
     @Mappings({
 //            @Mapping(source = "uploadFilesResult", target = "files", qualifiedByName = "convertUploadFilesResponse")
@@ -34,8 +34,8 @@ public interface UploadFileConverter {
     UploadFilesResponse toUploadFilesResponse(UploadFilesResult uploadFilesResult);
 
     @Named("convertUploadFilesResponse")
-    default List<String> convertUploadFilesResponseResponse(List<UploadFileResult> uploadFileResults) {
-        return uploadFileResults.stream().map(UploadFileResult::getFileUrl).collect(Collectors.toList());
+    default List<String> convertUploadFilesResponseResponse(List<UploadFileLocation> uploadFileLocations) {
+        return uploadFileLocations.stream().map(UploadFileLocation::getFileUrl).collect(Collectors.toList());
     }
 
     @Mappings({
@@ -63,11 +63,11 @@ public interface UploadFileConverter {
             @Mapping(source = "preSignedPutUrl", target = "preSignedUrl"),
             @Mapping(source = "uploadFileResult", target = "fileUrl", qualifiedByName = "convertToFileUrl")
     })
-    PreSignedUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileResult uploadFileResult);
+    PreSignedUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileLocation uploadFileLocation);
 
     @Named("convertToFileUrl")
-    default String convertToFileUrl(UploadFileResult uploadFileResult) {
-        return uploadFileResult.getFileUrl();
+    default String convertToFileUrl(UploadFileLocation uploadFileLocation) {
+        return uploadFileLocation.getFileUrl();
     }
 
     @Mappings({

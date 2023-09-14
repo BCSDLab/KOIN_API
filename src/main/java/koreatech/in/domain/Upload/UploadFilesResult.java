@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor(staticName = "from")
 public class UploadFilesResult {
-    private final List<UploadFileResult> uploadFilesResult;
+    private final List<UploadFileLocation> uploadFilesResult;
 
-    public void append(UploadFileResult uploadFileResult) {
-        uploadFilesResult.add(uploadFileResult);
+    public void append(UploadFileLocation uploadFileLocation) {
+        uploadFilesResult.add(uploadFileLocation);
     }
 }

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
+import koreatech.in.domain.Upload.UploadFileLocation;
 import koreatech.in.domain.Upload.UploadFileMetaData;
-import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
@@ -43,9 +43,9 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFile file = UploadFileConverter.INSTANCE.toUploadFile(uploadFileRequest);
 
         uploadFor(file);
-        UploadFileResult uploadFileResult = UploadFileResult.of(domainName, file);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
 
-        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileResult);
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(enrichDomainPath(domainEnum.name().toLowerCase()), uploadFileMetaData.getFileName());
         String preSignedUrlForPut = s3Util.generatePreSignedUrlForPut(bucketName,uploadFileMetaData  ,uploadFileFullPath.unixValue());
 
-        UploadFileResult uploadFileResult = UploadFileResult.of(domainName, uploadFileFullPath);
-        return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileResult);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, uploadFileFullPath);
+        return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileLocation);
     }
 
     private UploadFilesResult uploadAndGetUrls(UploadFiles uploadFiles) {
@@ -76,9 +76,9 @@ public class S3UploadServiceImpl implements UploadService {
 
         for (UploadFile file : uploadFiles.getUploadFiles()) {
             uploadFor(file);
-            UploadFileResult uploadFileResult = UploadFileResult.of(domainName, file);
+            UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
 
-            uploadFilesResult.append(uploadFileResult);
+            uploadFilesResult.append(uploadFileLocation);
         }
         return uploadFilesResult;
     }
@@ -86,4 +86,5 @@ public class S3UploadServiceImpl implements UploadService {
     private void uploadFor(UploadFile uploadFile) {
         s3Util.fileUpload(bucketName, uploadFile.getFullPath(), uploadFile.getData());
     }
+
 }
