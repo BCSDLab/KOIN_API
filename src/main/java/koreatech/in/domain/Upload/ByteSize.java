@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ByteSize {
 
-
-    public static final long ZERO = 0L;
-    public static final int RIGHT_IS_BIGGER = -1;
+    private static final long ZERO = 0L;
+    private static final int RIGHT_IS_BIGGER = -1;
 
     private Long getSize() {
         return size;
