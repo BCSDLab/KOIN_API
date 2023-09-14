@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
+import koreatech.in.domain.Upload.UploadFileMetaData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,9 +33,10 @@ public class S3Util {
     @Autowired
     public S3Util(@Value("${s3.key}") String accessKey, @Value("${s3.secret}") String secretKey) {
         ClientConfiguration clientConfig = new ClientConfiguration();
-        clientConfig.setProtocol(Protocol.HTTP);
+        clientConfig.setProtocol(Protocol.HTTPS);
 
-        this.conn = AmazonS3ClientBuilder.standard().withRegion(Regions.AP_NORTHEAST_2)
+        this.conn = AmazonS3ClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .withClientConfiguration(clientConfig)
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
                 .build();
@@ -89,22 +91,24 @@ public class S3Util {
         return conn.generatePresignedUrl(new GeneratePresignedUrlRequest(bucketName, imgName)).toString();
     }
 
-    public String generatePreSignedUrlForPut(String bucketName, String filePath) {
+    public String generatePreSignedUrlForPut(String bucketName, UploadFileMetaData uploadFileMetaData, String filePath) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = PreSignedUrlRequest.of(bucketName, filePath)
-                .generate(HttpMethod.PUT, new Date());
+                .generate(uploadFileMetaData, HttpMethod.PUT, new Date());
+
         return conn.generatePresignedUrl(generatePresignedUrlRequest).toString();
     }
 
     @RequiredArgsConstructor(staticName = "of")
-    static class PreSignedUrlRequest {
+    static private class PreSignedUrlRequest {
         private static final int FILE_EXPIRATION_HOUR = 2;
 
         private final String bucketName;
         private final String filePath;
 
-        public GeneratePresignedUrlRequest generate(HttpMethod httpMethod, Date now) {
+        public GeneratePresignedUrlRequest generate(UploadFileMetaData uploadFileMetaData, HttpMethod httpMethod, Date now) {
             GeneratePresignedUrlRequest generatePresignedUrlRequest = createPreSignedUrlRequest(httpMethod, now);
             enrichReadAccess(generatePresignedUrlRequest);
+            enrichContentMetaData(generatePresignedUrlRequest, uploadFileMetaData);
 
             return generatePresignedUrlRequest;
         }
@@ -115,14 +119,19 @@ public class S3Util {
                     .withExpiration(makePreSignedUrlExpiration(now));
         }
 
+        private Date makePreSignedUrlExpiration(Date now) {
+            return DateUtil.addHoursToJavaUtilDate(now, FILE_EXPIRATION_HOUR);
+        }
+
         private void enrichReadAccess(GeneratePresignedUrlRequest generatePresignedUrlRequest) {
             generatePresignedUrlRequest.addRequestParameter(
                     Headers.S3_CANNED_ACL,
                     CannedAccessControlList.PublicRead.toString());
         }
 
-        private Date makePreSignedUrlExpiration(Date now) {
-            return DateUtil.addHoursToJavaUtilDate(now, FILE_EXPIRATION_HOUR);
+        private void enrichContentMetaData(GeneratePresignedUrlRequest generatePresignedUrlRequest, UploadFileMetaData uploadFileMetaData) {
+            generatePresignedUrlRequest.putCustomRequestHeader(Headers.CONTENT_TYPE,uploadFileMetaData.getContentType());
+            generatePresignedUrlRequest.putCustomRequestHeader(Headers.CONTENT_LENGTH,uploadFileMetaData.getContentLength().toString());
         }
     }
 
