@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
+import koreatech.in.domain.Upload.UploadFileMetaData;
 import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
@@ -58,10 +59,6 @@ public interface UploadFileConverter {
         return uploadFilesRequest.stream().map((this::toUploadFile)).collect(Collectors.toList());
     }
 
-    default UploadFileFullPath toPreSignedUrl(PreSignedUrlRequest preSignedUrlRequest) {
-        return UploadFileFullPath.of(preSignedUrlRequest.getDomainPath(), preSignedUrlRequest.getFileName());
-    }
-
     @Mappings({
             @Mapping(source = "preSignedPutUrl", target = "preSignedUrl"),
             @Mapping(source = "uploadFileResult", target = "fileUrl", qualifiedByName = "convertToFileUrl")
@@ -72,4 +69,12 @@ public interface UploadFileConverter {
     default String convertToFileUrl(UploadFileResult uploadFileResult) {
         return uploadFileResult.getFileUrl();
     }
+
+    @Mappings({
+            @Mapping(source = "fileName", target = "fileName"),
+            @Mapping(source = "contentType", target = "contentType"),
+            @Mapping(source = "contentLength", target = "contentLength")
+    })
+    UploadFileMetaData toUploadFileMetaData(PreSignedUrlRequest preSignedUrlRequest);
+
 }

@@ -17,7 +17,6 @@ import koreatech.in.annotation.AuthTemporary;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
-import koreatech.in.dto.normal.upload.request.FileNameRequest;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
 import koreatech.in.dto.normal.upload.request.UploadFileRequest;
 import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
@@ -187,7 +186,7 @@ public class UploadController {
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 
-    private static String enrichDomainPath(String domain) {
+    public static String enrichDomainPath(String domain) {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase();
     }
 
@@ -298,8 +297,9 @@ public class UploadController {
     @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<PreSignedUrlResponse> getFilePutUrl(
+    ResponseEntity<PreSignedUrlResponse> getPreSignedUrl(
             @ApiParam(value = "도메인 이름 \n\n"
+                    + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
                     + "- `items`\n"
                     + "- `lands`\n"
                     + "- `circles`\n"
@@ -307,19 +307,18 @@ public class UploadController {
                     + "- `shops`\n"
                     + "- `members`\n"
                     + "- `owners`\n"
-                    , example = "items", required = true) @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
-            FileNameRequest request) {
+                    + "  - ContentType: `image/*`\n"
+                    + "  - MaxSize: `10mb`\n"
+                    , required = true) @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
+            PreSignedUrlRequest request) {
 
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception e) {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
-        PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(
-                enrichDomainPath(domainEnum.name().toLowerCase()), request.getFileName());
 
-        PreSignedUrlResponse preSignedUrlResponse = s3uploadService.generatePreSignedUrl(preSignedUrlRequest);
+        PreSignedUrlResponse preSignedUrlResponse = s3uploadService.generatePreSignedUrl(domain, request);
         return new ResponseEntity<>(preSignedUrlResponse, HttpStatus.CREATED);
     }
 

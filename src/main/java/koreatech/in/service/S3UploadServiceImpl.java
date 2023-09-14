@@ -1,8 +1,12 @@
 package koreatech.in.service;
 
+import static koreatech.in.controller.UploadController.enrichDomainPath;
+
 import java.util.ArrayList;
+import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
+import koreatech.in.domain.Upload.UploadFileMetaData;
 import koreatech.in.domain.Upload.UploadFileResult;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesResult;
@@ -53,10 +57,16 @@ public class S3UploadServiceImpl implements UploadService {
         return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesResult);
     }
 
-    public PreSignedUrlResponse generatePreSignedUrl(PreSignedUrlRequest preSignedUrlRequest) {
-        UploadFileFullPath uploadFileFullPath = UploadFileConverter.INSTANCE.toPreSignedUrl(preSignedUrlRequest);
+    public PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest) {
+        //todo 파일 업로드와 같이 리팩터링 필요
+        UploadFileMetaData uploadFileMetaData = UploadFileConverter.INSTANCE.toUploadFileMetaData(preSignedUrlRequest);
 
-        String preSignedUrlForPut = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileFullPath.unixValue());
+        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
+        domainEnum.validateMetaData(uploadFileMetaData);
+
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(enrichDomainPath(domainEnum.name().toLowerCase()), uploadFileMetaData.getFileName());
+        String preSignedUrlForPut = s3Util.generatePreSignedUrlForPut(bucketName,uploadFileMetaData  ,uploadFileFullPath.unixValue());
+
         UploadFileResult uploadFileResult = UploadFileResult.of(domainName, uploadFileFullPath);
         return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileResult);
     }
