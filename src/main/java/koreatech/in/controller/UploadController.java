@@ -14,6 +14,7 @@ import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthTemporary;
+import koreatech.in.annotation.ParamValid;
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -302,6 +304,7 @@ public class UploadController {
     })
     @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
+    @ParamValid
     public @ResponseBody
     ResponseEntity<PreSignedUrlResponse> getPreSignedUrl(
             @ApiParam(value = "도메인 이름 \n\n"
@@ -315,8 +318,9 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
-            PreSignedUrlRequest request) {
+                    , required = true)
+            @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
+            PreSignedUrlRequest request, BindingResult bindingResult) {
 
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
