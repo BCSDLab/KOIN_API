@@ -292,7 +292,13 @@ public class UploadController {
     @ApiOperation(value = "파일을 업로드할 수 있는 Url을 생성한다.", notes = "액세스 토큰 필요", authorizations = {@Authorization("Authorization")})
     @ApiResponses({
             @ApiResponse(code = 404, message = "존재하지 않는 도메인일 때 \n"
-                    + "(error code: 110000)", response = ExceptionResponse.class)
+                    + "(error code: 110000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "유효하지 않은 파일일 때 \n"
+                    + "(error code: 110001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 413, message = "도메인의 허용가능한 크기보다 파일의 크기가 클 때 \n"
+                    + "(error code: 110004)", response = ExceptionResponse.class),
+            @ApiResponse(code = 415, message = "도메인이 허용하는 콘텐츠 타입이 아닐 때 \n"
+                    + "(error code: 110005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
