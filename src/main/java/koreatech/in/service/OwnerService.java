@@ -20,4 +20,6 @@ public interface OwnerService {
     void deleteAttachment(Integer attachmentId);
 
     OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
+
+    void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest);
 }

@@ -1,12 +1,11 @@
 package koreatech.in.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import koreatech.in.domain.User.EmailAddress;
+import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.CertificationCode;
 import koreatech.in.domain.User.owner.Owner;
 import koreatech.in.domain.User.owner.OwnerAttachment;
@@ -36,13 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
 
     private static final String OWNER_CERTIFICATE_FORM_LOCATION = "mail/owner_certificate_number.vm";
-    private static final String CERTIFICATION_CODE = "certification-code";
+    private static final String OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION = "mail/change_password_certificate_number.vm";
+    private static final Long STORAGE_TIME = 2L;
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -71,21 +70,54 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private OwnerMapper ownerMapper;
 
-    @Override
-    public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
+    @Autowired
+    private MailService mailService;
 
+    public void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
-        validateEmailUniqueness(emailAddress);
+        validateEmailFromOwner(emailAddress);
 
+        String key = StringRedisUtilObj.makeOwnerPasswordChangeKeyFor(emailAddress.getEmailAddress());
+        putRedis(emailAddress, key);
+
+        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_PASSWORD_CHANGE_CERTIFICATE_FORM_LOCATION,
+                SesMailSender.OWNER_FIND_PASSWORD_EMAIL_VERIFICATION_SUBJECT);
+
+        slackNotiSender.noticeEmailVerification(OwnerInVerification.of(certificationCode, emailAddress));
+    }
+
+    private void validateEmailFromOwner(EmailAddress emailAddress) {
+        User user = Optional.ofNullable(userMapper.getUserByEmail(emailAddress.getEmailAddress()))
+                .orElseThrow(() -> new BaseException(ExceptionInformation.NOT_EXIST_EMAIL));
+        if (user.isStudent()) {
+            throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
+        }
+    }
+
+    private void putRedis(EmailAddress emailAddress, String key) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
 
         emailAddress.validateSendable();
+        try {
+            stringRedisUtilObj.setDataAsString(key, ownerInVerification, STORAGE_TIME, TimeUnit.HOURS);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
-        putRedisFor(emailAddress.getEmailAddress(), ownerInVerification);
-        sendMailFor(emailAddress, certificationCode);
+    @Override
+    public void requestVerification(VerifyEmailRequest verifyEmailRequest) {
+        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
+        validateEmailUniqueness(emailAddress);
 
-        slackNotiSender.noticeEmailVerification(ownerInVerification);
+        String key = StringRedisUtilObj.makeOwnerKeyFor(emailAddress.getEmailAddress());
+        putRedis(emailAddress,key);
+
+        CertificationCode certificationCode = mailService.sendMail(emailAddress, OWNER_CERTIFICATE_FORM_LOCATION,
+                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT);
+
+        slackNotiSender.noticeEmailVerification(OwnerInVerification.of(certificationCode, emailAddress));
     }
 
     @Override
@@ -242,7 +274,7 @@ public class OwnerServiceImpl implements OwnerService {
     private void putRedisFor(String emailAddress, OwnerInVerification ownerInVerification) {
         try {
             stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerKeyFor(emailAddress),
-                    ownerInVerification, 2L, TimeUnit.HOURS);
+                    ownerInVerification, STORAGE_TIME, TimeUnit.HOURS);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -268,21 +300,6 @@ public class OwnerServiceImpl implements OwnerService {
         validateRedis(ownerInRedis);
 
         return ownerInRedis;
-    }
-
-    private void sendMailFor(EmailAddress emailAddress, CertificationCode certificationCode) {
-
-        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, emailAddress.getEmailAddress(),
-                SesMailSender.OWNER_EMAIL_VERIFICATION_SUBJECT, mailFormFor(certificationCode));
-    }
-
-    private String mailFormFor(CertificationCode certificationCode) {
-
-        Map<String, Object> model = new HashMap<>();
-        model.put(CERTIFICATION_CODE, certificationCode.getValue());
-
-        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, OWNER_CERTIFICATE_FORM_LOCATION,
-                StandardCharsets.UTF_8.name(), model);
     }
 
     private void encodePassword(Owner owner) {
