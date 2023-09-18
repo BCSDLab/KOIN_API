@@ -47,6 +47,37 @@ public class OwnerController {
 
     @ApiResponses({
             @ApiResponse(
+                    code = 404,
+                    message ="- 존재하지 않는 이메일일 경우 (code: 101022)",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                            + "- 이메일 주소가 올바르지 않을 경우 (code: 101008) \n\n"
+                            + "- 이메일 도메인이 사용할 수 없는 경우 (code: 101009) \n\n",
+                    response = ExceptionResponse.class
+
+            )
+    })
+    @ApiOperation(value = "비밀번호 변경 인증번호 전송 요청")
+    @AuthExcept
+    @RequestMapping(value = "/owners/password/reset/verification", method = RequestMethod.POST)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> verifyEmailToChangePassword(@RequestBody @Valid VerifyEmailRequest request,
+                                              BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        ownerService.requestVerificationToChangePassword(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses({
+            @ApiResponse(
                     code = 409,
                     message = "- 이미 인증이 완료된 이메일일 경우 (code: 101011) \n\n",
                     response = ExceptionResponse.class),
@@ -93,7 +124,7 @@ public class OwnerController {
 
             )
     })
-    @ApiOperation(value = "인증번호 전송 요청")
+    @ApiOperation(value = "회원가입 인증번호 전송 요청")
     @AuthExcept
     @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid

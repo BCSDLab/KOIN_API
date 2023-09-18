@@ -22,4 +22,7 @@ public interface OwnerService {
     OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
 
     void certificateToChangePassword(VerifyCodeRequest request);
+
+    void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest);
+
 }
