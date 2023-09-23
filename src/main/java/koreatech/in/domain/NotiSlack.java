@@ -11,6 +11,7 @@ public class NotiSlack {
     public static final String EMAIL_VERIFICATION_REQUEST_SUFFIX = "님이 이메일 인증을 요청하였습니다.";
     public static final String REGISTER_COMPLETE_SUFFIX = "님이 가입하셨습니다.";
     public static final String DELETE_COMPLETE_SUFFIX = "님이 탈퇴하셨습니다.";
+    public static final String OWNERSHOP_REQUEST_SUFFIX = "님이 상점연결을 요청하셨습니다.";
 
     public static final String COLOR_GOOD = "good";
     public static final String BACKTICK = "`";
@@ -47,6 +48,13 @@ public class NotiSlack {
         return NotiSlack.builder()
                 .color(NotiSlack.COLOR_GOOD)
                 .text(makeText(user, NotiSlack.DELETE_COMPLETE_SUFFIX))
+                .build();
+    }
+
+    public static NotiSlack ownerShopRequestNotiSlack(User user) {
+        return NotiSlack.builder()
+                .color(NotiSlack.COLOR_GOOD)
+                .text(makeText(user, OWNERSHOP_REQUEST_SUFFIX))
                 .build();
     }
 
