@@ -119,8 +119,16 @@ public class OwnerServiceImpl implements OwnerService {
         putRedisForRequestShop(ownerShop);
 
         slackNotiSender.noticeRegisterComplete(owner);
+        noticeOnwerShopRequest(owner, ownerShop);
 
         removeRedisFrom(ownerEmailAddress);
+    }
+
+    private void noticeOnwerShopRequest(Owner owner, OwnerShop ownerShop) {
+        if (ownerShop.getShop_id() == null) {
+            return;
+        }
+        slackNotiSender.noticeOwnerShopRequest(owner);
     }
 
     private void validateRegistration(Owner owner, EmailAddress ownerEmailAddress) {
