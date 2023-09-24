@@ -79,6 +79,39 @@ public class OwnerController {
     @ApiResponses({
             @ApiResponse(
                     code = 409,
+                    message = "- 이미 인증이 완료된 이메일일 경우 (code: 101011) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 410,
+                    message = "- 저장기간(`2시간`)이 만료된 이메일일 경우 (code: 101010) \n\n"
+                            + "- 코드 인증 기한(`5분`)이 경과된 경우 (code: 121001) \n\n",
+                    response = ExceptionResponse.class),
+            @ApiResponse(
+                    code = 422,
+                    message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)"
+                            + "- 인증 코드가 일치하지 않을 경우 (code: 121002) \n\n",
+                    response = RequestDataInvalidResponse.class)
+    })
+    @ApiOperation(value = "비밀번호 변경 인증번호 입력")
+    @AuthExcept
+    @RequestMapping(value = "/owners/password/reset/send", method = RequestMethod.POST)
+    @ParamValid
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> verifyCodeToChangePassword(@RequestBody @Valid VerifyCodeRequest request,
+                                                  BindingResult bindingResult) {
+        try {
+            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
+        } catch (Exception exception) {
+            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
+        }
+
+        ownerService.certificateToChangePassword(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses({
+            @ApiResponse(
+                    code = 409,
                     message = "- 이미 인증이 완료된 이메일일 경우 (code: 101011) \n\n"
                             + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
                     response = ExceptionResponse.class),
