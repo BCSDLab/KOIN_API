@@ -15,6 +15,7 @@ import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
+import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -71,6 +72,11 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private OwnerMapper ownerMapper;
+
+    @Override
+    public void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest) {
+        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerFindPasswordRequest);
+    }
 
     @Override
     public void requestVerification(VerifyEmailRequest verifyEmailRequest) {

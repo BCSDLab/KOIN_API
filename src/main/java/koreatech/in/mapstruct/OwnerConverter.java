@@ -15,6 +15,7 @@ import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuCategoryRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -36,7 +37,15 @@ public interface OwnerConverter {
             @Mapping(source = "address", target = "localParts", qualifiedByName = "convertLocalParts"),
             @Mapping(source = "address", target = "domain", qualifiedByName = "convertDomain")
     })
-    EmailAddress toEmailAddress(VerifyEmailRequest verifyEmailRequest);
+    EmailAddress toEmailAddress(String address);
+
+    default EmailAddress toEmailAddress(OwnerFindPasswordRequest ownerFindPasswordRequest) {
+        return toEmailAddress(ownerFindPasswordRequest.getAddress());
+    }
+
+    default EmailAddress toEmailAddress(VerifyEmailRequest verifyEmailRequest) {
+        return toEmailAddress(verifyEmailRequest.getAddress());
+    }
 
     @Named("convertLocalParts")
     default LocalParts convertLocalParts(String address) {
