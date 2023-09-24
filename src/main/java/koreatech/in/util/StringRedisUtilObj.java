@@ -17,7 +17,6 @@ import java.util.Set;
 @Component
 public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
-    private static final String redisOwnerAuthPrefix = "owner@";
     private static final String redisOwnerShopPrefix = "owner_shop@";
 
     @Resource(name = "redisTemplate")
@@ -113,10 +112,6 @@ public class StringRedisUtilObj extends StringRedisUtil<Object> {
 
     public void deleteData(String key) {
         redisTemplate.delete(key);
-    }
-
-    public static String makeOwnerKeyFor(String emailAddress) {
-        return redisOwnerAuthPrefix + emailAddress;
     }
 
     public static String makeOwnerShopKeyFor(Integer ownerId) {

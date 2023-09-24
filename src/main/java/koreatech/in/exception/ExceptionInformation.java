@@ -26,7 +26,7 @@ public enum ExceptionInformation {
     IMPOSSIBLE_UNDELETE_USER_BECAUSE_SAME_EMAIL_EXIST("탈퇴하지 않은 회원 중 같은 이메일을 가진 회원이 있어, 탈퇴를 해제할 수 없습니다.", 101007, HttpStatus.CONFLICT),
     EMAIL_ADDRESS_INVALID("유효하지 않는 이메일 주소입니다.", 101008, HttpStatus.UNPROCESSABLE_ENTITY),
     EMAIL_DOMAIN_INVALID("유효하지 않는 이메일 도메인입니다.", 101009, HttpStatus.UNPROCESSABLE_ENTITY),
-    EMAIL_ADDRESS_SAVE_EXPIRED("저장기간이 만료된 이메일 주소입니다. 다시 회원가입을 시도해주세요.", 101010, HttpStatus.GONE),
+    EMAIL_ADDRESS_SAVE_EXPIRED("저장기간이 만료된 이메일 주소입니다. 다시 시도해주세요.", 101010, HttpStatus.GONE),
     CERTIFICATION_CODE_ALREADY_COMPLETED("해당 이메일은 이미 인증 완료되었습니다.", 101011, HttpStatus.CONFLICT),
     CERTIFICATION_CODE_NOT_COMPLETED("해당 이메일은 인증되지 않았습니다.", 101012, HttpStatus.CONFLICT),
     EMAIL_DUPLICATED("이미 존재하는 이메일 주소입니다. 다른 이메일 주소를 사용해주세요.", 101013, HttpStatus.CONFLICT),
@@ -38,6 +38,9 @@ public enum ExceptionInformation {
     AUTHENTICATED_USER("인증된 회원입니다.", 101019, HttpStatus.CONFLICT),
     GENDER_INVALID("유효한 성별이 아닙니다.", 101020, HttpStatus.UNPROCESSABLE_ENTITY),
     COMPANY_REGISTRATION_NUMBER_DUPLICATE("이미 존재하는 사업자 번호입니다.", 101021, HttpStatus.CONFLICT),
+    NOT_EXIST_EMAIL("존재하지 않는 이메일입니다.", 101022, HttpStatus.NOT_FOUND),
+
+
 
     // ======= 상점 ========
     SHOP_NOT_FOUND("상점이 존재하지 않습니다.", 104000, HttpStatus.NOT_FOUND),
