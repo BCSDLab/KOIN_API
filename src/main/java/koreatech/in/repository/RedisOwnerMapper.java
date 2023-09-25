@@ -66,4 +66,8 @@ public class RedisOwnerMapper {
         OwnerInVerification ownerInRedis = getOwnerInRedis(redisOwnerKeyPrefix.getKey(email));
         ownerInRedis.validateCertificationComplete();
     }
+
+    public void removeRedisFrom(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+        stringRedisUtilObj.deleteData(redisOwnerKeyPrefix.getKey(emailAddress.getEmailAddress()));
+    }
 }

@@ -78,6 +78,16 @@ public class OwnerServiceImpl implements OwnerService {
     public void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerFindPasswordRequest);
         redisOwnerMapper.validateOwnerInRedis(emailAddress, ownerChangePasswordAuthPrefix);
+
+        User user = validateEmailFromOwner(emailAddress);
+        Owner owner = (Owner) user;
+
+        owner.setPassword(ownerFindPasswordRequest.getPassword());
+        encodePassword(owner);
+
+        userMapper.updateUser(owner);
+
+        redisOwnerMapper.removeRedisFrom(emailAddress, ownerChangePasswordAuthPrefix);
     }
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
@@ -98,11 +108,12 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
-    private void validateEmailFromOwner(EmailAddress emailAddress) {
+    private User validateEmailFromOwner(EmailAddress emailAddress) {
         User user = userMapper.getUserByEmail(emailAddress.getEmailAddress());
         if (user == null || user.isStudent()) {
             throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
         }
+        return user;
     }
 
     @Override
@@ -151,7 +162,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         slackNotiSender.noticeRegisterComplete(owner);
 
-        removeRedisFrom(ownerEmailAddress);
+        redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }
 
     @Override
@@ -240,10 +251,6 @@ public class OwnerServiceImpl implements OwnerService {
         if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
-    }
-
-    private void removeRedisFrom(EmailAddress emailAddress) {
-        stringRedisUtilObj.deleteData(ownerAuthPrefix.getKey(emailAddress.getEmailAddress()));
     }
 
     private void putRedisForRequestShop(OwnerShop ownerShop) {
