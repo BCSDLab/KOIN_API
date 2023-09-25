@@ -1,6 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.RedisOwnerKeyPrefix;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.exception.BaseException;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import static koreatech.in.domain.RedisOwnerKeyPrefix.ownerAuthPrefix;
 
 @Repository
 public class RedisOwnerMapper {
@@ -56,5 +59,11 @@ public class RedisOwnerMapper {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public void validateOwnerInRedis(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+        String email = emailAddress.getEmailAddress();
+        OwnerInVerification ownerInRedis = getOwnerInRedis(redisOwnerKeyPrefix.getKey(email));
+        ownerInRedis.validateCertificationComplete();
     }
 }

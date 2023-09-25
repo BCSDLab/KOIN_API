@@ -77,6 +77,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerFindPasswordRequest);
+        redisOwnerMapper.validateOwnerInRedis(emailAddress, ownerChangePasswordAuthPrefix);
     }
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
@@ -139,7 +140,7 @@ public class OwnerServiceImpl implements OwnerService {
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
-        validateOwnerInRedis(ownerEmailAddress);
+        redisOwnerMapper.validateOwnerInRedis(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
 
@@ -239,12 +240,6 @@ public class OwnerServiceImpl implements OwnerService {
         if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
-    }
-
-    private void validateOwnerInRedis(EmailAddress emailAddress) {
-        String email = emailAddress.getEmailAddress();
-        OwnerInVerification ownerInRedis = redisOwnerMapper.getOwnerInRedis(ownerAuthPrefix.getKey(email));
-        ownerInRedis.validateCertificationComplete();
     }
 
     private void removeRedisFrom(EmailAddress emailAddress) {
