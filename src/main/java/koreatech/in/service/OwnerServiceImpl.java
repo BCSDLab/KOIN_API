@@ -79,8 +79,7 @@ public class OwnerServiceImpl implements OwnerService {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerChangePasswordRequest);
         redisOwnerMapper.validateOwner(emailAddress, ownerChangePasswordAuthPrefix);
 
-        User user = validateEmailFromOwner(emailAddress);
-        Owner owner = (Owner) user;
+        Owner owner = validateEmailFromOwner(emailAddress);
 
         owner.setPassword(ownerChangePasswordRequest.getPassword());
         encodePassword(owner);
@@ -108,12 +107,12 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
-    private User validateEmailFromOwner(EmailAddress emailAddress) {
+    private Owner validateEmailFromOwner(EmailAddress emailAddress) {
         User user = userMapper.getUserByEmail(emailAddress.getEmailAddress());
         if (user == null || user.isStudent()) {
             throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
         }
-        return user;
+        return (Owner) user;
     }
 
     @Override
