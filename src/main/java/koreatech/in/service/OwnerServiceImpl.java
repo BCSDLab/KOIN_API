@@ -77,7 +77,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerFindPasswordRequest);
-        redisOwnerMapper.validateOwnerInRedis(emailAddress, ownerChangePasswordAuthPrefix);
+        redisOwnerMapper.validateOwner(emailAddress, ownerChangePasswordAuthPrefix);
 
         User user = validateEmailFromOwner(emailAddress);
         Owner owner = (Owner) user;
@@ -151,7 +151,7 @@ public class OwnerServiceImpl implements OwnerService {
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
-        redisOwnerMapper.validateOwnerInRedis(ownerEmailAddress, ownerAuthPrefix);
+        redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
 

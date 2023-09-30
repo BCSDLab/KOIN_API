@@ -13,8 +13,6 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static koreatech.in.domain.RedisOwnerKeyPrefix.ownerAuthPrefix;
-
 @Repository
 public class RedisOwnerMapper {
 
@@ -23,7 +21,7 @@ public class RedisOwnerMapper {
 
     public void changeAuthStatus(OwnerInCertification ownerInCertification, String email, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
         String key = redisOwnerKeyPrefix.getKey(email);
-        OwnerInVerification ownerInRedis = getOwnerInRedis(key);
+        OwnerInVerification ownerInRedis = getOwner(key);
 
         ownerInRedis.validateFor(ownerInCertification);
         ownerInRedis.setIs_authed(true);
@@ -31,7 +29,7 @@ public class RedisOwnerMapper {
         putRedisFor(key, ownerInRedis);
     }
 
-    public OwnerInVerification getOwnerInRedis(String key) {
+    public OwnerInVerification getOwner(String key) {
         Object json;
         try {
             json = stringRedisUtilObj.getDataAsString(key, OwnerInVerification.class);
@@ -61,9 +59,9 @@ public class RedisOwnerMapper {
         }
     }
 
-    public void validateOwnerInRedis(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+    public void validateOwner(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
         String email = emailAddress.getEmailAddress();
-        OwnerInVerification ownerInRedis = getOwnerInRedis(redisOwnerKeyPrefix.getKey(email));
+        OwnerInVerification ownerInRedis = getOwner(redisOwnerKeyPrefix.getKey(email));
         ownerInRedis.validateCertificationComplete();
     }
 
