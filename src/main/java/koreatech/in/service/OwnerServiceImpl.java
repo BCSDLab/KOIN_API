@@ -88,6 +88,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         redisOwnerMapper.removeRedisFrom(emailAddress, ownerChangePasswordAuthPrefix);
     }
+
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
         redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
