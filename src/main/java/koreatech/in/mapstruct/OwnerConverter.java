@@ -15,7 +15,7 @@ import koreatech.in.domain.User.owner.OwnerPartition;
 import koreatech.in.domain.User.owner.OwnerShop;
 import koreatech.in.dto.global.AttachmentUrlRequest;
 import koreatech.in.dto.normal.shop.request.UpdateMenuCategoryRequest;
-import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -39,8 +39,8 @@ public interface OwnerConverter {
     })
     EmailAddress toEmailAddress(String address);
 
-    default EmailAddress toEmailAddress(OwnerFindPasswordRequest ownerFindPasswordRequest) {
-        return toEmailAddress(ownerFindPasswordRequest.getAddress());
+    default EmailAddress toEmailAddress(OwnerChangePasswordRequest ownerChangePasswordRequest) {
+        return toEmailAddress(ownerChangePasswordRequest.getAddress());
     }
 
     default EmailAddress toEmailAddress(VerifyEmailRequest verifyEmailRequest) {

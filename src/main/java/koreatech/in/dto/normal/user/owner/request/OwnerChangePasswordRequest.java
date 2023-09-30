@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-public class OwnerFindPasswordRequest {
+public class OwnerChangePasswordRequest {
 
     @NotNull(message = "비밀번호는 비워둘 수 없습니다.")
     @ApiModelProperty(notes = "비밀번호 \n"

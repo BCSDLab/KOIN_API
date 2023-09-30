@@ -16,7 +16,7 @@ import koreatech.in.annotation.ParamValid;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
-import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -133,7 +133,7 @@ public class OwnerController {
     @RequestMapping(value = "/owners/password/reset", method = RequestMethod.PUT)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> inputPasswordToChangePassword(@RequestBody @Valid OwnerFindPasswordRequest request,
+    ResponseEntity<EmptyResponse> inputPasswordToChangePassword(@RequestBody @Valid OwnerChangePasswordRequest request,
                                                                 BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());

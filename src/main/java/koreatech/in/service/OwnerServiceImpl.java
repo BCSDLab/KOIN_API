@@ -10,7 +10,7 @@ import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.domain.User.owner.OwnerShop;
-import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -75,14 +75,14 @@ public class OwnerServiceImpl implements OwnerService {
     private MailService mailService;
 
     @Override
-    public void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest) {
-        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerFindPasswordRequest);
+    public void inputPasswordToChangePassword(OwnerChangePasswordRequest ownerChangePasswordRequest) {
+        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerChangePasswordRequest);
         redisOwnerMapper.validateOwner(emailAddress, ownerChangePasswordAuthPrefix);
 
         User user = validateEmailFromOwner(emailAddress);
         Owner owner = (Owner) user;
 
-        owner.setPassword(ownerFindPasswordRequest.getPassword());
+        owner.setPassword(ownerChangePasswordRequest.getPassword());
         encodePassword(owner);
 
         userMapper.updateUser(owner);

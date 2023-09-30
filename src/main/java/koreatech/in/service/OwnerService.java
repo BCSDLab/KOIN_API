@@ -1,6 +1,6 @@
 package koreatech.in.service;
 
-import koreatech.in.dto.normal.user.owner.request.OwnerFindPasswordRequest;
+import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -22,7 +22,7 @@ public interface OwnerService {
 
     OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
 
-    void inputPasswordToChangePassword(OwnerFindPasswordRequest ownerFindPasswordRequest);
+    void inputPasswordToChangePassword(OwnerChangePasswordRequest ownerChangePasswordRequest);
 
     void certificateToChangePassword(VerifyCodeRequest request);
 
