@@ -1,5 +1,6 @@
 package koreatech.in.interceptor;
 
+import static koreatech.in.argumentresolver.UserArgumentResolver.USER_OBJECT_ATTRIBUTE;
 import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
 import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
@@ -94,7 +95,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
 
         User user = accessJwtValidator.validateAndGetUserFromAccessToken(accessToken);
-        request.setAttribute("user", user);
+        request.setAttribute(USER_OBJECT_ATTRIBUTE, user);
 
         if (user == null) {
             throw new BaseException(BAD_ACCESS);

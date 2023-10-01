@@ -14,6 +14,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 * */
 @Component
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+    public static final String USER_OBJECT_ATTRIBUTE = "user";
+
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
         return hasLoginAnnotation(methodParameter) && isAuthVerified(methodParameter);
@@ -32,6 +34,6 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer,
                                   NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory)
             throws Exception {
-        return nativeWebRequest.getAttribute("user", NativeWebRequest.SCOPE_REQUEST);
+        return nativeWebRequest.getAttribute(USER_OBJECT_ATTRIBUTE, NativeWebRequest.SCOPE_REQUEST);
     }
 }
