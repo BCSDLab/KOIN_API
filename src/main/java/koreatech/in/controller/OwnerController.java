@@ -195,7 +195,7 @@ public class OwnerController {
     public @ResponseBody
     ResponseEntity<OwnerResponse> getOwner(@Login User loggedInUser) {
         OwnerResponse owner = ownerService.getOwner(loggedInUser);
-        return new ResponseEntity<>(owner, HttpStatus.CREATED);
+        return new ResponseEntity<>(owner, HttpStatus.OK);
     }
 
 
@@ -221,7 +221,7 @@ public class OwnerController {
     ResponseEntity<EmptyResponse> deleteAttachment(
             @ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
         ownerService.deleteAttachment(attachmentId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -252,6 +252,6 @@ public class OwnerController {
         }
         OwnerResponse ownerResponse = ownerService.update(request);
 
-        return new ResponseEntity<>(ownerResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(ownerResponse, HttpStatus.OK);
     }
 }
