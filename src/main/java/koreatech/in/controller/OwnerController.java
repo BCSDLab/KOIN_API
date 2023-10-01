@@ -12,7 +12,9 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.Auth.Authority;
 import koreatech.in.annotation.Auth.Role;
 import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.Login;
 import koreatech.in.annotation.ParamValid;
+import koreatech.in.domain.User.User;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -191,8 +193,8 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.GET)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<OwnerResponse> getOwner() {
-        OwnerResponse owner = ownerService.getOwner();
+    ResponseEntity<OwnerResponse> getOwner(@Login User loggedInUser) {
+        OwnerResponse owner = ownerService.getOwner(loggedInUser);
         return new ResponseEntity<>(owner, HttpStatus.CREATED);
     }
 
@@ -241,6 +243,7 @@ public class OwnerController {
     @ParamValid
     public @ResponseBody
     ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request,
+                                         @Login User loggedInUser,
                                          BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
