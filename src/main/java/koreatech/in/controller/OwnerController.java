@@ -242,9 +242,7 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.PUT)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request,
-                                         @Login User loggedInUser,
-                                         BindingResult bindingResult) {
+    ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
