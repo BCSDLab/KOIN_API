@@ -27,6 +27,9 @@
                 </property>
             </bean>
         </mvc:message-converters>
+        <mvc:argument-resolvers>
+            <bean class="koreatech.in.argumentresolver.UserArgumentResolver"/>
+        </mvc:argument-resolvers>
     </mvc:annotation-driven>
 
     <mvc:interceptors>

@@ -94,6 +94,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
 
         User user = accessJwtValidator.validateAndGetUserFromAccessToken(accessToken);
+        request.setAttribute("user", user);
 
         if (user == null) {
             throw new BaseException(BAD_ACCESS);
