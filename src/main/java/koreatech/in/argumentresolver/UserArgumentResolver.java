@@ -2,6 +2,7 @@ package koreatech.in.argumentresolver;
 
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.Login;
+import koreatech.in.domain.User.User;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -18,16 +19,16 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return hasLoginAnnotation(methodParameter) && isAuthVerified(methodParameter);
+        return isValidArgument(methodParameter) && isAuthVerified(methodParameter);
     }
 
-    private boolean hasLoginAnnotation(MethodParameter methodParameter) {
-        return methodParameter.hasParameterAnnotation(Login.class);
+    private boolean isValidArgument(MethodParameter methodParameter) {
+        return methodParameter.hasParameterAnnotation(Login.class)
+                && methodParameter.getParameterType().equals(User.class);
     }
 
     private boolean isAuthVerified(MethodParameter methodParameter) {
-        return methodParameter.getDeclaringClass().isAnnotationPresent(Auth.class) || methodParameter.getMethod()
-                .isAnnotationPresent(Auth.class);
+        return methodParameter.getDeclaringClass().isAnnotationPresent(Auth.class) || methodParameter.getMethod().isAnnotationPresent(Auth.class);
     }
 
     @Override
