@@ -29,7 +29,6 @@ import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.util.StringRedisUtilStr;
-import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -130,7 +129,7 @@ public class OwnerServiceImpl implements OwnerService {
         ownerInRedis.setIs_authed(true);
 
         putRedisFor(ownerInCertification.getEmail(), ownerInRedis);
-        String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
+        String temporaryAccessToken = temporaryAccessJwtGenerator.generate(null);
         return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
 

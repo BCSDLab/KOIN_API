@@ -69,9 +69,10 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.service.RefreshJwtValidator;
 import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
+import koreatech.in.service.UserAccessJwtGenerator;
+import koreatech.in.service.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -98,6 +99,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private JwtValidator jwtValidator;
+
+    @Autowired
+    private RefreshJwtValidator refreshJwtValidator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -138,7 +142,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateAccessToken(Integer adminId) {
-        return userAccessJwtGenerator.generateToken(adminId);
+        return userAccessJwtGenerator.generate(adminId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
@@ -151,14 +155,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        String newRefreshToken = userRefreshJwtGenerator.generate(userId);
         authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
     }
 
     private boolean isExpired(String refreshToken) {
-        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+        return (refreshToken == null || refreshJwtValidator.isExpiredToken(refreshToken));
     }
 
     @Override
@@ -651,7 +655,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        Integer tokenUserId = refreshJwtValidator.getUserIdInToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
 
         User user = getUserById(tokenUserId);

@@ -47,8 +47,6 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -79,6 +77,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private JwtValidator jwtValidator;
+
+    @Autowired
+    private RefreshJwtValidator refreshJwtValidator;
 
     @Autowired
     private UserAccessJwtGenerator userAccessJwtGenerator;
@@ -122,7 +123,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String generateAccessToken(Integer userId) {
-        return userAccessJwtGenerator.generateToken(userId);
+        return userAccessJwtGenerator.generate(userId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
@@ -135,7 +136,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
+        String newRefreshToken = userRefreshJwtGenerator.generate(userId);
         authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
@@ -154,7 +155,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private boolean isExpired(String refreshToken) {
-        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+        return (refreshToken == null || refreshJwtValidator.isExpiredToken(refreshToken));
     }
 
     @Override
@@ -384,7 +385,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        Integer tokenUserId = refreshJwtValidator.getUserIdInToken(refreshToken.getToken());
 
         User user = getUserById(tokenUserId);
         user.updateLastLoginTimeToCurrent();

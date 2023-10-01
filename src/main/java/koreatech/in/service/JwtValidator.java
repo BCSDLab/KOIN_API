@@ -1,26 +1,27 @@
 package koreatech.in.service;
 
+import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
+import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
+
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
+import koreatech.in.exception.BaseException;
 import koreatech.in.repository.user.UserMapper;
-import koreatech.in.util.jwt.AccessJwtGenerator;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-
 @Service
 public class JwtValidator {
     private static final String AUTH_PREFIX = "Bearer ";
     public static final String AUTHORIZATION = "Authorization";
-    @Autowired
-    private UserAccessJwtGenerator userAccessJwtGenerator;
 
     @Autowired
-    private AccessJwtGenerator<?> accessJwtGenerator;
+    private AccessJwtValidator accessJwtValidator;
 
     @Autowired
     private UserMapper userMapper;
@@ -41,11 +42,14 @@ public class JwtValidator {
         return userMapper.getAuthedUserById(userId);
     }
 
-    public Boolean isValidAccessTokenIn(String header) {
-        if(!isAuthHeader(header)) {
-            return false;
-        }
-        return !accessJwtGenerator.isExpired(makeTokenFrom(header));
+    public Integer validateAndGetUserId() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        return getUserId(request.getHeader(AUTHORIZATION));
+    }
+
+    public void validateTemporaryAccessTokenInHeader(String header) {
+        validateToken(makeTokenFromHeader(header));
     }
 
     private Integer getUserId(String header) {
@@ -53,26 +57,31 @@ public class JwtValidator {
             return null;
         }
 
-        String accessToken = makeTokenFrom(header);
+        String accessToken = makeTokenFromHeader(header);
         if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
             return null;
         }
 
-        return userAccessJwtGenerator.getFromToken(accessToken);
+        return accessJwtValidator.getUserIdInToken(accessToken);
     }
 
-    private static boolean isAuthHeader(String header) {
+    private boolean isAuthHeader(String header) {
         return header != null && header.startsWith(AUTH_PREFIX);
     }
 
-    @NotNull
-    private static String makeTokenFrom(String header) {
+    private String makeTokenFromHeader(String header) {
         return header.substring(AUTH_PREFIX.length());
     }
 
-    public Integer validateAndGetUserId() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-
-        return getUserId(request.getHeader(AUTHORIZATION));
+    private void validateToken(String token) {
+        try {
+            if (accessJwtValidator.isExpiredToken(token)) {
+                throw new BaseException(TOKEN_EXPIRED);
+            }
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            //보안상 목적으로 상세하게 표현하지 않는다.
+            throw new BaseException(BAD_ACCESS);
+        }
     }
+
 }

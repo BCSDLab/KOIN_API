@@ -2,7 +2,6 @@ package koreatech.in.interceptor;
 
 import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
 import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
-import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
 
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
@@ -86,7 +85,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
 
         if (actualMethod.isAnnotationPresent(AuthTemporary.class)) {
-            return isValidToken(authorizationHeader);
+            jwtValidator.validateTemporaryAccessTokenInHeader(authorizationHeader);
         }
 
         User user = jwtValidator.validate(authorizationHeader);
@@ -217,13 +216,6 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             }
         }
 
-        return true;
-    }
-
-    private boolean isValidToken(String authorizationHeader) {
-        if(!jwtValidator.isValidAccessTokenIn(authorizationHeader)) {
-            throw new BaseException(TOKEN_EXPIRED);
-        }
         return true;
     }
 
