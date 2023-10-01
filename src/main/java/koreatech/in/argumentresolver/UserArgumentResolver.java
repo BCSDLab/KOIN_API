@@ -9,10 +9,11 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
 /*
-* @Auth-AuthInterceptor을 통해 검증이 이루어진 API 라면,
-* @Login User user과 같은 형식으로 사용자 정보를 받아올 수 있다.
-* */
+ * @Auth-AuthInterceptor을 통해 검증이 이루어진 API 라면,
+ * @Login User user과 같은 형식으로 사용자 정보를 받아올 수 있다.
+ * */
 @Component
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     public static final String USER_OBJECT_ATTRIBUTE = "user";
@@ -28,7 +29,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     private boolean isAuthVerified(MethodParameter methodParameter) {
-        return methodParameter.getDeclaringClass().isAnnotationPresent(Auth.class) || methodParameter.getMethod().isAnnotationPresent(Auth.class);
+        return methodParameter.getDeclaringClass().isAnnotationPresent(Auth.class)
+                || methodParameter.getMethod().isAnnotationPresent(Auth.class);
     }
 
     @Override
