@@ -1,6 +1,7 @@
 package koreatech.in.repository;
 
 import koreatech.in.domain.RedisOwnerKeyPrefix;
+import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.exception.BaseException;
@@ -20,7 +21,7 @@ public class RedisOwnerMapper {
 
     public void changeAuthStatus(OwnerInCertification ownerInCertification, String email, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
         String key = redisOwnerKeyPrefix.getKey(email);
-        OwnerInVerification ownerInRedis = getOwnerInRedis(key);
+        OwnerInVerification ownerInRedis = getOwner(key);
 
         ownerInRedis.validateFor(ownerInCertification);
         ownerInRedis.setIs_authed(true);
@@ -28,7 +29,7 @@ public class RedisOwnerMapper {
         putRedisFor(key, ownerInRedis);
     }
 
-    public OwnerInVerification getOwnerInRedis(String key) {
+    public OwnerInVerification getOwner(String key) {
         Object json;
         try {
             json = stringRedisUtilObj.getDataAsString(key, OwnerInVerification.class);
@@ -56,5 +57,15 @@ public class RedisOwnerMapper {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public void validateOwner(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+        String email = emailAddress.getEmailAddress();
+        OwnerInVerification ownerInRedis = getOwner(redisOwnerKeyPrefix.getKey(email));
+        ownerInRedis.validateCertificationComplete();
+    }
+
+    public void removeRedisFrom(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
+        stringRedisUtilObj.deleteData(redisOwnerKeyPrefix.getKey(emailAddress.getEmailAddress()));
     }
 }

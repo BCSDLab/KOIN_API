@@ -10,6 +10,7 @@ import koreatech.in.domain.User.owner.OwnerAttachments;
 import koreatech.in.domain.User.owner.OwnerInCertification;
 import koreatech.in.domain.User.owner.OwnerInVerification;
 import koreatech.in.domain.User.owner.OwnerShop;
+import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
 import koreatech.in.dto.normal.user.owner.request.VerifyCodeRequest;
@@ -74,6 +75,20 @@ public class OwnerServiceImpl implements OwnerService {
     private MailService mailService;
 
     @Override
+    public void inputPasswordToChangePassword(OwnerChangePasswordRequest ownerChangePasswordRequest) {
+        EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(ownerChangePasswordRequest);
+        redisOwnerMapper.validateOwner(emailAddress, ownerChangePasswordAuthPrefix);
+
+        Owner owner = validateEmailFromOwner(emailAddress);
+
+        owner.setPassword(ownerChangePasswordRequest.getPassword());
+        encodePassword(owner);
+
+        userMapper.updateUser(owner);
+
+        redisOwnerMapper.removeRedisFrom(emailAddress, ownerChangePasswordAuthPrefix);
+    }
+
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
         redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
@@ -93,11 +108,12 @@ public class OwnerServiceImpl implements OwnerService {
         slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
 
-    private void validateEmailFromOwner(EmailAddress emailAddress) {
+    private Owner validateEmailFromOwner(EmailAddress emailAddress) {
         User user = userMapper.getUserByEmail(emailAddress.getEmailAddress());
         if (user == null || user.isStudent()) {
             throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
         }
+        return (Owner) user;
     }
 
     @Override
@@ -135,7 +151,7 @@ public class OwnerServiceImpl implements OwnerService {
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
-        validateOwnerInRedis(ownerEmailAddress);
+        redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
 
@@ -146,7 +162,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         slackNotiSender.noticeRegisterComplete(owner);
 
-        removeRedisFrom(ownerEmailAddress);
+        redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }
 
     @Override
@@ -235,16 +251,6 @@ public class OwnerServiceImpl implements OwnerService {
         if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         }
-    }
-
-    private void validateOwnerInRedis(EmailAddress emailAddress) {
-        String email = emailAddress.getEmailAddress();
-        OwnerInVerification ownerInRedis = redisOwnerMapper.getOwnerInRedis(ownerAuthPrefix.getKey(email));
-        ownerInRedis.validateCertificationComplete();
-    }
-
-    private void removeRedisFrom(EmailAddress emailAddress) {
-        stringRedisUtilObj.deleteData(ownerAuthPrefix.getKey(emailAddress.getEmailAddress()));
     }
 
     private void putRedisForRequestShop(OwnerShop ownerShop) {
