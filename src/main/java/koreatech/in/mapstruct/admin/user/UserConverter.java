@@ -1,5 +1,6 @@
 package koreatech.in.mapstruct.admin.user;
 
+import koreatech.in.domain.Criteria.Criteria;
 import koreatech.in.domain.User.PageInfo;
 import koreatech.in.dto.admin.user.request.OwnersCondition;
 import org.mapstruct.Mapper;
@@ -17,5 +18,5 @@ public interface UserConverter {
             @Mapping(source = "totalCount", target = "totalCount"),
             @Mapping(source = "currentCount", target = "currentCount")
     })
-    PageInfo toPageInfo(OwnersCondition source, Integer totalCount, Integer currentCount);
+    PageInfo toPageInfo(Criteria source, Integer totalCount, Integer currentCount);
 }

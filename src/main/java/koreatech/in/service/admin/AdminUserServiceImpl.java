@@ -17,11 +17,6 @@ import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
 import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
 import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 
-import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
-import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,10 +42,10 @@ import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.auth.TokenRefreshRequest;
 import koreatech.in.dto.admin.auth.TokenRefreshResponse;
 import koreatech.in.dto.admin.user.owner.request.OwnerUpdateRequest;
-import koreatech.in.dto.admin.user.owner.response.AuthedOwnersResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnerUpdateResponse;
 import koreatech.in.dto.admin.user.owner.response.OwnersResponse;
 import koreatech.in.dto.admin.user.request.LoginRequest;
+import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.request.OwnersCondition;
 import koreatech.in.dto.admin.user.response.LoginResponse;
 import koreatech.in.dto.admin.user.response.NewOwnersResponse;
@@ -67,7 +62,6 @@ import koreatech.in.mapstruct.admin.auto.AuthConverter;
 import koreatech.in.mapstruct.admin.user.OwnerConverter;
 import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.mapstruct.admin.user.UserConverter;
-import koreatech.in.mapstruct.normal.shop.ShopConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
@@ -75,9 +69,10 @@ import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
+import koreatech.in.service.RefreshJwtValidator;
 import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.jwt.UserAccessJwtGenerator;
-import koreatech.in.util.jwt.UserRefreshJwtGenerator;
+import koreatech.in.service.UserAccessJwtGenerator;
+import koreatech.in.service.UserRefreshJwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -106,6 +101,9 @@ public class AdminUserServiceImpl implements AdminUserService {
     private JwtValidator jwtValidator;
 
     @Autowired
+    private RefreshJwtValidator refreshJwtValidator;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -115,7 +113,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private UserRefreshJwtGenerator userRefreshJwtGenerator;
 
     @Autowired
-    private AuthenticationMapper redisAuthenticationMapper;
+    private AuthenticationMapper authenticationMapper;
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
@@ -144,11 +142,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateAccessToken(Integer adminId) {
-        return userAccessJwtGenerator.generateToken(adminId);
+        return userAccessJwtGenerator.generate(adminId);
     }
 
     private String getRefreshToken(Integer userId) throws IOException {
-        String refreshToken = redisAuthenticationMapper.getRefreshToken(userId);
+        String refreshToken = authenticationMapper.getRefreshToken(userId);
         if (isExpired(refreshToken)) {
             return generateRefreshToken(userId);
         }
@@ -157,14 +155,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private String generateRefreshToken(Integer userId) {
-        String newRefreshToken = userRefreshJwtGenerator.generateToken(userId);
-        redisAuthenticationMapper.setRefreshToken(newRefreshToken, userId);
+        String newRefreshToken = userRefreshJwtGenerator.generate(userId);
+        authenticationMapper.setRefreshToken(newRefreshToken, userId);
 
         return newRefreshToken;
     }
 
     private boolean isExpired(String refreshToken) {
-        return (refreshToken == null || userRefreshJwtGenerator.isExpired(refreshToken));
+        return (refreshToken == null || refreshJwtValidator.isExpiredToken(refreshToken));
     }
 
     @Override
@@ -498,7 +496,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public NewOwnersResponse getNewOwners(OwnersCondition condition) {
+    public NewOwnersResponse getNewOwners(NewOwnersCondition condition) {
         int totalCount = adminUserMapper.getTotalCountOfUnauthenticatedOwnersByCondition(condition);
 
         List<OwnerIncludingShop> unauthenticatedOwners = adminUserMapper.getUnauthenticatedOwnersByCondition(condition);
@@ -547,24 +545,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<OwnersResponse.Owner> owners = OwnerConverter.INSTANCE.toOwnersResponse$Owners(ownersByCondition);
 
         OwnersResponse response = OwnerConverter.INSTANCE.toOwnersResponse(pageInfo, owners);
-
-        return response;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public AuthedOwnersResponse getAuthedOwners(OwnersCondition condition) {
-        int totalCount = adminUserMapper.getTotalCountOfAuthedOwnersByCondition(condition);
-
-        List<Owner> authedOwners = adminUserMapper.getAuthedOwnersByCondition(condition);
-
-        //enrichAuthedOwnersFromDB(authedOwners);
-
-        PageInfo pageInfo = UserConverter.INSTANCE.toPageInfo(condition, totalCount, authedOwners.size());
-
-        List<AuthedOwnersResponse.AuthedOwner> owners = OwnerConverter.INSTANCE.toAuthedOwnersResponse$AuthedOwners(authedOwners);
-
-        AuthedOwnersResponse response = OwnerConverter.INSTANCE.toAuthedOwnersResponse(pageInfo, owners);
 
         return response;
     }
@@ -675,8 +655,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = AuthConverter.INSTANCE.toToken(request);
 
-        Integer tokenUserId = userRefreshJwtGenerator.getFromToken(refreshToken.getToken());
+        Integer tokenUserId = refreshJwtValidator.getUserIdInToken(refreshToken.getToken());
         validateAdmin(tokenUserId);
+
+        User user = getUserById(tokenUserId);
+        user.updateLastLoginTimeToCurrent();
+        userMapper.updateUser(user);
 
         RefreshResult refreshResult = makeRefreshResult(tokenUserId);
 
@@ -695,8 +679,13 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .orElseThrow(() -> new BaseException(FORBIDDEN));
     }
 
+    private User getUserById(int id) {
+        return Optional.ofNullable(userMapper.getUserById(id))
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+    }
+
     private void deleteRefreshTokenInDB(Integer userId) {
-        redisAuthenticationMapper.deleteRefreshToken(userId);
+        authenticationMapper.deleteRefreshToken(userId);
     }
 
 

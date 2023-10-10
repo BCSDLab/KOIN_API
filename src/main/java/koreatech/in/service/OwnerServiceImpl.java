@@ -26,7 +26,6 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilObj;
-import koreatech.in.util.jwt.TemporaryAccessJwtGenerator;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -135,19 +134,16 @@ public class OwnerServiceImpl implements OwnerService {
     public VerifyCodeResponse certificate(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
         redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerAuthPrefix);
-        String temporaryAccessToken = temporaryAccessJwtGenerator.generateToken(null);
+        String temporaryAccessToken = temporaryAccessJwtGenerator.generate(null);
         return OwnerConverter.INSTANCE.toVerifyCodeResponse(temporaryAccessToken);
     }
 
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-        // TODO 23.02.12. 박한수 사업자등록번호 중복되는 경우 예외 처리 필요.
-
         OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
 
         Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
-
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);

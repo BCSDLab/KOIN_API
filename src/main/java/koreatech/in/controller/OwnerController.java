@@ -213,8 +213,9 @@ public class OwnerController {
     @ApiResponses({
             @ApiResponse(
                     code = 409,
-                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012) \n\n"
-                            + "- 이미 누군가 사용중인 이메일일 경우 (code: 101013)",
+                    message = "- 인증이 되지 않은 이메일일 경우 (code: 101012)"
+                            + "\n\n- 이미 누군가 사용중인 이메일일 경우 (code: 101013)"
+                            + "\n\n- 이미 누군가 사용중인 사업자등록번호일 경우 (code: 101021)",
                     response = ExceptionResponse.class),
             @ApiResponse(
                     code = 410,
