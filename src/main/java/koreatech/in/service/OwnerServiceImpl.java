@@ -147,6 +147,7 @@ public class OwnerServiceImpl implements OwnerService {
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
+        validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
         redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
@@ -246,6 +247,12 @@ public class OwnerServiceImpl implements OwnerService {
     private void validateEmailUniqueness(EmailAddress emailAddress) {
         if (userMapper.isEmailAlreadyExist(emailAddress).equals(true)) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
+        }
+    }
+
+    private void validateCompanyRegistrationNumberUniqueness(String companyRegistrationNumber) {
+        if (ownerMapper.isCompanyRegistrationNumberExist(companyRegistrationNumber)) {
+            throw new BaseException(ExceptionInformation.COMPANY_REGISTRATION_NUMBER_DUPLICATE);
         }
     }
 
