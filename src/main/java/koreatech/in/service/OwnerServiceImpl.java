@@ -144,21 +144,29 @@ public class OwnerServiceImpl implements OwnerService {
         encodePassword(owner);
 
         createInDBFor(owner);
-        ownerShopResgister(owner, ownerRegisterRequest);
 
         slackNotiSender.noticeRegisterComplete(owner);
 
         removeRedisFrom(ownerEmailAddress);
     }
 
-    private void ownerShopResgister(Owner newOwner, OwnerRegisterRequest request) {
-        if (request.getShopId() == null) {
-            return;
-        }
+    @Override
+    public void regesterWithShop(OwnerRegisterRequest ownerRegisterRequest) {
+        Owner owner = OwnerConverter.INSTANCE.toNewOwner(ownerRegisterRequest);
+        EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
-        OwnerShop ownerShop = OwnerConverter.INSTANCE.toOwnerShop(newOwner.getId(), request);
+        validateRegistration(owner, ownerEmailAddress);
+        encodePassword(owner);
+
+        createInDBFor(owner);
+
+        OwnerShop ownerShop = OwnerConverter.INSTANCE.toOwnerShop(owner.getId(), ownerRegisterRequest);
         putRedisForRequestShop(ownerShop);
+
+        slackNotiSender.noticeRegisterComplete(owner);
         //slack알림 메서드
+
+        removeRedisFrom(ownerEmailAddress);
     }
 
     private void validateRegistration(Owner owner, EmailAddress ownerEmailAddress) {
