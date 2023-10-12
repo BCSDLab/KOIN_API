@@ -171,7 +171,11 @@ public class OwnerController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        ownerService.register(request);
+        if (request.getShopId() == null) {
+            ownerService.regesterWithShop(request);
+        } else {
+            ownerService.register(request);
+        }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
