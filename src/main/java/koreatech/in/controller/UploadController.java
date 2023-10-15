@@ -1,5 +1,25 @@
 package koreatech.in.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -8,9 +28,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import java.util.ArrayList;
-import java.util.List;
-import javax.validation.Valid;
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthTemporary;
@@ -29,20 +46,6 @@ import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.service.UploadService;
 import koreatech.in.util.StringXssChecker;
 import koreatech.in.util.UploadFileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @Api(tags = "(Normal) Upload", description = "업로드")
 @Auth(role = Auth.Role.USER)
@@ -303,7 +306,6 @@ public class UploadController {
                     + "(error code: 110005)", response = ExceptionResponse.class)
     })
     @RequestMapping(value = "/{domain}/upload/url", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.CREATED)
     @ParamValid
     public @ResponseBody
     ResponseEntity<PreSignedUrlResponse> getPreSignedUrl(
@@ -329,7 +331,7 @@ public class UploadController {
         }
 
         PreSignedUrlResponse preSignedUrlResponse = s3uploadService.generatePreSignedUrl(domain, request);
-        return new ResponseEntity<>(preSignedUrlResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(preSignedUrlResponse, HttpStatus.OK);
     }
 
 }

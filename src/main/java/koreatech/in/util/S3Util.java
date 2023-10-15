@@ -1,5 +1,16 @@
 package koreatech.in.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.Protocol;
@@ -14,17 +25,10 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.List;
+
+import koreatech.in.domain.Upload.PreSignedUrlResult;
 import koreatech.in.domain.Upload.UploadFileMetaData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class S3Util {
@@ -91,11 +95,12 @@ public class S3Util {
         return conn.generatePresignedUrl(new GeneratePresignedUrlRequest(bucketName, imgName)).toString();
     }
 
-    public String generatePreSignedUrlForPut(String bucketName, UploadFileMetaData uploadFileMetaData, String filePath) {
+    public PreSignedUrlResult generatePreSignedUrlForPut(String bucketName, UploadFileMetaData uploadFileMetaData, String filePath, Date requestTime) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = PreSignedUrlRequest.of(bucketName, filePath)
-                .generate(uploadFileMetaData, HttpMethod.PUT, new Date());
+                .generate(uploadFileMetaData, HttpMethod.PUT, requestTime);
 
-        return conn.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        return PreSignedUrlResult.of(conn.generatePresignedUrl(generatePresignedUrlRequest).toString(),
+            generatePresignedUrlRequest.getExpiration());
     }
 
     @RequiredArgsConstructor(staticName = "of")
@@ -105,18 +110,18 @@ public class S3Util {
         private final String bucketName;
         private final String filePath;
 
-        public GeneratePresignedUrlRequest generate(UploadFileMetaData uploadFileMetaData, HttpMethod httpMethod, Date now) {
-            GeneratePresignedUrlRequest generatePresignedUrlRequest = createPreSignedUrlRequest(httpMethod, now);
+        public GeneratePresignedUrlRequest generate(UploadFileMetaData uploadFileMetaData, HttpMethod httpMethod, Date requestTime) {
+            GeneratePresignedUrlRequest generatePresignedUrlRequest = createPreSignedUrlRequest(httpMethod, requestTime);
             enrichReadAccess(generatePresignedUrlRequest);
             enrichContentMetaData(generatePresignedUrlRequest, uploadFileMetaData);
 
             return generatePresignedUrlRequest;
         }
 
-        private GeneratePresignedUrlRequest createPreSignedUrlRequest(HttpMethod httpMethod, Date now) {
+        private GeneratePresignedUrlRequest createPreSignedUrlRequest(HttpMethod httpMethod, Date requestTime) {
             return new GeneratePresignedUrlRequest(bucketName, filePath)
                     .withMethod(httpMethod)
-                    .withExpiration(makePreSignedUrlExpiration(now));
+                    .withExpiration(makePreSignedUrlExpiration(requestTime));
         }
 
         private Date makePreSignedUrlExpiration(Date now) {

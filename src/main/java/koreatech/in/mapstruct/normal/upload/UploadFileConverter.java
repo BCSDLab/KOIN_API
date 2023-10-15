@@ -2,6 +2,14 @@ package koreatech.in.mapstruct.normal.upload;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
+
+import koreatech.in.domain.Upload.PreSignedUrlResult;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileLocation;
@@ -14,11 +22,6 @@ import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
 import koreatech.in.dto.normal.upload.response.PreSignedUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface UploadFileConverter {
@@ -60,15 +63,12 @@ public interface UploadFileConverter {
     }
 
     @Mappings({
-            @Mapping(source = "preSignedPutUrl", target = "preSignedUrl"),
-            @Mapping(source = "uploadFileLocation", target = "fileUrl", qualifiedByName = "convertToFileUrl")
-    })
-    PreSignedUrlResponse toPreSignedUrlResponse(String preSignedPutUrl, UploadFileLocation uploadFileLocation);
 
-    @Named("convertToFileUrl")
-    default String convertToFileUrl(UploadFileLocation uploadFileLocation) {
-        return uploadFileLocation.getFileUrl();
-    }
+            @Mapping(source = "preSignedUrlResult.url", target = "preSignedUrl"),// qualifiedByName = "convertToPreSignedUrlResponse"),
+            @Mapping(source = "preSignedUrlResult.expiration", target = "expirationDate"),// qualifiedByName = "convertToPreSignedUrlExpirationDate"),
+            @Mapping(source = "uploadFileLocation.fileUrl", target = "fileUrl"),// qualifiedByName = "convertToFileUrl")
+    })
+    PreSignedUrlResponse toPreSignedUrlResponse(PreSignedUrlResult preSignedUrlResult, UploadFileLocation uploadFileLocation);
 
     @Mappings({
             @Mapping(source = "fileName", target = "fileName"),

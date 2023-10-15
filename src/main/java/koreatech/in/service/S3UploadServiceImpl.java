@@ -3,7 +3,14 @@ package koreatech.in.service;
 import static koreatech.in.controller.UploadController.enrichDomainPath;
 
 import java.util.ArrayList;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import koreatech.in.domain.Upload.DomainEnum;
+import koreatech.in.domain.Upload.PreSignedUrlResult;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
 import koreatech.in.domain.Upload.UploadFileLocation;
@@ -18,9 +25,6 @@ import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
 import koreatech.in.mapstruct.normal.upload.UploadFileConverter;
 import koreatech.in.util.S3Util;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Service
 public class S3UploadServiceImpl implements UploadService {
@@ -65,10 +69,11 @@ public class S3UploadServiceImpl implements UploadService {
         domainEnum.validateMetaData(uploadFileMetaData);
 
         UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(enrichDomainPath(domainEnum.name().toLowerCase()), uploadFileMetaData.getFileName());
-        String preSignedUrlForPut = s3Util.generatePreSignedUrlForPut(bucketName,uploadFileMetaData  ,uploadFileFullPath.unixValue());
+        PreSignedUrlResult preSignedUrlResult = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileMetaData,
+            uploadFileFullPath.unixValue(), new Date());
 
         UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, uploadFileFullPath);
-        return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlForPut, uploadFileLocation);
+        return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlResult, uploadFileLocation);
     }
 
     private UploadFilesLocation uploadAndGetUrls(UploadFiles uploadFiles) {

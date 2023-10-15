@@ -1,7 +1,11 @@
 package koreatech.in.dto.normal.upload.response;
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,10 @@ public class PreSignedUrlResponse {
             required = true
     )
     private final String preSignedUrl;
+
+    @ApiModelProperty(notes = "Url 만료 일자", example = "2023-01-01 12:34:56", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private final Date expirationDate;
 
     @ApiModelProperty(notes = "업로드한 파일을 가져올 때 사용하는 url",
             example = "static.koreatech.in/2023/09/01/uuid/example.png",
