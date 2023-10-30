@@ -1,5 +1,6 @@
 package koreatech.in.service;
 
+import koreatech.in.domain.User.User;
 import koreatech.in.dto.normal.user.owner.request.OwnerChangePasswordRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerRegisterRequest;
 import koreatech.in.dto.normal.user.owner.request.OwnerUpdateRequest;
@@ -16,7 +17,7 @@ public interface OwnerService {
 
     void register(OwnerRegisterRequest ownerRegisterRequest);
 
-    OwnerResponse getOwner();
+    OwnerResponse getOwner(User loggedInUser);
 
     void deleteAttachment(Integer attachmentId);
 

@@ -54,5 +54,4 @@ public abstract class AbstractJwtValidator {
             throw new IllegalArgumentException("subject를 원하는 타입으로 변환할 수 없습니다.");
         }
     }
-
 }

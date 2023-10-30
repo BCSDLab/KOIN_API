@@ -163,10 +163,8 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public OwnerResponse getOwner() {
-        Integer userId = jwtValidator.validate().getId();
-
-        Owner ownerInDB = ownerMapper.getOwnerById(userId.longValue());
+    public OwnerResponse getOwner(User loggedInUser) {
+        Owner ownerInDB = ownerMapper.getOwnerById(loggedInUser.getId().longValue());
 
         return OwnerConverter.INSTANCE.toOwnerResponse(ownerInDB);
     }

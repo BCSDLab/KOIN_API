@@ -12,7 +12,9 @@ import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.Auth.Authority;
 import koreatech.in.annotation.Auth.Role;
 import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.Login;
 import koreatech.in.annotation.ParamValid;
+import koreatech.in.domain.User.User;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
@@ -260,9 +262,9 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.GET)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<OwnerResponse> getOwner() {
-        OwnerResponse owner = ownerService.getOwner();
-        return new ResponseEntity<>(owner, HttpStatus.CREATED);
+    ResponseEntity<OwnerResponse> getOwner(@Login User loggedInUser) {
+        OwnerResponse owner = ownerService.getOwner(loggedInUser);
+        return new ResponseEntity<>(owner, HttpStatus.OK);
     }
 
 
@@ -288,7 +290,7 @@ public class OwnerController {
     ResponseEntity<EmptyResponse> deleteAttachment(
             @ApiParam(required = true) @PathVariable("id") Integer attachmentId) {
         ownerService.deleteAttachment(attachmentId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -309,8 +311,7 @@ public class OwnerController {
     @RequestMapping(value = "/owner", method = RequestMethod.PUT)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request,
-                                         BindingResult bindingResult) {
+    ResponseEntity<OwnerResponse> update(@RequestBody @Valid OwnerUpdateRequest request, BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
         } catch (Exception exception) {
@@ -318,6 +319,6 @@ public class OwnerController {
         }
         OwnerResponse ownerResponse = ownerService.update(request);
 
-        return new ResponseEntity<>(ownerResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(ownerResponse, HttpStatus.OK);
     }
 }
