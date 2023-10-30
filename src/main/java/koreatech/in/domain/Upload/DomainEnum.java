@@ -36,6 +36,11 @@ public enum DomainEnum {
         limitedSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
     }
 
+    public void validateMetaData(UploadFileMetaData uploadFileMetaData) {
+        expectContentTypes.validateAcceptable(ContentType.from(uploadFileMetaData.getContentType()));
+        limitedSize.validateAcceptable(ByteSize.from(uploadFileMetaData.getContentLength()));
+    }
+
     private static void validates(MultipartFile multipartFile) {
         if(multipartFile == null  || multipartFile.isEmpty()) {
             throw new BaseException(ExceptionInformation.FILE_INVALID);
