@@ -14,6 +14,8 @@
     <context:component-scan base-package="koreatech.in.repository" />
     <context:component-scan base-package="koreatech.in.aop" />
     <context:component-scan base-package="koreatech.in.util" />
+    <context:component-scan base-package="koreatech.in.converter" />
+
     <!-- Enable @AspectJ annotation support  -->
     <aop:aspectj-autoproxy />
 
