@@ -1,6 +1,7 @@
 package koreatech.in.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,8 @@ public interface UploadService {
     UploadFileResponse  uploadAndGetUrl(MultipartFile multipartFile, DomainEnum domain) throws IOException;
 
     UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest);
+
+    UploadFilesResponse uploadAndGetUrls(List<MultipartFile> multipartFiles, DomainEnum domain);
 
     PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest);
 

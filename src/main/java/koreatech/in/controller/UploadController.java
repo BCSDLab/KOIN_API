@@ -177,15 +177,8 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain) {
-
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        files.forEach(domainEnum::validateFor);
-
-        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPath(domain));
-
-        UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
-
+                    , required = true) @PathVariable DomainEnum domain) {
+        UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(files, domain);
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 

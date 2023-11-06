@@ -5,6 +5,7 @@ import static koreatech.in.controller.UploadController.enrichDomainPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +72,16 @@ public class S3UploadServiceImpl implements UploadService {
 
         UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
 
+        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
+    }
+
+    @Override
+    public UploadFilesResponse uploadAndGetUrls(List<MultipartFile> multipartFiles, DomainEnum domain)  {
+        multipartFiles.forEach(domain::validateFor);
+
+        UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain);
+
+        UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
         return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
     }
 
