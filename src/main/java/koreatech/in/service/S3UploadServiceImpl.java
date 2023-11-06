@@ -35,14 +35,14 @@ public class S3UploadServiceImpl implements UploadService {
     private final S3Util s3Util;
 
     private final String bucketName;
-    private final String domainName;
+    private final String domainUrlPrefix;
 
     @Autowired
     public S3UploadServiceImpl(S3Util s3Util, @Value("${s3.bucket}") String bucketName,
-                               @Value("${s3.custom_domain}") String domainName) {
+                               @Value("${s3.custom_domain}") String domainUrlPrefix) {
         this.s3Util = s3Util;
         this.bucketName = bucketName;
-        this.domainName = domainName;
+        this.domainUrlPrefix = domainUrlPrefix;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFile file = UploadFileConverter.INSTANCE.toUploadFile(uploadFileRequest);
 
         uploadFor(file);
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
 
         return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
     }
@@ -62,7 +62,7 @@ public class S3UploadServiceImpl implements UploadService {
         UploadFile file = UploadFile.of(multipartFile, domain);
         uploadFor(file);
 
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domain.enrichDomainPath(), file);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
         return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
     }
 
@@ -96,7 +96,7 @@ public class S3UploadServiceImpl implements UploadService {
         PreSignedUrlResult preSignedUrlResult = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileMetaData,
             uploadFileFullPath.unixValue(), new Date());
 
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, uploadFileFullPath);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, uploadFileFullPath);
         return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlResult, uploadFileLocation);
     }
 
@@ -105,7 +105,7 @@ public class S3UploadServiceImpl implements UploadService {
 
         for (UploadFile file : uploadFiles.getUploadFiles()) {
             uploadFor(file);
-            UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
+            UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
 
             uploadFilesLocation.append(uploadFileLocation);
         }
