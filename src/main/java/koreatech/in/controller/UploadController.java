@@ -50,9 +50,6 @@ import koreatech.in.util.UploadFileUtils;
 @Auth(role = Auth.Role.USER)
 @Controller
 public class UploadController {
-    private final static String UPLOAD_DIRECTORY_NAME = "upload";
-    private final static String SLASH = "/";
-    private final static String ADMIN_PATH = "/admin";
 
     @Autowired
     private UploadFileUtils uploadFileUtils;
@@ -180,10 +177,6 @@ public class UploadController {
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 
-    public static String enrichDomainPath(String domain) {
-        return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase();
-    }
-
     // 업로드 전용 단일 파일 업로드
     // 어드민 전용 설정을 원한다면, Auth를 메서드별로 설정 & 인터셉터에서 인식 가능케 코드 변경 & Upload에 대한 Authority DB, enum, 인터셉터에 추가 해야 함.
     @Deprecated
@@ -296,7 +289,7 @@ public class UploadController {
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
                     , required = true)
-            @PathVariable String domain, @ApiParam(required = true) @RequestBody @Valid
+            @PathVariable DomainEnum domain, @ApiParam(required = true) @RequestBody @Valid
             PreSignedUrlRequest request, BindingResult bindingResult) {
 
         try {

@@ -20,5 +20,5 @@ public interface UploadService {
 
     UploadFilesResponse uploadAndGetUrlsForAdmin(List<MultipartFile> multipartFiles, DomainEnum domain);
 
-    PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest);
+    PreSignedUrlResponse generatePreSignedUrl(DomainEnum domain, PreSignedUrlRequest preSignedUrlRequest);
 }

@@ -1,7 +1,5 @@
 package koreatech.in.service;
 
-import static koreatech.in.controller.UploadController.enrichDomainPath;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,14 +85,13 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest) {
+    public PreSignedUrlResponse generatePreSignedUrl(DomainEnum domain, PreSignedUrlRequest preSignedUrlRequest) {
         //todo 파일 업로드와 같이 리팩터링 필요
         UploadFileMetaData uploadFileMetaData = UploadFileConverter.INSTANCE.toUploadFileMetaData(preSignedUrlRequest);
 
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        domainEnum.validateMetaData(uploadFileMetaData);
+        domain.validateMetaData(uploadFileMetaData);
 
-        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(enrichDomainPath(domainEnum.name().toLowerCase()), uploadFileMetaData.getFileName());
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(), uploadFileMetaData.getFileName());
         PreSignedUrlResult preSignedUrlResult = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileMetaData,
             uploadFileFullPath.unixValue(), new Date());
 
