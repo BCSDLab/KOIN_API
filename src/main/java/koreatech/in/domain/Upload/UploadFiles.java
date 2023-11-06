@@ -17,19 +17,19 @@ import lombok.AllArgsConstructor;
 public class UploadFiles {
     private final List<UploadFile> uploadFiles;
 
-    public static UploadFiles of(List<MultipartFile> multipartFiles, DomainEnum domain) {
+    public static UploadFiles of(List<MultipartFile> multipartFiles, String domainPath) {
         List<UploadFile> files = multipartFiles
             .stream()
-            .map(makeFile(domain))
+            .map(makeFile(domainPath))
             .collect(Collectors.toList());
 
         return new UploadFiles(files);
     }
 
-    private static Function<MultipartFile, UploadFile> makeFile(DomainEnum domain) {
+    private static Function<MultipartFile, UploadFile> makeFile(String domainPath) {
         return multipartFile -> {
             try {
-                return UploadFile.of(multipartFile, domain);
+                return UploadFile.of(multipartFile, domainPath);
             } catch (IOException e) {
                 throw new BaseException(ExceptionInformation.FILE_INVALID);
             }

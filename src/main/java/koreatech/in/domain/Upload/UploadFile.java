@@ -25,8 +25,8 @@ public class UploadFile {
         return fullPath.getFileFullName();
     }
 
-    public static UploadFile of(MultipartFile multipartFile, DomainEnum domain) throws IOException {
-        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(), multipartFile.getOriginalFilename());
+    public static UploadFile of(MultipartFile multipartFile, String domainPath) throws IOException {
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domainPath, multipartFile.getOriginalFilename());
 
         return new UploadFile(uploadFileFullPath, multipartFile.getBytes());
     }

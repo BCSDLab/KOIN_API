@@ -21,8 +21,6 @@ import koreatech.in.domain.Upload.UploadFileMetaData;
 import koreatech.in.domain.Upload.UploadFiles;
 import koreatech.in.domain.Upload.UploadFilesLocation;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
-import koreatech.in.dto.normal.upload.request.UploadFileRequest;
-import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
 import koreatech.in.dto.normal.upload.response.PreSignedUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
@@ -46,20 +44,10 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFileResponse uploadAndGetUrl(UploadFileRequest uploadFileRequest) {
-        UploadFile file = UploadFileConverter.INSTANCE.toUploadFile(uploadFileRequest);
-
-        uploadFor(file);
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
-
-        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
-    }
-
-    @Override
     public UploadFileResponse uploadAndGetUrl(MultipartFile multipartFile, DomainEnum domain) throws IOException {
         domain.validateFor(multipartFile);
 
-        UploadFile file = UploadFile.of(multipartFile, domain);
+        UploadFile file = UploadFile.of(multipartFile, domain.enrichDomainPath());
         uploadFor(file);
 
         UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
@@ -67,24 +55,38 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFilesResponse uploadAndGetUrls(UploadFilesRequest uploadFilesRequest) {
-        UploadFiles uploadFiles = UploadFileConverter.INSTANCE.toUploadFiles(uploadFilesRequest);
+    public UploadFileResponse uploadAndGetUrlForAdmin(MultipartFile multipartFile, DomainEnum domain) throws
+        IOException {
+        domain.validateFor(multipartFile);
 
-        UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
+        UploadFile file = UploadFile.of(multipartFile, domain.enrichDomainPathForAdmin());
+        uploadFor(file);
 
-        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, file);
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
     }
 
     @Override
     public UploadFilesResponse uploadAndGetUrls(List<MultipartFile> multipartFiles, DomainEnum domain)  {
         multipartFiles.forEach(domain::validateFor);
 
-        UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain);
+        UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain.enrichDomainPath());
 
         UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
         return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
     }
 
+    @Override
+    public UploadFilesResponse uploadAndGetUrlsForAdmin(List<MultipartFile> multipartFiles, DomainEnum domain)  {
+        multipartFiles.forEach(domain::validateFor);
+
+        UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain.enrichDomainPathForAdmin());
+
+        UploadFilesLocation uploadFilesLocation = uploadAndGetUrls(uploadFiles);
+        return UploadFileConverter.INSTANCE.toUploadFilesResponse(uploadFilesLocation);
+    }
+
+    @Override
     public PreSignedUrlResponse generatePreSignedUrl(String domain, PreSignedUrlRequest preSignedUrlRequest) {
         //todo 파일 업로드와 같이 리팩터링 필요
         UploadFileMetaData uploadFileMetaData = UploadFileConverter.INSTANCE.toUploadFileMetaData(preSignedUrlRequest);

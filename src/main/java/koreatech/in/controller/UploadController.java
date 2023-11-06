@@ -37,8 +37,6 @@ import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.dto.ExceptionResponse;
 import koreatech.in.dto.RequestDataInvalidResponse;
 import koreatech.in.dto.normal.upload.request.PreSignedUrlRequest;
-import koreatech.in.dto.normal.upload.request.UploadFileRequest;
-import koreatech.in.dto.normal.upload.request.UploadFilesRequest;
 import koreatech.in.dto.normal.upload.response.PreSignedUrlResponse;
 import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
@@ -186,10 +184,6 @@ public class UploadController {
         return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase();
     }
 
-    private static String enrichDomainPathForAdmin(String domain) {
-        return UPLOAD_DIRECTORY_NAME + SLASH + domain.toLowerCase() + ADMIN_PATH;
-    }
-
     // 업로드 전용 단일 파일 업로드
     // 어드민 전용 설정을 원한다면, Auth를 메서드별로 설정 & 인터셉터에서 인식 가능케 코드 변경 & Upload에 대한 Authority DB, enum, 인터셉터에 추가 해야 함.
     @Deprecated
@@ -208,7 +202,7 @@ public class UploadController {
     @RequestMapping(value = "/admin/{domain}/upload/file", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<UploadFileResponse> uploadFileAdminForAdmin(
+    ResponseEntity<UploadFileResponse> uploadFileForAdmin(
             @ApiParam(value = "단일 파일", required = true) MultipartFile multipartFile,
             @ApiParam(value = "도메인 이름 \n\n"
                     + " (ContentType, MaxSize가 설정되지 않은 경우는 기본값[ContentType: `*/*`, MaxSize: `10mb`]으로 제한함.\n"
@@ -221,16 +215,13 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain) {
-
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        domainEnum.validateFor(multipartFile);
-
-        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPathForAdmin(domain), multipartFile);
-
-        UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(uploadFileRequest);
-
-        return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
+                    , required = true) @PathVariable DomainEnum domain) {
+        try {
+            UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrlForAdmin(multipartFile, domain);
+            return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
+        } catch (IOException e) {
+            throw new BaseException(ExceptionInformation.FILE_INVALID);
+        }
     }
 
     // 다중 파일 업로드
@@ -272,15 +263,8 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , required = true) @PathVariable String domain) {
-
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        files.forEach(domainEnum::validateFor);
-
-        UploadFilesRequest uploadFilesRequest = UploadFilesRequest.of(files, enrichDomainPathForAdmin(domain));
-
-        UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrls(uploadFilesRequest);
-
+                    , required = true) @PathVariable DomainEnum domain) {
+        UploadFilesResponse uploadFilesResponse = s3uploadService.uploadAndGetUrlsForAdmin(files, domain);
         return new ResponseEntity<>(uploadFilesResponse, HttpStatus.CREATED);
     }
 
