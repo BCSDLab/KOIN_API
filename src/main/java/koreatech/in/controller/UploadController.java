@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,16 +130,13 @@ public class UploadController {
                     + "- `owners`\n"
                     + "  - ContentType: `image/*`\n"
                     + "  - MaxSize: `10mb`\n"
-                    , example = "items", required = true) @PathVariable String domain) {
-
-        DomainEnum domainEnum = DomainEnum.mappingFor(domain);
-        domainEnum.validateFor(multipartFile);
-
-        UploadFileRequest uploadFileRequest = UploadFileRequest.of(enrichDomainPath(domain), multipartFile);
-
-        UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(uploadFileRequest);
-
-        return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
+                , example = "items", required = true) @PathVariable DomainEnum domain) {
+        try {
+            UploadFileResponse uploadFileResponse = s3uploadService.uploadAndGetUrl(multipartFile, domain);
+            return new ResponseEntity<>(uploadFileResponse, HttpStatus.CREATED);
+        } catch (IOException e) {
+            throw new BaseException(ExceptionInformation.FILE_INVALID);
+        }
     }
 
     // 다중 파일 업로드

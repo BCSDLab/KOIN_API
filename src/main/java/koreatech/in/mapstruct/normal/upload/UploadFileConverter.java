@@ -1,5 +1,6 @@
 package koreatech.in.mapstruct.normal.upload;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,7 +9,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.web.multipart.MultipartFile;
 
+import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.domain.Upload.PreSignedUrlResult;
 import koreatech.in.domain.Upload.UploadFile;
 import koreatech.in.domain.Upload.UploadFileFullPath;
@@ -30,15 +33,11 @@ public interface UploadFileConverter {
 
     UploadFileResponse toUploadFileResponse(UploadFileLocation uploadFileLocation);
 
-    @Mappings({
-            @Mapping(source = "uploadFilesLocation", target = ".",
-                    qualifiedByName = "convertUploadFilesResponse")
-    })
-    UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation);
-
-    @Named("convertUploadFilesResponse")
-    default List<String> convertUploadFilesResponse(List<UploadFileLocation> uploadFileLocations) {
-        return uploadFileLocations.stream().map(UploadFileLocation::getFileUrl).collect(Collectors.toList());
+    default UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation) {
+        return new UploadFilesResponse(uploadFilesLocation.getUploadFilesResult()
+            .stream()
+            .map(UploadFileLocation::getFileUrl)
+            .collect(Collectors.toList()));
     }
 
     @Mappings({
@@ -46,6 +45,16 @@ public interface UploadFileConverter {
         @Mapping(source = "data", target = "data")
     })
     UploadFile toUploadFile(UploadFileRequest uploadFileRequest);
+
+    @Mappings({
+        @Mapping(source = ".", target = "fullPath", qualifiedByName = "convertFullPath"),
+        @Mapping(source = "data", target = "data")
+    })
+    default UploadFile toUploadFile(MultipartFile multipartFile, DomainEnum domain) throws IOException {
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(), multipartFile.getOriginalFilename());
+
+        return new UploadFile(uploadFileFullPath, multipartFile.getBytes());
+    }
 
     @Named("convertFullPath")
     default UploadFileFullPath convertFullPath(UploadFileRequest uploadFileRequest) {

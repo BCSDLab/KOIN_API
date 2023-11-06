@@ -2,12 +2,14 @@ package koreatech.in.service;
 
 import static koreatech.in.controller.UploadController.enrichDomainPath;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.domain.Upload.PreSignedUrlResult;
@@ -49,6 +51,17 @@ public class S3UploadServiceImpl implements UploadService {
         uploadFor(file);
         UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainName, file);
 
+        return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
+    }
+
+    @Override
+    public UploadFileResponse uploadAndGetUrl(MultipartFile multipartFile, DomainEnum domain) throws IOException {
+        domain.validateFor(multipartFile);
+
+        UploadFile file = UploadFile.of(multipartFile, domain);
+        uploadFor(file);
+
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domain.enrichDomainPath(), file);
         return UploadFileConverter.INSTANCE.toUploadFileResponse(uploadFileLocation);
     }
 

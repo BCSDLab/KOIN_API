@@ -1,5 +1,9 @@
 package koreatech.in.domain.Upload;
 
+import java.io.IOException;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 
 
@@ -19,5 +23,11 @@ public class UploadFile {
 
     public String getFileName() {
         return fullPath.getFileFullName();
+    }
+
+    public static UploadFile of(MultipartFile multipartFile, DomainEnum domain) throws IOException {
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(), multipartFile.getOriginalFilename());
+
+        return new UploadFile(uploadFileFullPath, multipartFile.getBytes());
     }
 }
