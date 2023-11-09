@@ -42,8 +42,8 @@ public interface UploadFileConverter {
     }
 
     @Mappings({
-            @Mapping(source = ".", target = "fullPath", qualifiedByName = "convertFullPath"),
-            @Mapping(source = "data", target = "data")
+        @Mapping(source = ".", target = "fullPath", qualifiedByName = "convertFullPath"),
+        @Mapping(source = "data", target = "data")
     })
     UploadFile toUploadFile(UploadFileRequest uploadFileRequest);
 
@@ -53,7 +53,7 @@ public interface UploadFileConverter {
     }
 
     @Mappings({
-            @Mapping(source = "uploadFilesRequest", target = "uploadFiles", qualifiedByName = "convertUploadFiles")
+        @Mapping(source = "uploadFilesRequest", target = "uploadFiles", qualifiedByName = "convertUploadFiles")
     })
     UploadFiles toUploadFiles(UploadFilesRequest uploadFilesRequest);
 
@@ -63,17 +63,17 @@ public interface UploadFileConverter {
     }
 
     @Mappings({
-
-            @Mapping(source = "preSignedUrlResult.url", target = "preSignedUrl"),// qualifiedByName = "convertToPreSignedUrlResponse"),
-            @Mapping(source = "preSignedUrlResult.expiration", target = "expirationDate"),// qualifiedByName = "convertToPreSignedUrlExpirationDate"),
-            @Mapping(source = "uploadFileLocation.fileUrl", target = "fileUrl"),// qualifiedByName = "convertToFileUrl")
+        @Mapping(source = "preSignedUrlResult.url", target = "preSignedUrl"),
+        @Mapping(source = "preSignedUrlResult.expiration", target = "expirationDate"),
+        @Mapping(source = "uploadFileLocation.fileUrl", target = "fileUrl"),// qualifiedByName = "convertToFileUrl")
     })
-    PreSignedUrlResponse toPreSignedUrlResponse(PreSignedUrlResult preSignedUrlResult, UploadFileLocation uploadFileLocation);
+    PreSignedUrlResponse toPreSignedUrlResponse(PreSignedUrlResult preSignedUrlResult,
+        UploadFileLocation uploadFileLocation);
 
     @Mappings({
-            @Mapping(source = "fileName", target = "fileName"),
-            @Mapping(source = "contentType", target = "contentType"),
-            @Mapping(source = "contentLength", target = "contentLength")
+        @Mapping(source = "fileName", target = "fileName"),
+        @Mapping(source = "contentType", target = "contentType"),
+        @Mapping(source = "contentLength", target = "contentLength")
     })
     UploadFileMetaData toUploadFileMetaData(PreSignedUrlRequest preSignedUrlRequest);
 

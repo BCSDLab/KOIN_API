@@ -1,14 +1,15 @@
 package koreatech.in.argumentresolver;
 
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.Login;
-import koreatech.in.domain.User.User;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import koreatech.in.annotation.Auth;
+import koreatech.in.annotation.Login;
+import koreatech.in.domain.User.User;
 
 /*
  * @Auth-AuthInterceptor을 통해 검증이 이루어진 API 라면,
