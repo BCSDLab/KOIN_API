@@ -12,7 +12,7 @@
     <context:component-scan base-package="koreatech.in.controller"/>
 
 <!--    conversion-service: 컨버터 등록을 위한 빈 자동 등록-->
-    <mvc:annotation-driven>
+    <mvc:annotation-driven conversion-service="conversionService">
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.StringHttpMessageConverter">
                 <property name="supportedMediaTypes">
@@ -26,6 +26,14 @@
             <bean class="koreatech.in.argumentresolver.UserArgumentResolver"/>
         </mvc:argument-resolvers>
     </mvc:annotation-driven>
+
+<!--    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">-->
+<!--        <property name="converters">-->
+<!--            <list>-->
+<!--                <bean class="koreatech.in.converter.DomainEnumConvertor"/>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/"/>
