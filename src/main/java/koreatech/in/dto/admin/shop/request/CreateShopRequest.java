@@ -1,17 +1,25 @@
 package koreatech.in.dto.admin.shop.request;
 
+import static koreatech.in.exception.ExceptionInformation.*;
+
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import koreatech.in.exception.BaseException;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.time.DayOfWeek;
-import java.util.*;
-
-import static koreatech.in.exception.ExceptionInformation.*;
 
 @Getter @Setter
 @ApiModel("AdminCreateShopRequest")
@@ -51,9 +59,9 @@ public class CreateShopRequest {
                               "- null일 경우 0으로 저장됨", example = "1000")
     private Integer delivery_price = 0;
 
-    @Size(min = 1, max = 50, message = "기타정보의 길이는 1자 이상 50자 이하입니다.")
+    @Size(max = 50, message = "기타정보의 길이는 50자 이하입니다.")
     @ApiModelProperty(notes = "기타정보 \n" +
-                              "- 1자 이상 50자 이하", example = "이번주 전 메뉴 10% 할인 이벤트합니다.")
+                              "- 50자 이하", example = "이번주 전 메뉴 10% 할인 이벤트합니다.")
     private String description;
 
     @NotNull(message = "배달 가능 여부는 필수입니다.")
