@@ -25,6 +25,7 @@ import koreatech.in.annotation.Auth.Role;
 import koreatech.in.annotation.AuthExcept;
 import koreatech.in.annotation.Login;
 import koreatech.in.annotation.ParamValid;
+import koreatech.in.annotation.XssFilter;
 import koreatech.in.domain.User.User;
 import koreatech.in.dto.EmptyResponse;
 import koreatech.in.dto.ExceptionResponse;
@@ -168,14 +169,8 @@ public class OwnerController {
     @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
     public @ResponseBody
-    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request,
+    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid @XssFilter VerifyEmailRequest request,
                                               BindingResult bindingResult) {
-        try {
-            request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
-        } catch (Exception exception) {
-            throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
-        }
-
         ownerService.requestVerification(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
