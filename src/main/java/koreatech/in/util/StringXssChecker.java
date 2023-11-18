@@ -1,36 +1,61 @@
 package koreatech.in.util;
 
-import com.nhncorp.lucy.security.xss.LucyXssFilter;
-import com.nhncorp.lucy.security.xss.XssSaxFilter;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import com.nhncorp.lucy.security.xss.LucyXssFilter;
+import com.nhncorp.lucy.security.xss.XssSaxFilter;
 
 public class StringXssChecker {
+
     public static <T> T xssCheck(T vo, T clear) throws Exception {
         LucyXssFilter filter = XssSaxFilter.getInstance("lucy-xss-sax.xml");
 
-        Map<String, Object> result = new HashMap<String, Object>();
+        //clear에 할당될 결과를 정의한다.
+        Map<String, Object> result = new HashMap<>();
+
+        //빈 규약에 맞는 자바 객체에 대한 정보를 가져온다.
         BeanInfo info = Introspector.getBeanInfo(vo.getClass());
-        for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
-            Method reader = pd.getReadMethod();
-            if (reader != null) {
-                //String 클래스일 경우 XSS 체크
-                if(reader.invoke(vo) != null && reader.invoke(vo).getClass() == String.class) {
-                    result.put(pd.getName(), filter.doFilter(reader.invoke(vo).toString()));
-                    continue;
-                }
-                result.put(pd.getName(), reader.invoke(vo));
+
+        for (PropertyDescriptor propertyDescriptor : info.getPropertyDescriptors()) {
+            //접근 제어자 PropertyDescriptor 중 게터만을 가져온다.
+            Method reader = propertyDescriptor.getReadMethod();
+            if (reader == null) {
+                continue;
             }
+
+            result.put(propertyDescriptor.getName(), getClearField(vo, filter, reader));
         }
         convertMapToObject(result, clear);
         return clear;
     }
 
-    public static Object convertMapToObject(Map<String,Object> map,Object obj) {
+    /**
+     * vo가 String class라면 filter를 통해 필터링을 하고, 아니라면 그대로 리턴한다.
+     */
+    private static <T> Object getClearField(T vo, LucyXssFilter filter, Method reader) throws
+        IllegalAccessException,
+        InvocationTargetException {
+        Object res = isStringField(vo, reader) ? filter.doFilter(reader.invoke(vo).toString()) : reader.invoke(vo);
+        return res;
+    }
+
+    /**
+     * vo의 reader를 실행하여 값이 있는지 확인하고, 그 결과가 String.class인지 판단한다.
+     */
+    private static <T> boolean isStringField(T vo, Method reader) throws
+        IllegalAccessException,
+        InvocationTargetException {
+        return reader.invoke(vo) != null && reader.invoke(vo).getClass() == String.class;
+    }
+
+    private static Object convertMapToObject(Map<String,Object> map,Object obj) {
         String keyAttribute = null;
         String setMethodString = "set";
         String methodString = null;
