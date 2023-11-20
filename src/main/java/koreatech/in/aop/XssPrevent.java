@@ -2,9 +2,7 @@ package koreatech.in.aop;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,7 +22,7 @@ import koreatech.in.util.StringXssChecker;
 @Component
 @Aspect
 public class XssPrevent {
-    private static final Set<Class> requiredAnnotations = new LinkedHashSet<>(Arrays.asList(RequestBody.class, XssFilter.class));
+    private static final List<Class<? extends Annotation>> requiredAnnotations = Arrays.asList(RequestBody.class, XssFilter.class);
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.ResponseBody) "
         + "&& within(@org.springframework.stereotype.Controller *)")
@@ -36,7 +34,7 @@ public class XssPrevent {
         Object[] arguments = proceedingJoinPoint.getArgs();
         Annotation[][] argumentsAnnotations = getArgumentsAnnotations(proceedingJoinPoint);
 
-        filterArgumentsByAnnotation(arguments, argumentsAnnotations, requiredAnnotations);
+        filterArgumentsByAnnotation(arguments, argumentsAnnotations);
 
         return proceedingJoinPoint.proceed(arguments);
     }
@@ -45,18 +43,17 @@ public class XssPrevent {
         return ((MethodSignature)proceedingJoinPoint.getSignature()).getMethod().getParameterAnnotations();
     }
     
-    private void filterArgumentsByAnnotation(Object[] arguments, Annotation[][] argumentsAnnotations,
-        Collection<Class> requiredAnnotations) {
+    private void filterArgumentsByAnnotation(Object[] arguments, Annotation[][] argumentsAnnotations) {
         IntStream.range(0, arguments.length)
-            .filter(index -> containRequiredAnnotations(argumentsAnnotations[index], requiredAnnotations))
+            .filter(index -> containRequiredAnnotations(argumentsAnnotations[index]))
             .forEach(index -> filter(index, arguments));
     }
 
-    private boolean containRequiredAnnotations(Annotation[] argumentAnnotations, Collection<Class> necessaryAnnotations) {
+    private boolean containRequiredAnnotations(Annotation[] argumentAnnotations) {
         return Arrays.stream(argumentAnnotations)
             .map(Annotation::annotationType)
             .collect(Collectors.toSet())
-            .containsAll(necessaryAnnotations);
+            .containsAll(requiredAnnotations);
     }
 
     private void filter(int index, Object[] arguments) {
