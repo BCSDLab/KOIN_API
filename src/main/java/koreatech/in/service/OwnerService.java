@@ -15,7 +15,7 @@ public interface OwnerService {
 
     void register(OwnerRegisterRequest ownerRegisterRequest);
 
-    void regesterWithShop(OwnerRegisterRequest request);
+    void registerWithShop(OwnerRegisterRequest request);
 
     OwnerResponse getOwner();
 

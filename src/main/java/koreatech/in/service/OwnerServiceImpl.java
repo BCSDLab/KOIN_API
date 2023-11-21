@@ -151,7 +151,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public void regesterWithShop(OwnerRegisterRequest ownerRegisterRequest) {
+    public void registerWithShop(OwnerRegisterRequest ownerRegisterRequest) {
         Owner owner = OwnerConverter.INSTANCE.toNewOwner(ownerRegisterRequest);
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
@@ -160,11 +160,12 @@ public class OwnerServiceImpl implements OwnerService {
 
         createInDBFor(owner);
 
-        OwnerShop ownerShop = OwnerConverter.INSTANCE.toOwnerShop(owner.getId(), ownerRegisterRequest);
+        OwnerShop ownerShop = OwnerConverter.INSTANCE.toOwnerShop(ownerRegisterRequest);
+        ownerShop.setOwner_id(owner.getId());
         putRedisForRequestShop(ownerShop);
 
         slackNotiSender.noticeRegisterComplete(owner);
-        //slack알림 메서드
+        //slack알림 메서드 추가해야 함.
 
         removeRedisFrom(ownerEmailAddress);
     }
