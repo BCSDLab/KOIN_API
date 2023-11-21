@@ -172,9 +172,9 @@ public class OwnerController {
         }
 
         if (request.getShopId() == null) {
-            ownerService.regesterWithShop(request);
-        } else {
             ownerService.register(request);
+        } else {
+            ownerService.registerWithShop(request);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
