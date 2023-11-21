@@ -134,11 +134,10 @@ public interface OwnerConverter {
     Owner toOwner(OwnerUpdateRequest ownerUpdateRequest);
 
     @Mappings({
-            @Mapping(source = "ownerId", target = "owner_id"),
             @Mapping(source = "ownerRegisterRequest.shopId", target = "shop_id"),
             @Mapping(source = "ownerRegisterRequest.shopName", target = "shop_name")
     })
-    OwnerShop toOwnerShop(Integer ownerId, OwnerRegisterRequest ownerRegisterRequest);
+    OwnerShop toOwnerShop(OwnerRegisterRequest ownerRegisterRequest);
 
     @Mapping(source = "temporaryAccessToken", target = "accessToken")
     VerifyCodeResponse toVerifyCodeResponse(String temporaryAccessToken);
