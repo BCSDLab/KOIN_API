@@ -168,8 +168,9 @@ public class OwnerController {
     @AuthExcept
     @RequestMapping(value = "/owners/verification/email", method = RequestMethod.POST)
     @ParamValid
+    @XssFilter
     public @ResponseBody
-    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid @XssFilter VerifyEmailRequest request,
+    ResponseEntity<EmptyResponse> verifyEmail(@RequestBody @Valid VerifyEmailRequest request,
                                               BindingResult bindingResult) {
         ownerService.requestVerification(request);
         return new ResponseEntity<>(HttpStatus.OK);
