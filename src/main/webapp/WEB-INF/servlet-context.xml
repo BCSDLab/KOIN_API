@@ -12,7 +12,7 @@
     <context:component-scan base-package="koreatech.in.controller"/>
 
 <!--    conversion-service: 컨버터 등록을 위한 빈 자동 등록-->
-    <mvc:annotation-driven>
+    <mvc:annotation-driven conversion-service="conversionService">
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.StringHttpMessageConverter">
                 <property name="supportedMediaTypes">

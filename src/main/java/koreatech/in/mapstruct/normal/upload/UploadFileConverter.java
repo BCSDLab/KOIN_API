@@ -30,15 +30,11 @@ public interface UploadFileConverter {
 
     UploadFileResponse toUploadFileResponse(UploadFileLocation uploadFileLocation);
 
-    @Mappings({
-            @Mapping(source = "uploadFilesLocation", target = ".",
-                    qualifiedByName = "convertUploadFilesResponse")
-    })
-    UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation);
-
-    @Named("convertUploadFilesResponse")
-    default List<String> convertUploadFilesResponse(List<UploadFileLocation> uploadFileLocations) {
-        return uploadFileLocations.stream().map(UploadFileLocation::getFileUrl).collect(Collectors.toList());
+    default UploadFilesResponse toUploadFilesResponse(UploadFilesLocation uploadFilesLocation) {
+        return new UploadFilesResponse(uploadFilesLocation.getUploadFilesResult()
+            .stream()
+            .map(UploadFileLocation::getFileUrl)
+            .collect(Collectors.toList()));
     }
 
     @Mappings({
