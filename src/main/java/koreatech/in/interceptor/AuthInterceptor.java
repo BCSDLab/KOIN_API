@@ -1,13 +1,21 @@
 package koreatech.in.interceptor;
 
 import static koreatech.in.argumentresolver.UserArgumentResolver.USER_OBJECT_ATTRIBUTE;
-import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
-import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
-import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.lang.reflect.Method;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.AuthExcept;
@@ -18,13 +26,6 @@ import koreatech.in.exception.BaseException;
 import koreatech.in.service.AccessJwtValidator;
 import koreatech.in.util.HttpHeaderValue;
 import koreatech.in.util.HttpHeaderValueAttacher;
-import org.apache.http.HttpHeaders;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 public class AuthInterceptor extends HandlerInterceptorAdapter {
     @Autowired
@@ -92,6 +93,8 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             if (accessJwtValidator.isExpiredToken(accessToken)) {
                 throw new BaseException(TOKEN_EXPIRED);
             }
+
+            return true;
         }
 
         User user = accessJwtValidator.validateAndGetUserFromAccessToken(accessToken);
