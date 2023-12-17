@@ -1,8 +1,9 @@
 package koreatech.in.service;
 
+import koreatech.in.domain.Mail.MailForm;
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.owner.CertificationCode;
-import koreatech.in.dto.Mail;
+import koreatech.in.dto.normal.mail.Mail;
 import koreatech.in.util.RandomGenerator;
 import koreatech.in.util.SesMailSender;
 import org.apache.velocity.app.VelocityEngine;
@@ -17,35 +18,36 @@ import java.util.Map;
 @Service
 public class MailService {
 
-    private static final String CERTIFICATION_CODE = "certification-code";
-
     @Autowired
     private VelocityEngine velocityEngine;
     @Autowired
     private SesMailSender sesMailSender;
 
-    public CertificationCode sendMailWithTimes(EmailAddress emailAddress, String formLocation, String purpose) {
+    public CertificationCode sendMailWithTimes(EmailAddress emailAddress, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
         LocalDateTime now = LocalDateTime.now();
-        String mailFormWithTimes = mailFormWithTimes(certificationCode,now,emailAddress,formLocation);
-        sendMailFor(emailAddress, mailFormWithTimes, purpose);
+        String mailFormWithTimes = mailFormWithTimes(certificationCode,now,emailAddress, form.getPath());
+        sendMailFor(emailAddress, mailFormWithTimes, form.getSubject());
         return certificationCode;
     }
 
-    public CertificationCode sendMail(EmailAddress emailAddress, String formLocation, String purpose) {
+    public CertificationCode sendMail(EmailAddress emailAddress, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
-        String mailForm = mailFormFor(certificationCode, formLocation);
-        sendMailFor(emailAddress, mailForm, purpose);
+        String mailForm = mailFormFor(certificationCode, form.getPath());
+        sendMailFor(emailAddress, mailForm, form.getSubject());
         return certificationCode;
     }
 
     private String mailFormWithTimes(CertificationCode certificationCode, LocalDateTime time,
                                         EmailAddress emailAddress, String formLocation) {
-        Map<String, Object> model = Mail.builder()
+        Mail mail = Mail.builder()
                 .certificationCode(certificationCode.getValue())
                 .emailAddress(emailAddress.getEmailAddress())
-                .dateTime(time)
+                .time(time)
                 .build();
+
+        Map<String, Object> model = mail.convertToMapWithTimes();
+
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);
     }
@@ -58,9 +60,11 @@ public class MailService {
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
 
-        Map<String, Object> model = Mail.builder()
+        Mail mail = Mail.builder()
                         .certificationCode(certificationCode.getValue())
                         .build();
+
+        Map<String, Object> model = mail.convertToMap();
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, formLocation,
                 StandardCharsets.UTF_8.name(), model);

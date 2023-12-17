@@ -1,22 +1,13 @@
 package koreatech.in.interceptor;
 
-import static koreatech.in.exception.ExceptionInformation.BAD_ACCESS;
-import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
-import static koreatech.in.exception.ExceptionInformation.TOKEN_EXPIRED;
+import static koreatech.in.argumentresolver.UserArgumentResolver.USER_OBJECT_ATTRIBUTE;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.lang.reflect.Method;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import koreatech.in.annotation.ApiOff;
-import koreatech.in.annotation.Auth;
-import koreatech.in.annotation.AuthExcept;
-import koreatech.in.annotation.AuthTemporary;
-import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.owner.Owner;
-import koreatech.in.exception.BaseException;
-import koreatech.in.service.JwtValidator;
-import koreatech.in.util.HttpHeaderValue;
-import koreatech.in.util.HttpHeaderValueAttacher;
+
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +16,20 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import koreatech.in.annotation.ApiOff;
+import koreatech.in.annotation.Auth;
+import koreatech.in.annotation.AuthExcept;
+import koreatech.in.annotation.AuthTemporary;
+import koreatech.in.domain.User.User;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.exception.BaseException;
+import koreatech.in.service.AccessJwtValidator;
+import koreatech.in.util.HttpHeaderValue;
+import koreatech.in.util.HttpHeaderValueAttacher;
+
 public class AuthInterceptor extends HandlerInterceptorAdapter {
     @Autowired
-    private JwtValidator jwtValidator;
+    private AccessJwtValidator accessJwtValidator;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -82,14 +84,21 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
         // 아래에서부턴 권한이 필요하다.
 
-        String authorizationHeader = request.getHeader("Authorization");
-
-
-        if (actualMethod.isAnnotationPresent(AuthTemporary.class)) {
-            return isValidToken(authorizationHeader);
+        String accessToken = new AuthorizationHeaderParser(request).getAccessToken();
+        if(accessToken == null) {
+            throw new BaseException(BAD_ACCESS);
         }
 
-        User user = jwtValidator.validate(authorizationHeader);
+        if (actualMethod.isAnnotationPresent(AuthTemporary.class)) {
+            if (accessJwtValidator.isExpiredToken(accessToken)) {
+                throw new BaseException(TOKEN_EXPIRED);
+            }
+
+            return true;
+        }
+
+        User user = accessJwtValidator.validateAndGetUserFromAccessToken(accessToken);
+        request.setAttribute(USER_OBJECT_ATTRIBUTE, user);
 
         if (user == null) {
             throw new BaseException(BAD_ACCESS);
@@ -220,13 +229,6 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         return true;
     }
 
-    private boolean isValidToken(String authorizationHeader) {
-        if(!jwtValidator.isValidAccessTokenIn(authorizationHeader)) {
-            throw new BaseException(TOKEN_EXPIRED);
-        }
-        return true;
-    }
-
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         if (!(handler instanceof HandlerMethod)) {
@@ -257,4 +259,27 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         // 응답의 리소스 만료
         response.addHeader(HttpHeaders.EXPIRES, HttpHeaderValue.ZERO);
     }
+
+    private class AuthorizationHeaderParser {
+        private static final String AUTHORIZATION = "Authorization";
+        private static final String BEARER = "Bearer ";
+
+        private final String header;
+
+        public AuthorizationHeaderParser(HttpServletRequest request) {
+            this.header = request.getHeader(AUTHORIZATION);
+        }
+
+        public boolean isAuthHeader() {
+            return header != null && header.startsWith(BEARER);
+        }
+
+        public String getAccessToken() {
+            if(!isAuthHeader()) {
+                return null;
+            }
+            return header.substring(BEARER.length());
+        }
+    }
+
 }

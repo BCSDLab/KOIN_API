@@ -17,6 +17,9 @@ public enum DomainEnum {
     private final ContentTypes expectContentTypes;
     private final ByteSize limitedSize;
 
+    private final static String UPLOAD_DIRECTORY_NAME = "upload";
+    private final static String SLASH = "/";
+    private final static String ADMIN_PATH = "/admin";
 
     DomainEnum() {
         expectContentTypes = ContentTypes.DEFAULT ;
@@ -36,9 +39,22 @@ public enum DomainEnum {
         limitedSize.validateAcceptable(ByteSize.from(multipartFile.getSize()));
     }
 
-    private static void validates(MultipartFile multipartFile) {
+    public void validateMetaData(UploadFileMetaData uploadFileMetaData) {
+        expectContentTypes.validateAcceptable(ContentType.from(uploadFileMetaData.getContentType()));
+        limitedSize.validateAcceptable(ByteSize.from(uploadFileMetaData.getContentLength()));
+    }
+
+    private void validates(MultipartFile multipartFile) {
         if(multipartFile == null  || multipartFile.isEmpty()) {
             throw new BaseException(ExceptionInformation.FILE_INVALID);
         }
+    }
+
+    public String enrichDomainPath() {
+        return UPLOAD_DIRECTORY_NAME + SLASH + this.name().toLowerCase();
+    }
+
+    public String enrichDomainPathForAdmin() {
+        return UPLOAD_DIRECTORY_NAME + SLASH + this.name().toLowerCase() + ADMIN_PATH;
     }
 }
