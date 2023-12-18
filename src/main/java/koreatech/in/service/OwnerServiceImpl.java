@@ -175,7 +175,7 @@ public class OwnerServiceImpl implements OwnerService {
         putRedisForRequestShop(ownerShop);
 
         slackNotiSender.noticeRegisterComplete(owner);
-        //slack알림 메서드 추가해야 함.
+        slackNotiSender.noticeOwnerShopRequest(owner);
 
         redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }
