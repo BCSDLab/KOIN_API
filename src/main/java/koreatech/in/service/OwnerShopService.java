@@ -37,5 +37,5 @@ public interface OwnerShopService {
 
     void updateMenu(Integer menuId, UpdateMenuRequest request);
 
-    void deleteMenu(Integer shopId, Integer menuId);
+    void deleteMenu(Integer menuId);
 }
