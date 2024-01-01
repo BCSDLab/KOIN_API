@@ -31,7 +31,7 @@ public interface OwnerShopService {
 
     void createMenu(Integer shopId, CreateMenuRequest request);
 
-    MenuResponse getMenu(Integer shopId, Integer menuId);
+    MenuResponse getMenu(Integer menuId);
 
     AllMenusOfShopResponse getAllMenusOfShop(Integer shopId);
 

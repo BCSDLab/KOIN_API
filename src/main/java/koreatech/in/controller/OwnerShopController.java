@@ -244,15 +244,13 @@ public class OwnerShopController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
-                                               "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
-                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함", response = ExceptionResponse.class)
+                                               "- 메뉴가 조회되지 않을 때 (code: 104007)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/menus/{menuId}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<MenuResponse> getMenu(
-            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
             @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
-        MenuResponse response = ownerShopService.getMenu(shopId, menuId);
+        MenuResponse response = ownerShopService.getMenu(menuId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

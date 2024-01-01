@@ -334,24 +334,17 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public MenuResponse getMenu(Integer shopId, Integer menuId) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public MenuResponse getMenu(Integer menuId) {
+        ShopMenu existingMenu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+        checkAuthorityAboutShop(getShopById(existingMenu.getShop_id()));
 
-        ShopMenuProfile menuProfile = getMenuProfileByMenuIdAndShopId(menuId, shopId);
-        menuProfile.decideWhetherSingleOrNot();
-
-        return ShopMenuConverter.INSTANCE.toMenuResponse(menuProfile);
-    }
-
-    private ShopMenuProfile getMenuProfileByMenuIdAndShopId(Integer menuId, Integer shopId) {
         ShopMenuProfile menuProfile = Optional.ofNullable(shopMapper.getMenuProfileByMenuId(menuId))
                 .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
 
-        if (!menuProfile.hasSameShopId(shopId)) {
-            throw new BaseException(SHOP_MENU_NOT_FOUND);
-        }
+        menuProfile.decideWhetherSingleOrNot();
 
-        return menuProfile;
+        return ShopMenuConverter.INSTANCE.toMenuResponse(menuProfile);
     }
 
     @Override
