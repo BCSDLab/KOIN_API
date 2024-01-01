@@ -141,9 +141,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     @Override
     public void register(OwnerRegisterRequest ownerRegisterRequest) {
-        OwnerConverter ownerConverter = OwnerConverter.INSTANCE;
-
-        Owner owner = ownerConverter.toNewOwner(ownerRegisterRequest);
+        Owner owner = OwnerConverter.INSTANCE.toNewOwner(ownerRegisterRequest);
         EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
 
         validateEmailUniqueness(ownerEmailAddress);
@@ -154,10 +152,30 @@ public class OwnerServiceImpl implements OwnerService {
 
         createInDBFor(owner);
 
-        OwnerShop ownerShop = ownerConverter.toOwnerShop(owner.getId(), ownerRegisterRequest);
+        slackNotiSender.noticeRegisterComplete(owner);
+
+        redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
+    }
+
+    @Override
+    public void registerWithShop(OwnerRegisterRequest ownerRegisterRequest) {
+        Owner owner = OwnerConverter.INSTANCE.toNewOwner(ownerRegisterRequest);
+        EmailAddress ownerEmailAddress = EmailAddress.from(owner.getEmail());
+
+        validateEmailUniqueness(ownerEmailAddress);
+        validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
+        redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
+
+        encodePassword(owner);
+
+        createInDBFor(owner);
+
+        OwnerShop ownerShop = OwnerConverter.INSTANCE.toOwnerShop(ownerRegisterRequest);
+        ownerShop.setOwner_id(owner.getId());
         putRedisForRequestShop(ownerShop);
 
         slackNotiSender.noticeRegisterComplete(owner);
+        slackNotiSender.noticeOwnerShopRequest(owner);
 
         redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }

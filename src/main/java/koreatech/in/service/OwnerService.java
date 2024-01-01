@@ -19,6 +19,8 @@ public interface OwnerService {
 
     OwnerResponse getOwner(User loggedInUser);
 
+    void registerWithShop(OwnerRegisterRequest request);
+
     void deleteAttachment(Integer attachmentId);
 
     OwnerResponse update(OwnerUpdateRequest ownerUpdateRequest);
@@ -28,4 +30,5 @@ public interface OwnerService {
     void certificateToChangePassword(VerifyCodeRequest request);
 
     void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest);
+
 }

@@ -7,14 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OwnerShop {
-    private final Integer owner_id;
-    private final Integer shop_id;
-    private final String shop_name;
+    private Integer owner_id;
+    private Integer shop_id;
+    private String shop_name;
 
     @JsonCreator
     public OwnerShop(@JsonProperty("owner_id") Integer owner_id,
