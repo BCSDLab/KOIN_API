@@ -262,9 +262,9 @@ public class OwnerShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/{id}/menus", method = RequestMethod.GET)
+    @RequestMapping(value = "/menus", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<AllMenusOfShopResponse> getAllMenusOfShop(@ApiParam(required = true) @RequestParam("shopId") Integer shopId) {
         AllMenusOfShopResponse response = ownerShopService.getAllMenusOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
