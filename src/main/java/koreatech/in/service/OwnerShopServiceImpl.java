@@ -236,8 +236,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void updateMenuCategory(Integer shopId, UpdateMenuCategoryRequest request) {
-        ShopMenuCategory menuCategory = OwnerConverter.INSTANCE.toMenuCategory(shopId, request);
+    public void updateMenuCategory(Integer menuCategoryId, UpdateMenuCategoryRequest request) {
+        ShopMenuCategory menuCategoryById = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
+        ShopMenuCategory menuCategory = OwnerConverter.INSTANCE.toMenuCategory(menuCategoryById.getShop_id(), request);
 
         checkAuthorityAboutShop(getShopById(menuCategory.getShop_id()));
         validatesExist(menuCategory);

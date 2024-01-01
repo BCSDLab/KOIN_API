@@ -25,7 +25,7 @@ public interface OwnerShopService {
 
     AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
 
-    void updateMenuCategory(Integer shopId, UpdateMenuCategoryRequest request);
+    void updateMenuCategory(Integer menuCategoryId, UpdateMenuCategoryRequest request);
 
     void deleteMenuCategory(Integer shopId, Integer menuCategoryId);
 

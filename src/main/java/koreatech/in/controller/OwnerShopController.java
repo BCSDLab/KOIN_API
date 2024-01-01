@@ -179,10 +179,10 @@ public class OwnerShopController {
             @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
-    @RequestMapping(value = "/{shopId}/menus/categories", method = RequestMethod.PUT)
+    @RequestMapping(value = "/menus/categories/{categoryId}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<EmptyResponse> updateMenuCategory(
-            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
+            @ApiParam(required = true) @PathVariable("categoryId") Integer menuCategoryId,
             @ApiParam(name = "메뉴 카테고리 정보 JSON", required = true) @RequestBody @Valid UpdateMenuCategoryRequest request, BindingResult bindingResult) {
         try {
             request = StringXssChecker.xssCheck(request, request.getClass().newInstance());
@@ -190,7 +190,7 @@ public class OwnerShopController {
             throw new BaseException(ExceptionInformation.REQUEST_DATA_INVALID);
         }
 
-        ownerShopService.updateMenuCategory(shopId, request);
+        ownerShopService.updateMenuCategory(menuCategoryId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
