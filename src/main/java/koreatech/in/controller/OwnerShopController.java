@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -158,9 +159,9 @@ public class OwnerShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/{id}/menus/categories", method = RequestMethod.GET)
+    @RequestMapping(value = "/menus/categories", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(required = true) @PathVariable("id") Integer shopId) {
+    ResponseEntity<AllMenuCategoriesOfShopResponse> getAllMenuCategoriesOfShop(@ApiParam(required = true) @RequestParam("shopId") Integer shopId) {
         AllMenuCategoriesOfShopResponse response = ownerShopService.getAllMenuCategoriesOfShop(shopId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
