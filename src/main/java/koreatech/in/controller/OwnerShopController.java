@@ -201,16 +201,14 @@ public class OwnerShopController {
                                                "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 존재하지 않을 때 (code: 104000) \n" +
-                                               "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n" +
-                                               "  - 만약 categoryId에 대한 카테고리가, shopId에 대한 상점에 속해있는 카테고리가 아닌 경우도 포함", response = ExceptionResponse.class),
+                                               "- 메뉴 카테고리가 존재하지 않을 때 (code: 104010) \n"),
             @ApiResponse(code = 409, message = "- 해당 카테고리를 사용하고 있는 메뉴가 존재하여 삭제할 수 없는 경우 (code: 104012)", response = ExceptionResponse.class)
     })
-    @RequestMapping(value = "/{shopId}/menus/categories/{categoryId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/menus/categories/{categoryId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteMenuCategory(
-            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
             @ApiParam(required = true) @PathVariable("categoryId") Integer menuCategoryId) {
-        ownerShopService.deleteMenuCategory(shopId, menuCategoryId);
+        ownerShopService.deleteMenuCategory(menuCategoryId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

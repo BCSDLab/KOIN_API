@@ -257,10 +257,13 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void deleteMenuCategory(Integer shopId, Integer menuCategoryId) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public void deleteMenuCategory(Integer menuCategoryId) {
+        ShopMenuCategory menuCategoryById = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
 
-        checkMenuCategoryExistByIdAndShopId(menuCategoryId, shopId);
+        checkAuthorityAboutShop(getShopById(menuCategoryById.getShop_id()));
+
+        checkMenuCategoryExistByIdAndShopId(menuCategoryId, menuCategoryById.getShop_id());
 
         // 카테고리를 사용하고 있는 메뉴가 1개라도 있으면 삭제 불가
         List<ShopMenu> menusUsingCategory = shopMapper.getMenusUsingCategoryByMenuCategoryId(menuCategoryId);
