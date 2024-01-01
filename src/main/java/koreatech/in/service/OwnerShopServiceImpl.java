@@ -360,8 +360,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void updateMenu(Integer shopId, Integer menuId, UpdateMenuRequest request) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public void updateMenu(Integer menuId, UpdateMenuRequest request) {
+        ShopMenu existingMenu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+        checkAuthorityAboutShop(getShopById(existingMenu.getShop_id()));
 
         /*
              UPDATE 대상 테이블
@@ -371,7 +373,6 @@ public class OwnerShopServiceImpl implements OwnerShopService {
              - shop_menu_images
          */
 
-        ShopMenu existingMenu = getMenuByIdAndShopId(menuId, shopId);
 
         // ======= shop_menus 테이블 =======
         if (existingMenu.needToUpdate(request)) {
@@ -409,7 +410,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
 
         // ======= shop_menu_category_map 테이블 =======
-        checkMenuCategoriesExistInDatabase(shopId, request.getCategory_ids());
+        checkMenuCategoriesExistInDatabase(existingMenu.getShop_id(), request.getCategory_ids());
 
         List<ShopMenuCategoryMap> existingMenuCategoryMaps = shopMapper.getMenuCategoryMapsByMenuId(existingMenu.getId());
 

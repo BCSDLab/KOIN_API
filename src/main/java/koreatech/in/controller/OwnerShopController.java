@@ -277,19 +277,17 @@ public class OwnerShopController {
             @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
             @ApiResponse(code = 404, message = "- 상점이 조회되지 않을 때 (code: 104000) \n" +
                                                "- 메뉴가 조회되지 않을 때 (code: 104007) \n" +
-                                               "  - 만약 menuId에 대한 메뉴가, shopId에 대한 상점에 속해있는 메뉴가 아닌 경우도 포함 \n" +
                                                "- (category_ids 리스트에 있는 특정 id에 대한) 메뉴 카테고리가 조회되지 않는 경우가 있을 때 (code: 104010)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "- 요청 데이터 제약조건을 위반하였을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
     })
     @ParamValid
-    @RequestMapping(value = "/{shopId}/menus/{menuId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/menus/{menuId}", method = RequestMethod.PUT)
     ResponseEntity<EmptyResponse> updateMenu(
-            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
             @ApiParam(required = true) @PathVariable("menuId") Integer menuId,
             @ApiParam(name = "메뉴 정보 JSON", required = true) @RequestBody @Valid UpdateMenuRequest request, BindingResult bindingResult) {
         request.checkDataConstraintViolation(); // javax validation 으로 판단할 수 없는 제약조건 검사
 
-        ownerShopService.updateMenu(shopId, menuId, request);
+        ownerShopService.updateMenu(menuId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
