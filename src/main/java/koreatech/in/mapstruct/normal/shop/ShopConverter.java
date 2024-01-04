@@ -11,8 +11,10 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface ShopConverter {
+
     ShopConverter INSTANCE = Mappers.getMapper(ShopConverter.class);
 
+    @Mapping(target = "description", defaultValue = "-")
     ShopResponse toShopResponse(ShopProfile shopProfile);
 
     @Mapping(target = "category_ids", expression = "java(shopProfile.getShopCategoryIds())")
