@@ -9,6 +9,7 @@ import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_NOT_FOUND;
 import static koreatech.in.exception.ExceptionInformation.SHOP_MENU_USING_CATEGORY_EXIST;
 import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class OwnerShopServiceImpl implements OwnerShopService {
+
     @Autowired
     private JwtValidator jwtValidator;
 
@@ -75,9 +77,26 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     @Override
     public void createShop(CreateShopRequest request) {
         Shop shop = createShopsTable(request);
-        createShopOpensTable(request, shop);
-        createShopCategoryMapTable(request, shop);
-        createShopImages(request, shop);
+
+        List<ShopMenuCategory> menuCategories = getMenuCategories(shop);
+        shopMapper.createMenuCategories(menuCategories);
+
+        List<ShopOpen> shopOpens = generateShopOpens(request.getOpen(), shop.getId());
+        shopMapper.createShopOpens(shopOpens);
+
+        shopCategoriesExist(request.getCategory_ids());
+        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMaps(shop.getId(), request.getCategory_ids());
+        shopMapper.createShopCategoryMaps(shopCategoryMaps);
+
+        List<ShopImage> shopImages = generateShopImages(shop.getId(), request.getImage_urls());
+        shopMapper.createShopImages(shopImages);
+    }
+
+    private static List<ShopMenuCategory> getMenuCategories(Shop shop) {
+        String[] menuCategoryNames = {"이벤트 메뉴", "대표 메뉴", "사이드 메뉴", "세트 메뉴"};
+        return Arrays.stream(menuCategoryNames)
+            .map(name -> ShopMenuCategory.of(shop.getId(), name))
+            .collect(Collectors.toList());
     }
 
     private Shop createShopsTable(CreateShopRequest request) {
@@ -89,26 +108,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         return shop;
     }
 
-    private void createShopOpensTable(CreateShopRequest request, Shop shop) {
-        List<ShopOpen> shopOpens = generateShopOpens(request.getOpen(), shop.getId());
-        shopMapper.createShopOpens(shopOpens);
-    }
-
-    private void createShopCategoryMapTable(CreateShopRequest request, Shop shop) {
-        shopCategoriesExist(request.getCategory_ids());
-        List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMaps(shop.getId(), request.getCategory_ids());
-        shopMapper.createShopCategoryMaps(shopCategoryMaps);
-    }
-
-    private void createShopImages(CreateShopRequest request, Shop shop) {
-        List<ShopImage> shopImages = generateShopImages(shop.getId(), request.getImage_urls());
-        shopMapper.createShopImages(shopImages);
-    }
-
     private List<ShopOpen> generateShopOpens(List<CreateShopRequest.Open> opens, Integer shopId) {
         return opens.stream()
-                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForCreate(open, shopId))
-                .collect(Collectors.toList());
+            .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForCreate(open, shopId))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -130,11 +133,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
             shopMapper.updateShop(existingShop);
         }
 
-
         // ======= shop_opens 테이블 =======
         List<ShopOpen> shopOpens = generateShopOpensAndGetForUpdate(request.getOpen(), existingShop.getId());
         shopMapper.updateShopOpens(shopOpens);
-
 
         // ======= shop_category_map 테이블 =======
         shopCategoriesExist(request.getCategory_ids());
@@ -142,15 +143,16 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         List<ShopCategoryMap> existingShopCategoryMaps = shopMapper.getShopCategoryMapsByShopId(existingShop.getId());
 
         // IGNORE에 의하여 (shop_id, shop_category_id)가 중복일 경우는 insert가 무시된다.
-        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMaps(existingShop.getId(), request.getCategory_ids());
+        List<ShopCategoryMap> requestedCategoryMaps = generateShopCategoryMaps(existingShop.getId(),
+            request.getCategory_ids());
         shopMapper.createShopCategoryMaps(requestedCategoryMaps);
 
         // 기존에 있던 관계들에서 요청된 관계들을 제거하면 삭제해야할 관계들을 알아낼 수 있다.
-        List<ShopCategoryMap> toBeDeletedShopCategoryMaps = getToBeDeletedShopCategoryMaps(existingShopCategoryMaps, requestedCategoryMaps);
+        List<ShopCategoryMap> toBeDeletedShopCategoryMaps = getToBeDeletedShopCategoryMaps(existingShopCategoryMaps,
+            requestedCategoryMaps);
         if (!toBeDeletedShopCategoryMaps.isEmpty()) {
             shopMapper.deleteShopCategoryMaps(toBeDeletedShopCategoryMaps);
         }
-
 
         // ======= shop_images 테이블 =======
         List<ShopImage> existingShopImages = shopMapper.getShopImagesByShopId(existingShop.getId());
@@ -168,35 +170,37 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private List<ShopOpen> generateShopOpensAndGetForUpdate(List<UpdateShopRequest.Open> opens, Integer shopId) {
         return opens.stream()
-                .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForUpdate(open, shopId))
-                .collect(Collectors.toList());
+            .map(open -> ShopOpenConverter.INSTANCE.toShopOpenForUpdate(open, shopId))
+            .collect(Collectors.toList());
     }
 
     private void shopCategoriesExist(List<Integer> shopCategoryIds) {
         shopCategoryIds.forEach(categoryId -> {
             Optional.ofNullable(shopMapper.getShopCategoryById(categoryId))
-                    .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(SHOP_CATEGORY_NOT_FOUND));
         });
     }
 
     private List<ShopCategoryMap> generateShopCategoryMaps(Integer shopId, List<Integer> shopCategoryIds) {
         return shopCategoryIds.stream()
-                .map(shopCategoryId -> ShopCategoryMap.of(shopId, shopCategoryId))
-                .collect(Collectors.toList());
+            .map(shopCategoryId -> ShopCategoryMap.of(shopId, shopCategoryId))
+            .collect(Collectors.toList());
     }
 
-    private List<ShopCategoryMap> getToBeDeletedShopCategoryMaps(List<ShopCategoryMap> existingShopCategoryMaps, List<ShopCategoryMap> requestedShopCategoryMaps) {
+    private List<ShopCategoryMap> getToBeDeletedShopCategoryMaps(List<ShopCategoryMap> existingShopCategoryMaps,
+                                                                 List<ShopCategoryMap> requestedShopCategoryMaps) {
         existingShopCategoryMaps.removeAll(requestedShopCategoryMaps);
         return existingShopCategoryMaps;
     }
 
     private List<ShopImage> generateShopImages(Integer shopId, List<String> imageUrls) {
         return imageUrls.stream()
-                .map(url -> ShopImage.of(shopId, url))
-                .collect(Collectors.toList());
+            .map(url -> ShopImage.of(shopId, url))
+            .collect(Collectors.toList());
     }
 
-    private List<ShopImage> getToBeDeletedShopImages(List<ShopImage> existingShopImages, List<ShopImage> requestedShopImages) {
+    private List<ShopImage> getToBeDeletedShopImages(List<ShopImage> existingShopImages,
+                                                     List<ShopImage> requestedShopImages) {
         existingShopImages.removeAll(requestedShopImages);
         return existingShopImages;
     }
@@ -221,9 +225,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private void checkMenuCategoryNameDuplicationAtSameShop(Integer shopId, String name) {
         Optional.ofNullable(shopMapper.getMenuCategoryByShopIdAndName(shopId, name))
-                .ifPresent(menuCategory -> {
-                    throw new BaseException(SHOP_MENU_CATEGORY_NAME_DUPLICATE);
-                });
+            .ifPresent(menuCategory -> {
+                throw new BaseException(SHOP_MENU_CATEGORY_NAME_DUPLICATE);
+            });
     }
 
     @Override
@@ -271,7 +275,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private void checkMenuCategoryExistByIdAndShopId(Integer menuCategoryId, Integer shopId) {
         ShopMenuCategory menuCategory = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
-                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
 
         if (!menuCategory.hasSameShopId(shopId)) {
             throw new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND);
@@ -290,11 +294,9 @@ public class OwnerShopServiceImpl implements OwnerShopService {
              - shop_menu_images
          */
 
-
         // ======= shop_menus 테이블 =======
         ShopMenu menu = ShopMenuConverter.INSTANCE.toShopMenu(request, shopId);
         shopMapper.createMenu(menu);
-
 
         // ======= shop_menu_details 테이블 =======
         // single menu: 옵션이 없는 메뉴
@@ -306,13 +308,12 @@ public class OwnerShopServiceImpl implements OwnerShopService {
             shopMapper.createMenuDetails(menuDetails);
         }
 
-
         // ======= shop_menu_category_map 테이블 =======
         checkMenuCategoriesExistInDatabase(shopId, request.getCategory_ids());
 
-        List<ShopMenuCategoryMap> menuCategoryMaps = generateMenuCategoryMapsAndGet(menu.getId(), request.getCategory_ids());
+        List<ShopMenuCategoryMap> menuCategoryMaps = generateMenuCategoryMapsAndGet(menu.getId(),
+            request.getCategory_ids());
         shopMapper.createMenuCategoryMaps(menuCategoryMaps);
-
 
         // ======= shop_menu_images 테이블 =======
         if (request.isImageUrlsExist()) {
@@ -321,10 +322,11 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         }
     }
 
-    private List<ShopMenuDetail> generateMenuDetailsAndGet(Integer menuId, List<CreateMenuRequest.OptionPrice> optionPrices) {
+    private List<ShopMenuDetail> generateMenuDetailsAndGet(Integer menuId,
+                                                           List<CreateMenuRequest.OptionPrice> optionPrices) {
         return optionPrices.stream()
-                .map(optionPrice -> ShopMenuDetail.of(menuId, optionPrice.getOption(), optionPrice.getPrice()))
-                .collect(Collectors.toList());
+            .map(optionPrice -> ShopMenuDetail.of(menuId, optionPrice.getOption(), optionPrice.getPrice()))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -340,7 +342,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private ShopMenuProfile getMenuProfileByMenuIdAndShopId(Integer menuId, Integer shopId) {
         ShopMenuProfile menuProfile = Optional.ofNullable(shopMapper.getMenuProfileByMenuId(menuId))
-                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
 
         if (!menuProfile.hasSameShopId(shopId)) {
             throw new BaseException(SHOP_MENU_NOT_FOUND);
@@ -381,7 +383,6 @@ public class OwnerShopServiceImpl implements OwnerShopService {
             shopMapper.updateMenu(existingMenu);
         }
 
-
         // ======= shop_menu_details 테이블 =======
         List<ShopMenuDetail> existingMenuDetails = shopMapper.getMenuDetailsByMenuId(menuId);
 
@@ -400,34 +401,40 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         }
         // 단일 메뉴가 아닐때
         else {
-            List<ShopMenuDetail> requestedMenuDetails = generateMenuDetailsAndGetForUpdate(existingMenu.getId(), request.getOption_prices());
-            shopMapper.createMenuDetails(requestedMenuDetails); // 중복되는 (shop_menu_id, option, price)는 IGNORE에 의해 INSERT가 무시됨
+            List<ShopMenuDetail> requestedMenuDetails = generateMenuDetailsAndGetForUpdate(existingMenu.getId(),
+                request.getOption_prices());
+            shopMapper.createMenuDetails(
+                requestedMenuDetails); // 중복되는 (shop_menu_id, option, price)는 IGNORE에 의해 INSERT가 무시됨
 
-            List<ShopMenuDetail> toBeDeletedMenuDetails = getToBeDeletedMenuDetails(existingMenuDetails, requestedMenuDetails);
+            List<ShopMenuDetail> toBeDeletedMenuDetails = getToBeDeletedMenuDetails(existingMenuDetails,
+                requestedMenuDetails);
             if (!toBeDeletedMenuDetails.isEmpty()) {
                 shopMapper.deleteMenuDetails(toBeDeletedMenuDetails);
             }
         }
 
-
         // ======= shop_menu_category_map 테이블 =======
         checkMenuCategoriesExistInDatabase(shopId, request.getCategory_ids());
 
-        List<ShopMenuCategoryMap> existingMenuCategoryMaps = shopMapper.getMenuCategoryMapsByMenuId(existingMenu.getId());
+        List<ShopMenuCategoryMap> existingMenuCategoryMaps = shopMapper.getMenuCategoryMapsByMenuId(
+            existingMenu.getId());
 
-        List<ShopMenuCategoryMap> requestedMenuCategoryMaps = generateMenuCategoryMapsAndGet(existingMenu.getId(), request.getCategory_ids());
-        shopMapper.createMenuCategoryMaps(requestedMenuCategoryMaps); // 중복되는 (shop_menu_id, shop_menu_category_id)는 IGNORE에 의해 INSERT가 무시됨
+        List<ShopMenuCategoryMap> requestedMenuCategoryMaps = generateMenuCategoryMapsAndGet(existingMenu.getId(),
+            request.getCategory_ids());
+        shopMapper.createMenuCategoryMaps(
+            requestedMenuCategoryMaps); // 중복되는 (shop_menu_id, shop_menu_category_id)는 IGNORE에 의해 INSERT가 무시됨
 
-        List<ShopMenuCategoryMap> toBeDeletedMenuCategoryMaps = getToBeDeletedMenuCategoryMaps(existingMenuCategoryMaps, requestedMenuCategoryMaps);
+        List<ShopMenuCategoryMap> toBeDeletedMenuCategoryMaps = getToBeDeletedMenuCategoryMaps(existingMenuCategoryMaps,
+            requestedMenuCategoryMaps);
         if (!toBeDeletedMenuCategoryMaps.isEmpty()) {
             shopMapper.deleteMenuCategoryMaps(toBeDeletedMenuCategoryMaps);
         }
 
-
         // ======= shop_menu_images 테이블 =======
         List<ShopMenuImage> existingMenuImages = shopMapper.getMenuImagesByMenuId(menuId);
 
-        List<ShopMenuImage> requestedMenuImages = generateMenuImagesAndGet(existingMenu.getId(), request.getImage_urls());
+        List<ShopMenuImage> requestedMenuImages = generateMenuImagesAndGet(existingMenu.getId(),
+            request.getImage_urls());
         if (!requestedMenuImages.isEmpty()) {
             shopMapper.createMenuImages(requestedMenuImages); // 중복되는 (shop_menu_id, image_url)은 IGNORE에 의해 INSERT가 무시됨
         }
@@ -438,23 +445,27 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         }
     }
 
-    private List<ShopMenuDetail> generateMenuDetailsAndGetForUpdate(Integer menuId, List<UpdateMenuRequest.OptionPrice> optionPrices) {
+    private List<ShopMenuDetail> generateMenuDetailsAndGetForUpdate(Integer menuId,
+                                                                    List<UpdateMenuRequest.OptionPrice> optionPrices) {
         return optionPrices.stream()
-                .map(optionPrice -> ShopMenuDetail.of(menuId, optionPrice.getOption(), optionPrice.getPrice()))
-                .collect(Collectors.toList());
+            .map(optionPrice -> ShopMenuDetail.of(menuId, optionPrice.getOption(), optionPrice.getPrice()))
+            .collect(Collectors.toList());
     }
 
-    private List<ShopMenuDetail> getToBeDeletedMenuDetails(List<ShopMenuDetail> existingMenuDetails, List<ShopMenuDetail> requestedMenuDetails) {
+    private List<ShopMenuDetail> getToBeDeletedMenuDetails(List<ShopMenuDetail> existingMenuDetails,
+                                                           List<ShopMenuDetail> requestedMenuDetails) {
         existingMenuDetails.removeAll(requestedMenuDetails);
         return existingMenuDetails;
     }
 
-    private List<ShopMenuCategoryMap> getToBeDeletedMenuCategoryMaps(List<ShopMenuCategoryMap> existingMenuCategoryMaps, List<ShopMenuCategoryMap> requestedMenuCategoryMaps) {
+    private List<ShopMenuCategoryMap> getToBeDeletedMenuCategoryMaps(List<ShopMenuCategoryMap> existingMenuCategoryMaps,
+                                                                     List<ShopMenuCategoryMap> requestedMenuCategoryMaps) {
         existingMenuCategoryMaps.removeAll(requestedMenuCategoryMaps);
         return existingMenuCategoryMaps;
     }
 
-    private List<ShopMenuImage> getToBeDeletedMenuImages(List<ShopMenuImage> existingMenuImages, List<ShopMenuImage> requestedMenuImages) {
+    private List<ShopMenuImage> getToBeDeletedMenuImages(List<ShopMenuImage> existingMenuImages,
+                                                         List<ShopMenuImage> requestedMenuImages) {
         existingMenuImages.removeAll(requestedMenuImages);
         return existingMenuImages;
     }
@@ -476,12 +487,12 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private Shop getShopById(Integer id) {
         return Optional.ofNullable(shopMapper.getShopById(id))
-                .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
     }
 
     private ShopMenu getMenuByIdAndShopId(Integer menuId, Integer shopId) {
         ShopMenu menu = Optional.ofNullable(shopMapper.getMenuById(menuId))
-                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
 
         if (!menu.hasSameShopId(shopId)) {
             throw new BaseException(SHOP_MENU_NOT_FOUND);
@@ -493,7 +504,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     private void checkMenuCategoriesExistInDatabase(Integer shopId, List<Integer> menuCategoryIds) {
         menuCategoryIds.forEach(menuCategoryId -> {
             ShopMenuCategory menuCategory = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
-                    .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
 
             if (!menuCategory.hasSameShopId(shopId)) {
                 throw new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND);
@@ -503,13 +514,13 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     private List<ShopMenuCategoryMap> generateMenuCategoryMapsAndGet(Integer menuId, List<Integer> menuCategoryIds) {
         return menuCategoryIds.stream()
-                .map(menuCategoryId -> ShopMenuCategoryMap.of(menuId, menuCategoryId))
-                .collect(Collectors.toList());
+            .map(menuCategoryId -> ShopMenuCategoryMap.of(menuId, menuCategoryId))
+            .collect(Collectors.toList());
     }
 
     private List<ShopMenuImage> generateMenuImagesAndGet(Integer menuId, List<String> imageUrls) {
         return imageUrls.stream()
-                .map(imageUrl -> ShopMenuImage.of(menuId, imageUrl))
-                .collect(Collectors.toList());
+            .map(imageUrl -> ShopMenuImage.of(menuId, imageUrl))
+            .collect(Collectors.toList());
     }
 }

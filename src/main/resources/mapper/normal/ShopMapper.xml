@@ -759,4 +759,18 @@
             <id property="id" column="shop_menu_categories.id"/>
         </collection>
     </resultMap>
+
+    <insert id="createMenuCategories" parameterType="list">
+      INSERT INTO `koin`.`shop_menu_categories` (
+      `shop_id`,
+      `name`
+      )
+      VALUES
+      <foreach collection="menuCategories" item="item" separator=",">
+        (
+        #{item.shop_id},
+        #{item.name}
+        )
+      </foreach>
+    </insert>
 </mapper>
