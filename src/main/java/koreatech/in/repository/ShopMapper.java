@@ -93,4 +93,6 @@ public interface ShopMapper {
     ShopMenu getMenuById(@Param("id") Integer id);
 
     void deleteMenuById(@Param("id") Integer id);
+
+    void createMenuCategories(@Param("menuCategories") List<ShopMenuCategory> menuCategories);
 }
