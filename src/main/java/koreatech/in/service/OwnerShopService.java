@@ -25,17 +25,17 @@ public interface OwnerShopService {
 
     AllMenuCategoriesOfShopResponse getAllMenuCategoriesOfShop(Integer shopId);
 
-    void updateMenuCategory(Integer shopId, UpdateMenuCategoryRequest request);
+    void updateMenuCategory(Integer menuCategoryId, UpdateMenuCategoryRequest request);
 
-    void deleteMenuCategory(Integer shopId, Integer menuCategoryId);
+    void deleteMenuCategory(Integer menuCategoryId);
 
     void createMenu(Integer shopId, CreateMenuRequest request);
 
-    MenuResponse getMenu(Integer shopId, Integer menuId);
+    MenuResponse getMenu(Integer menuId);
 
     AllMenusOfShopResponse getAllMenusOfShop(Integer shopId);
 
-    void updateMenu(Integer shopId, Integer menuId, UpdateMenuRequest request);
+    void updateMenu(Integer menuId, UpdateMenuRequest request);
 
-    void deleteMenu(Integer shopId, Integer menuId);
+    void deleteMenu(Integer menuId);
 }

@@ -240,8 +240,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void updateMenuCategory(Integer shopId, UpdateMenuCategoryRequest request) {
-        ShopMenuCategory menuCategory = OwnerConverter.INSTANCE.toMenuCategory(shopId, request);
+    public void updateMenuCategory(Integer menuCategoryId, UpdateMenuCategoryRequest request) {
+        ShopMenuCategory menuCategoryById = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
+        ShopMenuCategory menuCategory = OwnerConverter.INSTANCE.toMenuCategory(menuCategoryById.getShop_id(), request);
 
         checkAuthorityAboutShop(getShopById(menuCategory.getShop_id()));
         validatesExist(menuCategory);
@@ -259,10 +261,13 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void deleteMenuCategory(Integer shopId, Integer menuCategoryId) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public void deleteMenuCategory(Integer menuCategoryId) {
+        ShopMenuCategory menuCategoryById = Optional.ofNullable(shopMapper.getMenuCategoryById(menuCategoryId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_CATEGORY_NOT_FOUND));
 
-        checkMenuCategoryExistByIdAndShopId(menuCategoryId, shopId);
+        checkAuthorityAboutShop(getShopById(menuCategoryById.getShop_id()));
+
+        checkMenuCategoryExistByIdAndShopId(menuCategoryId, menuCategoryById.getShop_id());
 
         // 카테고리를 사용하고 있는 메뉴가 1개라도 있으면 삭제 불가
         List<ShopMenu> menusUsingCategory = shopMapper.getMenusUsingCategoryByMenuCategoryId(menuCategoryId);
@@ -331,24 +336,17 @@ public class OwnerShopServiceImpl implements OwnerShopService {
 
     @Override
     @Transactional(readOnly = true)
-    public MenuResponse getMenu(Integer shopId, Integer menuId) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public MenuResponse getMenu(Integer menuId) {
+        ShopMenu existingMenu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+        checkAuthorityAboutShop(getShopById(existingMenu.getShop_id()));
 
-        ShopMenuProfile menuProfile = getMenuProfileByMenuIdAndShopId(menuId, shopId);
-        menuProfile.decideWhetherSingleOrNot();
-
-        return ShopMenuConverter.INSTANCE.toMenuResponse(menuProfile);
-    }
-
-    private ShopMenuProfile getMenuProfileByMenuIdAndShopId(Integer menuId, Integer shopId) {
         ShopMenuProfile menuProfile = Optional.ofNullable(shopMapper.getMenuProfileByMenuId(menuId))
             .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
 
-        if (!menuProfile.hasSameShopId(shopId)) {
-            throw new BaseException(SHOP_MENU_NOT_FOUND);
-        }
+        menuProfile.decideWhetherSingleOrNot();
 
-        return menuProfile;
+        return ShopMenuConverter.INSTANCE.toMenuResponse(menuProfile);
     }
 
     @Override
@@ -364,8 +362,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void updateMenu(Integer shopId, Integer menuId, UpdateMenuRequest request) {
-        checkAuthorityAboutShop(getShopById(shopId));
+    public void updateMenu(Integer menuId, UpdateMenuRequest request) {
+        ShopMenu existingMenu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+        checkAuthorityAboutShop(getShopById(existingMenu.getShop_id()));
 
         /*
              UPDATE 대상 테이블
@@ -375,7 +375,6 @@ public class OwnerShopServiceImpl implements OwnerShopService {
              - shop_menu_images
          */
 
-        ShopMenu existingMenu = getMenuByIdAndShopId(menuId, shopId);
 
         // ======= shop_menus 테이블 =======
         if (existingMenu.needToUpdate(request)) {
@@ -414,7 +413,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         }
 
         // ======= shop_menu_category_map 테이블 =======
-        checkMenuCategoriesExistInDatabase(shopId, request.getCategory_ids());
+        checkMenuCategoriesExistInDatabase(existingMenu.getShop_id(), request.getCategory_ids());
 
         List<ShopMenuCategoryMap> existingMenuCategoryMaps = shopMapper.getMenuCategoryMapsByMenuId(
             existingMenu.getId());
@@ -471,9 +470,10 @@ public class OwnerShopServiceImpl implements OwnerShopService {
     }
 
     @Override
-    public void deleteMenu(Integer shopId, Integer menuId) {
-        checkAuthorityAboutShop(getShopById(shopId));
-        getMenuByIdAndShopId(menuId, shopId); // 메뉴 존재 여부 체크
+    public void deleteMenu(Integer menuId) {
+        ShopMenu existingMenu = Optional.ofNullable(shopMapper.getMenuById(menuId))
+                .orElseThrow(() -> new BaseException(SHOP_MENU_NOT_FOUND));
+        checkAuthorityAboutShop(getShopById(existingMenu.getShop_id()));
 
         shopMapper.deleteMenuById(menuId);
     }
