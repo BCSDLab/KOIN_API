@@ -12,6 +12,6 @@ public class RandomGenerator {
     }
 
     public static CertificationCode getCertificationCode() {
-        return CertificationCode.from(String.format("%03d", getCertificationCodeNumber()));
+        return CertificationCode.from(String.format("%06d", getCertificationCodeNumber()));
     }
 }
