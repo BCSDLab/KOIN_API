@@ -1,5 +1,10 @@
 package koreatech.in.repository.admin;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
 import koreatech.in.domain.Criteria.StudentCriteria;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.Owner;
@@ -7,10 +12,6 @@ import koreatech.in.domain.User.owner.OwnerIncludingShop;
 import koreatech.in.domain.User.student.Student;
 import koreatech.in.dto.admin.user.request.NewOwnersCondition;
 import koreatech.in.dto.admin.user.request.OwnersCondition;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface AdminUserMapper {
@@ -24,7 +25,7 @@ public interface AdminUserMapper {
     void updateOwnerAuthorById(Integer ownerId);
     Owner getFullOwnerById(@Param("id") Integer id);
     List<Integer> getShopsIdByOwnerId(Integer id);
-    List<Integer> getAttachmentsIdByOwnerId(Integer id);
+    List<String> getAttachmentsUrlByOwnerId(Integer id);
     void updateOwner(@Param("owner") Owner owner);
     void updateUser(@Param("user") User user);
     Integer getCompanyRegistrationNumberUsedCount(@Param("company_registration_number") String company_registration_number,@Param("userId") Integer userId);

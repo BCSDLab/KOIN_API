@@ -1,21 +1,7 @@
 package koreatech.in.service.admin;
 
 import static koreatech.in.domain.DomainToMap.domainToMap;
-import static koreatech.in.exception.ExceptionInformation.AUTHENTICATED_USER;
-import static koreatech.in.exception.ExceptionInformation.COMPANY_REGISTRATION_NUMBER_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.EMAIL_DUPLICATED;
-import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
-import static koreatech.in.exception.ExceptionInformation.GENDER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.NOT_OWNER;
-import static koreatech.in.exception.ExceptionInformation.NOT_STUDENT;
-import static koreatech.in.exception.ExceptionInformation.PAGE_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.SHOP_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.STUDENT_MAJOR_INVALID;
-import static koreatech.in.exception.ExceptionInformation.STUDENT_NUMBER_INVALID;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -24,6 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
@@ -70,13 +62,9 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.service.JwtValidator;
 import koreatech.in.service.RefreshJwtValidator;
-import koreatech.in.util.StringRedisUtilObj;
 import koreatech.in.service.UserAccessJwtGenerator;
 import koreatech.in.service.UserRefreshJwtGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import koreatech.in.util.StringRedisUtilObj;
 
 @Service
 @Transactional
@@ -571,9 +559,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         Owner owner = (Owner) user;
 
         List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
-        List<Integer> attachmentsId = adminUserMapper.getAttachmentsIdByOwnerId(owner.getId());
+        List<String> attachmentsUrl = adminUserMapper.getAttachmentsUrlByOwnerId(owner.getId());
 
-        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsId);
+        return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsUrl);
     }
 
     @Override
