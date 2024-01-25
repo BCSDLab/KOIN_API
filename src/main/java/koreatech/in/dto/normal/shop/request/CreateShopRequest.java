@@ -91,6 +91,10 @@ public class CreateShopRequest {
             "- 최대 10개")
     private List<String> image_urls = new ArrayList<>();
 
+    public void addToAllCategory() {
+        this.category_ids.add(1);
+    }
+
     @Getter @Setter
     @ApiModel("Open_7")
     public static class Open {

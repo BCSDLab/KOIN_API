@@ -151,6 +151,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
 
         // ======= shop_category_map 테이블 =======
+        request.addToAllCategory();
         List<Integer> categoryIds = request.getCategory_ids();
 
         checkShopCategoriesExistInDatabase(categoryIds);
