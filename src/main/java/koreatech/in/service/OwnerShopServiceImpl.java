@@ -84,6 +84,7 @@ public class OwnerShopServiceImpl implements OwnerShopService {
         List<ShopOpen> shopOpens = generateShopOpens(request.getOpen(), shop.getId());
         shopMapper.createShopOpens(shopOpens);
 
+        request.addToAllCategory();
         shopCategoriesExist(request.getCategory_ids());
         List<ShopCategoryMap> shopCategoryMaps = generateShopCategoryMaps(shop.getId(), request.getCategory_ids());
         shopMapper.createShopCategoryMaps(shopCategoryMaps);
