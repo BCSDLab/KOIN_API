@@ -1,14 +1,16 @@
 package koreatech.in.dto.admin.user.response;
 
+import java.util.List;
+
+import javax.validation.Valid;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-
-import javax.validation.Valid;
-import java.util.List;
 
 @Getter
 @SuperBuilder
@@ -21,9 +23,9 @@ public class OwnerResponse extends UserResponse{
     @ApiModelProperty(notes = "사업자 등록 번호", example = "012-34-56789", required = true)
     private String companyRegistrationNumber;
 
-    @ApiModelProperty(notes = "첨부파일 id 목록")
+    @ApiModelProperty(notes = "첨부파일 url 목록")
     @Valid
-    private List<Integer> attachmentsId;
+    private List<String> attachmentsUrl;
 
     @ApiModelProperty(notes = "가게 id 목록")
     @Valid

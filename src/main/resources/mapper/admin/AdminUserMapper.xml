@@ -367,8 +367,8 @@
           AND `is_deleted` = 0
     </select>
 
-    <select id="getAttachmentsIdByOwnerId" parameterType="integer" resultType="integer">
-        SELECT `id`
+    <select id="getAttachmentsUrlByOwnerId" parameterType="integer" resultType="String">
+        SELECT `url`
         FROM `koin`.`owner_attachments`
         WHERE `owner_id` = #{id}
           AND `is_deleted` = 0
