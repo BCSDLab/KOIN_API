@@ -12,6 +12,7 @@ public class NotiSlack {
     private static final String REGISTER_COMPLETE_SUFFIX = "님이 가입하셨습니다.";
     private static final String DELETE_COMPLETE_SUFFIX = "님이 탈퇴하셨습니다.";
     private static final String OWNERSHOP_REQUEST_SUFFIX = "님이 상점연결을 요청하셨습니다.";
+    private static final String MARKDOWN_ADMIN_PAGE_URL = "<https://admin.stage.koreatech.in/manager-request|Admin page 바로가기>";
 
     private static final String COLOR_GOOD = "good";
     private static final String BACKTICK = "`";
@@ -51,9 +52,12 @@ public class NotiSlack {
     }
 
     public static NotiSlack ownerShopRequestNotiSlack(User user) {
+        String newLine = System.lineSeparator();
+        String appendedTextAdminPageUrl = OWNERSHOP_REQUEST_SUFFIX + newLine + MARKDOWN_ADMIN_PAGE_URL;
+
         return NotiSlack.builder()
                 .color(NotiSlack.COLOR_GOOD)
-                .text(makeText(user, OWNERSHOP_REQUEST_SUFFIX))
+                .text(makeText(user, appendedTextAdminPageUrl))
                 .build();
     }
 
