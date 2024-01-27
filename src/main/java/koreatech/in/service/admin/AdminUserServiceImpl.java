@@ -6,6 +6,7 @@ import static koreatech.in.exception.ExceptionInformation.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -558,10 +559,28 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
         Owner owner = (Owner) user;
 
-        List<Integer> shopsId = adminUserMapper.getShopsIdByOwnerId(owner.getId());
+        List<Integer> shopsId = getShopIdsFromRedisOrDatabase(owner.getId());
         List<String> attachmentsUrl = adminUserMapper.getAttachmentsUrlByOwnerId(owner.getId());
 
         return OwnerConverter.INSTANCE.toOwnerResponse((Owner) user, shopsId, attachmentsUrl);
+    }
+
+    private List<Integer> getShopIdsFromRedisOrDatabase(Integer id) {
+        OwnerShop ownerShop;
+        List<Integer> shopsId;
+
+        shopsId = adminUserMapper.getShopsIdByOwnerId(id);
+
+        if (shopsId == null || shopsId.isEmpty()){
+            try {
+                ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(id), OwnerShop.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            shopsId= Collections.singletonList(ownerShop.getShop_id());
+        }
+
+        return shopsId;
     }
 
     @Override
