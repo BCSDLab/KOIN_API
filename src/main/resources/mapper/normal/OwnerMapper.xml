@@ -121,4 +121,10 @@
         WHERE company_registration_number = #{companyRegistrationNumber}
     </select>
 
+    <select id="isOwnerIdExistForShopId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM koin.shops
+        WHERE id = #{id} AND owner_id IS NOT NULL
+    </select>
+
 </mapper>
