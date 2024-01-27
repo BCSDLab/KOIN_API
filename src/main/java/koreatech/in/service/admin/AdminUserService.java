@@ -52,7 +52,7 @@ public interface AdminUserService {
 
     Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
 
-    void allowOwnerPermission(Integer ownerId, Integer shopId);
+    void allowOwnerPermission(Integer ownerId);
 
     OwnerResponse getOwner(int ownerId);
 

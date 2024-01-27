@@ -154,9 +154,8 @@ public class AdminUserController {
     })
     @RequestMapping(value = "/admin/owner/{id}/authed", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") Integer ownerId,
-                                                       @ApiParam(value = "shopId") @RequestParam(value = "shopId", required = false) Integer shopId) throws Exception {
-        adminUserService.allowOwnerPermission(ownerId, shopId);
+    ResponseEntity<EmptyResponse> allowOwnerPermission(@ApiParam(value = "ownerId", required = true) @PathVariable("id") Integer ownerId) throws Exception {
+        adminUserService.allowOwnerPermission(ownerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

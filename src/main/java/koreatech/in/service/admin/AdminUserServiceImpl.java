@@ -57,6 +57,7 @@ import koreatech.in.mapstruct.admin.user.StudentConverter;
 import koreatech.in.mapstruct.admin.user.UserConverter;
 import koreatech.in.repository.AuthenticationMapper;
 import koreatech.in.repository.AuthorityMapper;
+import koreatech.in.repository.RedisOwnerMapper;
 import koreatech.in.repository.admin.AdminShopMapper;
 import koreatech.in.repository.admin.AdminUserMapper;
 import koreatech.in.repository.user.StudentMapper;
@@ -106,6 +107,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Autowired
     private StringRedisUtilObj stringRedisUtilObj;
+
+    @Autowired
+    private RedisOwnerMapper redisOwnerMapper;
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
@@ -211,7 +215,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
-    public void allowOwnerPermission(Integer ownerId, Integer shopId) {
+    public void allowOwnerPermission(Integer ownerId) {
         User user = Optional.ofNullable(adminUserMapper.getUserById(ownerId)).orElseThrow(() -> new BaseException(INQUIRED_USER_NOT_FOUND));
 
         if (!user.isOwner()) {
@@ -220,11 +224,26 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (user.isAuthenticated()) {
             throw new BaseException(AUTHENTICATED_USER);
         }
+        Integer shopId=getShopIdFromRedis(ownerId);
         if (shopId != null) {
             updateShopOwnerId(ownerId, shopId);
         }
         adminUserMapper.updateOwnerAuthorById(ownerId);
         adminUserMapper.updateOwnerGrantShopByOwnerId(ownerId);
+        redisOwnerMapper.removeRedisFrom(getKeyForRedis(ownerId));
+    }
+
+    private Integer getShopIdFromRedis(Integer ownerId) {
+        OwnerShop ownerShop;
+        try {
+            ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(ownerId), OwnerShop.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (ownerShop != null) {
+            return ownerShop.getShop_id();
+        }
+        return null;
     }
 
     private void updateShopOwnerId(Integer ownerId, Integer shopId) {
