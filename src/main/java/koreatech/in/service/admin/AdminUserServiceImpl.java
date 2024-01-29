@@ -224,7 +224,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (user.isAuthenticated()) {
             throw new BaseException(AUTHENTICATED_USER);
         }
-        Integer shopId=getShopIdFromRedis(ownerId);
+        Integer shopId = getShopIdFromRedis(ownerId);
         if (shopId != null) {
             updateShopOwnerId(ownerId, shopId);
         }
@@ -236,7 +236,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private Integer getShopIdFromRedis(Integer ownerId) {
         OwnerShop ownerShop;
         try {
-            ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(ownerId), OwnerShop.class);
+            ownerShop = (OwnerShop)stringRedisUtilObj.getDataAsString(getKeyForRedis(ownerId), OwnerShop.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -590,13 +590,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         shopsId = adminUserMapper.getShopsIdByOwnerId(id);
 
-        if (shopsId == null || shopsId.isEmpty()){
+        if (shopsId == null || shopsId.isEmpty()) {
             try {
-                ownerShop = (OwnerShop) stringRedisUtilObj.getDataAsString(getKeyForRedis(id), OwnerShop.class);
+                ownerShop = (OwnerShop)stringRedisUtilObj.getDataAsString(getKeyForRedis(id), OwnerShop.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            shopsId= Collections.singletonList(ownerShop.getShop_id());
+            shopsId = Collections.singletonList(ownerShop.getShop_id());
         }
 
         return shopsId;
