@@ -68,4 +68,8 @@ public class RedisOwnerMapper {
     public void removeRedisFrom(EmailAddress emailAddress, RedisOwnerKeyPrefix redisOwnerKeyPrefix) {
         stringRedisUtilObj.deleteData(redisOwnerKeyPrefix.getKey(emailAddress.getEmailAddress()));
     }
+
+    public void removeRedisFrom(String ownerKey) {
+        stringRedisUtilObj.deleteData(ownerKey);
+    }
 }

@@ -164,6 +164,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         validateEmailUniqueness(ownerEmailAddress);
         validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
+        validateOwnerIdUniqueness(ownerRegisterRequest.getShopId());
         redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
@@ -269,6 +270,12 @@ public class OwnerServiceImpl implements OwnerService {
     private void validateCompanyRegistrationNumberUniqueness(String companyRegistrationNumber) {
         if (ownerMapper.isCompanyRegistrationNumberExist(companyRegistrationNumber)) {
             throw new BaseException(ExceptionInformation.COMPANY_REGISTRATION_NUMBER_DUPLICATE);
+        }
+    }
+
+    private void validateOwnerIdUniqueness(int id) {
+        if (ownerMapper.isOwnerIdExistForShopId(id)) {
+            throw new BaseException(ExceptionInformation.OWNER_ID_FOR_SHOP_DUPLICATED);
         }
     }
 

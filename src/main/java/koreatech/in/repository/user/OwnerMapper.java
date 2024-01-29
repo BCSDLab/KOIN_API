@@ -32,4 +32,6 @@ public interface OwnerMapper {
     void deleteOwnerAttachmentsLogically(OwnerAttachments ownerAttachments);
 
     boolean isCompanyRegistrationNumberExist(String companyRegistrationNumber);
+
+    boolean isOwnerIdExistForShopId(int id);
 }
