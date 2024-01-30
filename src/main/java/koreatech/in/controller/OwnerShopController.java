@@ -303,7 +303,6 @@ public class OwnerShopController {
     @RequestMapping(value = "/menus/{menuId}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<EmptyResponse> deleteMenu(
-            @ApiParam(required = true) @PathVariable("shopId") Integer shopId,
             @ApiParam(required = true) @PathVariable("menuId") Integer menuId) {
         ownerShopService.deleteMenu(menuId);
         return new ResponseEntity<>(HttpStatus.OK);
