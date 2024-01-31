@@ -596,7 +596,11 @@ public class AdminUserServiceImpl implements AdminUserService {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            shopsId = Collections.singletonList(ownerShop.getShop_id());
+            if (ownerShop != null) {
+                shopsId = Collections.singletonList(ownerShop.getShop_id());
+            } else {
+                shopsId = Collections.emptyList();
+            }
         }
 
         return shopsId;
