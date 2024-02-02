@@ -138,23 +138,10 @@ public class LandServiceImpl implements LandService {
         if (land == null)
             throw new NotFoundException(new ErrorMessage("There is no item", 0));
 
-        List<LandComment> landComments = landMapper.getLandCommentList(id);
-
-        for (LandComment itemComment:landComments) {
-            if (user != null && (user.getId().equals(itemComment.getUser_id()) || (user.getAuthority() != null && user.getAuthority().getGrant_land()))) {
-                itemComment.setGrantEdit(true);
-                itemComment.setGrantDelete(true);
-            }
-            else {
-                itemComment.setGrantEdit(false);
-                itemComment.setGrantDelete(false);
-            }
-        }
         Map<String, Object> convertLand = domainToMap(land);
 
         convertLand.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(land.getImage_urls()));
         convertLand.put("permalink", URLEncoder.encode(land.getInternal_name(), "UTF-8"));
-        convertLand.put("comments", landComments);
 
         return convertLand;
     }
