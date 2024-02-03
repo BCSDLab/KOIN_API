@@ -1,20 +1,26 @@
 package koreatech.in.dto.admin.shop.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import koreatech.in.exception.BaseException;
-import lombok.Getter;
-import lombok.Setter;
+import static koreatech.in.exception.ExceptionInformation.DUPLICATE_OPTIONS_EXIST_IN_MENU;
+import static koreatech.in.exception.ExceptionInformation.PRICE_OF_MENU_IS_REQUIRED;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static koreatech.in.exception.ExceptionInformation.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import koreatech.in.exception.BaseException;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 public class UpdateShopMenuRequest {
@@ -124,6 +130,9 @@ public class UpdateShopMenuRequest {
 
     @JsonIgnore
     private boolean isOptionPricesEmpty() {
+        if (this.option_prices == null) {
+            return true;
+        }
         return this.option_prices.isEmpty();
     }
 
