@@ -32,7 +32,7 @@ public class PreSignedUrlResponse {
     private final Date expirationDate;
 
     @ApiModelProperty(notes = "업로드한 파일을 가져올 때 사용하는 url",
-            example = "static.koreatech.in/2023/09/01/uuid/example.png",
+            example = "https://static.koreatech.in/2023/09/01/uuid/example.png",
             required = true
     )
     private final String fileUrl;
