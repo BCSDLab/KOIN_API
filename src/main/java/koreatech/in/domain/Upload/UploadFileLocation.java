@@ -5,8 +5,6 @@ import lombok.Getter;
 @Getter
 public class UploadFileLocation {
 
-    private static final String HTTPS_PROTOCOL = "https://";
-
     private final String fileUrl;
     private final String fileName;
 
@@ -16,13 +14,12 @@ public class UploadFileLocation {
     }
 
     public static UploadFileLocation of(String domainName, UploadFile uploadFile) {
-        return new UploadFileLocation(HTTPS_PROTOCOL + domainName + UploadFileFullPath.SLASH + uploadFile.getFullPath(),
+        return new UploadFileLocation(domainName + UploadFileFullPath.SLASH + uploadFile.getFullPath(),
                 uploadFile.getFileName());
     }
 
     public static UploadFileLocation of(String domainName, UploadFileFullPath uploadFileFullPath) {
-        return new UploadFileLocation(
-                HTTPS_PROTOCOL + domainName + UploadFileFullPath.SLASH + uploadFileFullPath.unixValue(),
+        return new UploadFileLocation(domainName + UploadFileFullPath.SLASH + uploadFileFullPath.unixValue(),
                 uploadFileFullPath.getFileFullName());
     }
 
