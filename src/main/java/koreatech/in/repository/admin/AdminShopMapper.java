@@ -70,8 +70,6 @@ public interface AdminShopMapper {
 
     Shop getShopById(@Param("id") Integer id);
 
-    Shop getDeletedShopById(@Param("id") Integer id);
-
     ShopMenuCategory getMenuCategoryByShopIdAndName(@Param("shopId") Integer shopId, @Param("name") String name);
 
     Integer getCountOfMenuCategoriesByShopId(@Param("shopId") Integer shopId);
