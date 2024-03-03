@@ -4,12 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import koreatech.in.domain.Upload.DomainEnum;
 import koreatech.in.domain.Upload.PreSignedUrlResult;
 import koreatech.in.domain.Upload.UploadFile;
@@ -24,12 +18,17 @@ import koreatech.in.dto.normal.upload.response.UploadFileResponse;
 import koreatech.in.dto.normal.upload.response.UploadFilesResponse;
 import koreatech.in.mapstruct.normal.upload.UploadFileConverter;
 import koreatech.in.util.S3Util;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class S3UploadServiceImpl implements UploadService {
 
-    private final S3Util s3Util;
+    private static final String HTTPS_PROTOCOL = "https://";
 
+    private final S3Util s3Util;
     private final String bucketName;
     private final String domainUrlPrefix;
 
@@ -54,7 +53,7 @@ public class S3UploadServiceImpl implements UploadService {
 
     @Override
     public UploadFileResponse uploadAndGetUrlForAdmin(MultipartFile multipartFile, DomainEnum domain) throws
-        IOException {
+            IOException {
         domain.validateFor(multipartFile);
 
         UploadFile file = UploadFile.of(multipartFile, domain.enrichDomainPathForAdmin());
@@ -65,7 +64,7 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFilesResponse uploadAndGetUrls(List<MultipartFile> multipartFiles, DomainEnum domain)  {
+    public UploadFilesResponse uploadAndGetUrls(List<MultipartFile> multipartFiles, DomainEnum domain) {
         multipartFiles.forEach(domain::validateFor);
 
         UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain.enrichDomainPath());
@@ -75,7 +74,7 @@ public class S3UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadFilesResponse uploadAndGetUrlsForAdmin(List<MultipartFile> multipartFiles, DomainEnum domain)  {
+    public UploadFilesResponse uploadAndGetUrlsForAdmin(List<MultipartFile> multipartFiles, DomainEnum domain) {
         multipartFiles.forEach(domain::validateFor);
 
         UploadFiles uploadFiles = UploadFiles.of(multipartFiles, domain.enrichDomainPathForAdmin());
@@ -91,11 +90,13 @@ public class S3UploadServiceImpl implements UploadService {
 
         domain.validateMetaData(uploadFileMetaData);
 
-        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(), uploadFileMetaData.getFileName());
+        UploadFileFullPath uploadFileFullPath = UploadFileFullPath.of(domain.enrichDomainPath(),
+                uploadFileMetaData.getFileName());
         PreSignedUrlResult preSignedUrlResult = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileMetaData,
-            uploadFileFullPath.unixValue(), new Date());
+                uploadFileFullPath.unixValue(), new Date());
 
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix, uploadFileFullPath);
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(HTTPS_PROTOCOL + domainUrlPrefix,
+                uploadFileFullPath);
         return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlResult, uploadFileLocation);
     }
 
