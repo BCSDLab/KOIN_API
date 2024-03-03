@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import koreatech.in.domain.Bus.BusRemainTime;
 import koreatech.in.domain.Bus.BusTimetable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+@Api(tags = "(Normal) Bus", description = "버스")
 @Controller
 @RequestMapping(value = "/bus")
 public class BusController {

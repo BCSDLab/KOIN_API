@@ -9,7 +9,6 @@ import koreatech.in.domain.NotiSlack;
 import koreatech.in.domain.User.User;
 import koreatech.in.exception.*;
 import koreatech.in.repository.MarketPlaceMapper;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.util.SearchUtil;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.UploadFileUtils;

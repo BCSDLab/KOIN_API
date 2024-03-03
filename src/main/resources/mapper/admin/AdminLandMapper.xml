@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.LandMapper">
+    <insert id="createLandForAdmin" parameterType="koreatech.in.domain.BokDuck.Land">
+        INSERT INTO `koin`.`lands` (
+            `name`,
+            `internal_name`,
+            `size`,
+            `room_type`,
+            `latitude`,
+            `longitude`,
+            `phone`,
+            `image_urls`,
+            `address`,
+            `description`,
+            `floor`,
+            `deposit`,
+            `monthly_fee`,
+            `charter_fee`,
+            `management_fee`,
+            `opt_refrigerator`,
+            `opt_closet`,
+            `opt_tv`,
+            `opt_microwave`,
+            `opt_gas_range`,
+            `opt_induction`,
+            `opt_water_purifier`,
+            `opt_air_conditioner`,
+            `opt_washer`,
+            `opt_bed`,
+            `opt_desk`,
+            `opt_shoe_closet`,
+            `opt_electronic_door_locks`,
+            `opt_bidet`,
+            `opt_veranda`,
+            `opt_elevator`
+        )
+        VALUES (
+            #{land.name},
+            #{land.internal_name},
+            #{land.size},
+            #{land.room_type},
+            #{land.latitude},
+            #{land.longitude},
+            #{land.phone},
+            #{land.image_urls},
+            #{land.address},
+            #{land.description},
+            #{land.floor},
+            #{land.deposit},
+            #{land.monthly_fee},
+            #{land.charter_fee},
+            #{land.management_fee},
+            #{land.opt_refrigerator},
+            #{land.opt_closet},
+            #{land.opt_tv},
+            #{land.opt_microwave},
+            #{land.opt_gas_range},
+            #{land.opt_induction},
+            #{land.opt_water_purifier},
+            #{land.opt_air_conditioner},
+            #{land.opt_washer},
+            #{land.opt_bed},
+            #{land.opt_desk},
+            #{land.opt_shoe_closet},
+            #{land.opt_electronic_door_locks},
+            #{land.opt_bidet},
+            #{land.opt_veranda},
+            #{land.opt_elevator}
+        )
+    </insert>
+
+    <select id="getLandByIdForAdmin" parameterType="integer" resultType="koreatech.in.domain.BokDuck.Land">
+        SELECT *
+        FROM `koin`.`lands`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="getLandByNameForAdmin" parameterType="string" resultType="koreatech.in.domain.BokDuck.Land">
+        SELECT *
+        FROM `koin`.`lands`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.dto.admin.land.request.LandsCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`lands`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+                <trim prefix="AND">
+                    <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`name`, ' ', '')
+                    </if>
+                    LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                </trim>
+            </if>
+
+            <!-- 필터링 -->
+            <if test="!condition.filter.isEmpty()">
+                <trim prefix="AND">
+                    <foreach collection="condition.filter" item="item" separator="AND">
+                        <if test='item.name().equals("REFRIGERATOR")'> `opt_refrigerator` = 1 </if>
+                        <if test='item.name().equals("CLOSET")'> `opt_closet` = 1 </if>
+                        <if test='item.name().equals("TV")'> `opt_tv` = 1 </if>
+                        <if test='item.name().equals("MICROWAVE")'> `opt_microwave` = 1 </if>
+                        <if test='item.name().equals("GAS_RANGE")'> `opt_gas_range` = 1 </if>
+                        <if test='item.name().equals("INDUCTION")'> `opt_induction` = 1 </if>
+                        <if test='item.name().equals("WATER_PURIFIER")'> `opt_water_purifier` = 1 </if>
+                        <if test='item.name().equals("AIR_CONDITIONER")'> `opt_air_conditioner` = 1 </if>
+                        <if test='item.name().equals("WASHER")'> `opt_washer` = 1 </if>
+                        <if test='item.name().equals("BED")'> `opt_bed` = 1 </if>
+                        <if test='item.name().equals("DESK")'> `opt_desk` = 1 </if>
+                        <if test='item.name().equals("SHOE_CLOSET")'> `opt_shoe_closet` = 1 </if>
+                        <if test='item.name().equals("ELECTRONIC_DOOR_LOCKS")'> `opt_electronic_door_locks` = 1 </if>
+                        <if test='item.name().equals("BIDET")'> `opt_bidet` = 1 </if>
+                        <if test='item.name().equals("VERANDA")'> `opt_veranda` = 1 </if>
+                        <if test='item.name().equals("ELEVATOR")'> `opt_elevator` = 1 </if>
+                    </foreach>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
+                </trim>
+            </if>
+        </trim>
+    </select>
+
+    <select id="getLandsByConditionForAdmin" parameterType="koreatech.in.dto.admin.land.request.LandsCondition" resultType="koreatech.in.domain.BokDuck.Land">
+        SELECT *
+        FROM `koin`.`lands`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+                <trim prefix="AND">
+                    <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`name`, ' ', '')
+                    </if>
+                    LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                </trim>
+            </if>
+
+            <!-- 필터링 -->
+            <if test="!condition.filter.isEmpty()">
+                <trim prefix="AND">
+                    <foreach collection="condition.filter" item="item" separator="AND">
+                        <if test='item.name().equals("REFRIGERATOR")'> `opt_refrigerator` = 1 </if>
+                        <if test='item.name().equals("CLOSET")'> `opt_closet` = 1 </if>
+                        <if test='item.name().equals("TV")'> `opt_tv` = 1 </if>
+                        <if test='item.name().equals("MICROWAVE")'> `opt_microwave` = 1 </if>
+                        <if test='item.name().equals("GAS_RANGE")'> `opt_gas_range` = 1 </if>
+                        <if test='item.name().equals("INDUCTION")'> `opt_induction` = 1 </if>
+                        <if test='item.name().equals("WATER_PURIFIER")'> `opt_water_purifier` = 1 </if>
+                        <if test='item.name().equals("AIR_CONDITIONER")'> `opt_air_conditioner` = 1 </if>
+                        <if test='item.name().equals("WASHER")'> `opt_washer` = 1 </if>
+                        <if test='item.name().equals("BED")'> `opt_bed` = 1 </if>
+                        <if test='item.name().equals("DESK")'> `opt_desk` = 1 </if>
+                        <if test='item.name().equals("SHOE_CLOSET")'> `opt_shoe_closet` = 1 </if>
+                        <if test='item.name().equals("ELECTRONIC_DOOR_LOCKS")'> `opt_electronic_door_locks` = 1 </if>
+                        <if test='item.name().equals("BIDET")'> `opt_bidet` = 1 </if>
+                        <if test='item.name().equals("VERANDA")'> `opt_veranda` = 1 </if>
+                        <if test='item.name().equals("ELEVATOR")'> `opt_elevator` = 1 </if>
+                    </foreach>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
+                </trim>
+            </if>
+        </trim>
+
+        <!-- 정렬 -->
+        <if test="condition.sort != null">
+            <trim prefix="ORDER BY">
+                <if test='condition.sort.name().equals("NAME_ASC")'>`name` ASC</if>
+                <if test='condition.sort.name().equals("NAME_DESC")'>`name` DESC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`created_at` ASC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`created_at` DESC</if>
+            </trim>
+        </if>
+
+        <!-- 페이지네이션 -->
+        LIMIT #{cursor}, #{condition.limit}
+    </select>
+
+    <update id="updateLandForAdmin" parameterType="koreatech.in.domain.BokDuck.Land">
+        UPDATE `koin`.`lands`
+        SET
+            `name` = #{land.name},
+            `internal_name` = #{land.internal_name},
+            `size` = #{land.size},
+            `room_type` = #{land.room_type},
+            `latitude` = #{land.latitude},
+            `longitude` = #{land.longitude},
+            `phone` = #{land.phone},
+            `image_urls` = #{land.image_urls},
+            `address` = #{land.address},
+            `description` = #{land.description},
+            `floor` = #{land.floor},
+            `deposit` = #{land.deposit},
+            `monthly_fee` = #{land.monthly_fee},
+            `charter_fee` = #{land.charter_fee},
+            `management_fee` = #{land.management_fee},
+            `opt_refrigerator` = #{land.opt_refrigerator},
+            `opt_closet` = #{land.opt_closet},
+            `opt_tv` = #{land.opt_tv},
+            `opt_microwave` = #{land.opt_microwave},
+            `opt_gas_range` = #{land.opt_gas_range},
+            `opt_induction` = #{land.opt_induction},
+            `opt_water_purifier` = #{land.opt_water_purifier},
+            `opt_air_conditioner` = #{land.opt_air_conditioner},
+            `opt_washer` = #{land.opt_washer},
+            `opt_bed` = #{land.opt_bed},
+            `opt_desk` = #{land.opt_desk},
+            `opt_shoe_closet` = #{land.opt_shoe_closet},
+            `opt_electronic_door_locks` = #{land.opt_electronic_door_locks},
+            `opt_bidet` = #{land.opt_bidet},
+            `opt_veranda` = #{land.opt_veranda},
+            `opt_elevator` = #{land.opt_elevator}
+        WHERE id = #{land.id}
+    </update>
+
+    <update id="deleteLandForAdmin" parameterType="integer">
+        UPDATE `koin`.`lands`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="undeleteLandForAdmin" parameterType="integer">
+        UPDATE `koin`.`lands`
+        SET `is_deleted` = 0
+        WHERE `id` = #{id}
+    </update>
+</mapper>

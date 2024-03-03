@@ -1,14 +1,13 @@
 package koreatech.in.domain.Criteria;
 
 import io.swagger.annotations.ApiParam;
-import koreatech.in.domain.ErrorMessage;
-import koreatech.in.exception.PreconditionFailedException;
 import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
 public class SearchCriteria extends Criteria {
     @ApiParam(required = true)
     private Integer searchType = 0;
+
     @ApiParam(required = true)
     private String query;
 

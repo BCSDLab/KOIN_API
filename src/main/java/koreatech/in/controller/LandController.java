@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.Map;
 
+@Api(tags = "(Normal) Land", description = "복덕방")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class LandController {
@@ -42,7 +44,8 @@ public class LandController {
 
         return new ResponseEntity<Map<String, Object>>(landService.getLand(id), HttpStatus.OK);
     }
-    @ApiOff
+
+    @ApiOff @ApiIgnore
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.PUT)
@@ -51,7 +54,8 @@ public class LandController {
 
         return new ResponseEntity<LandComment>(landService.updateLandComment(landComment, id), HttpStatus.CREATED);
     }
-    @ApiOff
+
+    @ApiOff @ApiIgnore
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.POST)
@@ -60,7 +64,8 @@ public class LandController {
         LandComment clear = new LandComment();
         return new ResponseEntity<LandComment>(landService.createLandComment((LandComment)StringXssChecker.xssCheck(landComment, clear), id), HttpStatus.CREATED);
     }
-    @ApiOff
+
+    @ApiOff @ApiIgnore
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/lands/evaluate/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -68,5 +73,4 @@ public class LandController {
 
         return new ResponseEntity<Map<String, Object>>(landService.deleteLandComment(id), HttpStatus.OK);
     }
-
 }

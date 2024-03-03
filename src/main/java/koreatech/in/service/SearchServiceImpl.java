@@ -44,14 +44,18 @@ public class SearchServiceImpl implements SearchService {
                 List<Shop> shops = searchMapper.findShopByName(searchCriteria.getQuery(), searchCriteria.getCursor(), searchCriteria.getLimit());
                 List<Map<String, Object>> shopsMapList = new ArrayList<>();
 
-                for (Shop shop : shops) {
+                /*
+                      상점 DB 구조 개편으로 인해 컴파일 에러가 발생하는 부분이 있어 주석 처리
+                      TODO: 추후 검색 기능이 다시 생긴다면 리팩토링 필요
+                 */
+                /*for (Shop shop : shops) {
                     shop.setPermalink(shop.getInternal_name());
                     Map<String, Object> shopMap = domainToMap(shop);
                     if (shopMap.get("image_urls") != null && JsonConstructor.isJsonArrayWithOnlyString(shop.getImage_urls())) {
                         shopMap.replace("image_urls", JsonConstructor.parseJsonArrayWithOnlyString(shop.getImage_urls()));
                     }
                     shopsMapList.add(shopMap);
-                }
+                }*/
 
                 map.put("shops", shopsMapList);
                 map.put("totalPage", totalPage);

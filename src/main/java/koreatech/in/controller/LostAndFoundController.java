@@ -7,7 +7,6 @@ import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.LostAndFound.LostItem;
 import koreatech.in.domain.LostAndFound.LostItemComment;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.repository.UserMapper;
 import koreatech.in.service.LostAndFoundService;
 import koreatech.in.util.StringXssChecker;
 import org.springframework.http.HttpStatus;
@@ -18,12 +17,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Normal) LostAndFound", description = "분실물")
 @Auth(role = Auth.Role.USER)
 @Controller
 public class LostAndFoundController {

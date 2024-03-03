@@ -1,58 +1,45 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Authority;
-import koreatech.in.domain.Criteria.Criteria;
-import koreatech.in.domain.User.Owner;
-import koreatech.in.domain.User.User;
-
 import java.util.Map;
+import koreatech.in.domain.User.owner.Owner;
+import koreatech.in.dto.normal.auth.TokenRefreshResponse;
+import koreatech.in.dto.normal.auth.TokenRefreshRequest;
+import koreatech.in.dto.normal.user.request.AuthTokenRequest;
+import koreatech.in.dto.normal.user.request.CheckExistsEmailRequest;
+import koreatech.in.dto.normal.user.request.FindPasswordRequest;
+import koreatech.in.dto.normal.user.request.LoginRequest;
+import koreatech.in.dto.normal.user.student.request.StudentUpdateRequest;
+import koreatech.in.dto.normal.user.response.AuthResponse;
+import koreatech.in.dto.normal.user.response.LoginResponse;
+import koreatech.in.dto.normal.user.student.request.StudentRegisterRequest;
+import koreatech.in.dto.normal.user.student.response.StudentResponse;
 
 public interface UserService {
-    Map<String, Object> getUserListForAdmin(Criteria criteria) throws Exception;
+    LoginResponse login(LoginRequest request) throws Exception;
 
-    User getUserForAdmin(int id) throws Exception;
+    void logout();
 
-    User createUserForAdmin(User user);
+    void StudentRegister(StudentRegisterRequest request, String host);
 
-    User updateUserForAdmin(User user, int id);
+    StudentResponse getStudent();
 
-    Map<String, Object> deleteUserForAdmin(int id);
+    StudentResponse updateStudent(StudentUpdateRequest studentUpdateRequest);
 
-    Authority createPermissionForAdmin(Authority authority, int userId);
+    Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
 
-    Authority getPermissionForAdmin(int userId);
+    void withdraw();
 
-    Authority updatePermissionForAdmin(Authority authority, int userId);
+    void checkUserNickname(String nickname);
 
-    Map<String, Object> deletePermissionForAdmin(int userId);
+    void changePasswordConfig(FindPasswordRequest request, String host);
 
-    Map<String, Object> loginForAdmin(User user) throws Exception;
-
-    Map<String, Object> logoutForAdmin();
-
-    Map<String, Object> getPermissionListForAdmin(int page, int limit) throws Exception;
-
-    Map<String, Object> register(User user, String host) throws Exception;
-
-    Boolean authenticate(String authToken);
-
-    Map<String, Object> changePasswordConfig(User user, String host);
+    AuthResponse authenticate(AuthTokenRequest authTokenRequest);
 
     Boolean changePasswordInput(String resetToken);
 
     Boolean changePasswordAuthenticate(String password, String resetToken);
 
-    Map<String, Object> withdraw() throws Exception;
+    void checkExists(CheckExistsEmailRequest checkExistsEmailRequest);
 
-    User me() throws Exception;
-
-    Map<String,Object> updateUserInformation(User user) throws Exception;
-
-    Map<String,Object> updateOwnerInformation(Owner owner) throws Exception;
-
-    Map<String, Object> checkUserNickName(String nickname) throws Exception;
-
-    Map<String, Object> login(User user) throws Exception;
-
-    Map<String, Object> logout();
+    TokenRefreshResponse refresh(TokenRefreshRequest request);
 }

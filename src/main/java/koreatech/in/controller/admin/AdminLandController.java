@@ -1,53 +1,135 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.BokDuck.Land;
+import koreatech.in.dto.*;
+import koreatech.in.dto.admin.land.request.CreateLandRequest;
+import koreatech.in.dto.admin.land.request.LandsCondition;
+import koreatech.in.dto.admin.land.request.UpdateLandRequest;
+import koreatech.in.dto.admin.land.response.LandResponse;
+import koreatech.in.dto.admin.land.response.LandsResponse;
 import koreatech.in.service.LandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
+import javax.validation.Valid;
 
+@Api(tags = "(Admin) Land", description = "복덕방")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.LAND)
 @Controller
 public class AdminLandController {
     @Inject
     private LandService landService;
 
+    @ApiOperation(value = "집 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lands", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createLand(@ApiParam(value = "(required: name), (optional: size, room_type, floor, latitude, longitude, phone, image_urls, address, description, deposit, monthly_fee, charter_fee, management_fee, opt_refrigerator, opt_closet, opt_tv, opt_microwave, opt_gas_range, opt_induction, opt_water_purifier, opt_air_conditioner, opt_washer, opt_bed, opt_desk, opt_shoe_closet, opt_electronic_door_locks, opt_bidet, opt_veranda, opt_elevator)", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Land land, BindingResult bindingResult) throws Exception {
-
-        return new ResponseEntity<Land>(landService.createLandForAdmin(land), HttpStatus.CREATED);
+    ResponseEntity<EmptyResponse> createLand(@RequestBody @Valid CreateLandRequest request, BindingResult bindingResult) throws Exception {
+        landService.createLandForAdmin(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "집 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<LandResponse> getLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
+        LandResponse response = landService.getLandForAdmin(landId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "페이지별 집 리스트 조회",
+            notes = "- 어드민 권한만 허용\n- Swagger에서 인식이 안되는 query parameter \n ![설명](https://static.koreatech.in/lands/queryparameter-filter.png)",
+            authorizations = {@Authorization("Authorization")}
+    )
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @RequestMapping(value = "/admin/lands", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<LandsResponse> getLands(LandsCondition condition) throws Exception {
+        condition.checkDataConstraintViolation();
+
+        LandsResponse response = landService.getLandsForAdmin(condition);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "집 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이름이 중복될 때 (code: 107001)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (code: 100000)", response = RequestDataInvalidResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateLand(@ApiParam(value = "(optional: name, size, room_type, floor, latitude, longitude, phone, image_urls, address, description, deposit, monthly_fee, charter_fee, management_fee, opt_refrigerator, opt_closet, opt_tv, opt_microwave, opt_gas_range, opt_induction, opt_water_purifier, opt_air_conditioner, opt_washer, opt_bed, opt_desk, opt_shoe_closet, opt_electronic_door_locks, opt_bidet, opt_veranda, opt_elevator)", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Land land, BindingResult bindingResult, @ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
-
-        return new ResponseEntity<Land>(landService.updateLandForAdmin(land, id), HttpStatus.CREATED);
+    ResponseEntity<EmptyResponse> updateLand(
+            @ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId,
+            @RequestBody @Valid UpdateLandRequest request, BindingResult bindingResult) throws Exception {
+        landService.updateLandForAdmin(request, landId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
+    @ApiOperation(value = "집 삭제", notes = "- 어드민 권한만 허용\n- soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이미 soft delete 되어있는 집일 때 (error code: 107002)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/admin/lands/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteLand(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
+    ResponseEntity<EmptyResponse> deleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer landId) throws Exception {
+        landService.deleteLandForAdmin(landId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
-        return new ResponseEntity<Map<String, Object>>(landService.deleteLandForAdmin(id), HttpStatus.OK);
+    @ApiOperation(value = "집 삭제 해제", notes = "- 어드민 권한만 허용\n- soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 존재하지 않는 집일 때 (error code: 107000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- soft delete 되어있는 집이 아닐 때 (error code: 107003)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/lands/{id}/undelete", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<EmptyResponse> undeleteLand(@ApiParam(value = "고유 id", required = true) @PathVariable(value = "id") Integer landId) throws Exception {
+        landService.undeleteLandForAdmin(landId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

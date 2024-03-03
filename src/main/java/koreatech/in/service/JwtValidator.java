@@ -1,61 +1,62 @@
 package koreatech.in.service;
 
-import koreatech.in.domain.Authority;
+import javax.servlet.http.HttpServletRequest;
 import koreatech.in.domain.User.User;
-import koreatech.in.domain.User.UserCode;
-import koreatech.in.repository.AuthorityMapper;
-import koreatech.in.repository.UserMapper;
-import koreatech.in.util.JwtTokenGenerator;
+import koreatech.in.repository.user.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-
+//AccessJwtValidator를 사용하는 것을 권장
+@Deprecated
 @Service
 public class JwtValidator {
+    private static final String AUTH_PREFIX = "Bearer ";
+    public static final String AUTHORIZATION = "Authorization";
+
     @Autowired
-    private JwtTokenGenerator jwtTokenGenerator;
+    private AccessJwtValidator accessJwtValidator;
 
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private AuthorityMapper authorityMapper;
-
     public User validate() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String header = request.getHeader("Authorization");
+        String header = request.getHeader(AUTHORIZATION);
 
-        return validate(header);
-    }
-
-    public User validate(String header) {
-        if (header == null || !header.startsWith("Bearer "))
+        Integer userId = getUserId(header);
+        if (userId == null) {
             return null;
-
-        String authToken = header.substring(7);
-        if (authToken.equals("undefined")) // 추후 프론트엔드 측에서 변경
-            return null;
-
-        int userId = jwtTokenGenerator.me(authToken);
-
-        User user;
-        Integer identity = userMapper.getUserIdentity(userId);
-        if (identity == null) return null;
-        if (identity == UserCode.UserIdentity.OWNER.getIdentityType())
-            user = userMapper.getOwner(userId);
-        else {
-            user = userMapper.getUser(userId);
         }
 
-        if (user == null) return null;
+        return userMapper.getAuthedUserById(userId);
+    }
 
-        Authority authority = authorityMapper.getAuthorityByUserId(user.getId());
+    public Integer validateAndGetUserId() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
-        user.setAuthority(authority);
+        return getUserId(request.getHeader(AUTHORIZATION));
+    }
 
-        return user;
+    private Integer getUserId(String header) {
+        if (!isAuthHeader(header)) {
+            return null;
+        }
+
+        String accessToken = makeTokenFromHeader(header);
+        if (accessToken.equals("undefined")) { // 추후 프론트엔드 측에서 변경
+            return null;
+        }
+
+        return accessJwtValidator.getUserIdInToken(accessToken);
+    }
+
+    private boolean isAuthHeader(String header) {
+        return header != null && header.startsWith(AUTH_PREFIX);
+    }
+
+    private String makeTokenFromHeader(String header) {
+        return header.substring(AUTH_PREFIX.length());
     }
 }

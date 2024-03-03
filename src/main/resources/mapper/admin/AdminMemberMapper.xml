@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.MemberMapper">
+    <insert id="createMemberForAdmin" parameterType="koreatech.in.domain.Homepage.Member">
+        INSERT INTO `koin`.`members` (
+            `name`,
+            `student_number`,
+            `track_id`,
+            `position`,
+            `email`,
+            `image_url`
+        )
+        SELECT
+            #{member.name},
+            #{member.student_number},
+            `tracks`.`id`,
+            #{member.position},
+            #{member.email},
+            #{member.image_url}
+        FROM `koin`.`tracks` AS `tracks`
+        WHERE `name` = #{member.track}
+    </insert>
+
+    <select id="getMemberByIdForAdmin" parameterType="integer" resultType="koreatech.in.domain.Homepage.Member">
+        SELECT
+            `t1`.`id` AS `id`,
+            `t1`.`name` AS `name`,
+            `t1`.`student_number` AS `student_number`,
+            `t2`.`name` AS `track`,
+            `t1`.`position` AS `position`,
+            `t1`.`email` AS `email`,
+            `t1`.`image_url` AS `image_url`,
+            `t1`.`is_deleted` AS `is_deleted`,
+            `t1`.`created_at` AS `created_at`,
+            `t1`.`updated_at` AS `updated_at`
+        FROM `koin`.`members` `t1`
+            LEFT JOIN `koin`.`tracks` `t2`
+            ON `t1`.`track_id` = `t2`.`id`
+        WHERE `t1`.`id` = #{id}
+    </select>
+
+
+    <select id="getTotalCountByConditionForAdmin" parameterType="koreatech.in.dto.admin.member.request.MembersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`members` `m`
+            LEFT JOIN `koin`.`tracks` `t`
+            ON `m`.`track_id` = `t`.`id`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+               <trim prefix="AND">
+                   <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`m`.`name`, ' ', '')
+                   </if>
+                   LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+               </trim>
+            </if>
+
+            <!-- 필터링 (트랙) -->
+            <if test="condition.track != null">
+                <trim prefix="AND `t`.`name` = ">
+                    <if test='condition.track.name().equals("ANDROID")'> 'Android' </if>
+                    <if test='condition.track.name().equals("BACKEND")'> 'BackEnd' </if>
+                    <if test='condition.track.name().equals("FRONTEND")'> 'FrontEnd' </if>
+                    <if test='condition.track.name().equals("GAME")'> 'Game' </if>
+                    <if test='condition.track.name().equals("HR")'> 'HR' </if>
+                    <if test='condition.track.name().equals("UI_UX")'> 'UI/UX' </if>
+                </trim>
+            </if>
+
+            <!-- 필터링 (직책) -->
+            <if test="condition.position != null">
+                <trim prefix="AND `m`.`position` = ">
+                    <if test='condition.position.name().equals("MENTOR")'> 'Mentor' </if>
+                    <if test='condition.position.name().equals("REGULAR")'> 'Regular' </if>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `m`.`is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
+                </trim>
+            </if>
+        </trim>
+    </select>
+
+    <select id="getMembersByConditionForAdmin" parameterType="koreatech.in.dto.admin.member.request.MembersCondition" resultType="koreatech.in.domain.Homepage.Member">
+        SELECT
+            `m`.`id` AS `id`,
+            `m`.`name` AS `name`,
+            `m`.`student_number` AS `student_number`,
+            `t`.`name` AS `track`,
+            `m`.`position` AS `position`,
+            `m`.`email` AS `email`,
+            `m`.`image_url` AS `image_url`,
+            `m`.`is_deleted` AS `is_deleted`,
+            `m`.`created_at` AS `created_at`,
+            `m`.`updated_at` AS `updated_at`
+
+        FROM `koin`.`members` `m`
+            LEFT JOIN `koin`.`tracks` `t`
+            ON `m`.`track_id` = `t`.`id`
+
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <!-- 검색 -->
+            <if test="condition.query != null">
+                <trim prefix="AND">
+                    <if test='condition.searchType.name().equals("NAME")'>
+                        REPLACE(`m`.`name`, ' ', '')
+                    </if>
+                    LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+                </trim>
+            </if>
+
+            <!-- 필터링 (트랙) -->
+            <if test="condition.track != null">
+                <trim prefix="AND `t`.`name` = ">
+                    <if test='condition.track.name().equals("ANDROID")'> 'Android' </if>
+                    <if test='condition.track.name().equals("BACKEND")'>'BackEnd'</if>
+                    <if test='condition.track.name().equals("FRONTEND")'>'FrontEnd'</if>
+                    <if test='condition.track.name().equals("GAME")'>'Game'</if>
+                    <if test='condition.track.name().equals("HR")'>'HR'</if>
+                    <if test='condition.track.name().equals("UI_UX")'>'UI/UX'</if>
+                </trim>
+            </if>
+
+            <!-- 필터링 (직책) -->
+            <if test="condition.position != null">
+                <trim prefix="AND `m`.`position` = ">
+                    <if test='condition.position.name().equals("MENTOR")'>'Mentor'</if>
+                    <if test='condition.position.name().equals("REGULAR")'>'Regular'</if>
+                </trim>
+            </if>
+
+            <if test="condition.is_deleted != null">
+                <trim prefix="AND `m`.`is_deleted` = ">
+                    <choose>
+                        <when test="condition.is_deleted"> 1 </when>
+                        <otherwise> 0 </otherwise>
+                    </choose>
+                </trim>
+            </if>
+        </trim>
+
+        <!-- 정렬 -->
+        <if test="condition.sort != null">
+            <trim prefix="ORDER BY">
+                <if test='condition.sort.name().equals("NAME_ASC")'>`m`.`name` ASC</if>
+                <if test='condition.sort.name().equals("NAME_DESC")'>`m`.`name` DESC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`m`.`created_at` ASC</if>
+                <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`m`.`created_at` DESC</if>
+            </trim>
+        </if>
+
+        <!-- 페이지네이션 -->
+        LIMIT #{cursor}, #{condition.limit}
+    </select>
+
+    <update id="updateMemberForAdmin" parameterType="koreatech.in.domain.Homepage.Member">
+        UPDATE `koin`.`members`
+        SET
+            `name` = #{member.name},
+            `student_number` = #{member.student_number},
+            `track_id` = (
+                SELECT `id`
+                FROM `koin`.`tracks`
+                WHERE `name` = #{member.track}
+            ),
+            `position` = #{member.position},
+            `email` = #{member.email},
+            `image_url` = #{member.image_url}
+        WHERE `id` = #{member.id}
+    </update>
+
+    <update id="deleteMemberByIdForAdmin" parameterType="integer">
+        UPDATE `koin`.`members`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="undeleteMemberByIdForAdmin" parameterType="integer">
+        UPDATE `koin`.`members`
+        SET `is_deleted` = 0
+        WHERE `id` = #{id}
+    </update>
+</mapper>

@@ -9,15 +9,10 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <context:component-scan base-package="koreatech.in.controller" />
+    <context:component-scan base-package="koreatech.in.controller"/>
 
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views/"/>
-        <property name="suffix" value=".jsp"/>
-        <property name="contentType" value="text/html; charset=UTF-8"/>
-    </bean>
-
-    <mvc:annotation-driven>
+<!--    conversion-service: 컨버터 등록을 위한 빈 자동 등록-->
+    <mvc:annotation-driven conversion-service="conversionService">
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.StringHttpMessageConverter">
                 <property name="supportedMediaTypes">
@@ -27,30 +22,39 @@
                 </property>
             </bean>
         </mvc:message-converters>
+        <mvc:argument-resolvers>
+            <bean class="koreatech.in.argumentresolver.UserArgumentResolver"/>
+        </mvc:argument-resolvers>
     </mvc:annotation-driven>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+        <property name="contentType" value="text/html; charset=UTF-8"/>
+    </bean>
 
     <mvc:interceptors>
         <mvc:interceptor>
-            <mvc:mapping path="/**" />
-            <mvc:exclude-mapping path="/resources/**" />
-            <mvc:exclude-mapping path="/views/**" />
-            <bean class="koreatech.in.interceptor.AuthInterceptor" />
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <mvc:exclude-mapping path="/views/**"/>
+            <bean class="koreatech.in.interceptor.AuthInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 
     <bean class="koreatech.in.swagger.SwaggerConfig"/>
     <!-- Enable @AspectJ annotation support  -->
-    <aop:aspectj-autoproxy />
+    <aop:aspectj-autoproxy/>
 
     <!-- 멀티파트 리졸버 -->
-    <bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <!-- 최대업로드 가능한 바이트크기 -->
-        <property name="maxUploadSize" value="52428800" />
+        <property name="maxUploadSize" value="52428800"/>
 
         <!-- 디스크에 임시 파일을 생성하기 전에 메모리에 보관할수있는 최대 바이트 크기 -->
-         <property name="maxInMemorySize" value="52428800" />
+        <property name="maxInMemorySize" value="52428800"/>
 
         <!-- defaultEncoding -->
-        <property name="defaultEncoding" value="utf-8" />
+        <property name="defaultEncoding" value="utf-8"/>
     </bean>
 </beans>

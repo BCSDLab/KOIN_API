@@ -1,72 +1,133 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
-import koreatech.in.annotation.ValidationGroups;
-import koreatech.in.domain.Homepage.Member;
+import koreatech.in.dto.EmptyResponse;
+import koreatech.in.dto.ExceptionResponse;
+import koreatech.in.dto.RequestDataInvalidResponse;
+import koreatech.in.dto.admin.member.request.CreateMemberRequest;
+import koreatech.in.dto.admin.member.request.MembersCondition;
+import koreatech.in.dto.admin.member.request.UpdateMemberRequest;
+import koreatech.in.dto.admin.member.response.MemberResponse;
+import koreatech.in.dto.admin.member.response.MembersResponse;
 import koreatech.in.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
+import javax.validation.Valid;
 
+@Api(tags = "(Admin) Member", description = "BCSDLab 회원")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminMemberController {
     @Inject
     private MemberService memberService;
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getMembers() throws Exception {
-        return new ResponseEntity<List<Member>>(memberService.getMembersForAdmin(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity getMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.getMemberForAdmin(id), HttpStatus.OK);
-    }
-
+    @ApiOperation(value = "BCSDLab 회원 생성", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity createMember(@ApiParam(value = "(required:name, track, position), TrackName Example: BackEnd, FrontEnd, Android, UI/UX, ...", required = true) @RequestBody @Validated(ValidationGroups.CreateAdmin.class) Member member, BindingResult bindingResult) throws Exception {
-        return new ResponseEntity<Member>(memberService.createMemberForAdmin(member), HttpStatus.OK);
+    ResponseEntity<EmptyResponse> createMember(@RequestBody @Valid CreateMemberRequest request, BindingResult bindingResult) throws Exception {
+        memberService.createMemberForAdmin(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "BCSDLab 회원 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<MemberResponse> getMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer memberId) throws Exception {
+        MemberResponse response = memberService.getMemberForAdmin(memberId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "페이지별 BCSDLab 회원 리스트 조회", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 유효하지 않은 페이지일 때 (error code: 100002)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
+    })
+    @RequestMapping(value = "/admin/members", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<MembersResponse> getMembers(MembersCondition condition) throws Exception {
+        condition.checkDataConstraintViolation();
+
+        MembersResponse response = memberService.getMembersForAdmin(condition);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "BCSDLab 회원 수정", notes = "- 어드민 권한만 허용", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000) \n\n" +
+                                               "- 요청한 트랙이 조회되지 않을 때 (error code: 201000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 422, message = "- 요청 데이터 제약조건이 지켜지지 않았을 때 (error code: 100000)", response = RequestDataInvalidResponse.class)
+    })
     @ParamValid
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    ResponseEntity updateMember(@ApiParam(value = "", required = false) @RequestBody @Validated(ValidationGroups.UpdateAdmin.class) Member member, BindingResult bindingResult, @ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Member>(memberService.updateMemberForAdmin(member, id), HttpStatus.OK);
+    ResponseEntity<EmptyResponse> updateMember(
+            @ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer memberId,
+            @RequestBody @Valid UpdateMemberRequest request, BindingResult bindingResult) throws Exception {
+        memberService.updateMemberForAdmin(memberId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
+    @ApiOperation(value = "BCSDLab 회원 삭제", notes = "- 어드민 권한만 허용\n- soft delete 합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 202000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 이미 soft delete 되어있을 때 (error code: 202001)", response = ExceptionResponse.class)
+    })
     @RequestMapping(value = "/admin/members/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
-    ResponseEntity deleteMember(@ApiParam(required = true) @PathVariable("id") int id) throws Exception {
-        return new ResponseEntity<Map<String, Object>>(memberService.deleteMemberForAdmin(id), HttpStatus.OK);
+    ResponseEntity<EmptyResponse> deleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer memberId) throws Exception {
+        memberService.deleteMemberForAdmin(memberId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
-    @RequestMapping(value = "/admin/members/profile", method = RequestMethod.POST)
+    @ApiOperation(value = "BCSDLab 회원 삭제 해제", notes = "- 어드민 권한만 허용\n- soft delete 상태를 해제합니다.", authorizations = {@Authorization("Authorization")})
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "- 잘못된 접근일 때 (code: 100001) \n" +
+                                               "- 액세스 토큰이 만료되었을 때 (code: 100004) \n" +
+                                               "- 액세스 토큰이 변경되었을 때 (code: 100005)", response = ExceptionResponse.class),
+            @ApiResponse(code = 403, message = "- 권한이 없을 때 (code: 100003)", response = ExceptionResponse.class),
+            @ApiResponse(code = 404, message = "- 회원이 존재하지 않을 때 (error code: 200000)", response = ExceptionResponse.class),
+            @ApiResponse(code = 409, message = "- 회원이 삭제되어 있는 상태가 아닐 때 (error code: 202002)", response = ExceptionResponse.class)
+    })
+    @RequestMapping(value = "/admin/members/{id}/undelete", method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity uploadProfile(@RequestParam MultipartFile multipartFile, @RequestParam Integer flag) throws Exception {
-        return new ResponseEntity( memberService.uploadImage(multipartFile, flag), HttpStatus.OK);
+    ResponseEntity<EmptyResponse> undeleteMember(@ApiParam(value = "고유 id", required = true) @PathVariable("id") Integer memberId) throws Exception {
+        memberService.undeleteMemberForAdmin(memberId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

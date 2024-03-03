@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="koreatech.in.repository.user.StudentMapper">
+    <select id="getStudentById" resultMap="studentResult">
+        select * from koin.users as user
+        join koin.students as student
+        on user.id=student.user_id
+        where user.id=#{id}
+    </select>
+
+    <insert id="insertStudent">
+        INSERT IGNORE
+        INTO koin.students (
+            user_id,
+            anonymous_nickname,
+            student_number,
+            major,
+            identity,
+            is_graduated
+        )
+        VALUES (
+            #{id},
+            #{anonymous_nickname},
+            #{student_number},
+            #{major},
+            #{identity},
+            #{is_graduated}
+        );
+    </insert>
+
+    <update id="updateStudent">
+        update koin.students
+        set
+            anonymous_nickname=#{anonymous_nickname},
+            student_number=#{student_number},
+            major=#{major},
+            identity=#{identity},
+            is_graduated=#{is_graduated}
+        where
+            user_id=#{id}
+    </update>
+
+    <delete id="deleteStudent">
+        DELETE FROM koin.students WHERE user_id = #{id};
+    </delete>
+
+    <resultMap id="studentResult" extends="userResultMap" type="koreatech.in.domain.User.student.Student">
+        <result property="anonymous_nickname" column="anonymous_nickname"/>
+        <result property="student_number" column="student_number"/>
+        <result property="major" column="major"/>
+        <result property="is_graduated" column="is_graduated"/>
+    </resultMap>
+
+    <resultMap id="userResultMap" type="koreatech.in.domain.User.User">
+        <id property="id" column="id"/>
+        <result property="phone_number" column="phone_number"/>
+        <result property="user_type" column="user_type"/>
+        <result property="is_authed" column="is_authed"/>
+        <result property="last_logged_at" column="last_logged_at"/>
+        <result property="is_deleted" column="is_deleted"/>
+        <result property="created_at" column="created_at"/>
+        <result property="updated_at" column="updated_at"/>
+        <result property="profile_image_url" column="profile_image_url"/>
+        <result property="auth_token" column="auth_token"/>
+        <result property="auth_expired_at" column="auth_expired_at"/>
+        <result property="reset_token" column="reset_token"/>
+        <result property="reset_expired_at" column="reset_expired_at"/>
+    </resultMap>
+</mapper>

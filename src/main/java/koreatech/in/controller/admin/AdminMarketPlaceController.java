@@ -1,5 +1,6 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -18,17 +19,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) MarketPlace", description = "판매")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.MARKET)
 @Controller
 public class AdminMarketPlaceController {
     @Inject
     private MarketPlaceService marketPlaceService;
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items", method = RequestMethod.POST)
@@ -38,6 +42,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<Item>(marketPlaceService.createItemForAdmin((Item) StringXssChecker.xssCheck(item, clear)), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @RequestMapping(value = "/admin/market/items", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getItems(@ApiParam(value = "서비스 타입(0: 팝니다 서비스, 1: 삽니다 서비스)", required = false) @RequestParam(value = "type", required = false, defaultValue="3") int type,
@@ -46,6 +51,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.getItemsForAdmin(type, criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @RequestMapping(value = "/admin/market/items/{id}", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getItem(@ApiParam(required = true) @PathVariable(value = "id") int id) throws Exception {
@@ -53,6 +59,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.getItemForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items/{id}", method = RequestMethod.PUT)
@@ -62,6 +69,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<Item>(marketPlaceService.updateItemForAdmin((Item) StringXssChecker.xssCheck(item, clear), id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items/{id}", method = RequestMethod.DELETE)
     public @ResponseBody
@@ -70,6 +78,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<Map<String, Object>>(marketPlaceService.deleteItemForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items/{itemId}/comments", method = RequestMethod.POST)
@@ -79,6 +88,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<ItemComment>(marketPlaceService.createItemCommentForAdmin((ItemComment)StringXssChecker.xssCheck(itemComment, clear), item_id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items/{itemId}/comments/{commentId}", method = RequestMethod.PUT)
@@ -97,6 +107,7 @@ public class AdminMarketPlaceController {
         return new ResponseEntity<ItemComment>(marketPlaceService.getItemCommentForAdmin(itemId, commentId), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/market/items/{itemId}/comments/{commentId}", method = RequestMethod.DELETE)
     public @ResponseBody

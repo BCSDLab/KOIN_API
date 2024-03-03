@@ -1,8 +1,10 @@
 package koreatech.in.controller.admin;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -15,16 +17,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) Circle", description = "동아리")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.CIRCLE)
 @Controller
 public class AdminCircleController {
     @Inject
     private CircleService circleService;
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/circles", method = RequestMethod.GET)
     public @ResponseBody
@@ -32,6 +38,7 @@ public class AdminCircleController {
         return new ResponseEntity<Map<String, Object>>(circleService.getCirclesForAdmin(criteria), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/circles", method = RequestMethod.POST)
@@ -40,6 +47,7 @@ public class AdminCircleController {
         return new ResponseEntity<Circle>(circleService.createCircleForAdmin(circle), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/circles/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -47,6 +55,7 @@ public class AdminCircleController {
         return new ResponseEntity<Circle>(circleService.getCircleForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/circles/{id}", method = RequestMethod.PUT)
@@ -55,6 +64,7 @@ public class AdminCircleController {
         return new ResponseEntity<Circle>(circleService.updateCircleForAdmin(circle, id), HttpStatus.CREATED);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value="Authorization")})
     @RequestMapping(value = "/admin/circles/{id}", method = RequestMethod.DELETE)
     public @ResponseBody ResponseEntity deleteCircle(@ApiParam(required = true) @PathVariable int id) throws Exception {

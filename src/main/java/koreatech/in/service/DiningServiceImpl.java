@@ -4,7 +4,7 @@ import koreatech.in.domain.Dining.DiningMenu;
 import koreatech.in.domain.Dining.DiningMenuDTO;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.mapstruct.DiningMenuMapper;
+import koreatech.in.mapstruct.normal.dining.DiningMenuConverter;
 import koreatech.in.repository.DiningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class DiningServiceImpl implements DiningService {
 
         List<DiningMenu> dinings = diningMapper.getList(localDate.format(DateTimeFormatter.ISO_DATE));
         List<DiningMenuDTO> menus = new ArrayList<>();
-        dinings.forEach(dining -> menus.add(DiningMenuMapper.INSTANCE.toDiningMenuDTO(dining)));
+        dinings.forEach(dining -> menus.add(DiningMenuConverter.INSTANCE.toDiningMenuDTO(dining)));
 
         return menus;
     }

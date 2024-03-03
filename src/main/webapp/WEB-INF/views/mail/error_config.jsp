@@ -1,4 +1,5 @@
-<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -8,7 +9,7 @@
 
 <body style="margin: 0; padding: 0;">
 <script>
-    alert('토큰이 만료되었습니다.');
+    alert(`${errorMessage}`);
     location.href = '//koreatech.in';
 </script>
 </body>

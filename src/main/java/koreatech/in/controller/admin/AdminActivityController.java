@@ -1,8 +1,7 @@
 package koreatech.in.controller.admin;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
+import koreatech.in.annotation.ApiOff;
 import koreatech.in.annotation.Auth;
 import koreatech.in.annotation.ParamValid;
 import koreatech.in.annotation.ValidationGroups;
@@ -14,16 +13,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.inject.Inject;
 import java.util.Map;
 
+
+@ApiOff @ApiIgnore @Deprecated
+@Api(tags = "(Admin) Activity", description = "BCSDLab 활동")
 @Auth(role = Auth.Role.ADMIN, authority = Auth.Authority.BCSDLAB)
 @Controller
 public class AdminActivityController {
     @Inject
     private ActivityService activityService;
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/activities", method = RequestMethod.GET)
     public @ResponseBody
@@ -31,6 +35,7 @@ public class AdminActivityController {
         return new ResponseEntity<Map<String, Object>>(activityService.getActivitiesForAdmin(year), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/activities/{id}", method = RequestMethod.GET)
     public @ResponseBody
@@ -38,6 +43,7 @@ public class AdminActivityController {
         return new ResponseEntity<Activity>(activityService.getActivityForAdmin(id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/activities", method = RequestMethod.POST)
@@ -46,6 +52,7 @@ public class AdminActivityController {
         return new ResponseEntity<Activity>(activityService.createActivityForAdmin(activity), HttpStatus.OK);
     }
 
+    @ApiOff
     @ParamValid
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/activities/{id}", method = RequestMethod.PUT)
@@ -54,6 +61,7 @@ public class AdminActivityController {
         return new ResponseEntity<Activity>(activityService.updateActivityForAdmin(activity, id), HttpStatus.OK);
     }
 
+    @ApiOff
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Authorization")})
     @RequestMapping(value = "/admin/activities/{id}", method = RequestMethod.DELETE)
     public @ResponseBody

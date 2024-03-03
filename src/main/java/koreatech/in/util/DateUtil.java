@@ -23,4 +23,17 @@ public class DateUtil {
         calendar.add(Calendar.HOUR_OF_DAY, hours);
         return calendar.getTime();
     }
+
+    public static Date addMinute(Date date, int amount) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, amount);
+
+        return calendar.getTime();
+    }
+
+    public static Boolean isExpired(Date origin, Date candidate) {
+        return origin.compareTo(candidate) < 0;
+    }
 }

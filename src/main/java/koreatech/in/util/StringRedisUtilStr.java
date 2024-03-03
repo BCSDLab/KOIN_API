@@ -1,5 +1,6 @@
 package koreatech.in.util;
 
+import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Component
 public class StringRedisUtilStr extends StringRedisUtil<String> {
+
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
@@ -24,6 +26,11 @@ public class StringRedisUtilStr extends StringRedisUtil<String> {
     @Override
     public void setDataAsString(String key, String data) throws IOException {
         valOps.set(key, data);
+    }
+
+    @Override
+    public void setDataAsString(String key, String data, Long time, TimeUnit timeUnit){
+        valOps.set(key, data, time, timeUnit);
     }
 
     public String getDataAsString(String key) throws IOException {
@@ -54,4 +61,5 @@ public class StringRedisUtilStr extends StringRedisUtil<String> {
     public void deleteData(String key) {
         redisTemplate.delete(key);
     }
+
 }

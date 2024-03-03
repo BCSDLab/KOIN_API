@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="koreatech.in.repository.admin.AdminUserMapper">
+    <select id="getUserById" parameterType="integer" resultMap="UserDiscriminator">
+        SELECT `t1`.`id`                                         AS `users.id`,
+               `t1`.`email`                                      AS `users.email`,
+               `t1`.`password`                                   AS `users.password`,
+               `t1`.`nickname`                                   AS `users.nickname`,
+               `t1`.`name`                                       AS `users.name`,
+               `t1`.`phone_number`                               AS `users.phone_number`,
+               `t1`.`user_type`                                  AS `users.user_type`,
+               `t1`.`gender`                                     AS `users.gender`,
+               `t1`.`is_authed`                                  AS `users.is_authed`,
+               `t1`.`last_logged_at`                             AS `users.last_logged_at`,
+               `t1`.`profile_image_url`                          AS `users.profile_image_url`,
+               `t1`.`auth_token`                                 AS `users.auth_token`,
+               `t1`.`auth_expired_at`                            AS `users.auth_expired_at`,
+               `t1`.`reset_token`                                AS `users.reset_token`,
+               `t1`.`reset_expired_at`                           AS `users.reset_expired_at`,
+               `t1`.`is_deleted`                                 AS `users.is_deleted`,
+               `t1`.`created_at`                                 AS `users.created_at`,
+               `t1`.`updated_at`                                 AS `users.updated_at`,
+
+               `t2`.`anonymous_nickname`                         AS `students.anonymous_nickname`,
+               `t2`.`student_number`                             AS `students.student_number`,
+               `t2`.`major`                                      AS `students.major`,
+               `t2`.`identity`                                   AS `students.identity`,
+               `t2`.`is_graduated`                               AS `students.is_graduated`,
+
+               `t3`.`company_registration_number`                AS `owners.company_registration_number`,
+               `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
+               `t3`.`grant_shop`                                 AS `owners.grant_shop`,
+               `t3`.`grant_event`                                AS `owners.grant_event`,
+
+               `t4`.`id`                                         AS `admins.id`,
+               `t4`.`user_id`                                    AS `admins.user_id`,
+               `t4`.`grant_user`                                 AS `admins.grant_user`,
+               `t4`.`grant_callvan`                              AS `admins.grant_callvan`,
+               `t4`.`grant_land`                                 AS `admins.grant_land`,
+               `t4`.`grant_community`                            AS `admins.grant_community`,
+               `t4`.`grant_shop`                                 AS `admins.grant_shop`,
+               `t4`.`grant_version`                              AS `admins.grant_version`,
+               `t4`.`grant_market`                               AS `admins.grant_market`,
+               `t4`.`grant_circle`                               AS `admins.grant_circle`,
+               `t4`.`grant_lost`                                 AS `admins.grant_lost`,
+               `t4`.`grant_survey`                               AS `admins.grant_survey`,
+               `t4`.`grant_bcsdlab`                              AS `admins.grant_bcsdlab`,
+               `t4`.`grant_event`                                AS `admins.grant_event`,
+               `t4`.`is_deleted`                                 AS `admins.is_deleted`,
+               `t4`.`created_at`                                 AS `admins.created_at`,
+               `t4`.`updated_at`                                 AS `admins.updated_at`
+
+        FROM (SELECT *
+              FROM `koin`.`users`
+              WHERE `id` = #{id}) `t1`
+
+                 LEFT JOIN `koin`.`students` `t2`
+                           ON `t1`.`id` = `t2`.`user_id`
+
+                 LEFT JOIN `koin`.`owners` `t3`
+                           ON `t1`.`id` = `t3`.`user_id`
+
+                 LEFT JOIN `koin`.`admins` `t4`
+                           ON
+                                       `t1`.`id` = `t4`.`user_id`
+                                   AND `t4`.`is_deleted` = 0
+    </select>
+
+    <!--    <select id="getUndeletedUserByAccount" parameterType="string" resultMap="UserDiscriminator">-->
+    <!--        SELECT-->
+    <!--            `t1`.`id` AS `users.id`,-->
+    <!--            `t1`.`account` AS `users.account`,-->
+    <!--            `t1`.`password` AS `users.password`,-->
+    <!--            `t1`.`nickname` AS `users.nickname`,-->
+    <!--            `t1`.`name` AS `users.name`,-->
+    <!--            `t1`.`phone_number` AS `users.phone_number`,-->
+    <!--            `t1`.`user_type` AS `users.user_type`,-->
+    <!--            `t1`.`email` AS `users.email`,-->
+    <!--            `t1`.`gender` AS `users.gender`,-->
+    <!--            `t1`.`is_authed` AS `users.is_authed`,-->
+    <!--            `t1`.`last_logged_at` AS `users.last_logged_at`,-->
+    <!--            `t1`.`profile_image_url` AS `users.profile_image_url`,-->
+    <!--            `t1`.`auth_token` AS `users.auth_token`,-->
+    <!--            `t1`.`auth_expired_at` AS `users.auth_expired_at`,-->
+    <!--            `t1`.`reset_token` AS `users.reset_token`,-->
+    <!--            `t1`.`reset_expired_at` AS `users.reset_expired_at`,-->
+    <!--            `t1`.`is_deleted` AS `users.is_deleted`,-->
+    <!--            `t1`.`created_at` AS `users.created_at`,-->
+    <!--            `t1`.`updated_at` AS `users.updated_at`,-->
+
+    <!--            `t2`.`anonymous_nickname` AS `students.anonymous_nickname`,-->
+    <!--            `t2`.`student_number` AS `students.student_number`,-->
+    <!--            `t2`.`major` AS `students.major`,-->
+    <!--            `t2`.`identity` AS `students.identity`,-->
+    <!--            `t2`.`is_graduated` AS `students.is_graduated`,-->
+
+    <!--            `t3`.`company_registration_number` AS `owners.company_registration_number`,-->
+    <!--            `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,-->
+    <!--            `t3`.`grant_shop` AS `owners.grant_shop`,-->
+    <!--            `t3`.`grant_event` AS `owners.grant_event`,-->
+
+    <!--            `t4`.`id` AS `admins.id`,-->
+    <!--            `t4`.`user_id` AS `admins.user_id`,-->
+    <!--            `t4`.`grant_user` AS `admins.grant_user`,-->
+    <!--            `t4`.`grant_callvan` AS `admins.grant_callvan`,-->
+    <!--            `t4`.`grant_land` AS `admins.grant_land`,-->
+    <!--            `t4`.`grant_community` AS `admins.grant_community`,-->
+    <!--            `t4`.`grant_shop` AS `admins.grant_shop`,-->
+    <!--            `t4`.`grant_version` AS `admins.grant_version`,-->
+    <!--            `t4`.`grant_market` AS `admins.grant_market`,-->
+    <!--            `t4`.`grant_circle` AS `admins.grant_circle`,-->
+    <!--            `t4`.`grant_lost` AS `admins.grant_lost`,-->
+    <!--            `t4`.`grant_survey` AS `admins.grant_survey`,-->
+    <!--            `t4`.`grant_bcsdlab` AS `admins.grant_bcsdlab`,-->
+    <!--            `t4`.`grant_event` AS `admins.grant_event`,-->
+    <!--            `t4`.`is_deleted` AS `admins.is_deleted`,-->
+    <!--            `t4`.`created_at` AS `admins.created_at`,-->
+    <!--            `t4`.`updated_at` AS `admins.updated_at`-->
+
+    <!--        FROM (-->
+    <!--            SELECT *-->
+    <!--            FROM `koin`.`users`-->
+    <!--            WHERE-->
+    <!--                `account` = #{account}-->
+    <!--                AND `is_deleted` = 0-->
+    <!--        ) `t1`-->
+
+    <!--            LEFT JOIN `koin`.`students` `t2`-->
+    <!--            ON `t1`.`id` = `t2`.`user_id`-->
+
+    <!--            LEFT JOIN `koin`.`owners` `t3`-->
+    <!--            ON `t1`.`id` = `t3`.`user_id`-->
+
+    <!--            LEFT JOIN `koin`.`admins` `t4`-->
+    <!--            ON-->
+    <!--                `t1`.`id` = `t4`.`user_id`-->
+    <!--                AND `t4`.`is_deleted` = 0-->
+    <!--    </select>-->
+
+    <select id="getUndeletedUserByEmail" parameterType="string" resultMap="UserDiscriminator">
+        SELECT `t1`.`id`                                         AS `users.id`,
+               `t1`.`email`                                      AS `users.email`,
+               `t1`.`password`                                   AS `users.password`,
+               `t1`.`nickname`                                   AS `users.nickname`,
+               `t1`.`name`                                       AS `users.name`,
+               `t1`.`phone_number`                               AS `users.phone_number`,
+               `t1`.`user_type`                                  AS `users.user_type`,
+               `t1`.`gender`                                     AS `users.gender`,
+               `t1`.`is_authed`                                  AS `users.is_authed`,
+               `t1`.`last_logged_at`                             AS `users.last_logged_at`,
+               `t1`.`profile_image_url`                          AS `users.profile_image_url`,
+               `t1`.`auth_token`                                 AS `users.auth_token`,
+               `t1`.`auth_expired_at`                            AS `users.auth_expired_at`,
+               `t1`.`reset_token`                                AS `users.reset_token`,
+               `t1`.`reset_expired_at`                           AS `users.reset_expired_at`,
+               `t1`.`is_deleted`                                 AS `users.is_deleted`,
+               `t1`.`created_at`                                 AS `users.created_at`,
+               `t1`.`updated_at`                                 AS `users.updated_at`,
+
+               `t2`.`anonymous_nickname`                         AS `students.anonymous_nickname`,
+               `t2`.`student_number`                             AS `students.student_number`,
+               `t2`.`major`                                      AS `students.major`,
+               `t2`.`identity`                                   AS `students.identity`,
+               `t2`.`is_graduated`                               AS `students.is_graduated`,
+
+               `t3`.`company_registration_number`                AS `owners.company_registration_number`,
+               `t3`.`company_registration_certificate_image_url` AS `owners.company_registration_certificate_image_url`,
+               `t3`.`grant_shop`                                 AS `owners.grant_shop`,
+               `t3`.`grant_event`                                AS `owners.grant_event`,
+
+               `t4`.`id`                                         AS `admins.id`,
+               `t4`.`user_id`                                    AS `admins.user_id`,
+               `t4`.`grant_user`                                 AS `admins.grant_user`,
+               `t4`.`grant_callvan`                              AS `admins.grant_callvan`,
+               `t4`.`grant_land`                                 AS `admins.grant_land`,
+               `t4`.`grant_community`                            AS `admins.grant_community`,
+               `t4`.`grant_shop`                                 AS `admins.grant_shop`,
+               `t4`.`grant_version`                              AS `admins.grant_version`,
+               `t4`.`grant_market`                               AS `admins.grant_market`,
+               `t4`.`grant_circle`                               AS `admins.grant_circle`,
+               `t4`.`grant_lost`                                 AS `admins.grant_lost`,
+               `t4`.`grant_survey`                               AS `admins.grant_survey`,
+               `t4`.`grant_bcsdlab`                              AS `admins.grant_bcsdlab`,
+               `t4`.`grant_event`                                AS `admins.grant_event`,
+               `t4`.`is_deleted`                                 AS `admins.is_deleted`,
+               `t4`.`created_at`                                 AS `admins.created_at`,
+               `t4`.`updated_at`                                 AS `admins.updated_at`
+
+        FROM (SELECT *
+              FROM `koin`.`users`
+              WHERE `email` = #{email}
+                AND `is_deleted` = 0) `t1`
+
+                 LEFT JOIN `koin`.`students` `t2`
+                           ON `t1`.`id` = `t2`.`user_id`
+
+                 LEFT JOIN `koin`.`owners` `t3`
+                           ON `t1`.`id` = `t3`.`user_id`
+
+                 LEFT JOIN `koin`.`admins` `t4`
+                           ON
+                                       `t1`.`id` = `t4`.`user_id`
+                                   AND `t4`.`is_deleted` = 0
+    </select>
+
+    <delete id="deleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 1
+        WHERE `id` = #{id}
+    </delete>
+
+    <delete id="undeleteUserLogicallyById">
+        UPDATE `koin`.`users`
+        SET `is_deleted` = 0
+        WHERE `id` = #{id}
+    </delete>
+
+    <select id="getTotalCountOfUnauthenticatedOwnersByCondition"
+            parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`users`
+
+        LEFT JOIN `koin`.`owners` `owners`
+        ON `users`.`id` = `owners`.`user_id`
+
+        <where>
+            <!-- 사장님만 조회 -->
+            `user_type` = 'OWNER'
+            <!-- 로그인 권한이 없는 회원만 조회 -->
+            AND `is_authed` = 0
+            <!-- 상점 권한이 없는 회원만 조회 -->
+            AND `grant_shop` = 0
+            <!-- 삭제되지 않은 회원만 조회 -->
+            AND `is_deleted` = 0
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getTotalCountOfStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`users`
+        WHERE `user_type` = 'STUDENT'
+
+            AND `is_deleted` = 0
+
+        <if test="criteria.is_authed != null">
+            AND `is_authed` = #{criteria.is_authed}
+        </if>
+        <if test="criteria.nickname != null">
+            AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+        </if>
+        <if test="criteria.email != null">
+            AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+        </if>
+    </select>
+
+    <select id="getUnauthenticatedOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultMap="OwnerIncludingShopResultMap">
+        SELECT
+        `users`.`id` AS `users.id`,
+        `users`.`email` AS `users.email`,
+        `users`.`password` AS `users.password`,
+        `users`.`nickname` AS `users.nickname`,
+        `users`.`name` AS `users.name`,
+        `users`.`phone_number` AS `users.phone_number`,
+        `users`.`user_type` AS `users.user_type`,
+        `users`.`gender` AS `users.gender`,
+        `users`.`is_authed` AS `users.is_authed`,
+        `users`.`last_logged_at` AS `users.last_logged_at`,
+        `users`.`profile_image_url` AS `users.profile_image_url`,
+        `users`.`auth_token` AS `users.auth_token`,
+        `users`.`auth_expired_at` AS `users.auth_expired_at`,
+        `users`.`reset_token` AS `users.reset_token`,
+        `users`.`reset_expired_at` AS `users.reset_expired_at`,
+        `users`.`is_deleted` AS `users.is_deleted`,
+        `users`.`created_at` AS `users.created_at`,
+        `users`.`updated_at` AS `users.updated_at`,
+
+        `owners`.`company_registration_number` AS `owners.company_registration_number`,
+        `owners`.`grant_shop` AS `owners.grant_shop`,
+        `owners`.`grant_event` AS `owners.grant_event`
+
+        FROM `koin`.`users` `users`
+
+        LEFT JOIN `koin`.`owners` `owners`
+        ON `users`.`id` = `owners`.`user_id`
+
+        <where>
+            `user_type` = 'OWNER'
+            AND `is_authed` = 0
+            AND `grant_shop` = 0
+            AND `is_deleted` = 0
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+
+        <if test="condition.sort != null">
+            ORDER BY
+            <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`created_at` ASC</if>
+            <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`created_at` DESC</if>
+        </if>
+
+        LIMIT #{condition.cursor}, #{condition.limit}
+    </select>
+
+
+    <select id="getStudentsByCondition" parameterType="koreatech.in.domain.Criteria.StudentCriteria" resultMap="StudentResultMap">
+        SELECT
+            `t1`.`id` AS `users.id`,
+            `t1`.`email` AS `users.email`,
+            `t1`.`nickname` AS `users.nickname`,
+            `t1`.`name` AS `users.name`,
+
+            `t2`.`student_number` AS `students.student_number`,
+            `t2`.`major` AS `students.major`
+        FROM (
+                 SELECT *
+                 FROM `koin`.`users`
+                 WHERE `user_type` = 'STUDENT'
+
+                    AND `is_deleted` = 0
+
+                <if test="criteria.is_authed != null">
+                    AND `is_authed` = #{criteria.is_authed}
+                </if>
+                <if test="criteria.nickname != null">
+                    AND `nickname` LIKE CONCAT('%', REPLACE(#{criteria.nickname}, ' ', ''), '%')
+                </if>
+                <if test="criteria.email != null">
+                    AND `email` LIKE CONCAT('%', REPLACE(#{criteria.email}, ' ', ''), '%')
+                </if>
+
+            LIMIT #{begin}, #{criteria.limit}
+        ) `t1`
+
+            LEFT JOIN `koin`.`students` `t2`
+            ON `t1`.`id` = `t2`.`user_id`
+    </select>
+
+    <update id="updateOwnerAuthorById">
+        UPDATE `koin`.`users`
+        SET
+            `is_authed` = true
+        WHERE `id` = #{user.id}
+    </update>
+
+    <update id="updateOwnerGrantShopByOwnerId">
+        UPDATE `koin`.`owners`
+        SET
+            `grant_shop` = 1
+        WHERE `user_id` = #{ownerId}
+    </update>
+
+    <select id="getShopsIdByOwnerId" parameterType="integer" resultType="integer">
+        SELECT `id`
+        FROM `koin`.`shops`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
+    <select id="getAttachmentsUrlByOwnerId" parameterType="integer" resultType="String">
+        SELECT `url`
+        FROM `koin`.`owner_attachments`
+        WHERE `owner_id` = #{id}
+          AND `is_deleted` = 0
+    </select>
+
+    <update id="updateOwner" parameterType="koreatech.in.domain.User.owner.Owner">
+        UPDATE `koin`.`owners`
+        SET `company_registration_number` = #{owner.company_registration_number},
+            `grant_shop`                  = #{owner.grant_shop},
+            `grant_event`                 = #{owner.grant_event}
+        WHERE `user_id` = #{owner.user_id}
+    </update>
+
+    <update id="updateUser" parameterType="koreatech.in.domain.User.User">
+        UPDATE `koin`.`users`
+        SET `email`        = #{user.email},
+            `nickname`     = #{user.nickname},
+            `name`         = #{user.name},
+            `phone_number` = #{user.phone_number},
+            `gender`       = #{user.gender}
+        WHERE `id` = #{user.id}
+    </update>
+
+    <select id="getCompanyRegistrationNumberUsedCount" resultType="Integer">
+        select count(*)
+        from koin.owners
+        where company_registration_number = #{company_registration_number}
+          AND user_id != #{userId}
+            LIMIT 1;
+    </select>
+
+    <select id="getEmailUsedCount" resultType="Integer">
+        select count(*)
+        from koin.users
+        where email = #{email}
+          AND id != #{userId}
+            LIMIT 1;
+    </select>
+
+    <select id="getNicknameUsedCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM koin.users
+        WHERE nickname = #{nickname}
+          AND id != #{userId}
+            LIMIT 1;
+    </select>
+
+    <select id="getTotalCountOfOwnersByCondition"
+            parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultType="integer">
+        SELECT COUNT(*)
+        FROM `koin`.`users`
+
+        LEFT JOIN `koin`.`owners` `owners`
+        ON `users`.`id` = `owners`.`user_id`
+
+        <where>
+            <!-- 사장님만 조회 -->
+            `user_type` = 'OWNER'
+            <!-- 삭제되지 않은 회원만 조회 -->
+            AND `users`.`is_deleted` = 0
+            <if test="condition.auth_type != null">
+                <!-- 검색 타입이 인증된 사장일 때 -->
+                <if test='condition.auth_type.name().equals("AUTHED")'>
+                    AND `users`.`is_authed` = 1
+                    AND `owners`.`grant_shop` = 1
+                </if>
+                <!-- 검색 타입이 미인증 사장일 때 -->
+                <if test='condition.auth_type.name().equals("UNAUTHED")'>
+                    AND `users`.`is_authed` = 0
+                    AND `owners`.`grant_shop` = 0
+                </if>
+            </if>
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getOwnersByCondition" parameterType="koreatech.in.dto.admin.user.request.OwnersCondition" resultMap="OwnerResultMap">
+        SELECT
+        `users`.`id` AS `users.id`,
+        `users`.`email` AS `users.email`,
+        `users`.`password` AS `users.password`,
+        `users`.`nickname` AS `users.nickname`,
+        `users`.`name` AS `users.name`,
+        `users`.`phone_number` AS `users.phone_number`,
+        `users`.`user_type` AS `users.user_type`,
+        `users`.`gender` AS `users.gender`,
+        `users`.`is_authed` AS `users.is_authed`,
+        `users`.`last_logged_at` AS `users.last_logged_at`,
+        `users`.`profile_image_url` AS `users.profile_image_url`,
+        `users`.`auth_token` AS `users.auth_token`,
+        `users`.`auth_expired_at` AS `users.auth_expired_at`,
+        `users`.`reset_token` AS `users.reset_token`,
+        `users`.`reset_expired_at` AS `users.reset_expired_at`,
+        `users`.`is_deleted` AS `users.is_deleted`,
+        `users`.`created_at` AS `users.created_at`,
+        `users`.`updated_at` AS `users.updated_at`,
+
+        `owners`.`company_registration_number` AS `owners.company_registration_number`,
+        `owners`.`grant_shop` AS `owners.grant_shop`,
+        `owners`.`grant_event` AS `owners.grant_event`
+
+        FROM `koin`.`users` `users`
+
+        LEFT JOIN `koin`.`owners` `owners`
+        ON `users`.`id` = `owners`.`user_id`
+
+        <where>
+            <!-- 사장님만 조회 -->
+            `user_type` = 'OWNER'
+            <!-- 삭제되지 않은 회원만 조회 -->
+            AND `users`.`is_deleted` = 0
+            <!-- 검색 타입이 null(모든 사장 조회)가 아닐 때-->
+            <if test="condition.auth_type != null">
+                <!-- 검색 타입이 인증된 사장일 때 -->
+                <if test='condition.auth_type.name().equals("AUTHED")'>
+                    AND `users`.`is_authed` = 1
+                    AND `owners`.`grant_shop` = 1
+                </if>
+                <!-- 검색 타입이 미인증 사장일 때 -->
+                <if test='condition.auth_type.name().equals("UNAUTHED")'>
+                    AND `users`.`is_authed` = 0
+                    AND `owners`.`grant_shop` = 0
+                </if>
+            </if>
+            <if test="condition.query != null">
+                AND (
+                <if test='condition.search_type.name().equals("EMAIL")'>`email`</if>
+                <if test='condition.search_type.name().equals("NAME")'>`name`</if>
+                ) LIKE CONCAT('%', REPLACE(#{condition.query}, ' ', ''), '%')
+            </if>
+        </where>
+
+        <if test="condition.sort != null">
+            ORDER BY
+            <if test='condition.sort.name().equals("CREATED_AT_ASC")'>`created_at` ASC</if>
+            <if test='condition.sort.name().equals("CREATED_AT_DESC")'>`created_at` DESC</if>
+        </if>
+
+        LIMIT #{condition.cursor}, #{condition.limit}
+    </select>
+
+    <resultMap id="UserDiscriminator" type="koreatech.in.domain.User.User">
+        <discriminator javaType="String" column="users.user_type">
+            <case value="STUDENT" resultMap="StudentResultMap"/>
+            <case value="OWNER" resultMap="OwnerResultMap"/>
+        </discriminator>
+    </resultMap>
+
+    <resultMap id="UserResultMap" type="koreatech.in.domain.User.User">
+        <id property="id" column="users.id"/>
+        <result property="email" column="users.email"/>
+        <result property="password" column="users.password"/>
+        <result property="nickname" column="users.nickname"/>
+        <result property="name" column="users.name"/>
+        <result property="phone_number" column="users.phone_number"/>
+        <result property="user_type" column="users.user_type"/>
+        <result property="gender" column="users.gender"/>
+        <result property="is_authed" column="users.is_authed"/>
+        <result property="last_logged_at" column="users.last_logged_at"/>
+        <result property="profile_image_url" column="users.profile_image_url"/>
+        <result property="auth_token" column="users.auth_token"/>
+        <result property="auth_expired_at" column="users.auth_expired_at"/>
+        <result property="reset_token" column="users.reset_token"/>
+        <result property="reset_expired_at" column="users.reset_expired_at"/>
+        <result property="is_deleted" column="users.is_deleted"/>
+        <result property="created_at" column="users.created_at"/>
+        <result property="updated_at" column="users.updated_at"/>
+        <association property="authority" javaType="koreatech.in.domain.Authority">
+            <id property="id" column="admins.id"/>
+            <id property="user_id" column="admins.user_id"/>
+            <id property="grant_user" column="admins.grant_user"/>
+            <id property="grant_callvan" column="admins.grant_callvan"/>
+            <id property="grant_land" column="admins.grant_land"/>
+            <id property="grant_community" column="admins.grant_community"/>
+            <id property="grant_shop" column="admins.grant_shop"/>
+            <id property="grant_version" column="admins.grant_version"/>
+            <id property="grant_market" column="admins.grant_market"/>
+            <id property="grant_circle" column="admins.grant_circle"/>
+            <id property="grant_lost" column="admins.grant_lost"/>
+            <id property="grant_survey" column="admins.grant_survey"/>
+            <id property="grant_bcsdlab" column="admins.grant_bcsdlab"/>
+            <id property="grant_event" column="admins.grant_event"/>
+            <id property="is_deleted" column="admins.is_deleted"/>
+            <id property="created_at" column="admins.created_at"/>
+            <id property="updated_at" column="admins.updated_at"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="StudentResultMap" extends="UserResultMap" type="koreatech.in.domain.User.student.Student">
+        <result property="anonymous_nickname" column="students.anonymous_nickname"/>
+        <result property="student_number" column="students.student_number"/>
+        <result property="major" column="students.major"/>
+        <result property="identity" column="students.identity"/>
+        <result property="is_graduated" column="students.is_graduated"/>
+    </resultMap>
+
+    <resultMap id="OwnerResultMap" extends="UserResultMap" type="koreatech.in.domain.User.owner.Owner">
+        <result property="company_registration_number" column="owners.company_registration_number"/>
+        <result property="grant_shop" column="owners.grant_shop"/>
+        <result property="grant_event" column="owners.grant_event"/>
+    </resultMap>
+
+    <resultMap id="OwnerIncludingShopResultMap" extends="UserResultMap" type="koreatech.in.domain.User.owner.OwnerIncludingShop">
+        <result property="company_registration_number" column="owners.company_registration_number"/>
+        <result property="grant_shop" column="owners.grant_shop"/>
+        <result property="grant_event" column="owners.grant_event"/>
+    </resultMap>
+</mapper>

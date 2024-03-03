@@ -3,7 +3,7 @@ package koreatech.in.service;
 import koreatech.in.domain.Bus.*;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.exception.PreconditionFailedException;
-import koreatech.in.mapstruct.SchoolBusCourseMapper;
+import koreatech.in.mapstruct.normal.bus.SchoolBusCourseConverter;
 import koreatech.in.repository.BusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class BusServiceImpl implements BusService {
         try {
             Bus bus = BusTypeEnum.createBus(busType);
             return bus.getNowAndNextBusRemainTime(busType, depart, arrival);
-        } catch (DateTimeParseException e) {
+        }  catch (DateTimeParseException e) {
             return new BusRemainTime(busType);
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new PreconditionFailedException(new ErrorMessage("올바르지 않은 파라미터입니다.", 0));
@@ -39,7 +39,7 @@ public class BusServiceImpl implements BusService {
     @Override
     public List<SchoolBusCourse> getCourses() {
 
-        return SchoolBusCourseMapper.INSTANCE.toSchoolBusCourse(busRepository.findOnlyCourses());
+        return SchoolBusCourseConverter.INSTANCE.toSchoolBusCourse(busRepository.findOnlyCourses());
     }
 
     @Override

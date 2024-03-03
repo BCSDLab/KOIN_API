@@ -1,5 +1,6 @@
 package koreatech.in.controller;
 
+import io.swagger.annotations.Api;
 import koreatech.in.service.SlackBotService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.inject.Inject;
 import java.util.Map;
 
+@Api(tags = "Slack Bot", description = "슬랙 봇")
 @ApiIgnore
 @Controller
 public class SlackBotController {
