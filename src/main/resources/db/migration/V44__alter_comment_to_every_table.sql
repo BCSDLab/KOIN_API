@@ -365,7 +365,7 @@ ALTER TABLE `koin`.`event_articles_view_logs`
 ALTER TABLE `koin`.`event_articles`
     CHANGE COLUMN `id` `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'event articles 고유 id' ,
     CHANGE COLUMN `shop_id` `shop_id` INT UNSIGNED NOT NULL COMMENT 'Shop(가게) 고유 id' ,
-    CHANGE COLUMN `title` `title` VARCHAR(2552) NOT NULL COMMENT '제목' ,
+    CHANGE COLUMN `title` `title` VARCHAR(255) NOT NULL COMMENT '제목' ,
     CHANGE COLUMN `event_title` `event_title` VARCHAR(50) NOT NULL COMMENT '홍보 문구' ,
     CHANGE COLUMN `content` `content` TEXT NOT NULL COMMENT '내용' ,
     CHANGE COLUMN `user_id` `user_id` INT NOT NULL COMMENT 'user(작성자) 고유 id' ,
