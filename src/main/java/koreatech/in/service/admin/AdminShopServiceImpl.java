@@ -320,7 +320,7 @@ public class AdminShopServiceImpl implements AdminShopService {
 
     @Override
     public void undeleteOfShop(Integer shopId) {
-        Shop shop = getShopById(shopId);
+        Shop shop = getDeletedShopById(shopId);
 
         if (!shop.isDeleted()) {
             throw new BaseException(SHOP_NOT_DELETED);
@@ -624,6 +624,11 @@ public class AdminShopServiceImpl implements AdminShopService {
 
     private Shop getShopById(Integer id) {
         return Optional.ofNullable(adminShopMapper.getShopById(id))
+                .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
+    }
+
+    private Shop getDeletedShopById(Integer id) {
+        return Optional.ofNullable(adminShopMapper.getDeletedShopById(id))
                 .orElseThrow(() -> new BaseException(SHOP_NOT_FOUND));
     }
 
