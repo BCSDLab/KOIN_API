@@ -1,0 +1,29 @@
+<configuration>
+    <property name="LOG_PATH_NAME" value="${user.home}/http-access.log"/>
+    <property name="HTTP_PATTERN" value="%n######## INFO ########%n- time: %t{yyyy-MM-dd HH:mm:ss}%n- summary: %a\t%r\t%s%n%n######## HTTP REQUEST ########%n%header{Referer}\t%header{User-Agent}\t%D\t%I%n%fullRequest%n######## HTTP RESPONSE ########%n%fullResponse%n--------%n"/>
+
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH_NAME}/access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH_NAME}/access.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${HTTP_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${HTTP_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework" level="ERROR"/>
+    <logger name="springfox.documentation" level="ERROR"/>
+    <logger name="springfox.documentation.schema.property.bean.BeanModelProperty" level="INFO"/>
+
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="CONSOLE"/>
+</configuration>
