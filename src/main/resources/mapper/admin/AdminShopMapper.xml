@@ -526,7 +526,6 @@
         FROM `koin`.`shops`
         WHERE
             `id` = #{id}
-            AND `is_deleted` =  0
     </select>
 
     <select id="getMenuCategoryByShopIdAndName" resultType="koreatech.in.domain.Shop.ShopMenuCategory">
