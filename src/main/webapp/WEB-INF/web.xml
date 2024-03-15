@@ -15,25 +15,7 @@
             classpath*:common/*.xml
         </param-value>
     </context-param>
-    <filter>
-        <filter-name>TeeFilter</filter-name>
-        <filter-class>ch.qos.logback.access.servlet.TeeFilter</filter-class>
-        <init-param>
-            <param-name>excludes</param-name>
-            <param-value>swagger-ui.html</param-value>
-        </init-param>
-    </filter>
 
-    <filter-mapping>
-        <filter-name>TeeFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>TeeFilter</filter-name>
-        <url-pattern>/swagger-ui.html</url-pattern> <!-- Add the URL pattern you want to exclude -->
-        <dispatcher>REQUEST</dispatcher> <!-- Exclude only request type -->
-    </filter-mapping>
     <!-- Creates the Spring Container shared by all Servlets and Filters -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
