@@ -9,11 +9,10 @@ import java.sql.SQLException;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
@@ -154,7 +153,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         validateEmailUniqueness(ownerEmailAddress);
         validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
-        redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
+        // redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
 
@@ -162,7 +161,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         slackNotiSender.noticeRegisterComplete(owner);
 
-        redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
+        // redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }
 
     @Override
@@ -311,7 +310,7 @@ public class OwnerServiceImpl implements OwnerService {
             if (owner.hasRegistrationInformation()) {
                 ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
             }
-        } catch (MySQLIntegrityConstraintViolationException e
+        } catch (DuplicateKeyException e
         ) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         } catch (SQLException e) {
