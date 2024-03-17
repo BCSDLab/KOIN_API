@@ -153,7 +153,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         validateEmailUniqueness(ownerEmailAddress);
         validateCompanyRegistrationNumberUniqueness(owner.getCompany_registration_number());
-        // redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
+        redisOwnerMapper.validateOwner(ownerEmailAddress, ownerAuthPrefix);
 
         encodePassword(owner);
 
@@ -161,7 +161,7 @@ public class OwnerServiceImpl implements OwnerService {
 
         slackNotiSender.noticeRegisterComplete(owner);
 
-        // redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
+        redisOwnerMapper.removeRedisFrom(ownerEmailAddress, ownerAuthPrefix);
     }
 
     @Override
