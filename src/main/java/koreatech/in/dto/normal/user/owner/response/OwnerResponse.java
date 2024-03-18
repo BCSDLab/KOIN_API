@@ -52,7 +52,7 @@ public class OwnerResponse extends UserResponse {
         private Integer id;
 
         @ApiModelProperty(notes = "업로드된 파일 url"
-                , example = "static.koreatech.in/example.png"
+                , example = "https://static.koreatech.in/example.png"
                 , required = true
         )
         private final String fileUrl;
