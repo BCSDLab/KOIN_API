@@ -11,7 +11,7 @@ import lombok.Getter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UploadFileResponse {
     @ApiModelProperty(notes = "업로드된 파일 url",
-            example = "static.koreatech.in/example.png",
+            example = "https://static.koreatech.in/example.png",
             required = true
     )
     private final String fileUrl;

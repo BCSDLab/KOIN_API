@@ -1,6 +1,19 @@
 package koreatech.in.service;
 
+import static koreatech.in.domain.Mail.MailForm.OWNER_FIND_PASSWORD_MAIL_FORM;
+import static koreatech.in.domain.Mail.MailForm.OWNER_REGISTRATION_MAIL_FORM;
+import static koreatech.in.domain.RedisOwnerKeyPrefix.ownerAuthPrefix;
+import static koreatech.in.domain.RedisOwnerKeyPrefix.ownerChangePasswordAuthPrefix;
+
 import java.sql.SQLException;
+
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import koreatech.in.domain.User.EmailAddress;
 import koreatech.in.domain.User.User;
 import koreatech.in.domain.User.owner.CertificationCode;
@@ -26,15 +39,6 @@ import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
 import koreatech.in.util.StringRedisUtilObj;
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import static koreatech.in.domain.Mail.MailForm.*;
-
-import static koreatech.in.domain.RedisOwnerKeyPrefix.*;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
@@ -90,19 +94,22 @@ public class OwnerServiceImpl implements OwnerService {
 
     public void certificateToChangePassword(VerifyCodeRequest verifyCodeRequest) {
         OwnerInCertification ownerInCertification = OwnerConverter.INSTANCE.toOwnerInCertification(verifyCodeRequest);
-        redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(), ownerChangePasswordAuthPrefix);
+        redisOwnerMapper.changeAuthStatus(ownerInCertification, ownerInCertification.getEmail(),
+            ownerChangePasswordAuthPrefix);
     }
 
     public void requestVerificationToChangePassword(VerifyEmailRequest verifyEmailRequest) {
         EmailAddress emailAddress = OwnerConverter.INSTANCE.toEmailAddress(verifyEmailRequest);
         validateEmailFromOwner(emailAddress);
 
-        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress, OWNER_FIND_PASSWORD_MAIL_FORM);
+        CertificationCode certificationCode = mailService.sendMailWithTimes(emailAddress,
+            OWNER_FIND_PASSWORD_MAIL_FORM);
 
         OwnerInVerification ownerInVerification = OwnerInVerification.of(certificationCode, emailAddress);
 
         emailAddress.validateSendable();
-        redisOwnerMapper.putRedisFor(ownerChangePasswordAuthPrefix.getKey(emailAddress.getEmailAddress()), ownerInVerification);
+        redisOwnerMapper.putRedisFor(ownerChangePasswordAuthPrefix.getKey(emailAddress.getEmailAddress()),
+            ownerInVerification);
 
         slackNotiSender.noticeEmailVerification(ownerInVerification);
     }
@@ -112,7 +119,7 @@ public class OwnerServiceImpl implements OwnerService {
         if (user == null || user.isStudent()) {
             throw new BaseException(ExceptionInformation.NOT_EXIST_EMAIL);
         }
-        return (Owner) user;
+        return (Owner)user;
     }
 
     @Override
@@ -224,7 +231,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private OwnerAttachments updateAttachment(OwnerAttachments ownerAttachments,
-                                              OwnerAttachments ownerAttachmentsInDB) {
+        OwnerAttachments ownerAttachmentsInDB) {
         OwnerAttachments result = ownerAttachmentsInDB.intersectionWith(ownerAttachments);
 
         OwnerAttachments toAdd = ownerAttachments.removeDuplicatesFrom(ownerAttachmentsInDB);
@@ -281,7 +288,8 @@ public class OwnerServiceImpl implements OwnerService {
 
     private void putRedisForRequestShop(OwnerShop ownerShop) {
         try {
-            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerShopKeyFor(ownerShop.getOwner_id()), ownerShop);
+            stringRedisUtilObj.setDataAsString(StringRedisUtilObj.makeOwnerShopKeyFor(ownerShop.getOwner_id()),
+                ownerShop);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -302,6 +310,8 @@ public class OwnerServiceImpl implements OwnerService {
             if (owner.hasRegistrationInformation()) {
                 ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
             }
+        } catch (DuplicateKeyException e) {
+            throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

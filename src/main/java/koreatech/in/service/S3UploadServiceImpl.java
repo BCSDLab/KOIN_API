@@ -26,8 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class S3UploadServiceImpl implements UploadService {
 
-    private static final String HTTPS_PROTOCOL = "https://";
-
     private final S3Util s3Util;
     private final String bucketName;
     private final String domainUrlPrefix;
@@ -95,7 +93,7 @@ public class S3UploadServiceImpl implements UploadService {
         PreSignedUrlResult preSignedUrlResult = s3Util.generatePreSignedUrlForPut(bucketName, uploadFileMetaData,
                 uploadFileFullPath.unixValue(), new Date());
 
-        UploadFileLocation uploadFileLocation = UploadFileLocation.of(HTTPS_PROTOCOL + domainUrlPrefix,
+        UploadFileLocation uploadFileLocation = UploadFileLocation.of(domainUrlPrefix,
                 uploadFileFullPath);
         return UploadFileConverter.INSTANCE.toPreSignedUrlResponse(preSignedUrlResult, uploadFileLocation);
     }
