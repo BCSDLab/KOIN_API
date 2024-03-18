@@ -310,8 +310,7 @@ public class OwnerServiceImpl implements OwnerService {
             if (owner.hasRegistrationInformation()) {
                 ownerMapper.insertOwnerAttachments(ownerAttachmentsFillWithOwnerId(owner));
             }
-        } catch (DuplicateKeyException e
-        ) {
+        } catch (DuplicateKeyException e) {
             throw new BaseException(ExceptionInformation.EMAIL_DUPLICATED);
         } catch (SQLException e) {
             throw new RuntimeException(e);
