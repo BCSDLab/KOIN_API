@@ -343,7 +343,7 @@ public class AdminUserController {
             @ApiResponse(code = 409, message = "- 조회한 회원의 신원이 사장님이 아닐 때 (code: 101018) \n" +
                     "- 중복된 닉네임일 때 (code: 101002)", response = ExceptionResponse.class),
             @ApiResponse(code = 422, message = "- 유효한 성별이 아닐 때 (code: 101020) \n" +
-                    "- 유효한 이메일이 아닐 때 (code: 101013) \n" +
+                    "- 유효한 이메일이 아닐 때 (code: 101013) \n"  +
                     "- 유효한 사업자 번호가 아닐 때(code: 101021)", response = ExceptionResponse.class)
     })
     @ParamValid
