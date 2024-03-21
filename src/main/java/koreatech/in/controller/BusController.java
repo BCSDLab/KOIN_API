@@ -6,6 +6,7 @@ import koreatech.in.domain.Bus.BusRemainTime;
 import koreatech.in.domain.Bus.BusTimetable;
 import koreatech.in.domain.Bus.SchoolBusCourse;
 import koreatech.in.domain.Bus.SingleBusTime;
+import koreatech.in.dto.normal.bus.BusTimetableResponse;
 import koreatech.in.service.BusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,14 @@ public class BusController {
                                                      @ApiParam(value = "koreatech, station, terminal", required = true) @RequestParam(value = "arrival") String arrival) {
 
         return new ResponseEntity<>(busService.searchTimetable(date, time, depart, arrival), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/timetable/v2", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<BusTimetableResponse> getTimetableV2(@ApiParam(value = "버스 종류(shuttle, commuting, express)", required = true) @RequestParam(value = "bus_type") String busType,
+        @ApiParam(value = "등/하교(to, from)", required = true) @RequestParam(value = "direction") String direction,
+        @ApiParam(value = "버스 노선 지역") @RequestParam(value = "region", required = false) String region) {
+
+        return new ResponseEntity<>(busService.getTimetableWithUpdatedAt(busType, direction, region), HttpStatus.OK);
     }
 }
