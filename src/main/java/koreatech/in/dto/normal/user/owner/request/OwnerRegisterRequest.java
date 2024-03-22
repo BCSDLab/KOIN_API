@@ -46,10 +46,10 @@ public class OwnerRegisterRequest extends UserRegisterRequest {
     )
     private String companyNumber;
 
-    @Size(min = 3, max = 5, message = "이미지는 사업자등록증, 영업신고증, 통장사본을 포함하여 최소 3개 최대 5개까지 가능합니다.")
+    @Size(min = 1, max = 5, message = "이미지는 사업자등록증, 영업신고증, 통장사본을 포함하여 최소 1개 최대 5개까지 가능합니다.")
     @ApiModelProperty(notes = "첨부 이미지들 \n"
             + "- required = false \n"
-            + "- 이미지는 최소 3개 최대 5개까지 허용됨 \n"
+            + "- 이미지는 최소 1개 최대 5개까지 허용됨 \n"
             + "- 모든 이미지들이 코인 이미지 형식이어야 함 \n"
             , dataType = "[Lkoreatech.in.dto.global.AttachmentUrlRequest;"
             , required = false
