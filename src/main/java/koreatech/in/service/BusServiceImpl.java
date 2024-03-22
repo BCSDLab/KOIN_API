@@ -2,9 +2,15 @@ package koreatech.in.service;
 
 import koreatech.in.domain.Bus.*;
 import koreatech.in.domain.ErrorMessage;
+import koreatech.in.domain.Version.Version;
+import koreatech.in.dto.normal.bus.BusTimetableResponse;
+import koreatech.in.exception.BaseException;
+import koreatech.in.exception.ExceptionInformation;
 import koreatech.in.exception.PreconditionFailedException;
 import koreatech.in.mapstruct.normal.bus.SchoolBusCourseConverter;
 import koreatech.in.repository.BusRepository;
+import koreatech.in.repository.VersionMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -16,12 +22,16 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BusServiceImpl implements BusService {
 
     @Autowired
     private BusRepository busRepository;
+
+    @Autowired
+    private VersionMapper versionMapper;
 
     @Override
     public BusRemainTime getRemainTime(String busType, String depart, String arrival) {
@@ -80,5 +90,22 @@ public class BusServiceImpl implements BusService {
         }
 
         return result;
+    }
+
+    @Override
+    public BusTimetableResponse getTimetableWithUpdatedAt(String busType, String direction, String region) {
+        List<? extends BusTimetable> busTimetables = getTimetable(busType, direction, region);
+
+        if (busType.equalsIgnoreCase("commuting")) {
+            busType = "shuttle";
+        }
+
+        Version version = Optional.ofNullable(versionMapper.getVersion(busType + "_bus_timetable"))
+            .orElseThrow(() -> new BaseException(ExceptionInformation.VERSION_NOT_FOUND));
+
+        return BusTimetableResponse.builder()
+            .busTimetables(busTimetables)
+            .updatedAt(version.getUpdated_at())
+            .build();
     }
 }
