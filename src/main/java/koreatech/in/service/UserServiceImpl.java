@@ -1,21 +1,26 @@
 package koreatech.in.service;
 
-import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
-import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
-import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
-import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
-import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
-import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.velocity.VelocityEngineUtils;
+
 import koreatech.in.domain.Auth.LoginResult;
 import koreatech.in.domain.Auth.RefreshResult;
 import koreatech.in.domain.Auth.RefreshToken;
+import static koreatech.in.domain.DomainToMap.domainToMapWithExcept;
 import koreatech.in.domain.ErrorMessage;
 import koreatech.in.domain.User.AuthResult;
 import koreatech.in.domain.User.AuthToken;
@@ -38,6 +43,12 @@ import koreatech.in.dto.normal.user.student.response.StudentResponse;
 import koreatech.in.exception.BaseException;
 import koreatech.in.exception.ConflictException;
 import koreatech.in.exception.ExceptionInformation;
+import static koreatech.in.exception.ExceptionInformation.FORBIDDEN;
+import static koreatech.in.exception.ExceptionInformation.INQUIRED_USER_NOT_FOUND;
+import static koreatech.in.exception.ExceptionInformation.NICKNAME_DUPLICATE;
+import static koreatech.in.exception.ExceptionInformation.PASSWORD_DIFFERENT;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_AUTHORIZED;
+import static koreatech.in.exception.ExceptionInformation.USER_NOT_FOUND;
 import koreatech.in.exception.ForbiddenException;
 import koreatech.in.mapstruct.UserConverter;
 import koreatech.in.mapstruct.normal.auto.AuthConverter;
@@ -47,19 +58,11 @@ import koreatech.in.repository.user.StudentMapper;
 import koreatech.in.repository.user.UserMapper;
 import koreatech.in.util.SesMailSender;
 import koreatech.in.util.SlackNotiSender;
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 
 @Service("userService")
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
     private static final String CHANGE_PASSWORD_FORM_LOCATION = "mail/change_password_certificate_button.vm";
 
     public static final String MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION = "mail/register_authenticate.vm";
@@ -113,11 +116,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateUser(user); // TODO: (김주원) 유저 신원에 따라 owners 또는 student 테이블 데이터도 update 할것인지 결정
 
         LoginResult loginResult = LoginResult
-                .builder()
-                .accessToken(generateAccessToken(user.getId()))
-                .refreshToken(getRefreshToken(user.getId()))
-                .userType(user.getUser_type().name())
-                .build();
+            .builder()
+            .accessToken(generateAccessToken(user.getId()))
+            .refreshToken(getRefreshToken(user.getId()))
+            .userType(user.getUser_type().name())
+            .build();
 
         return AuthConverter.INSTANCE.toLoginResponse(loginResult);
     }
@@ -144,6 +147,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void checkAuthenticationStatus(User user) {
         if (!user.isAuthenticated()) {
+            if (user.isOwner()) {
+                throw new BaseException(USER_NOT_AUTHORIZED);
+            }
             throw new BaseException(FORBIDDEN);
         }
     }
@@ -237,9 +243,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void validateInUpdate(Student student, Student studentInToken) {
         if (student.getNickname() != null && !student.getNickname().equals(studentInToken.getNickname())) {
-            validateNicknameUniqueness(student,studentInToken.getId());
+            validateNicknameUniqueness(student, studentInToken.getId());
         }
-        if (student.getStudent_number() != null && !student.getStudent_number().equals(studentInToken.getStudent_number())) {
+        if (student.getStudent_number() != null && !student.getStudent_number()
+            .equals(studentInToken.getStudent_number())) {
             validateStudentNumber(student);
         }
         if (student.getMajor() != null && !student.getMajor().equals(studentInToken.getMajor())) {
@@ -398,19 +405,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private RefreshResult makeRefreshResult(Integer userId) {
         return RefreshResult.builder()
-                .accessToken(generateAccessToken(userId))
-                .refreshToken(generateRefreshToken(userId))
-                .build();
+            .accessToken(generateAccessToken(userId))
+            .refreshToken(generateRefreshToken(userId))
+            .build();
     }
 
     private User getUserByEmail(String email) {
         return Optional.ofNullable(userMapper.getUserByEmail(email))
-                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private User getUserById(int id) {
         return Optional.ofNullable(userMapper.getUserById(id))
-                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+            .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
     }
 
     private void validateInRegister(Student student) {
@@ -429,18 +436,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void validateNicknameUniqueness(Student student) {
         Optional.ofNullable(student.getNickname())
-                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
-                .ifPresent(nickname -> {
-                    throw new BaseException(NICKNAME_DUPLICATE);
-                });
+            .filter(nickname -> userMapper.getNicknameUsedCount(nickname, student.getId()) > 0)
+            .ifPresent(nickname -> {
+                throw new BaseException(NICKNAME_DUPLICATE);
+            });
     }
+
     private void validateNicknameUniqueness(Student student, Integer userId) {
 
         Optional.ofNullable(student.getNickname())
-                .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
-                .ifPresent(nickname -> {
-                    throw new BaseException(NICKNAME_DUPLICATE);
-                });
+            .filter(nickname -> userMapper.getNicknameUsedCount(nickname, userId) > 0)
+            .ifPresent(nickname -> {
+                throw new BaseException(NICKNAME_DUPLICATE);
+            });
     }
 
     private void validateMajor(Student student) {
@@ -465,15 +473,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         emailAddress.validateSendable();
 
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
-                StandardCharsets.UTF_8.name(),
-                makeModelFor(authToken, contextPath));
+            MAIL_REGISTER_AUTHENTICATE_FORM_LOCATION,
+            StandardCharsets.UTF_8.name(),
+            makeModelFor(authToken, contextPath));
 
         sesMailSender.sendMail(
-                SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
-                emailAddress.getEmailAddress(),
-                SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
-                text);
+            SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS,
+            emailAddress.getEmailAddress(),
+            SesMailSender.STUDENT_EMAIL_AUTHENTICATION_SUBJECT,
+            text);
     }
 
     private static Map<String, Object> makeModelFor(String authToken, String contextPath) {
@@ -497,9 +505,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         model.put("resetToken", resetToken);
         model.put(CONTEXT_PATH, contextPath);
 
-        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION, StandardCharsets.UTF_8.name(), model);
+        String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, CHANGE_PASSWORD_FORM_LOCATION,
+            StandardCharsets.UTF_8.name(), model);
 
-        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT, text);
+        sesMailSender.sendMail(SesMailSender.COMPANY_NO_REPLY_EMAIL_ADDRESS, email, SesMailSender.FIND_PASSWORD_SUBJECT,
+            text);
     }
 
     private void validateEmailUniqueness(EmailAddress emailAddress) {
