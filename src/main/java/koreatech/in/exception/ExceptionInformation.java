@@ -13,6 +13,7 @@ public enum ExceptionInformation {
     PAGE_NOT_FOUND("유효하지 않은 페이지입니다.", 100002, HttpStatus.NOT_FOUND),
     FORBIDDEN("권한이 없습니다.", 100003, HttpStatus.FORBIDDEN),
     TOKEN_EXPIRED("토큰의 유효시간이 만료되었습니다. 다시 로그인해주세요.", 100004, HttpStatus.UNAUTHORIZED),
+    USER_NOT_AUTHORIZED("가입이 승인되지 않았습니다.", 100005, HttpStatus.FORBIDDEN),
 //    ACCESS_TOKEN_CHANGED("토큰이 변경되었습니다. 다시 로그인해주세요.", 100005, HttpStatus.UNAUTHORIZED),
 
     // ======= 코인 회원 (학생, 사장님) =======
