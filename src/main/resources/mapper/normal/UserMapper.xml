@@ -338,7 +338,7 @@
             WHERE `user_id` = #{user.id};
 
             DELETE
-            FROM `koin`.`owner_shop_attachment`
+            FROM `koin`.`owner_attachments`
             WHERE `owner_id` = #{user.id};
         </if>
 
