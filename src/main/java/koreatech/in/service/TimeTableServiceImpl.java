@@ -82,8 +82,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         Map<String, Object> retMap = new HashMap<String, Object>() {{
             put("timetable", timetables);
             put("semester", semester);
-            put("이번학기학점", currentGrades);
-            put("전체학기학점", calculateTotalGrades(user.getId()));
+            put("grades", currentGrades);
+            put("totalGrades", calculateTotalGrades(user.getId()));
         }};
 
         return retMap;
@@ -238,7 +238,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         }};
     }
 
-    private int calculateTotalGrades(int userId){
+    private int calculateTotalGrades(int userId) {
         int totalGrades = 0;
         List<Semester> semesters = timeTableMapper.getSemesterList();
 
