@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service("timeTableService")
@@ -74,9 +75,15 @@ public class TimeTableServiceImpl implements TimeTableService {
             timetables.add(map);
         }
 
+        int currentGrades = timeTableList.stream()
+            .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+            .sum();
+
         Map<String, Object> retMap = new HashMap<String, Object>() {{
             put("timetable", timetables);
             put("semester", semester);
+            put("grades", currentGrades);
+            put("total_grades", calculateTotalGrades(user.getId()));
         }};
 
         return retMap;
@@ -118,9 +125,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         for(JsonElement jsonElement: jsonArray) {
             jsonObject = jsonElement.getAsJsonObject();
             if (!jsonObject.has("class_title") || jsonObject.get("class_title").getAsString().equals("")
-                    || !jsonObject.has("class_time")
-                    || !jsonObject.has("grades")) {
-//                    || new Gson().fromJson(jsonObject.get("class_time"), Integer[].class).length < 1
+                || !jsonObject.has("class_time")
+                || !jsonObject.has("grades")) {
+                //                    || new Gson().fromJson(jsonObject.get("class_time"), Integer[].class).length < 1
                 throw new PreconditionFailedException(new ErrorMessage("Required value unsatisfied.", 0));
             }
 
@@ -169,9 +176,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         for(JsonElement jsonElement: jsonArray) {
             jsonObject = jsonElement.getAsJsonObject();
             if (!jsonObject.has("id") || !jsonObject.has("class_title") || jsonObject.get("class_title").getAsString().equals("")
-                    || !jsonObject.has("class_time")
-//                    || jsonObject.getAsJsonArray("class_time").size() < 1
-                    || !jsonObject.has("grades")) {
+                || !jsonObject.has("class_time")
+                //                    || jsonObject.getAsJsonArray("class_time").size() < 1
+                || !jsonObject.has("grades")) {
                 throw new PreconditionFailedException(new ErrorMessage("Required value unsatisfied.", 0));
             }
 
@@ -231,5 +238,17 @@ public class TimeTableServiceImpl implements TimeTableService {
         }};
     }
 
+    private int calculateTotalGrades(int userId) {
+        int totalGrades = 0;
+        List<Semester> semesters = timeTableMapper.getSemesterList();
 
+        for(Semester semester : semesters){
+            totalGrades += timeTableMapper.getTimeTableList(userId, semester.getId()).stream()
+                .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+                .sum();
+        }
+
+        return totalGrades;
+    }
 }
+
