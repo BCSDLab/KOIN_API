@@ -83,7 +83,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             put("timetable", timetables);
             put("semester", semester);
             put("grades", currentGrades);
-            put("totalGrades", calculateTotalGrades(user.getId()));
+            put("total_grades", calculateTotalGrades(user.getId()));
         }};
 
         return retMap;
